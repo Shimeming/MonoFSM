@@ -49,6 +49,11 @@ namespace Auto_Attribute.Runtime
 
         public int SaveFieldsToCache(MonoBehaviour targetMb)
         {
+            if(targetMb == null)
+            {
+                Debug.LogError("TargetMb is null");
+                return 0;
+            }
             TargetMb = targetMb;
             TargetMbName = targetMb.name;
             // Debug.Log("SaveFieldsToCache:" + targetMb.name, TargetMb);
