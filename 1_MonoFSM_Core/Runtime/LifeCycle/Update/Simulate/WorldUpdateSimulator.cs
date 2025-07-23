@@ -70,8 +70,8 @@ namespace MonoFSM.Core.Simulate
         //FIXME: 在這裡註冊好怪
         public void RegisterMonoObject(MonoPoolObj target)
         {
-            _monoObjectSet.Add(target);
-            target.WorldUpdateSimulator = this;
+            if(_monoObjectSet.Add(target))
+                target.WorldUpdateSimulator = this;
         }
 
         public void UnregisterMonoObject(MonoPoolObj target)
@@ -84,7 +84,7 @@ namespace MonoFSM.Core.Simulate
         {
             //這個是用來做初始化的？
             foreach (var monoObject in _monoObjectSet) monoObject.SceneAwake(this);
-            // Debug.Log($"MonoPoolObj {monoObject.name} has entered scene awake.");
+            Debug.Log($"WorldUpdateSimulator SceneAwake called with {_monoObjectSet.Count} MonoPoolObjs.", this);
         }
 
         private void SceneStart()
@@ -93,9 +93,10 @@ namespace MonoFSM.Core.Simulate
         }
 
         //從player進入？
-        public void ResetLevel()
+        public void ResetLevelRestore()
         {
             foreach (var mono in _monoObjectSet) mono.ResetStateRestore();
+            Debug.Log($"WorldUpdateSimulator ResetStateRestore called with {_monoObjectSet.Count} MonoPoolObjs.", this);
         }
 
         public void ResetLevelStart()
@@ -109,7 +110,7 @@ namespace MonoFSM.Core.Simulate
             IsReady = true;
             SceneAwake();
             SceneStart();
-            ResetLevel();
+            ResetLevelRestore();
             ResetLevelStart();
         }
 
@@ -125,6 +126,7 @@ namespace MonoFSM.Core.Simulate
         // [PreviewInInspector] private IUpdateSimulate[] PreviewSimulators => _simulators.ToArray();
         [PreviewInInspector] private MonoPoolObj[] PreviewMonoObjects => _monoObjectSet.ToArray();
 #endif
+        [ShowInInspector]
         public bool IsReady { get; private set; } = false;
 
 
@@ -183,7 +185,7 @@ namespace MonoFSM.Core.Simulate
                 else
                     foreach (var simulator in simulators)
                         //這樣就可以reset了
-                        simulator.ResetLevel();
+                        simulator.ResetLevelRestore();
             }
             else
             {
@@ -191,5 +193,9 @@ namespace MonoFSM.Core.Simulate
             }
         }
 #endif
+        public void Render(float runnerLocalRenderTime)
+        {
+            // throw new System.NotImplementedException();
+        }
     }
 }

@@ -498,10 +498,14 @@ public class
         _onChangeAction?.Invoke();
         // listenerDict?.OnValueChange(value);
     }
-
+    
+    [InfoBox("Init後才可以使用，否則會報錯", InfoMessageType.Warning,"@!_isInit")]
+    [ShowInInspector]
+    bool _isInit = false;
 
     public void Init(TestMode mode, Object _owner) //這已經是reset了..
     {
+        _isInit = true;
         owner = _owner;
         _modifiers.Clear();
 

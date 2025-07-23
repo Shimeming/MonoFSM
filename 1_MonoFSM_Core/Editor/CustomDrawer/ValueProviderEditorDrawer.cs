@@ -17,8 +17,8 @@ namespace MonoFSM.Core.Editor
     /// 當UseSimplePathEditor為true時，顯示A.B.C風格的編輯介面
     /// </summary>
     [DrawerPriority(2, 0, 0)]
-    [CustomEditor(typeof(PropertyOfTypeProvider), true)]
-    public class SimpleFieldPathEditorDrawer : BasePathEditorDrawer<PropertyOfTypeProvider>
+    [CustomEditor(typeof(ValueProvider), true)]
+    public class ValueProviderEditorDrawer : BasePathEditorDrawer<ValueProvider>
     {
         // protected override bool CanDrawValueProperty(InspectorProperty property)
         // {
@@ -88,10 +88,11 @@ namespace MonoFSM.Core.Editor
         // }
         protected override void DrawTree()
         {
+            
             // public override void OnInspectorGUI()
             // {
             // base.OnInspectorGUI();
-            var target = (PropertyOfTypeProvider)serializedObject.targetObject;
+            var target = (ValueProvider)serializedObject.targetObject;
             if (target == null)
             {
                 EditorGUILayout.HelpBox("目標物件為空，無法繪製編輯器。", MessageType.Warning);
@@ -99,12 +100,12 @@ namespace MonoFSM.Core.Editor
             }
 
             // 如果是 ValueRef 類型，讓其他 drawer 處理
-            if (target is ValueRef)
-            {
-                // Debug.Log("SimpleFieldPathEditorDrawer: ValueRef detected, delegating to next drawer.");
-                // CallNextDrawer();
-                return;
-            }
+            // if (target is ValueRef)
+            // {
+            //     // Debug.Log("SimpleFieldPathEditorDrawer: ValueRef detected, delegating to next drawer.");
+            //     // CallNextDrawer();
+            //     return;
+            // }
 
             SirenixEditorGUI.BeginBox();
 
@@ -132,7 +133,7 @@ namespace MonoFSM.Core.Editor
         /// <summary>
         /// 繪製簡化編輯器（包含varTag和fieldPath）
         /// </summary>
-        private void DrawSimplifiedEditor(PropertyOfTypeProvider target)
+        private void DrawSimplifiedEditor(ValueProvider target)
         {
             // 顯示Root Object資訊
             DrawRootObjectInfo(target);
@@ -153,11 +154,12 @@ namespace MonoFSM.Core.Editor
         /// <summary>
         /// 繪製varTag選擇器
         /// </summary>
-        private void DrawVarTagSelector(PropertyOfTypeProvider target)
+        private void DrawVarTagSelector(ValueProvider target)
         {
+            
             EditorGUILayout.LabelField("變數標籤選擇", EditorStyles.boldLabel);
 
-            var currentVarTag = GetVarTag(target);
+            var currentVarTag = target.varTag;
             var displayText = currentVarTag != null ? currentVarTag.name : "-- 選擇變數 --";
 
             var selectorRect = EditorGUILayout.GetControlRect();
@@ -172,6 +174,10 @@ namespace MonoFSM.Core.Editor
                     normal = { textColor = new Color(0.2f, 0.2f, 0.7f) }, // 藍色文字
                     fontStyle = FontStyle.Italic
                 };
+                EditorGUI.BeginDisabledGroup(true);
+                SirenixEditorFields.UnityObjectField(target.VarRaw, typeof(AbstractMonoVariable), true,
+                    GUILayout.Height(20));
+                EditorGUI.EndDisabledGroup();
                 EditorGUILayout.LabelField($"變數型別: {currentVarTag.ValueType?.Name ?? "未知"}", style);
             }
         }

@@ -14,22 +14,6 @@ namespace MonoFSM.Core.DataProvider
     public class ValueProvider : AbstractVariableProviderRef, IValueProvider
     {
         //FIXME: 這裡自帶 field entry就可以找到任何東西了？
-
-        #region Local Variable Reference
-
-        // [OnValueChanged(nameof(OnAssignDirectVar))]
-        // [PropertyOrder(-1)]
-        // [DropDownRef] //FIXME: 有tag的話就不需要 Required 了?
-        // [SerializeField]
-        // private AbstractMonoVariable _monoVariable;
-
-        // private void OnAssignDirectVar()
-        // {
-        //     if (_monoVariable != null) _varTag = _monoVariable._varTag;
-        // }
-
-        #endregion
-
         [PropertyOrder(-1)]
         [BoxGroup("varTag")]
         [ShowInInspector]

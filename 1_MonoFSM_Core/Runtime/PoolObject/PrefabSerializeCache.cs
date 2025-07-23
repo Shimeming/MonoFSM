@@ -44,7 +44,7 @@ namespace MonoFSM.Runtime
             }
 
             _monoReferenceCache.RootObj = owner.gameObject;
-            _monoReferenceCache.SaveReferenceCache();
+            // _monoReferenceCache.SaveReferenceCache();
             //prewarm的PoolObject要用這個
         }
 

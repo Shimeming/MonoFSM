@@ -92,10 +92,10 @@ namespace MonoFSM.Core.Editor
                 };
                 EditorGUILayout.LabelField("當前路徑: " + currentPath, style);
             }
-            else
-            {
-                EditorGUILayout.LabelField("尚未設定路徑", EditorStyles.centeredGreyMiniLabel);
-            }
+            // else
+            // {
+            //     EditorGUILayout.LabelField("尚未設定路徑", EditorStyles.centeredGreyMiniLabel);
+            // }
 
             EditorGUILayout.Space(5);
 

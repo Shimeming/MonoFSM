@@ -15,6 +15,7 @@ namespace MonoFSM.Core.DataProvider
     {
         public abstract Type GetObjectType { get; }
         public abstract Type ValueType { get; }
+        [ShowInDebugMode]
         public object ValueRaw => Get<object>();
 
         #region Field Path Support

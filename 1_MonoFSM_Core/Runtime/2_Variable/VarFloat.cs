@@ -1,10 +1,7 @@
-using System;
 using RCGExtension;
 using UnityEngine;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Variable.FieldReference;
-using Sirenix.OdinInspector;
-using UnityEngine.Serialization;
 
 //CountdownTimer...直接掛在這個下面？
 namespace MonoFSM.Variable

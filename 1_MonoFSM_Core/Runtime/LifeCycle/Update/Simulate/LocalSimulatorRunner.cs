@@ -56,6 +56,10 @@ namespace MonoFSM.Core.Simulate
             _world.Simulate(Time.fixedDeltaTime);
         }
         //會需要Update嗎？
+        private void Update()
+        {
+            _world.Render(Time.deltaTime);
+        }
 
         private void LateUpdate()
         {

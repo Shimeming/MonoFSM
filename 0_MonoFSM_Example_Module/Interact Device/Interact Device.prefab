@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6414324647305071552}
   - component: {fileID: 8578873965525991481}
   m_Layer: 0
-  m_Name: '[Action] IsActivate to False'
+  m_Name: '[Action] IsActivate = False'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -90,8 +90,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b799c9a280adf49b2bfa4a32f9ba7eae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IsTransitionCheckNeeded: 0
   _target: {fileID: 2410008931268189656}
+  _conditions: []
+  IsTransitionCheckNeeded: 0
 --- !u!1 &1530410866684613373
 GameObject:
   m_ObjectHideFlags: 0
@@ -235,12 +236,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88d42bb89d3c54ee5bb15d2fd2014077, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stateType: {fileID: 6644112559541729583}
-  statusTimer: 0
-  StateCoolDown: 0
-  StateDuration: 0
-  EnterTimeOffset: 0
-  CanSelfTransition: 0
+  _priority: 0
+  _checkPriorityOnExit: 1
 --- !u!1 &3358860128202184492
 GameObject:
   m_ObjectHideFlags: 0
@@ -518,7 +515,7 @@ GameObject:
   - component: {fileID: 4053177121704147575}
   - component: {fileID: 3708060848483935910}
   m_Layer: 0
-  m_Name: '[Action]  Animator: Activate'
+  m_Name: '[Anim]  Animator: Activate'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -560,6 +557,7 @@ MonoBehaviour:
   IsDontPlayWhenAnimatorDisabled: 0
   doneEventLayerName: 
   doneEventLayer: 0
+  _cachedClipLength: 0.33333334
 --- !u!1 &8008968728715857447
 GameObject:
   m_ObjectHideFlags: 0
@@ -605,8 +603,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b799c9a280adf49b2bfa4a32f9ba7eae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IsTransitionCheckNeeded: 0
   _target: {fileID: 6644112559541729583}
+  _conditions:
+  - {fileID: 367780694643927351}
+  IsTransitionCheckNeeded: 0
 --- !u!1 &8716404993418901154
 GameObject:
   m_ObjectHideFlags: 0
@@ -618,7 +618,7 @@ GameObject:
   - component: {fileID: 139743769981569525}
   - component: {fileID: 2795371232034294926}
   m_Layer: 0
-  m_Name: '[Action] IsActivate to True'
+  m_Name: '[Action] IsActivate = True'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -667,6 +667,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3873472980409057923, guid: 8c846afa9f1484e91865c7708e9c9dc8, type: 3}
       propertyPath: EffectType
+      value: 
+      objectReference: {fileID: 11400000, guid: 2795990079c9849ccb77b99d120be1db, type: 2}
+    - target: {fileID: 3873472980409057923, guid: 8c846afa9f1484e91865c7708e9c9dc8, type: 3}
+      propertyPath: _effectType
       value: 
       objectReference: {fileID: 11400000, guid: 2795990079c9849ccb77b99d120be1db, type: 2}
     - target: {fileID: 5397675003910562071, guid: 8c846afa9f1484e91865c7708e9c9dc8, type: 3}
@@ -750,10 +754,10 @@ Rigidbody:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7836213555039359948}
-  serializedVersion: 4
+  serializedVersion: 5
   m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -896,6 +900,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1973556432026734445, guid: 311a698ff643e467390ea4159efc6054, type: 3}
+      propertyPath: _states.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1973556432026734445, guid: 311a698ff643e467390ea4159efc6054, type: 3}
+      propertyPath: '_states.Array.data[2]'
+      value: 
+      objectReference: {fileID: 6644112559541729583}
     - target: {fileID: 4082089536309548135, guid: 311a698ff643e467390ea4159efc6054, type: 3}
       propertyPath: m_Name
       value: Interact Device
@@ -908,9 +920,13 @@ PrefabInstance:
       propertyPath: m_Name
       value: '[State] idle (DeActivate)'
       objectReference: {fileID: 0}
+    - target: {fileID: 5010657810671805049, guid: 311a698ff643e467390ea4159efc6054, type: 3}
+      propertyPath: _cachedClipLength
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6358055890034547066, guid: 311a698ff643e467390ea4159efc6054, type: 3}
       propertyPath: m_Name
-      value: '[Action]  Animator: Idle'
+      value: '[Anim]  Animator: Idle'
       objectReference: {fileID: 0}
     - target: {fileID: 9020763545861940387, guid: 311a698ff643e467390ea4159efc6054, type: 3}
       propertyPath: m_Name
@@ -937,10 +953,7 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4242940046273425840, guid: 311a698ff643e467390ea4159efc6054, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3441109766166447050}
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5103236229753245273, guid: 311a698ff643e467390ea4159efc6054, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 3823683284534081441}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 311a698ff643e467390ea4159efc6054, type: 3}
 --- !u!4 &1728559823874505106 stripped
 Transform:
@@ -963,26 +976,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88d42bb89d3c54ee5bb15d2fd2014077, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &2588030859201185450 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5103236229753245273, guid: 311a698ff643e467390ea4159efc6054, type: 3}
-  m_PrefabInstance: {fileID: 7293823733896513779}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &3823683284534081441
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2588030859201185450}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0ad50f81b1d25c441943c37a89ba23f6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _Animator: {fileID: 6571688978549176681}
-  _Transitions: {fileID: 0}
-  _ActionOnDisable: 1
 --- !u!4 &2843884492024822921 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4778143190040884346, guid: 311a698ff643e467390ea4159efc6054, type: 3}

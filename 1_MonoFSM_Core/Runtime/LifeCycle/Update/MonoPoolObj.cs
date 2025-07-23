@@ -54,6 +54,7 @@ namespace MonoFSMCore.Runtime.LifeCycle
         //等世界準備好？從 root 拿是不是比較快？
         //FIXME: 多個註冊進入點不好
         //會找不到world很蠢，functional的方式？
+        [InfoBox("WorldUpdateSimulator is required for MonoPoolObj to function properly",InfoMessageType.Error,"@WorldUpdateSimulator == null")]
         [PreviewInDebugMode] public WorldUpdateSimulator WorldUpdateSimulator { get; set; }
         
         public void Despawn()

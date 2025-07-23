@@ -19,7 +19,7 @@ namespace MonoFSM.Variable.Condition
     /// <summary>
     /// 和FloatCompareCondition重複？還是這個要做成簡單版？ simple compare
     /// </summary>
-    public class VarFloatCompareConstCondition : NotifyConditionBehaviour, ITransitionCheckInvoker
+    public class VarFloatCompareConstCondition : AbstractConditionBehaviour, ITransitionCheckInvoker
     {
         public override string Description => _monoVariableFloat != null
             ? name = _monoVariableFloat.name + " " + GetOpString() + " " + targetValue
@@ -77,6 +77,6 @@ namespace MonoFSM.Variable.Condition
             }
         }
 
-        protected override IVariableField listenField => _monoVariableFloat.Field; //=
+        // protected override IVariableField listenField => _monoVariableFloat.Field; //=
     }
 }
