@@ -191,6 +191,7 @@ namespace MonoFSM.Foundation
 
         public Color BackgroundColor => new(1.0f, 0f, 0f, 0.3f);
 
-        [ShowInDebugMode] public bool IsDrawGUIHierarchyBackground => !Application.isPlaying && HasError(); //還是用icon? 
+        [ShowInDebugMode] public bool IsDrawGUIHierarchyBackground => !Application.isPlaying && 
+                                                                      HasError(); //還是用icon? 
     }
 }

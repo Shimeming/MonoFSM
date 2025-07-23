@@ -4,7 +4,7 @@ using MonoFSMCore.Runtime.LifeCycle;
 using UnityEngine;
 
 [Serializable]
-public class PickableData : IItemData
+public class PickableData : IItemData //寫死還是有點不爽？
 {
     public MonoPoolObj EntityPrefab => _entityPrefab;
     [SerializeField] private MonoPoolObj _entityPrefab; //這個是用來生成實體的
