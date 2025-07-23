@@ -137,7 +137,7 @@ namespace MonoFSM.Runtime
         {
             if (_receiverTypeMap.TryGetValue(effectType, out var receiver) == false)
             {
-                Debug.LogError($"Receiver {effectType} not found in {name}", this);
+                Debug.LogError($"Receiver \"{effectType}\" not found in {name}", this);
                 return null;
             }
 
