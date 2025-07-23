@@ -138,11 +138,7 @@ namespace MonoFSM.Core.Simulate
         {
             if (!IsReady)
                 return;
-            // if (_simulators == null || _simulators.Count == 0)
-            // {
-            //     Debug.LogWarning("No simulators found to simulate.");
-            //     return;
-            // }
+         
             _currentUpdatingObjs.Clear();
             _currentUpdatingObjs.AddRange(_monoObjectSet); 
             

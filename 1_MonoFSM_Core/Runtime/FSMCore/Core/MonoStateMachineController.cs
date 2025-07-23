@@ -5,6 +5,7 @@ using UnityEngine.Profiling;
 
 namespace Fusion.Addons.FSM
 {
+    //FIXME: world simulation 就該做掉吧？
     [DisallowMultipleComponent]
     [RequireComponent(typeof(StateMachineLogic))] // Ensure StateMachineLogic is present
     public class MonoStateMachineController : MonoBehaviour, IStateMachineController

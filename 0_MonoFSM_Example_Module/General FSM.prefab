@@ -86,7 +86,7 @@ GameObject:
   - component: {fileID: 4778143190040884346}
   - component: {fileID: 2054098507518886308}
   - component: {fileID: 1973556432026734445}
-  - component: {fileID: 4988702094416698374}
+  - component: {fileID: 6211675861463662160}
   m_Layer: 0
   m_Name: States
   m_TagString: Untagged
@@ -138,7 +138,7 @@ MonoBehaviour:
   _states:
   - {fileID: 4377014297404095105}
   - {fileID: 4920970186908325163}
---- !u!114 &4988702094416698374
+--- !u!114 &6211675861463662160
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -147,7 +147,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2050879134505444286}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2615d364a70f4817830b874e07a6cc81, type: 3}
+  m_Script: {fileID: 11500000, guid: 96444e826a7f14f559a95a5232b7d38b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _enableLogging: 0
