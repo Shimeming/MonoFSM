@@ -1,9 +1,13 @@
 using System;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace MonoFSM.Core.Attributes
 {
     [EditorOnly]
+    [IncludeMyAttributes]
+    [AssetSelector(Paths = "Packages/com.monofsm.core|Assets",FlattenTreeView = true)] //fixme; 動態 path name? 從 ScriptableObjectPathConfig 取得？
+    [ListDrawerSettings(ShowFoldout = false)]
     public class SOConfigAttribute : Attribute
     {
         public string SubFolderPath = "";

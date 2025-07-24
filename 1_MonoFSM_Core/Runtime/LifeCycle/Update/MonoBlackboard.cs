@@ -69,7 +69,7 @@ namespace MonoFSM.Runtime.Variable
         [ShowInInspector]
         [SerializeField]
         [SOConfig("MonoEntityTag")] //可以用一個scriptableObject/preference來改path相對路徑？
-        [ListDrawerSettings(ShowFoldout = true, ShowIndexLabels = true, ListElementLabelName = "name")]
+        // [ListDrawerSettings(ShowFoldout = true, ShowIndexLabels = true, ListElementLabelName = "name")]
         protected List<MonoEntityTag> _descriptableTags = new(); //支援多個 DescriptableTag
 
         public List<MonoEntityTag> DescriptableTags => _descriptableTags;

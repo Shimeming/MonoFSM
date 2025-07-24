@@ -499,13 +499,18 @@ public class
         // listenerDict?.OnValueChange(value);
     }
     
-    [InfoBox("Init後才可以使用，否則會報錯", InfoMessageType.Warning,"@!_isInit")]
+#if UNITY_EDITOR
+    [InfoBox("Init後才可以使用，否則會報錯", InfoMessageType.Warning,nameof(NotInit))]
     [ShowInInspector]
     bool _isInit = false;
+    bool NotInit => !_isInit && Application.isPlaying;
+#endif
 
     public void Init(TestMode mode, Object _owner) //這已經是reset了..
     {
+#if UNITY_EDITOR
         _isInit = true;
+#endif
         owner = _owner;
         _modifiers.Clear();
 

@@ -63,7 +63,7 @@ namespace MonoFSM.Core
             return setting.targetPath;
         }
 
-        public string GlobalFolderRootName;
+        public string GlobalFolderRootName = "10_Scriptables";
         /// <summary>
         /// 取得指定型別的相對路徑（子路徑）
         /// </summary>
