@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
+using UnityEngine.Serialization;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -22,8 +23,101 @@ namespace MonoFSM.Core
         public string targetPath = "Assets";
         
         [LabelText("子路徑")]
-        [InfoBox("相對於目標路徑的子資料夾，如：'Config/ScriptableObjects'")]
         public string subPath = "";
+
+#if UNITY_EDITOR
+        [Button("🎯 定位到此路徑", ButtonSizes.Medium)]
+        [PropertySpace(5)]
+        private void PingPath()
+        {
+            string fullPath = GetFullPath();
+            
+            // 嘗試直接載入資源（適用於Assets和有效的Packages路徑）
+            UnityEngine.Object asset = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(fullPath);
+            if (asset != null)
+            {
+                Debug.Log($"定位到資源: {fullPath}"+asset,asset);
+                // Selection.activeObject = asset;
+                EditorGUIUtility.PingObject(asset);
+                // EditorUtility.FocusProjectWindow();
+                return;
+            }
+            
+            // 如果直接載入失敗，嘗試尋找最接近的父資料夾
+            string pathToCheck = fullPath;
+            while (!string.IsNullOrEmpty(pathToCheck) && pathToCheck != "Assets" && !pathToCheck.StartsWith("Packages/"))
+            {
+                pathToCheck = System.IO.Path.GetDirectoryName(pathToCheck)?.Replace('\\', '/');
+                if (!string.IsNullOrEmpty(pathToCheck))
+                {
+                    asset = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(pathToCheck);
+                    if (asset != null)
+                    {
+                        // Selection.activeObject = asset;
+                        Debug.Log($"定位到路徑: {pathToCheck}");
+                        EditorGUIUtility.PingObject(asset);
+                        // EditorUtility.FocusProjectWindow();
+                        // Debug.Log($"已定位到最接近的路徑: {pathToCheck}");
+                        return;
+                    }
+                }
+            }
+            
+            Debug.LogWarning($"找不到路徑或其父路徑: {fullPath}");
+            
+            // 詢問是否創建資料夾
+            if (EditorUtility.DisplayDialog("路徑不存在", 
+                $"路徑 '{fullPath}' 不存在。\n是否要創建此資料夾？", 
+                "創建", "取消"))
+            {
+                try
+                {
+                    System.IO.Directory.CreateDirectory(fullPath);
+                    AssetDatabase.Refresh();
+                    
+                    // 創建後再次嘗試定位
+                    UnityEngine.Object newAsset = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(fullPath);
+                    if (newAsset != null)
+                    {
+                        EditorGUIUtility.PingObject(newAsset);
+                        Debug.Log($"已創建並定位到路徑: {fullPath}");
+                    }
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogError($"創建路徑失敗: {e.Message}");
+                }
+            }
+        }
+
+
+        private string GetFullPath()
+        {
+            string basePath = targetPath;
+            string relativePath = subPath;
+            
+            // 如果有全域資料夾根名稱，需要加入到相對路徑中
+            var config = SOPathSettingConfig.Instance;
+            if (config != null && !string.IsNullOrEmpty(config._globalFolderRootName))
+            {
+                if (string.IsNullOrEmpty(relativePath))
+                {
+                    relativePath = config._globalFolderRootName;
+                }
+                else
+                {
+                    relativePath = config._globalFolderRootName + "/" + relativePath;
+                }
+            }
+            
+            if (string.IsNullOrEmpty(relativePath))
+            {
+                return basePath;
+            }
+            return System.IO.Path.Combine(basePath, relativePath).Replace('\\', '/');
+        }
+#endif
+        
 
 #if UNITY_EDITOR
         private IEnumerable<string> GetAvailablePaths()
@@ -40,7 +134,7 @@ namespace MonoFSM.Core
     }
 
     [CreateAssetMenu(fileName = "ScriptableObjectPathConfig", menuName = "Config/ScriptableObject Path Config")]
-    public class ScriptableObjectPathConfig : ScriptableObjectSingleton<ScriptableObjectPathConfig>
+    public class SOPathSettingConfig : ScriptableObjectSingleton<SOPathSettingConfig>
     {
         [LabelText("預設路徑配置")]
         [ListDrawerSettings(ShowFoldout = true)]
@@ -63,7 +157,7 @@ namespace MonoFSM.Core
             return setting.targetPath;
         }
 
-        public string GlobalFolderRootName = "10_Scriptables";
+        [FormerlySerializedAs("GlobalFolderRootName")] public string _globalFolderRootName = "10_Scriptables";
         /// <summary>
         /// 取得指定型別的相對路徑（子路徑）
         /// </summary>
@@ -97,13 +191,13 @@ namespace MonoFSM.Core
             }
 
             // 如果 GlobalFolderRootName 存在，將其加到路徑前面
-            if (!string.IsNullOrEmpty(GlobalFolderRootName))
+            if (!string.IsNullOrEmpty(_globalFolderRootName))
             {
                 if (string.IsNullOrEmpty(relativePath))
                 {
-                    return GlobalFolderRootName;
+                    return _globalFolderRootName;
                 }
-                return GlobalFolderRootName + "/" + relativePath;
+                return _globalFolderRootName + "/" + relativePath;
             }
 
             return relativePath;

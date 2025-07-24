@@ -31,7 +31,7 @@ namespace MonoFSM.Core
         /// </summary>
         private ScriptableObject CreateScriptableObjectWithSelectedPath(Type configType, string defaultFileName)
         {
-            var config = ScriptableObjectPathConfig.Instance;
+            var config = SOPathSettingConfig.Instance;
 
             // 使用新的分離式 API
             var basePath = config.GetBasePathForType(configType);
@@ -153,7 +153,7 @@ namespace MonoFSM.Core
         /// </summary>
         private void DrawPathSelector(Type configType)
         {
-            var config = ScriptableObjectPathConfig.Instance;
+            var config = SOPathSettingConfig.Instance;
             var basePath = config.GetBasePathForType(configType);
             // Debug.Log("Current Base Path For Type: " + configType.Name + " is " + basePath);
             var availablePaths = GetAvailablePaths();

@@ -6,6 +6,7 @@ namespace MonoFSM.Core.Attributes
 {
     [EditorOnly]
     [IncludeMyAttributes]
+    //FIXME: asset selector好難用
     [AssetSelector(Paths = "Packages/com.monofsm.core|Assets",FlattenTreeView = true)] //fixme; 動態 path name? 從 ScriptableObjectPathConfig 取得？
     [ListDrawerSettings(ShowFoldout = false)]
     public class SOConfigAttribute : Attribute
