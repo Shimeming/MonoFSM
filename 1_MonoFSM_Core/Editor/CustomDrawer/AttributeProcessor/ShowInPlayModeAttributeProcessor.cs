@@ -28,21 +28,25 @@ namespace MonoFSM.Core.Attributes.Editor
                 return;
             
 
-            if (showInPlayModeAttribute.DebugModeOnly)
+            if (showInPlayModeAttribute._debugModeOnly)
             {
-                // Debug.Log("[ShowInPlayModeAttributeProcessor] DebugModeOnly");
-                if (DebugSetting.IsDebugMode)
-                {
-                    attributes.Add(new ShowInInspectorAttribute());
-                    attributes.Add(new EnableGUIAttribute());
-                    attributes.Remove(member.GetAttribute<DisableIfAttribute>());
-                }
-
-                else
-                {
-                    attributes.Remove(member.GetAttribute<ShowInInspectorAttribute>());
-                    attributes.Remove(member.GetAttribute<EnableGUIAttribute>());
-                }
+                Debug.Log("[ShowInPlayModeAttributeProcessor] DebugModeOnly: " + DebugSetting.IsDebugMode);
+                attributes.Add(new ShowIfAttribute("@DebugSetting.IsDebugMode"));
+                //
+                // // Debug.Log("[ShowInPlayModeAttributeProcessor] DebugModeOnly");
+                // if (DebugSetting.IsDebugMode)
+                // {
+                //     attributes.Add(new ShowInInspectorAttribute());
+                //     attributes.Add(new EnableGUIAttribute());
+                //     
+                //     attributes.Remove(member.GetAttribute<DisableIfAttribute>());
+                // }
+                //
+                // else
+                // {
+                //     attributes.Remove(member.GetAttribute<ShowInInspectorAttribute>());
+                //     attributes.Remove(member.GetAttribute<EnableGUIAttribute>());
+                // }
             }
             else
             {

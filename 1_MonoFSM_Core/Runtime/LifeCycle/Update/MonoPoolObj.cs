@@ -50,12 +50,11 @@ namespace MonoFSMCore.Runtime.LifeCycle
     [DisallowMultipleComponent]
     public sealed class MonoPoolObj : MonoBehaviour, IPrefabSerializeCacheOwner
     {
-        // [Button]
-        //等世界準備好？從 root 拿是不是比較快？
-        //FIXME: 多個註冊進入點不好
-        //會找不到world很蠢，functional的方式？
-        [InfoBox("WorldUpdateSimulator is required for MonoPoolObj to function properly",InfoMessageType.Error,"@WorldUpdateSimulator == null")]
-        [PreviewInDebugMode] public WorldUpdateSimulator WorldUpdateSimulator { get; set; }
+        //寫一個show error的Attribute，然後在這裡用
+        [InfoBox("WorldUpdateSimulator is required for MonoPoolObj to function properly",InfoMessageType.Error,nameof(RuntimeCheckNoWorldUpdateSimulator))]
+        [ShowInDebugMode]
+        public WorldUpdateSimulator WorldUpdateSimulator { get; set; }
+        bool RuntimeCheckNoWorldUpdateSimulator => WorldUpdateSimulator == null && Application.isPlaying;
         
         public void Despawn()
         {

@@ -40,7 +40,10 @@ namespace MonoFSM.Core.Editor
                 {
                     SirenixEditorGUI.ErrorMessageBox("此欄位不是 IValueProvider 類型，無法進行 ValueType 驗證");
                 }
-                // 如果欄位為空，不顯示任何訊息
+                else
+                {
+                    SirenixEditorGUI.InfoMessageBox("此欄位為空，無法進行 ValueType 驗證");
+                }
                 return;
             }
             

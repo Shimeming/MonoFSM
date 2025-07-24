@@ -32,7 +32,7 @@ namespace MonoFSM.Core
             tree.Config.DrawSearchToolbar = true;
 
             // tree.Selection.SupportsMultiSelect = this.supportsMultiSelect;
-            var parentType = _attribute._parentType ?? typeof(IVarBlackboard);
+            var parentType = _attribute._parentType ?? typeof(IDropdownRoot); //FIXME: 不太喜歡...UI也想撈 
             Component[] comps;
             // parentType ??= 
 
@@ -72,8 +72,9 @@ namespace MonoFSM.Core
                 // 排除當前組件本身，避免遞迴引用
                 if (comp == _forComp)
                     continue;
-                    
-                var parent = comp.GetComponentInParent<IVarBlackboard>();
+                   
+                //FIXME: 好亂：應該要和上面邏輯共用？
+                var parent = comp.GetComponentInParent<IDropdownRoot>();
                 if (parent == null)
                 {
                     Debug.LogError("IVariableOwner not found for component " + comp.name, comp);
@@ -83,8 +84,6 @@ namespace MonoFSM.Core
                 var ownerName = parent.name;
                 tree.Add(ownerName + "/" +comp.name+ " (" + comp.GetType().Name+")", comp);
                 // Debug.Log("Add type " + comp.GetType() + " ownerName is " + ownerName);
-                // tree.Add(ownerName + "/" + comp.name, comp);
-                // Debug.Log("Add type " + type);
             }
 
             

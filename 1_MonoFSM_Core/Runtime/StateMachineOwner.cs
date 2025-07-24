@@ -15,11 +15,15 @@ public class CustomSerializableAttribute : PropertyAttribute
 }
 
 //FIXME: 需要這個嗎？
-public interface IVarBlackboard
+public interface IMonoEntity:IDropdownRoot
 {
-    public string name { get; }
     VariableFolder VariableFolder { get; }
     public AbstractMonoVariable GetVar(VariableTag varTag);
+}
+
+public interface IDropdownRoot
+{
+    public string name { get; }
     GameObject gameObject { get; }
 }
 
@@ -34,7 +38,7 @@ public static class StateMachineExtension
             return default;
         }
 
-        var owner = monoBehaviour.GetComponentInParent<IVarBlackboard>(); //被monoDescriptable擋掉了...
+        var owner = monoBehaviour.GetComponentInParent<IMonoEntity>(); //被monoDescriptable擋掉了...
         if (owner == null)
         {
             Debug.LogError("IVariableOwner not found", monoBehaviour);

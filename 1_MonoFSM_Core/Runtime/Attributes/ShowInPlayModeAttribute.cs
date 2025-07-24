@@ -24,12 +24,12 @@ namespace MonoFSM.Core.Attributes
 
         public ShowInPlayModeAttribute(bool debugModeOnly = false)
         {
-            DebugModeOnly = debugModeOnly;
+            _debugModeOnly = debugModeOnly;
         }
 
         //DebugMode下才顯示，需要play才會更新
-        //[]: 切換DebugMode時，要怎麼樣才能強迫跑process?
-        public bool DebugModeOnly = false;
+        //[]: 切換DebugMode時，要怎麼樣才能強迫跑process? 失敗XDD?
+        public bool _debugModeOnly = false;
     }
   
 

@@ -11,7 +11,8 @@ using UnityEngine.Serialization;
 
 namespace MonoFSM.Core.DataProvider
 {
-    public abstract class PropertyOfTypeProvider : AbstractDescriptionBehaviour
+    //FIXME: AbstractValueProvider?
+    public abstract class PropertyOfTypeProvider : AbstractDescriptionBehaviour,IValueProvider
     {
         public abstract Type GetObjectType { get; }
         public abstract Type ValueType { get; }
@@ -136,7 +137,7 @@ namespace MonoFSM.Core.DataProvider
     }
 
     //不一定有var? IVarProvider
-    public abstract class AbstractVariableProviderRef : PropertyOfTypeProvider, IValueProvider
+    public abstract class AbstractVariableProviderRef : PropertyOfTypeProvider
     {
         // public GameFlagBase FinalData => VarRaw?.FinalData;
         //不一定有這個？再切一層？

@@ -13,6 +13,7 @@ public class PickableData : IItemData //寫死還是有點不爽？
     public void Use()
     {
         //?
+        //丟出來？
     }
 
     //FIXME: 抽出去

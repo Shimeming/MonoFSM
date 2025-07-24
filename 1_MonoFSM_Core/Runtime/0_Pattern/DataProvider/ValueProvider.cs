@@ -11,7 +11,7 @@ using UnityEngine;
 namespace MonoFSM.Core.DataProvider
 {
     //用這顆就夠了，其他應該都不需要了？除了literal
-    public class ValueProvider : AbstractVariableProviderRef, IValueProvider
+    public class ValueProvider : AbstractVariableProviderRef
     {
         //FIXME: 這裡自帶 field entry就可以找到任何東西了？
         [PropertyOrder(-1)]

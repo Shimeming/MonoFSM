@@ -7,7 +7,7 @@ using UnityEngine;
 namespace MonoFSM.Core.DataProvider
 {
     
-    public class ValueRef : PropertyOfTypeProvider, IValueProvider
+    public class ValueRef : PropertyOfTypeProvider
     {
         // [ShowDrawerChain]
         [DropDownRef] [SerializeField] private PropertyOfTypeProvider _valueProvider;

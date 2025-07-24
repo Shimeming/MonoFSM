@@ -64,7 +64,7 @@ public class DropDownRefAttributeDrawer : OdinAttributeDrawer<DropDownRefAttribu
     {
         //直接用property原本宣告的type來做filter
         //fixme: 可以filter某一部分？
-        var filterType = Property.ValueEntry.BaseValueType; //FIXME: Base Type?
+        var filterType = Property.ValueEntry.BaseValueType;
         if (getterDynamicType() != null)
         {
             // Debug.Log("getterDynamicType():" + getterDynamicType());
@@ -89,9 +89,6 @@ public class DropDownRefAttributeDrawer : OdinAttributeDrawer<DropDownRefAttribu
             
             selector.SelectionConfirmed += col =>
             {
-                // Debug.Log(col);
-
-                // var type = col.FirstOrDefault();
                 Property.ValueEntry.WeakSmartValue = col.FirstOrDefault();
             };
 
