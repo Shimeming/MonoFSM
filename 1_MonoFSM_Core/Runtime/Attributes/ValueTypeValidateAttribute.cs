@@ -47,7 +47,7 @@ namespace MonoFSM.Runtime.Attributes
         /// <summary>
         /// 是否在驗證成功時顯示提示（預設為 false）
         /// </summary>
-        public bool ShowSuccessMessage { get; set; } = false;
+        public bool ShowSuccessMessage { get; set; } = true;
 
         /// <summary>
         /// 自訂錯誤訊息

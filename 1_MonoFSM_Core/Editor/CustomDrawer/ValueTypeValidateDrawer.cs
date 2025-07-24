@@ -17,7 +17,8 @@ namespace MonoFSM.Core.Editor
     /// 用於檢測和顯示 IValueProvider 的 ValueType 驗證結果
     /// </summary>
     [UsedImplicitly]
-    [DrawerPriority(0, 1, 0)]
+    [DrawerPriority(1, 1, 0)] //沒搞懂XDD
+    // [DrawerPriority(0.0, 2.0, 0.25)]
     public class ValueTypeValidateDrawer : OdinAttributeDrawer<ValueTypeValidateAttribute>
     {
         protected override bool CanDrawAttributeProperty(InspectorProperty property)

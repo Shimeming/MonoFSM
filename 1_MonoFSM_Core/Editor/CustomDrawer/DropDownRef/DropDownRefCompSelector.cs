@@ -10,6 +10,7 @@ namespace MonoFSM.Core
     using Sirenix.Utilities.Editor;
     using UnityEngine;
 
+    //FIXME: 如果也有帶ValueTypeValidate，可以過濾更細
     public class DropDownRefCompSelector : OdinSelector<Component>
     {
         private Type _filterType;
