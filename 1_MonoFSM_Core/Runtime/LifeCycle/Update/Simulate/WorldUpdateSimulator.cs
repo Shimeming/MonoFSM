@@ -51,6 +51,10 @@ namespace MonoFSM.Core.Simulate
             Debug.Log($"AutoReferenceAllChildren: {result.name}", result);
             AutoAttributeManager.AutoReferenceAllChildren(result.gameObject);
 #endif
+            //重置狀態
+            result.ResetStateRestore();
+            result.ResetStart();
+            
             RegisterMonoObject(result);
             //poolObject spawn lifecycle? 可以整進去？
             result.SpawnFromPool();
@@ -62,6 +66,7 @@ namespace MonoFSM.Core.Simulate
             if (obj == null) return;
             // Unregister the object from the world update simulator
             UnregisterMonoObject(obj);
+            obj.ResetStateRestore();
             // Return the object to the pool
             //FIXME: 要先做事？OnReturnPool? OnDespawn
             _spawnProcessor.Despawn(obj); //看實作

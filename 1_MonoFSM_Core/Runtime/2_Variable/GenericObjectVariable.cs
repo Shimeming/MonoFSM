@@ -15,7 +15,7 @@ namespace MonoFSM.Variable
     public abstract class AbstractObjectVariable : AbstractMonoVariable
     {
         //FIXME: 這個是多的嗎？
-        [PreviewInInspector] public abstract Object RawValue { get; set; } //不一定有Object可以returnㄅ？
+        [PreviewInDebugMode] public abstract Object RawValue { get; set; } //不一定有Object可以returnㄅ？
         public abstract void ClearValue();
         // protected void SetValueExecution();
     }
@@ -70,7 +70,7 @@ namespace MonoFSM.Variable
         }
         // _siblingDefaultValue != null ? _siblingDefaultValue : _defaultValue;
 
-        [PreviewInInspector]
+        [PreviewInDebugMode]
         public TValueType Value
         {
             get
@@ -102,9 +102,9 @@ namespace MonoFSM.Variable
         // [InlineEditor]
         private TValueType _currentValue; //要用ObjectField? 這樣才統一？
 
-        [PreviewInInspector] private TValueType _lastValue;
+        [PreviewInDebugMode] private TValueType _lastValue;
 
-        [PreviewInInspector] private TValueType _lastNonNullValue;
+        [PreviewInDebugMode] private TValueType _lastNonNullValue;
 
         public void CommitValue()
         {

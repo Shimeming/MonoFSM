@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-
+using MonoDebugSetting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Profiling;
@@ -265,10 +265,10 @@ public class
     [FormerlySerializedAs("DefaultValue")] public T ProductionValue;
 
     // public T PlayTestValue;
-    [HideInInspector]
+    // [HideInInspector]
     [FormerlySerializedAs("TestValue")]
     // [JsonIgnore]
-    public T DevValue;
+    public T DevValue; //DebugValue?
 
     // [Header("Current State")]
 
@@ -513,13 +513,15 @@ public class
 #endif
         owner = _owner;
         _modifiers.Clear();
-
-        _currentValue = mode switch
-        {
-            TestMode.EditorDevelopment => DevValue,
-            TestMode.Production => ProductionValue,
-            _ => _currentValue
-        };
+        
+        // _currentValue = DebugSetting.IsDebugMode switch
+        // {
+        //     true => DevValue,
+        //     false => ProductionValue,
+        //     // TestMode.EditorDevelopment => DevValue,
+        //     // TestMode.Production => ProductionValue,
+        //     // _ => _currentValue
+        // };
         _lastValue = _currentValue;
         lastMode = mode;
         //ClearListener();
@@ -566,6 +568,7 @@ public class
         if (owner == null)
             Debug.LogError("PLZ FIX ME, Assign Owner for function block!!" + owner);
 
+        
 
         //[]: 有singleton就不用lastMode了吧
         //FIXME: 這個整個都住解掉了？
@@ -577,7 +580,8 @@ public class
         //     // Debug.Log("FlagField: CurrentValue" + CurrentValue);
         // }
         // else
-        CurrentValue = ProductionValue;
+        _currentValue = DebugSetting.IsDebugMode ? DevValue : ProductionValue;
+        Debug.Log("FlagField Init: " + _currentValue + " Mode: " + DebugSetting.IsDebugMode, owner);
         //沒有register耶？
     }
 

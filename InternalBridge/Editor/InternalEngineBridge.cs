@@ -130,7 +130,7 @@ namespace MonoFSM.InternalBridge
             if (SceneHierarchyWindow.lastInteractedHierarchyWindow &&
                 SceneHierarchyWindow.lastInteractedHierarchyWindow.IsSelectedTab())
             {
-                Debug.Log("Repainting Scene Hierarchy Window");
+                // Debug.Log("Repainting Scene Hierarchy Window");
                 //FIXME: repaint this frame?
                 EditorApplication.RepaintHierarchyWindow();
             }

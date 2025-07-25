@@ -54,7 +54,7 @@ namespace MonoFSM.Condition
             if (_isRegistered == false)
                 return;
             _isRegistered = false;
-            listenField.RemoveListener(OnConditionChanged, this);
+            listenField?.RemoveListener(OnConditionChanged, this);
         }
 
 

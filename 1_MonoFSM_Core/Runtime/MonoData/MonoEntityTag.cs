@@ -54,7 +54,7 @@ namespace MonoFSM.Runtime.Mono
         }
 
         [ValueDropdown(nameof(GetDescriptableData))]
-        public DescriptableData SamepleData;
+        public DescriptableData SamepleData; //FIXME: 需要嗎？
 #endif
 
 
