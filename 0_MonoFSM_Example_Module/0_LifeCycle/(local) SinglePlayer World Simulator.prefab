@@ -59,6 +59,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cc0c72c79284c11a80483f139422842, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _allSceneMonoPoolObjs: []
 --- !u!114 &6747280049364880192
 MonoBehaviour:
   m_ObjectHideFlags: 0
