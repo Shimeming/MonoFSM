@@ -31,6 +31,9 @@ namespace MonoFSMCore.Runtime.LifeCycle
             }
         }
 
+        //FIXME: Editor拿不到
+        [Required]
+        [PreviewInInspector]
         public MonoEntityTag entityTag => _monoObjectProvider?.Get()?.GetComponent<MonoEntityTag>();
 
         public T GetComponentOfOwner<T>()

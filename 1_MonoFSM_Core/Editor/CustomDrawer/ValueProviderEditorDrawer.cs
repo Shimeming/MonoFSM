@@ -149,6 +149,11 @@ namespace MonoFSM.Core.Editor
 
             // 繪製fieldPath編輯器
             DrawSimplifiedPathEditor(target, target.GetObjectType);
+            
+            EditorGUILayout.Space(5);
+            
+            // 顯示最終值型別資訊
+            DrawFinalValueTypeInfo(target);
         }
 
         /// <summary>
@@ -159,6 +164,7 @@ namespace MonoFSM.Core.Editor
             
             EditorGUILayout.LabelField("變數標籤選擇", EditorStyles.boldLabel);
 
+            // 直接使用 ValueProvider 的 varTag 屬性，確保一致性
             var currentVarTag = target.varTag;
             var displayText = currentVarTag != null ? currentVarTag.name : "-- 選擇變數 --";
 
@@ -183,23 +189,36 @@ namespace MonoFSM.Core.Editor
         }
 
         /// <summary>
-        /// 獲取當前的VariableTag
+        /// 獲取當前的VariableTag（使用統一的 varTag 屬性）
         /// </summary>
         private VariableTag GetVarTag(PropertyOfTypeProvider target)
         {
-            var field = target.GetType().GetField("_varTag",
-                BindingFlags.NonPublic | BindingFlags.Instance);
-            return field?.GetValue(target) as VariableTag;
+            // 如果是 ValueProvider，直接使用其 varTag 屬性
+            if (target is ValueProvider valueProvider)
+                return valueProvider.varTag;
+            return null;
+            // 其他類型的 PropertyOfTypeProvider，使用反射
+            // var field = target.GetType().GetField("_varTag",
+            //     BindingFlags.NonPublic | BindingFlags.Instance);
+            // return field?.GetValue(target) as VariableTag;
         }
 
         /// <summary>
-        /// 設定VariableTag
+        /// 設定VariableTag（確保與 ValueProvider 同步）
         /// </summary>
         private void SetVarTag(PropertyOfTypeProvider target, VariableTag varTag)
         {
+            // 直接設定私有欄位，這會影響到 varTag 屬性
             var field = target.GetType().GetField("_varTag",
                 BindingFlags.NonPublic | BindingFlags.Instance);
             field?.SetValue(target, varTag);
+            
+            // 如果是 ValueProvider，確保 DropDownVarTag 屬性也同步
+            if (target is ValueProvider valueProvider)
+            {
+                // DropDownVarTag 的 setter 會設定 _varTag，所以這裡不需要額外處理
+                // 因為我們已經直接設定了 _varTag 欄位
+            }
         }
 
         /// <summary>
@@ -222,9 +241,82 @@ namespace MonoFSM.Core.Editor
                     // 當變數改變時，清空fieldPath（因為型別可能不同）
                     SetPathEntries(target, new List<FieldPathEntry>());
 
+                    // 強制重新繪製，確保UI更新
                     EditorUtility.SetDirty(target);
+                    
+                    // 如果是 ValueProvider，觸發相關事件或更新
+                    if (target is ValueProvider valueProvider)
+                    {
+                        // 強制重新計算 GetObjectType
+                        var newObjectType = valueProvider.GetObjectType;
+                        Debug.Log($"VarTag changed to: {selectedVarTag?.name ?? "null"}, new object type: {newObjectType?.Name ?? "null"}");
+                    }
                 }
             };
+        }
+
+        /// <summary>
+        /// 顯示最終值型別資訊
+        /// </summary>
+        private void DrawFinalValueTypeInfo(ValueProvider target)
+        {
+            EditorGUILayout.LabelField("最終值型別", EditorStyles.boldLabel);
+
+            var valueType = target.ValueType;
+            var pathEntries = GetPathEntries(target);
+            
+            string displayInfo;
+            Color textColor;
+
+            try
+            {
+                if (valueType != null)
+                {
+                    if (pathEntries.Count > 0)
+                    {
+                        // 有欄位路徑時，顯示路徑資訊
+                        var pathString = BuildPathString(pathEntries);
+                        displayInfo = $"路徑結果: {valueType.Name}";
+                        if (!string.IsNullOrEmpty(pathString))
+                        {
+                            displayInfo += $" (來自路徑: {pathString})";
+                        }
+                        textColor = new Color(0.1f, 0.6f, 0.1f); // 綠色
+                    }
+                    else
+                    {
+                        // 沒有欄位路徑時，直接顯示變數型別
+                        var varTag = target.varTag;
+                        if (varTag != null)
+                        {
+                            displayInfo = $"變數值: {valueType.Name} (來自變數: {varTag.name})";
+                        }
+                        else
+                        {
+                            displayInfo = $"實體值: {valueType.Name}";
+                        }
+                        textColor = new Color(0.2f, 0.2f, 0.7f); // 藍色
+                    }
+                }
+                else
+                {
+                    displayInfo = "無法確定型別";
+                    textColor = Color.red;
+                }
+            }
+            catch (Exception e)
+            {
+                displayInfo = $"型別獲取錯誤: {e.Message}";
+                textColor = Color.red;
+                Debug.LogWarning($"無法獲取ValueType: {e.Message}");
+            }
+
+            var style = new GUIStyle(EditorStyles.helpBox)
+            {
+                normal = { textColor = textColor },
+                fontStyle = FontStyle.Bold
+            };
+            EditorGUILayout.LabelField(displayInfo, style);
         }
 
 
@@ -251,6 +343,7 @@ namespace MonoFSM.Core.Editor
             // 顯示GetObjectType的型別資訊
             try
             {
+                // Debug.Log($"GetObjectType: {objectType?.Name ?? "null"}");
                 if (objectType != null)
                 {
                     if (HasVarTagField(target))

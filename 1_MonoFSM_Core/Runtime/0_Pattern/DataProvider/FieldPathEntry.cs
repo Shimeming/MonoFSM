@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Utilities;
@@ -80,36 +81,75 @@ namespace MonoFSM.Core.DataProvider
         [PreviewInInspector] public List<Type> _supportedTypes;
 
         /// <summary>
+        ///     統一的成員獲取方法，可用於不同場景
+        /// </summary>
+        public List<string> GetAvailableMembers(Type targetType = null, bool includeFields = false, bool includeNonPublic = false)
+        {
+            var type = targetType ?? parentType;
+            if (type == null) return new List<string>();
+
+            var members = new List<string>();
+            var bindingFlags = BindingFlags.Instance | BindingFlags.Public;
+            if (includeNonPublic)
+                bindingFlags |= BindingFlags.NonPublic;
+
+            // 獲取屬性
+            var properties = type.GetProperties(bindingFlags)
+                .Where(p => p.CanRead && p.GetIndexParameters().Length == 0); // 排除索引器
+
+            foreach (var prop in properties)
+            {
+                if (IsValidMember(prop.PropertyType))
+                    members.Add(prop.Name);
+            }
+
+            // 獲取欄位（如果需要）
+            if (includeFields)
+            {
+                var fields = type.GetFields(bindingFlags);
+                foreach (var field in fields)
+                {
+                    if (IsValidMember(field.FieldType))
+                        members.Add(field.Name);
+                }
+            }
+
+            return members.Distinct().OrderBy(m => m).ToList();
+        }
+
+        /// <summary>
+        ///     檢查成員型別是否有效
+        /// </summary>
+        private bool IsValidMember(Type memberType)
+        {
+            // 如果沒有設定 _supportedTypes，則允許所有型別（包括陣列）
+            if (_supportedTypes == null || _supportedTypes.Count == 0)
+                return true; // 允許所有型別
+
+            // 如果有設定 _supportedTypes，則檢查是否為支援的型別或陣列
+            return memberType.IsArray || _supportedTypes.Contains(memberType);
+        }
+
+        /// <summary>
         ///     動態回傳 parentType 中所有可存取的欄位與屬性名稱
         /// </summary>
         public IEnumerable<ValueDropdownItem<string>> GetFieldOptions()
         {
             var options = new List<ValueDropdownItem<string>>();
             var pType = _serializedType.RestrictType;
-            // Debug.Log("GetFieldOptions parentType:" + pType);
+            
             if (pType != null)
             {
-                // 取得所有 Field
-                // var fields = parentType.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                // foreach (var field in fields)
-                //     options.Add(new ValueDropdownItem<string>(field.Name + ":" + field.FieldType, field.Name));
-                // 取得所有 Property（可讀取的）
-                var properties =
-                    pType.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                // 使用統一的成員獲取方法，但保持原有的非公共屬性支援
+                var properties = pType.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                
                 foreach (var prop in properties)
                 {
                     if (!prop.CanRead) continue;
 
                     var propType = prop.PropertyType;
-                    var isSupportedType = _supportedTypes == null ? true : _supportedTypes.Contains(propType);
-
-                    // || typeof(DescriptableData).IsAssignableFrom(propType)
-                    //propType.IsSerializable ||
-                    if (propType.IsArray || //好像管nested class就好了？還是array?
-                        isSupportedType)
+                    if (IsValidMember(propType))
                     {
-                        // Debug.Log("prop.Name:" + prop.Name + "propType:" + propType + "propType.IsSerializable" +
-                        //           propType.IsSerializable);
                         options.Add(new ValueDropdownItem<string>($"{prop.Name}:{propType}", prop.Name));
                     }
                 }

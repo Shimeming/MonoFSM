@@ -271,12 +271,14 @@ public class
     {
         get
         {
-            if (_dataFunctionSet.TryGetValue(typeof(PickableData), out var dataFunction))
+            if (_dataFunctionSet.TryGetValue(typeof(PickableData), out var dataFunction)) //editor還沒準備好？
                 return ((PickableData)dataFunction).EntityPrefab;
             // Debug.LogError("No PickableData found in " + name, this);
             return null;
         }
     } //FIXME: 要弄這個？
+    //bind MonoEntityTag?
+    
     public FlagFieldBool unlocked; //在介面中可以看到的狀態，但可能還沒取得
     public virtual bool IsRevealed => unlocked.CurrentValue;
     [FormerlySerializedAs("aquired")] public FlagFieldBool acquired; //取得

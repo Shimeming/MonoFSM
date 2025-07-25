@@ -48,7 +48,7 @@ namespace MonoFSM.Core.Variable
             // Debug.Log("Setting current index to: " + index + " CurrentObj: " + CurrentObj);
         }
 
-        public T CurrentObj
+        public T CurrentListItem //不是object... current ListItem
         {
             get
             {
@@ -189,7 +189,7 @@ namespace MonoFSM.Core.Variable
             typeof(List<T>); //_activeCollection?.GetType() ?? DetermineRuntimeTypeFromStorage(_storageType);
         public override object objectValue => _activeCollection;
 
-        public override Object CurrentRawObject => CurrentObj as Object;
+        public override Object CurrentRawObject => CurrentListItem as Object;
 
         protected override void SetValueInternal<T1>(T1 value, Object byWho = null)
         {

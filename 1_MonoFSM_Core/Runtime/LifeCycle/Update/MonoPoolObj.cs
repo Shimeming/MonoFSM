@@ -12,6 +12,8 @@ namespace MonoFSMCore.Runtime.LifeCycle
 {
     public interface IMonoObjectProvider : ICompProvider<MonoPoolObj> //FIXME:這個不是很好...trace不到，最好還是都過一層？
     {
+        //FIXME: 需要提供 EntityTag嗎？還是說MonoPoolObj就有EntityTag了？那從 bindPrefab就要有EntityTag
+        
         //這個是給MonoPoolObj用的
         // MonoPoolObj GetMonoObject();
     }

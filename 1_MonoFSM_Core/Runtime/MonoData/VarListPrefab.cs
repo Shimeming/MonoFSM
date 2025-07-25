@@ -9,7 +9,7 @@ namespace MonoFSM.Core.Variable
     {
         public MonoPoolObj Get()
         {
-            return CurrentObj;
+            return CurrentListItem;
         }
     }
 }

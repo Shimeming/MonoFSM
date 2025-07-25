@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using MonoDebugSetting;
 using MonoFSM.Core.DataProvider;
+using MonoFSM.Core.Utilities;
 using MonoFSM.Variable;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
@@ -162,7 +163,7 @@ namespace MonoFSM.Core.Editor
             for (var i = 0; i < maxSegments && i < currentEntries.Count; i++)
             {
                 if (currentType == null) break;
-
+                // Debug.Log("Current Type: " + currentType.FullName);
                 var currentSegment = currentEntries[i];
 
                 // 繪製屬性選擇器
@@ -186,8 +187,10 @@ namespace MonoFSM.Core.Editor
                 var currentPropertyName = currentSegment._propertyName ?? "";
                 var displayText = string.IsNullOrEmpty(currentPropertyName) ? "-- 選擇屬性 --" : currentPropertyName;
                 
-                // 檢查屬性是否存在，如果不存在則顯示錯誤樣式
-                var isPropertyValid = string.IsNullOrEmpty(currentPropertyName) || GetMemberType(currentType, currentPropertyName) != null;
+                // 檢查屬性是否存在，並且使用與FieldPathEntry相同的過濾邏輯
+                var isPropertyValid = string.IsNullOrEmpty(currentPropertyName) || 
+                                    (GetMemberType(currentType, currentPropertyName) != null && 
+                                     GetAvailableMembersForEntry(currentType, currentSegment).Contains(currentPropertyName));
                 var buttonStyle = isPropertyValid ? EditorStyles.popup : new GUIStyle(EditorStyles.popup) { normal = { textColor = Color.red } };
                 
                 if (!isPropertyValid)
@@ -241,22 +244,35 @@ namespace MonoFSM.Core.Editor
             }
 
             // 顯示添加新層級的按鈕
-            if (currentEntries.Count < maxSegments && currentType != null && GetAvailableMembers(currentType).Count > 0)
+            if (currentEntries.Count < maxSegments && currentType != null)
             {
-                EditorGUILayout.BeginHorizontal();
+                // 創建一個臨時的 FieldPathEntry 來檢查可用成員
+                var tempEntry = new FieldPathEntry();
+                tempEntry.SetSerializedType(currentType);
+                // 如果有現有的entries，複製其_supportedTypes設定
+                if (currentEntries.Count > 0)
+                {
+                    tempEntry._supportedTypes = currentEntries[0]._supportedTypes;
+                }
+                
+                var availableMembers = GetAvailableMembersForEntry(currentType, tempEntry);
+                if (availableMembers.Count > 0)
+                {
+                    EditorGUILayout.BeginHorizontal();
 
-                // 新層級的CanBeNull checkbox（預設為false）
-                var newLevelCanBeNullContent = new GUIContent("", "新層級的CanBeNull設定（預設為false）");
-                EditorGUILayout.Toggle(newLevelCanBeNullContent, false, GUILayout.Width(20));
-                EditorGUI.BeginDisabledGroup(true); // 禁用，因為還沒有實際的entry
-                EditorGUILayout.LabelField($"層級 {currentEntries.Count + 1}:", GUILayout.Width(50));
-                EditorGUI.EndDisabledGroup();
+                    // 新層級的CanBeNull checkbox（預設為false）
+                    var newLevelCanBeNullContent = new GUIContent("", "新層級的CanBeNull設定（預設為false）");
+                    EditorGUILayout.Toggle(newLevelCanBeNullContent, false, GUILayout.Width(20));
+                    EditorGUI.BeginDisabledGroup(true); // 禁用，因為還沒有實際的entry
+                    EditorGUILayout.LabelField($"層級 {currentEntries.Count + 1}:", GUILayout.Width(50));
+                    EditorGUI.EndDisabledGroup();
 
-                var addButtonRect = EditorGUILayout.GetControlRect();
-                if (GUI.Button(addButtonRect, "+ 添加屬性", EditorStyles.popup))
-                    ShowPropertySelector(currentType, "", currentEntries.Count, currentEntries, target);
+                    var addButtonRect = EditorGUILayout.GetControlRect();
+                    if (GUI.Button(addButtonRect, "+ 添加屬性", EditorStyles.popup))
+                        ShowPropertySelector(currentType, "", currentEntries.Count, currentEntries, target);
 
-                EditorGUILayout.EndHorizontal();
+                    EditorGUILayout.EndHorizontal();
+                }
             }
 
             return currentEntries; // 返回原始entries，修改會直接反映在原始列表中
@@ -350,7 +366,21 @@ namespace MonoFSM.Core.Editor
         }
 
         /// <summary>
-        /// 獲取型別的可用成員
+        /// 獲取型別的可用成員（使用特定FieldPathEntry的過濾邏輯）
+        /// </summary>
+        protected List<string> GetAvailableMembersForEntry(Type type, FieldPathEntry entry)
+        {
+            if (type == null || entry == null) return new List<string>();
+
+            // 設定entry的父型別
+            entry.SetSerializedType(type);
+            
+            // 使用entry的方法：包含欄位，只包含公共成員（與原本邏輯保持一致）
+            return entry.GetAvailableMembers(type, includeFields: true, includeNonPublic: false);
+        }
+
+        /// <summary>
+        /// 獲取型別的可用成員（使用統一的邏輯，向後相容）
         /// </summary>
         protected List<string> GetAvailableMembers(Type type)
         {
@@ -360,43 +390,24 @@ namespace MonoFSM.Core.Editor
             if (_memberCache.ContainsKey(key))
                 return _memberCache[key];
 
-            var members = new List<string>();
-
-            // 獲取所有可讀的公共屬性
-            var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(p => p.CanRead && p.GetIndexParameters().Length == 0) // 排除索引器
-                .Select(p => p.Name)
-                .Where(name => !string.IsNullOrEmpty(name));
-            members.AddRange(properties);
-
-            // 獲取所有公共欄位
-            var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance)
-                .Select(f => f.Name)
-                .Where(name => !string.IsNullOrEmpty(name));
-            members.AddRange(fields);
-
-            // 排序並去重
-            members = members.Distinct().OrderBy(m => m).ToList();
+            // 使用臨時的 FieldPathEntry 來獲取統一的成員列表
+            var tempEntry = new FieldPathEntry();
+            var members = GetAvailableMembersForEntry(type, tempEntry);
+            
             _memberCache[key] = members;
-
             return members;
         }
 
         /// <summary>
-        /// 獲取成員的型別
+        /// 獲取成員的型別（使用統一的 ReflectionUtility）
         /// </summary>
         protected Type GetMemberType(Type type, string memberName)
         {
             if (type == null || string.IsNullOrEmpty(memberName))
                 return null;
 
-            var property = type.GetProperty(memberName, BindingFlags.Public | BindingFlags.Instance);
-            if (property != null) return property.PropertyType;
-
-            var field = type.GetField(memberName, BindingFlags.Public | BindingFlags.Instance);
-            if (field != null) return field.FieldType;
-
-            return null;
+            // 使用 ReflectionUtility 的快取機制來提高效率，與 FieldPathEntry 保持一致
+            return ReflectionUtility.GetMemberType(type, memberName);
         }
     }
 }

@@ -110,7 +110,7 @@ namespace MonoFSM.Core.DataProvider
             get
             {
                 if (_varTag != null)
-                    return _varTag.ValueType;
+                    return _varTag.VariableMonoType;
                 if (entityProvider != null) return entityProvider.entityTag?._entityType?.RestrictType;
                 if (ParentEntity != null) return ParentEntity.GetType();
 
