@@ -1,16 +1,15 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using MonoDebugSetting;
+using MonoFSM.Core.Attributes;
+using Sirenix.OdinInspector;
+using Sirenix.Utilities;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Profiling;
 using UnityEngine.Serialization;
 using Object = UnityEngine.Object;
-
-using Sirenix.OdinInspector;
-using Sirenix.Utilities;
-using MonoFSM.Core.Attributes;
 
 [Serializable]
 public class FlagFieldString : FlagField<string>
@@ -266,7 +265,7 @@ public class
 
     // public T PlayTestValue;
     // [HideInInspector]
-    [FormerlySerializedAs("TestValue")]
+    [FormerlySerializedAs("TestValue")] [ShowInDebugMode]
     // [JsonIgnore]
     public T DevValue; //DebugValue?
 
@@ -312,7 +311,11 @@ public class
         get
         {
             if (Application.isPlaying == false)
+            {
+                if (DebugSetting.IsDebugMode)
+                    return DevValue;
                 return ProductionValue;
+            }
             //強迫蓋值？
             return _modifiers.Count > 0 ? _modifiers[^1].OverrideValue : _currentValue;
         }
