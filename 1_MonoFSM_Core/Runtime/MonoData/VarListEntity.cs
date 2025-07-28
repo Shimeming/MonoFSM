@@ -258,7 +258,8 @@ namespace MonoFSM.Core.Variable
         }
 
         public float CountFloat => Count;
-        
+
+        [ShowInInspector]
         public override int Count
         {
             get

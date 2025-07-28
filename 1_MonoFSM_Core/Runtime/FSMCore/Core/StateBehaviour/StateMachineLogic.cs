@@ -1,9 +1,11 @@
-using UnityEngine;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using MonoFSM.Variable.Attributes;
 using MonoFSM.Core.Attributes;
+using MonoFSM.Variable.Attributes;
+using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
+using UnityEngine;
 using Debug = UnityEngine.Debug;
 
 
@@ -21,7 +23,7 @@ namespace Fusion.Addons.FSM
     }
 
     [DisallowMultipleComponent]
-    public class StateMachineLogic : MonoBehaviour
+    public class StateMachineLogic : MonoBehaviour, IResetStart
     {
         public float DeltaTime => _stateMachineController.DeltaTime;
 
@@ -44,7 +46,7 @@ namespace Fusion.Addons.FSM
         public List<IStateMachine> StateMachines => _stateMachinesInternal;
 
         protected List<IState> _statePool; // Used by CheckDuplicateStates
-        [ShowInDebugMode] public bool _stateMachinesCollected { get; protected set; }
+        [PreviewInDebugMode] public bool _stateMachinesCollected { get; protected set; }
         public bool _manualUpdateMode { get; protected set; }
 
         public bool IsCurrentState(IState state)
@@ -154,11 +156,21 @@ namespace Fusion.Addons.FSM
                 if (state == null) continue;
 
                 if (_statePool.Contains(state) == true)
-                    throw new System.InvalidOperationException(
+                    throw new InvalidOperationException(
                         $"State {state.Name} is used for multiple state machines, this is not allowed! State Machine: {stateMachineName}");
 
                 _statePool.Add(state);
             }
+        }
+
+        public void ResetStart()
+        {
+            if (_stateMachinesCollected)
+                foreach (var stateMachine in StateMachines)
+                    stateMachine.Reset();
+
+            else
+                Debug.LogWarning("State machines not collected yet, cannot reset.", this);
         }
     }
 }
