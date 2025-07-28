@@ -911,7 +911,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0c0febcd3eb0a243b407df35c92898b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _varTag: {fileID: 11400000, guid: ae6cdc8a8eeb7455bb51af743688c1fb, type: 2}
+  _varTag: {fileID: 11400000, guid: 9b7a97c40f909463494c5f5ee1e2828d, type: 2}
   description: 
   consumers: []
   _localField:
@@ -1248,9 +1248,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8fdaea9a50c9419b9e6f82ed28c91b37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DescriptableTag: {fileID: 11400000, guid: 6f243ce3affe84fa99dc4f862d5c1e96, type: 2}
+  _descriptableTags: []
   data: {fileID: 0}
-  DescriptableTags: []
 --- !u!4 &771908240393473256 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4242940046273425840, guid: 2d8eddd1351434eb880792fddc4f391a, type: 3}
@@ -1364,6 +1363,10 @@ PrefabInstance:
       objectReference: {fileID: 225060142162479121}
     - target: {fileID: 8406567234117672876, guid: 2d39b478e461643f599be5685054d57c, type: 3}
       propertyPath: EffectType
+      value: 
+      objectReference: {fileID: 11400000, guid: 91a9975e88a6b47499a004bfafe9c836, type: 2}
+    - target: {fileID: 8406567234117672876, guid: 2d39b478e461643f599be5685054d57c, type: 3}
+      propertyPath: _effectType
       value: 
       objectReference: {fileID: 11400000, guid: 91a9975e88a6b47499a004bfafe9c836, type: 2}
     m_RemovedComponents: []
