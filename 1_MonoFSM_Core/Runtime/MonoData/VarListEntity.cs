@@ -35,7 +35,7 @@ namespace MonoFSM.Core.Variable
         [ShowInPlayMode]
         private object _activeCollection; // Runtime instance: List<T>, Queue<T>, or HashSet<T>
 
-        public int _currentIndex = 0;
+        public int _currentIndex = -1;
 
         public override void SetIndex(int index)
         {
@@ -52,13 +52,19 @@ namespace MonoFSM.Core.Variable
         {
             get
             {
-                if (_currentIndex < 0 || _currentIndex >= Count)
+                //當前的index不合法時，返回default(T)
+                if (_currentIndex < 0)
                 {
-                    Debug.LogError("Current index is out of bounds.");
+                    // Debug.LogError("Current index is out of bounds.");
                     return default;
                 }
 
-//FIXME: 只有list可以有這個？
+                //當index超出範圍或集合為空時，返回default(T)
+                if (_currentIndex >= Count || Count == 0)
+                    // Debug.LogError($"Current index {_currentIndex} is out of bounds for collection of size {Count}.");
+                    return default;
+
+                //FIXME: 只有list可以有這個？
                 return GetList()[_currentIndex];
             }
         }

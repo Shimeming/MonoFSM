@@ -154,7 +154,8 @@ namespace MonoFSM.Variable
         // public override Type FinalDataType => RawValue != null ? RawValue.GetType() : null; //指的是DescriptableData
         public override Type ValueType => typeof(TValueType);
 
-        public override object objectValue => _currentValue;
+        //FIXME: 好亂喔QQ
+        public override object objectValue => Value;
         // public override Component objectValue => RawValue;
 
 

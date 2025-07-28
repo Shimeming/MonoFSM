@@ -103,8 +103,7 @@ namespace MonoFSMCore.Runtime.LifeCycle
             ResetStateRestore();
             ResetStart();
         }
-
-        //FIXME: local還沒做這個喔
+        
         public void SceneAwake(WorldUpdateSimulator world) //可以自己sceneＡwake吧？
         {
             WorldUpdateSimulator = world;

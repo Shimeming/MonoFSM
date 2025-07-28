@@ -141,6 +141,7 @@ namespace MonoFSM.Core.DataProvider
             // 如果沒有設定欄位路徑，直接回傳變數值
             if (!HasFieldPath)
             {
+                // Debug.Log($"VarRef: 直接從變數取得值: {target}", this);
                 return target.Get<T1>();
             }
 
@@ -165,7 +166,7 @@ namespace MonoFSM.Core.DataProvider
                 }
             else
             {
-                return default; //null的時候
+                return default; // 如果欄位值為 null，直接返回預設值
             }
 
             Debug.LogError($"VarRef: 轉換失敗 Var:{target}", this);

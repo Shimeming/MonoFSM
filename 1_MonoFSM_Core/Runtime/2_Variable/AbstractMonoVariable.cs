@@ -96,6 +96,7 @@ namespace MonoFSM.Variable
 
         public virtual Type ValueType => _varTag.ValueType;
 
+        //FIXME: 好亂喔QQ 好難trace
         public abstract object objectValue { get; } //不好？generic value?
 
         public virtual T GetValue<T>()

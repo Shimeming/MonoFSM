@@ -13,6 +13,28 @@ namespace MonoFSM.Core.Simulate
     public interface ISimulateRunner
     {
     }
+    
+    public static class WorldUpdateSimulatorExtensions
+    {
+        public static MonoPoolObj Spawn(this GameObject gObj, MonoPoolObj obj, Vector3 position, Quaternion rotation)
+        {
+            if (gObj == null)
+            {
+                Debug.LogError("Cannot spawn a MonoPoolObj from a null GameObject.", obj);
+                return null;
+            }
+
+            var simulator = WorldUpdateSimulator.GetWorldUpdateSimulator(gObj);
+            // var worldUpdateSimulator = gObj.GetComponent<WorldUpdateSimulator>();
+            if (simulator == null)
+            {
+                Debug.LogError("WorldUpdateSimulator not found on the GameObject.", gObj);
+                return null;
+            }
+
+            return simulator.Spawn(obj, position, rotation);
+        }
+    }
 
     //要當作世界系統中心嗎？但如果是runner旁邊的話，就不在scene上喔
 
@@ -33,6 +55,23 @@ namespace MonoFSM.Core.Simulate
             _spawnProcessor = GetComponent<ISpawnProcessor>();
             _simulateRunner = GetComponent<ISimulateRunner>();
             // _simulators.AddRange(_localSimulators); //不需要了？
+        }
+        
+        public static WorldUpdateSimulator GetWorldUpdateSimulator(GameObject me)
+        {
+            //這個是用來獲取當前的WorldUpdateSimulator
+            var monoPoolObj = me.GetComponent<MonoPoolObj>();
+            if (monoPoolObj == null)
+            {
+                Debug.LogError("MonoPoolObj not found on the GameObject.", me);
+                return null;
+            }
+            if (monoPoolObj.WorldUpdateSimulator == null)
+            {
+                Debug.LogError("WorldUpdateSimulator not set on MonoPoolObj.", monoPoolObj);
+                return null;
+            }
+            return monoPoolObj.WorldUpdateSimulator;
         }
 
         //全世界都該透過這個spawn?
@@ -71,8 +110,7 @@ namespace MonoFSM.Core.Simulate
             //FIXME: 要先做事？OnReturnPool? OnDespawn
             _spawnProcessor.Despawn(obj); //看實作
         }
-
-        //FIXME: 在這裡註冊好怪
+        
         public void RegisterMonoObject(MonoPoolObj target)
         {
             if(_monoObjectSet.Add(target))
