@@ -4,11 +4,10 @@ using System.Linq;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Variable;
 using Sirenix.OdinInspector;
+using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace MonoFSM.Runtime.Mono
 {
@@ -20,6 +19,14 @@ namespace MonoFSM.Runtime.Mono
     {
         //
         public MySerializedType<MonoEntity> _entityType;
+
+        public Type RestrictType
+        {
+            get => _entityType.RestrictType;
+            set => _entityType.RestrictType = value;
+        }
+       
+        
         public MySerializedType<DescriptableData> DataType;
 
         public IEnumerable<ValueDropdownItem<VariableTag>> GetVariableTagItems()

@@ -10,8 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8e71863d6a014827a715566dd5c5af2f, type: 3}
-  m_Name: Foo Prefab FSM Variant
+  m_Name: Foo Prefab
   m_EditorClassIdentifier: 
+  _entityType:
+    _bindObject: {fileID: 0}
+    _baseFilterTypeName: 
+    _typeFullName: 
+    _assemblyName: 
+    typeName: 
   DataType:
     _bindObject: {fileID: 0}
     _baseFilterTypeName: 

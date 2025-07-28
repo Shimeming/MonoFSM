@@ -1,7 +1,7 @@
+using _1_MonoFSM_Core.Runtime.Attributes;
 using MonoFSM.Core.Attributes;
-using MonoFSM.Runtime.Variable;
-using MonoFSM.Runtime.Mono;
 using MonoFSM.Runtime;
+using MonoFSM.Runtime.Mono;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -14,6 +14,7 @@ namespace MonoFSM.Core.Runtime
     public class GlobalInstanceProvider : MonoBehaviour, IMonoEntityProvider
     {
         [Required]
+        [TypeRestrictFilter(typeof(MonoEntity), true, "請選擇 MonoEntity 類型的 VariableTag")]
         [SerializeField] private MonoEntityTag _monoEntityTag;
 
         [PreviewInInspector] public MonoEntity monoEntity => GetBlackboardFromGlobalInstance();

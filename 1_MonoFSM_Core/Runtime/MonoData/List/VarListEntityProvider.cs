@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using MonoFSM.Core.DataProvider;
 using MonoFSM.Core.Formula;
@@ -6,6 +7,7 @@ using MonoFSM.Runtime;
 namespace MonoFSM.Core.Variable.Providers
 {
     //variable 對 value... list?
+    [Obsolete]
     public class VarListEntityProvider : VariableProviderRef<VarListEntity, List<MonoEntity>>,
         IMonoDescriptableListProvider
     {

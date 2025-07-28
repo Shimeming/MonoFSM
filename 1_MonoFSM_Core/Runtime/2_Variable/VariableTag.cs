@@ -2,8 +2,8 @@ using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using MonoFSM.Core.Attributes;
-using MonoFSM.Variable.TypeTag;
 using MonoFSM.Variable.FieldReference;
+using MonoFSM.Variable.TypeTag;
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;
 using UnityEngine;
@@ -135,6 +135,7 @@ namespace MonoFSM.Variable
                     //     // 檢查並同步型別名稱
                     //     SyncTypeNameIfNeeded();
                     // }
+                    return BaseFilterType;
                 }
                 return _type;
             }

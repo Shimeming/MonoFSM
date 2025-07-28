@@ -86,8 +86,7 @@ namespace MonoFSM.Core.DataProvider
 
         // public override AbstractMonoVariable VarRaw => _monoVariable;
 
-        [PreviewInInspector]
-        public override Type ValueType => !HasFieldPath ? GetTarget()?.ValueType : lastPathEntryType;
+        [PreviewInInspector] public override Type ValueType => !HasFieldPath ? GetObjectType : lastPathEntryType;
 
 
         private IValueProvider GetTarget()
@@ -105,13 +104,16 @@ namespace MonoFSM.Core.DataProvider
         // public override Type GetValueType => 
         [PropertyOrder(-1)]
         [PreviewInInspector]
-        public override Type GetObjectType
+        public override Type GetObjectType //FIXME: 
         {
             get
             {
+                //varType (tag
                 if (_varTag != null)
                     return _varTag.VariableMonoType;
+                //entityType (tag)
                 if (entityProvider != null) return entityProvider.entityTag?._entityType?.RestrictType;
+                //parentEntityType (instance)
                 if (ParentEntity != null) return ParentEntity.GetType();
 
                 Debug.LogError("VarRef: No target entity or variable tag found.", this);
@@ -129,6 +131,9 @@ namespace MonoFSM.Core.DataProvider
 
         public override T1 Get<T1>()
         {
+            if (ValueType == null)
+                // Debug.LogError("VarRef: ValueType is null, cannot get value.", this);
+                return default;
             if (!typeof(T1).IsAssignableFrom(ValueType))
             {
                 Debug.LogError(
@@ -138,6 +143,9 @@ namespace MonoFSM.Core.DataProvider
             }
 
             var target = GetTarget();
+            if (target == null)
+                // Debug.LogError("VarRef: 目標變數或實體為 null，無法獲取值。", this);
+                return default;
             // 如果沒有設定欄位路徑，直接回傳變數值
             if (!HasFieldPath)
             {

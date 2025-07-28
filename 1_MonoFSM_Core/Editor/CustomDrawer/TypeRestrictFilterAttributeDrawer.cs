@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using _1_MonoFSM_Core.Runtime.Attributes;
+using MonoFSM.Runtime.Mono;
 using MonoFSM.Variable;
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
@@ -11,25 +13,27 @@ using UnityEngine;
 namespace MonoFSM.Core.Editor
 {
     /// <summary>
-    ///     VarTagFilterAttribute 的 OdinAttributeDrawer
-    ///     用於過濾 VariableTag 欄位的下拉選項，只顯示符合指定變數類型的 VariableTag
+    /// TypeRestrictFilterAttribute 的通用 OdinAttributeDrawer
+    /// 用於過濾帶有 RestrictType 屬性的欄位下拉選項
     /// </summary>
-    public class VarTagFilterAttributeDrawer : OdinAttributeDrawer<VarTagFilterAttribute>
+    public class TypeRestrictFilterAttributeDrawer : OdinAttributeDrawer<TypeRestrictFilterAttribute>
     {
         protected override bool CanDrawAttributeProperty(InspectorProperty property)
         {
-            return property.ValueEntry != null && property.ValueEntry.TypeOfValue == typeof(VariableTag);
+            return property.ValueEntry != null &&
+                   (property.ValueEntry.TypeOfValue == typeof(VariableTag) ||
+                    property.ValueEntry.TypeOfValue == typeof(MonoEntityTag));
         }
 
         protected override void DrawPropertyLayout(GUIContent label)
         {
-            var currentValue = Property.ValueEntry.WeakSmartValue as VariableTag;
+            var currentValue = Property.ValueEntry.WeakSmartValue;
 
-            // 驗證當前選中的 VariableTag 是否符合過濾條件
-            if (currentValue != null && Attribute.ExpectedVariableType != null)
+            // 驗證當前選中的值是否符合過濾條件
+            if (currentValue != null && Attribute.ExpectedType != null)
             {
-                var actualType = currentValue.VariableMonoType;
-                var expectedType = Attribute.ExpectedVariableType;
+                var actualType = Attribute.GetRestrictType(currentValue);
+                var expectedType = Attribute.ExpectedType;
                 var isValid = false;
 
                 if (actualType != null)
@@ -49,20 +53,21 @@ namespace MonoFSM.Core.Editor
                     var actualTypeName = actualType?.Name ?? "Unknown";
                     var warningMessage = !string.IsNullOrEmpty(Attribute.CustomErrorMessage)
                         ? Attribute.CustomErrorMessage
-                        : $"選中的 VariableTag 類型不符合期望。期望：{expectedTypeName}，實際：{actualTypeName}";
+                        : $"選中的類型不符合期望。期望：{expectedTypeName}，實際：{actualTypeName}";
 
                     SirenixEditorGUI.WarningMessageBox(warningMessage);
                 }
             }
 
-            // 繪製帶過濾功能的 VariableTag 選擇器
-            DrawFilteredVariableTagSelector(label, currentValue);
+            // 繪製帶過濾功能的選擇器
+            DrawFilteredSelector(label, currentValue);
         }
 
-        private void DrawFilteredVariableTagSelector(GUIContent label, VariableTag currentValue)
+        private void DrawFilteredSelector(GUIContent label, object currentValue)
         {
             // 繪製按鈕來開啟選擇器
-            var buttonText = currentValue ? currentValue.name : "None";
+            var buttonText = "None";
+            if (currentValue is ScriptableObject scriptableObj) buttonText = scriptableObj.name;
 
             using (new GUILayout.HorizontalScope())
             {
@@ -70,12 +75,11 @@ namespace MonoFSM.Core.Editor
 
                 if (SirenixEditorGUI.SDFIconButton(buttonText, 16, SdfIconType.CaretDownFill, IconAlignment.RightEdge))
                 {
-                    var selector = new VarTagFilteredSelector(Attribute);
+                    var selector = new TypeRestrictFilteredSelector(Attribute, Property.ValueEntry.TypeOfValue);
                     selector.SelectionConfirmed += col =>
                     {
                         Property.ValueEntry.WeakSmartValue = col.FirstOrDefault();
                     };
-                    // selector.EnableSingleClickToConfirm();
                     selector.ShowInPopup();
                 }
             }
@@ -83,15 +87,17 @@ namespace MonoFSM.Core.Editor
     }
 
     /// <summary>
-    ///     過濾後的 VariableTag 選擇器
+    /// 通用的過濾選擇器
     /// </summary>
-    public class VarTagFilteredSelector : OdinSelector<VariableTag>
+    public class TypeRestrictFilteredSelector : OdinSelector<ScriptableObject>
     {
-        private readonly VarTagFilterAttribute _filterAttribute;
+        private readonly TypeRestrictFilterAttribute _filterAttribute;
+        private readonly Type _targetType;
 
-        public VarTagFilteredSelector(VarTagFilterAttribute filterAttribute)
+        public TypeRestrictFilteredSelector(TypeRestrictFilterAttribute filterAttribute, Type targetType)
         {
             _filterAttribute = filterAttribute;
+            _targetType = targetType;
             DrawConfirmSelectionButton = false;
             SelectionTree.Config.SelectMenuItemsOnMouseDown = true;
             SelectionTree.Config.ConfirmSelectionOnDoubleClick = true;
@@ -105,51 +111,51 @@ namespace MonoFSM.Core.Editor
             tree.Add("-- None --", null);
 
             // 獲取過濾後的選項
-            var filteredTags = GetFilteredVariableTagOptions();
+            var filteredOptions = GetFilteredOptions().ToList();
 
-            if (!filteredTags.Any())
+            if (!filteredOptions.Any())
             {
-                tree.Add("無符合條件的 VariableTag", null);
+                tree.Add("無符合條件的選項", null);
                 return;
             }
 
             // 按類型分組
-            var groupedTags = filteredTags
-                .Where(tag => tag != null)
-                .GroupBy(tag => tag.VariableMonoType?.Name ?? "Unknown")
+            var groupedOptions = filteredOptions
+                .Where(option => option != null)
+                .GroupBy(option => GetGroupName(option))
                 .OrderBy(g => g.Key)
                 .ToList();
 
-            foreach (var group in groupedTags)
+            foreach (var group in groupedOptions)
             {
-                var sortedTags = group.OrderBy(tag => tag.name).ToList();
+                var sortedOptions = group.OrderBy(option => option.name).ToList();
 
-                foreach (var tag in sortedTags)
+                foreach (var option in sortedOptions)
                 {
-                    var displayName = $"{tag.name}";
+                    var displayName = $"{option.name}";
                     var path = group.Key == "Unknown" ? displayName : $"{group.Key}/{displayName}";
 
-                    tree.Add(path, tag);
+                    tree.Add(path, option);
                 }
             }
         }
 
-        private IEnumerable<VariableTag> GetFilteredVariableTagOptions()
+        private IEnumerable<ScriptableObject> GetFilteredOptions()
         {
-            // 直接搜尋所有 VariableTag assets 並過濾
-            return AssetDatabase.FindAssets("t:VariableTag")
+            // 根據目標類型搜尋對應的 assets 並過濾
+            return AssetDatabase.FindAssets(_filterAttribute.GetAssetSearchFilter(_targetType))
                 .Select(AssetDatabase.GUIDToAssetPath)
-                .Select(path => AssetDatabase.LoadAssetAtPath<VariableTag>(path))
-                .Where(tag => tag != null && ValidateVariableTag(tag));
+                .Select(AssetDatabase.LoadAssetAtPath<ScriptableObject>)
+                .Where(asset => asset != null && ValidateAsset(asset));
         }
 
-        private bool ValidateVariableTag(VariableTag variableTag)
+        private bool ValidateAsset(ScriptableObject asset)
         {
-            if (variableTag == null || _filterAttribute.ExpectedVariableType == null)
+            if (asset == null || _filterAttribute.ExpectedType == null)
                 return true;
 
-            var actualType = variableTag.VariableMonoType;
-            var expectedType = _filterAttribute.ExpectedVariableType;
+            var actualType = _filterAttribute.GetRestrictType(asset);
+            var expectedType = _filterAttribute.ExpectedType;
 
             if (actualType == null)
                 return false;
@@ -163,6 +169,14 @@ namespace MonoFSM.Core.Editor
                 return expectedType.IsAssignableFrom(actualType);
 
             return false;
+        }
+
+        private string GetGroupName(ScriptableObject asset)
+        {
+            if (asset == null) return "Unknown";
+
+            var restrictType = _filterAttribute.GetRestrictType(asset);
+            return restrictType?.Name ?? "Unknown";
         }
     }
 }

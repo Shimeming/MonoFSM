@@ -1,9 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.DataProvider;
+using MonoFSM.Core.Variable;
 using MonoFSM.Runtime;
+using MonoFSM.Runtime.Attributes;
 using MonoFSM.Variable;
 using MonoFSM.Variable.Attributes;
 using Sirenix.OdinInspector;
@@ -23,21 +24,28 @@ namespace MonoFSM.Core.Formula
             Count
         }
 
-        [AutoChildren] [CompRef] [Required] [Tooltip("The component that provides the list of objects to process.")]
-        private IMonoDescriptableListProvider _inputProvider;
+        // [AutoChildren] [CompRef] [Required] [Tooltip("The component that provides the list of objects to process.")]
+        // private IMonoDescriptableListProvider _inputProvider;
+
+        [ValueTypeValidate(typeof(VarListEntity))]
+        [Auto]
+        [CompRef]
+        [Required]
+        [Tooltip("The MonoEntity list provider to use for aggregation.")]
+        private ValueProvider _monoEntityListProvider;
 
         [SerializeField] [Required] [Tooltip("The variable tag to look for on each object to get the float value.")]
         private VariableTag _variableToAggregate;
 
         [SerializeField] private AggregationType _operation = AggregationType.Sum;
 
-        [PreviewInInspector] public float Value => GetValue();
+        [ShowInPlayMode] public float Value => GetValue();
 
         public float GetValue()
         {
-            if (_inputProvider == null || _variableToAggregate == null) return 0f;
+            if (_monoEntityListProvider == null || _variableToAggregate == null) return 0f;
 
-            var values = _inputProvider.GetDescriptables()
+            var values = _monoEntityListProvider.GetVar<VarListEntity>().GetList()
                 .Select(GetFloatFromDescriptable)
                 .ToList();
 
@@ -64,9 +72,7 @@ namespace MonoFSM.Core.Formula
         {
             if (entity == null)
             {
-                Debug.LogError(
-                    $"Descriptable is null in '{_inputProvider?.GetType().Name}' for variable '{_variableToAggregate.name}'.",
-                    this);
+                Debug.LogError("Entity is null, cannot get variable value.", this);
                 return 0f;
             }
 
@@ -93,6 +99,6 @@ namespace MonoFSM.Core.Formula
         }
 
         public string Description =>
-            $"{_operation} of '{_variableToAggregate?.name}' from '{(_inputProvider as Component)?.name}'";
+            $"{_operation} of '{_variableToAggregate?.name}' from '{_monoEntityListProvider?.name}'";
     }
 }

@@ -15,9 +15,10 @@ MonoBehaviour:
   _entityType:
     _bindObject: {fileID: 0}
     _baseFilterTypeName: 
-    _typeFullName: 
-    _assemblyName: 
-    typeName: 
+    _typeFullName: MonoFSM.Runtime.MonoEntity
+    _assemblyName: MonoFSM.Core.Runtime
+    typeName: MonoFSM.Runtime.MonoEntity, MonoFSM.Core.Runtime, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
   DataType:
     _bindObject: {fileID: 0}
     _baseFilterTypeName: 
