@@ -54,6 +54,15 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IResetStateRestore
 
     public bool canBePlayByFXplayer = true; //可不可以被Fxplayer 丟出來 (FIXME: 狀聲詞ㄑ)
     public bool IsGlobalPool;
+    
+    public enum ProtectionState
+    {
+        Unprotected,  // 未受保護，可以被回收
+        Protected     // 受保護，不會被回收
+    }
+    
+    [Header("物件生命週期管理")]
+    [HideInInspector] public ProtectionState CurrentProtectionState = ProtectionState.Unprotected;
 
     public enum ShootFrom
     {
@@ -285,9 +294,36 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IResetStateRestore
     public void OnBorrowFromPool(PoolManager manager)
     {
         onScene = true;
-
         // EnterLevelResetAndStart();
     }
+    
+    /// <summary>
+    /// 設定物件為可回收狀態
+
+    /// <summary>
+    /// 設定物件為受保護狀態，不會被回收
+    /// </summary>
+    public void MarkAsProtected()
+    {
+        CurrentProtectionState = ProtectionState.Protected;
+    }
+    
+    /// <summary>
+    /// 設定物件為未受保護狀態，可以被回收
+    /// </summary>
+    public void MarkAsUnprotected()
+    {
+        CurrentProtectionState = ProtectionState.Unprotected;
+    }
+
+    /// <summary>
+    /// 檢查物件是否被保護
+    /// </summary>
+    public bool IsProtected()
+    {
+        return CurrentProtectionState == ProtectionState.Protected;
+    }
+    
 
     //Shooter 想要變更Destory 設定
     public void OverrideDestroyTime(float time)

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Auto.Utils;
 using Cysharp.Threading.Tasks;
 using MonoFSMCore.Runtime.LifeCycle;
@@ -17,39 +18,6 @@ using UnityEngine.Profiling;
 using UnityEngine.SceneManagement;
 using Debug = UnityEngine.Debug;
 
-public interface INativePool
-{
-    public void Clear();
-}
-
-public class PoolNativeObjectManager<T> where T : INativePool, new()
-{
-    public PoolNativeObjectManager(int prepareCount)
-    {
-        _objList = new List<T>();
-        for (var i = 0; i < prepareCount; i++)
-            _objList.Add(new T());
-        // Debug.Log("PoolNativeObjectManager init" + typeof(T));
-    }
-
-    private int _index = 0;
-    private readonly List<T> _objList;
-
-    public T Borrow()
-    {
-        // Debug.Log("Borrow " + _objList.Count + ",index:" + _index);
-        if (_index >= _objList.Count) _index = 0;
-        return _objList[_index++];
-    }
-
-    public void Clear()
-    {
-        foreach (var _obj in _objList)
-        {
-            _obj.Clear();
-        }
-    }
-}
 
 public delegate void BeforeActiveHandler(PoolObject obj);
 
@@ -331,27 +299,6 @@ public class PoolManager : SingletonBehaviour<PoolManager>
     }
 
 
-    public class PoolObjectRequestRecords
-    {
-        public PoolObjectRequestRecords(MonoBehaviour requester, PoolObject prefab, int count)
-        {
-            _requester = requester;
-            _prefab = prefab;
-            _count = count;
-        }
-
-        public void Clear()
-        {
-            _requester = null;
-            _prefab = null;
-            _count = 0;
-        }
-
-        public MonoBehaviour _requester;
-        public PoolObject _prefab;
-        public int _count = 0;
-    }
-
     private void ReCalculatePoolObjectEntries()
     {
         foreach (var loadedAsset in this.allLoadedRCGRefereces)
@@ -407,36 +354,11 @@ public class PoolManager : SingletonBehaviour<PoolManager>
 
     public List<PoolObjectRequestRecords> records = new();
 
-    [System.Serializable]
-    public class PoolObjectEntry
-    {
-        public PoolObject prefab;
-        public int DefaultMaximumCount = 1;
-
-        public void Clear()
-        {
-            prefab = null;
-            DefaultMaximumCount = 0;
-        }
-    }
-
-    [System.Serializable]
-    public class AddressableEntry
-    {
-        public AssetReference _assetReference;
-        public GameObject _prefab;
-
-        public AddressableEntry(AssetReference assetReference, GameObject prefab)
-        {
-            _prefab = prefab;
-            _assetReference = assetReference;
-        }
-    }
-
     private List<PoolObjectEntry> PoolObjectEntries;
 
     [Header("Run Time Data")] public Dictionary<PoolObject, ObjectPool> PoolDictionary;
     public List<ObjectPool> allPools;
+    
 
     protected void Awake()
     {
@@ -475,6 +397,7 @@ public class PoolManager : SingletonBehaviour<PoolManager>
         this.prewarmDataLogger = prewarmData;
         prewarmData.PrewarmObjects(this, bank);
     }
+    
 
     //
     //private bool _poolCreated = false;
@@ -650,12 +573,29 @@ public class PoolManager : SingletonBehaviour<PoolManager>
         for (var i = allPools.Count - 1; i >= 0; i--)
         {
             var currentPool = allPools[i];
-            //FIXME: 同一個景重load!????
-            var entry = isInRequest(currentPool._prefab);
+            //檢查是否應該保持池存活（考慮明確請求和受保護物件）
+            var entry = ShouldKeepPoolAlive(currentPool._prefab);
 
             //移除沒用到的pool
             if (entry == null)
             {
+                // 額外的安全檢查：確保沒有受保護物件被意外銷毀
+                if (currentPool.HasProtectedObjects())
+                {
+                    var protectedCount = currentPool.GetProtectedObjectCount();
+                    Debug.LogError($"[PoolManager] 嘗試銷毀包含 {protectedCount} 個受保護物件的池: {currentPool._prefab.name}！已阻止銷毀。");
+                    
+                    // 創建緊急 Entry 以保護這些物件
+                    var emergencyEntry = new PoolObjectEntry
+                    {
+                        prefab = currentPool._prefab,
+                        DefaultMaximumCount = protectedCount
+                    };
+                    allPools[i]._bindingEntry = emergencyEntry;
+                    continue;
+                }
+                
+                Debug.Log($"[PoolManager] 銷毀未使用的池: {currentPool._prefab.name}");
                 PoolDictionary.Remove(currentPool._prefab);
                 allPools[i].DestroyPool();
                 allPools[i] = null;
@@ -738,314 +678,148 @@ public class PoolManager : SingletonBehaviour<PoolManager>
         PoolDictionary.Add(obj, pool);
     }
 
-    public PoolObjectEntry isInRequest(PoolObject prefab)
+    /// <summary>
+    /// 檢查是否應該保持池存活
+    /// 考慮兩個因素：1) 明確的請求 2) 受保護的物件
+    /// </summary>
+    public PoolObjectEntry ShouldKeepPoolAlive(PoolObject prefab)
     {
+        // 首先檢查是否有明確的請求
         for (var i = PoolObjectEntries.Count - 1; i >= 0; i--)
             if (PoolObjectEntries[i].prefab == prefab)
                 return PoolObjectEntries[i];
 
+        // 如果沒有明確請求，檢查是否有受保護的物件
+        if (PoolDictionary.ContainsKey(prefab))
+        {
+            var pool = PoolDictionary[prefab];
+            if (pool.HasProtectedObjects())
+            {
+                int protectedCount = pool.GetProtectedObjectCount();
+                Debug.Log($"[PoolManager] 保持池 {prefab.name} 存活，因為有 {protectedCount} 個受保護物件");
+                
+                // 為受保護物件創建一個虛擬的 Entry
+                return new PoolObjectEntry
+                {
+                    prefab = prefab,
+                    DefaultMaximumCount = Mathf.Max(1, protectedCount) // 至少保持足夠容納受保護物件的大小
+                };
+            }
+        }
+
         return null;
     }
-
-
-    public class ObjectPool
+    
+    /// <summary>
+    /// 舊方法名稱的向後兼容性（已過時）
+    /// </summary>
+    [System.Obsolete("Use ShouldKeepPoolAlive instead")]
+    public PoolObjectEntry isInRequest(PoolObject prefab)
     {
-        public ObjectPool(PoolObjectEntry bindingEntry, PoolManager manager)
+        return ShouldKeepPoolAlive(prefab);
+    }
+    
+    /// <summary>
+    /// 獲取整個池系統的受保護物件狀態報告
+    /// </summary>
+    public string GetSystemProtectedObjectsReport()
+    {
+        var report = new System.Text.StringBuilder();
+        report.AppendLine("=== Pool System Protected Objects Report ===");
+        
+        int totalProtected = 0;
+        int poolsWithProtected = 0;
+        
+        foreach (var pool in allPools)
         {
-            _bindingEntry = bindingEntry;
-            ObjectCount = bindingEntry.DefaultMaximumCount;
-            _prefab = bindingEntry.prefab;
-            _poolManager = manager;
-        }
-
-        public PoolObjectEntry _bindingEntry;
-
-        public PoolManager _poolManager;
-        public int ObjectCount;
-
-        public List<PoolObject> AllObjs;
-        public HashSet<PoolObject> OnUseObjs;
-        public List<PoolObject> DisabledObjs;
-
-        public PoolObject _prefab;
-
-        private bool init = false;
-
-        public void PoolObjectOnDestroySignal(PoolObject p)
-        {
-            if (AllObjs.Contains(p))
+            if (pool != null && pool.HasProtectedObjects())
             {
-                AllObjs.Remove(p);
+                poolsWithProtected++;
+                int protectedCount = pool.GetProtectedObjectCount();
+                totalProtected += protectedCount;
+                
+                report.AppendLine($"Pool '{pool._prefab.name}': {protectedCount} protected objects");
             }
-
-            if (DisabledObjs.Contains(p))
-                DisabledObjs.Remove(p);
-
-            if (OnUseObjs.Contains(p))
-                OnUseObjs.Remove(p);
         }
-
-        public void ReturnAllObjects()
+        
+        report.AppendLine($"Summary: {totalProtected} protected objects across {poolsWithProtected} pools (total pools: {allPools.Count})");
+        return report.ToString();
+    }
+    
+    /// <summary>
+    /// 驗證整個池系統的完整性
+    /// </summary>
+    public bool ValidateSystemIntegrity()
+    {
+        bool allValid = true;
+        
+        Debug.Log("[PoolManager] Starting system integrity validation...");
+        
+        foreach (var pool in allPools)
         {
-            var StillOnUses = new List<PoolObject>();
-            StillOnUses.AddRange(OnUseObjs);
-
-            for (var i = 0; i < StillOnUses.Count; i++) 
-                StillOnUses[i].ReturnToPool();
-        }
-
-        public void ReturnAllObjects(Scene scene)
-        {
-            var StillOnUses = new List<PoolObject>();
-            StillOnUses.AddRange(OnUseObjs);
-            StillOnUses = StillOnUses.FindAll((a) => a.gameObject.scene == scene);
-
-            for (var i = 0; i < StillOnUses.Count; i++) StillOnUses[i].ReturnToPool();
-        }
-
-
-        public void DestroyPool()
-        {
-            foreach (var obj in AllObjs)
-                if (obj && obj.gameObject)
-                    Destroy(obj.gameObject);
-                else
-                    Debug.LogWarning("[Warning]" + _prefab.gameObject.name + " is destroyed????");
-
-            AllObjs.Clear();
-            OnUseObjs.Clear();
-            DisabledObjs.Clear();
-
-            // Debug.Log("DestroyPool:"+_prefab); 
-
-            _bindingEntry = null;
-            ObjectCount = 0;
-            _prefab = null;
-            _poolManager = null;
-        }
-
-        /*public void SetIsHandledPoolRequestPoolObject(PoolObject p, bool active)
-        {
-            PoolRequest[] poolRequests = p.GetComponentsInChildren<PoolRequest>(true);
-
-            for (int i = 0; i < poolRequests.Length; i++)
+            if (pool != null)
             {
-                poolRequests[i].isHandledRequestByPoolManager = active;
-            }
-        }*/
-
-        public void ScalePoolToNewMaximum()
-        {
-            AllObjs.RemoveAllNull();
-            DisabledObjs.RemoveAllNull();
-            ReturnAllObjects();
-
-            if (AllObjs.Count == _bindingEntry.DefaultMaximumCount)
-            {
-#if RCG_DEV
-                // Debug.Log(_bindingEntry.prefab+":AllObjs.Count == _bindingEntry.DefaultMaximumCount:"+_bindingEntry.DefaultMaximumCount);
-#endif
-                return;
-            }
-            else if (AllObjs.Count < _bindingEntry.DefaultMaximumCount)
-            {
-                var offset = _bindingEntry.DefaultMaximumCount - AllObjs.Count;
-#if RCG_DEV
-                // Debug.Log(_bindingEntry.prefab+":AllObjs.Count < _bindingEntry.DefaultMaximumCount:"+_bindingEntry.DefaultMaximumCount);
-#endif
-                for (var i = 0; i < offset; i++) AddAObject();
-            }
-            else if (AllObjs.Count > _bindingEntry.DefaultMaximumCount)
-            {
-                var offset = AllObjs.Count - _bindingEntry.DefaultMaximumCount;
-#if RCG_DEV
-                // Debug.Log(_bindingEntry.prefab+":AllObjs.Count > _bindingEntry.DefaultMaximumCount:"+_bindingEntry.DefaultMaximumCount);
-#endif
-                for (var i = 0; i < offset; i++)
+                // Basic validation: check if pool has protected objects and report
+                if (pool.HasProtectedObjects())
                 {
-                    Destroy(AllObjs[i].gameObject);
-                    AllObjs[i] = null;
+                    int protectedCount = pool.GetProtectedObjectCount();
+                    Debug.Log($"[PoolManager] Pool {pool._prefab.name} has {protectedCount} protected objects");
                 }
-
-                AllObjs.RemoveAllNull();
-            }
-
-
-            OnUseObjs.Clear();
-            DisabledObjs.Clear();
-            DisabledObjs.AddRange(AllObjs);
-        }
-
-        public PoolObject Borrow(Vector3 position, Quaternion rotation, Transform parent = null,
-            Action<PoolObject> beforeHandler = null)
-        {
-            if (DisabledObjs.Count == 0)
-            {
-                //FIXME: 先拿掉的註解
-                // Debug.LogError(
-                //     "[Pool Manager]" + _prefab.gameObject.name + " Pool Bankrupt" + "OnUsed:" + OnUseObjs.Count,
-                //     _prefab);
-                AddAObject(true);
-            }
-
-
-            if (DisabledObjs.Count > 0)
-            {
-                var obj = DisabledObjs[0];
-                DisabledObjs.RemoveAt(0);
-                OnUseObjs.Add(obj);
-
-                obj.OnBorrowFromPool(_poolManager); //OnPoolReset
-
-                // 這會影響設定黨 樹上有結構
-
-                //FIXME: 為什麼要做這件事？？
-                obj.OverrideTransformSetting(position, rotation, parent, obj.OriginalPrefab.transform.localScale);
-                obj.TransformReset();
-
-
-                beforeHandler?.Invoke(obj);
-
-                obj.gameObject.SetActive(true);
-
-                //這裡才是真的onBorrow
-                obj.PoolObjectResetAndStart();
-
-
-                return obj;
-            }
-            else
-            {
-                Debug.LogError("[Pool Manager]" + _prefab.gameObject.name + " Pool Bankrupt");
-                return null;
-            }
-        }
-
-        public void AddAObject(bool updatePrewarm = false)
-        {
-            if (_poolManager == null)
-                Debug.LogError("What?");
-
-            var originPrefabActive = _prefab.gameObject.activeSelf;
-            _prefab.gameObject.SetActive(false); //FIXME: 為什麼prefab instantiate前需要關著？？ 
-            //因為開著他會跑Awake 關起來才不會跑
-
-            var obj = Instantiate(_prefab, Vector3.zero, Quaternion.identity);
-            DontDestroyOnLoad(obj);
-            obj.SetBindingPool(_poolManager);
-            PreparePoolObjectImplementation(obj);
-            //FIXME: 為什麼要關著prepare? 
-            //這邊會跑auto
-
-            obj.gameObject.SetActive(true);
-            //打開 開始跑Awake
-
-            // obj.transform.SetParent(_poolManager.poolbjects);
-
-            obj.gameObject.SetActive(false);
-
-            obj.OriginalPrefab = _prefab;
-
-            AllObjs.Add(obj);
-
-            _prefab.gameObject.SetActive(originPrefabActive);
-
-            DisabledObjs.Add(obj);
-
-            if (updatePrewarm)
-                UpdatePoolEntry();
-            //
-        }
-
-
-        [Conditional("UNITY_EDITOR")]
-        public void UpdatePoolEntry()
-        {
-            if (_bindingEntry.prefab.gameObject.scene != null &&
-                _bindingEntry.prefab.gameObject.scene.name != default &&
-                _bindingEntry.prefab.gameObject.scene.name != null)
-            {
-                Debug.LogError("Update Pre warm Data Failed :" + _bindingEntry.prefab.gameObject.name);
-
-                return;
-            }
-
-            if (_bindingEntry.prefab.IsGlobalPool)
-            {
-                if (_poolManager.globalPrewarmDataLogger != null)
+                
+                // Validate basic object counts
+                int totalObjects = pool.AllObjs?.Count ?? 0;
+                int inUseObjects = pool.OnUseObjs?.Count ?? 0;
+                int availableObjects = pool.DisabledObjs?.Count ?? 0;
+                
+                if (totalObjects != inUseObjects + availableObjects)
                 {
-                    _poolManager.globalPrewarmDataLogger.UpdatePoolObjectEntry(_bindingEntry.prefab, AllObjs.Count);
-                    Debug.LogError("Update Global Pool Entry" + AllObjs.Count, _bindingEntry.prefab);
-                    return;
+                    Debug.LogError($"[PoolManager] Pool {pool._prefab.name} has inconsistent object counts: Total={totalObjects}, InUse={inUseObjects}, Available={availableObjects}");
+                    allValid = false;
                 }
             }
-            else
-            {
-                if (_poolManager.prewarmDataLogger != null)
-                {
-                    _poolManager.prewarmDataLogger.UpdatePoolObjectEntry(_bindingEntry.prefab, AllObjs.Count);
-                    Debug.LogError("Update Scene Pool Entry" + AllObjs.Count, _bindingEntry.prefab);
-                    return;
-                }
-            }
-
-            //FIXME: 這裡有問題
-            // Debug.LogError("Update Pre warm Data Failed :" + _bindingEntry.prefab.gameObject.name,
-            //     _bindingEntry.prefab.gameObject);
         }
-
-
-        public void ReturnToPool(PoolObject obj)
+        
+        if (allValid)
         {
-            // if (obj.busy)
-            // return;
-            if (OnUseObjs.Contains(obj))
-            {
-                obj.BeforeObjectReturnToPool(_poolManager);
-                // if (obj.UnsolvedIssueBeforeDestroy <= 0)
-                // {
-                OnUseObjs.Remove(obj);
-                DisabledObjs.Insert(0, obj);
-
-                //FIXME: 
-                if (obj.transform.parent != null) //有被借到某個特定node才
-                    obj.transform.SetParent(_poolManager.poolbjects);
-
-                obj.OnReturnToPool(_poolManager);
-                obj.gameObject.SetActive(false);
-            }
-            else if (DisabledObjs.Contains(obj))
-            {
-                // Debug.LogWarning(obj.name + " already returned", obj.gameObject);
-            }
-            else
-            {
-                // Debug.LogWarning(obj.name + "is not recorded in pool manager... , should remove by someone else.",
-                //     obj.gameObject);
-                //Debug.LogError("WTF?");
-            }
+            Debug.Log("[PoolManager] System integrity validation passed");
         }
-
-        public void Init()
+        else
         {
-            if (init) return;
+            Debug.LogError("[PoolManager] System integrity validation failed - check individual pool errors above");
+        }
+        
+        return allValid;
+    }
 
-            AllObjs = new List<PoolObject>();
-            DisabledObjs = new List<PoolObject>();
-            OnUseObjs = new HashSet<PoolObject>();
-
-#if RCG_DEV
-            Debug.Log(
-                "[PoolManager] Create New Pool: " + _bindingEntry.prefab + ":AllObjs.Count " +
-                _bindingEntry.DefaultMaximumCount);
-#endif
-            // SetIsHandledPoolRequestPoolObject(_prefab, true);
-            for (var i = 0; i < ObjectCount; i++)
-                //關掉原型??
-                AddAObject();
-
-            //TODO: PoolRequest給場上的東西？？
-            init = true;
+#if UNITY_EDITOR
+    /// <summary>
+    /// Editor-only method to log detailed pool status
+    /// </summary>
+    [UnityEditor.MenuItem("Tools/Pool System/Log Protected Objects Report")]
+    public static void LogProtectedObjectsReport()
+    {
+        if (Instance != null)
+        {
+            Debug.Log(Instance.GetSystemProtectedObjectsReport());
+        }
+        else
+        {
+            Debug.LogWarning("PoolManager instance not found");
         }
     }
+    
+    [UnityEditor.MenuItem("Tools/Pool System/Validate System Integrity")]
+    public static void ValidateSystem()
+    {
+        if (Instance != null)
+        {
+            Instance.ValidateSystemIntegrity();
+        }
+        else
+        {
+            Debug.LogWarning("PoolManager instance not found");
+        }
+    }
+#endif
+
 }

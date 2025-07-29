@@ -1,4 +1,5 @@
 
+using System.Collections.Generic;
 using MonoFSM.Core;
 using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
@@ -131,5 +132,69 @@ public class PoolBank : MonoBehaviour,ISceneSavingCallbackReceiver,ISceneAwake
         PoolManager.Instance.SetPrewarmData(BindPrewarmData,this);
         PoolManager.Instance.ReCalculatePools();
         Profiler.EndSample();
+        
+        // 顯示動態 PoolBank 機制資訊
+        ShowDynamicPoolInfo();
     }
+    
+    /// <summary>
+    /// 顯示動態 Pool 機制的統計資訊
+    /// </summary>
+    private void ShowDynamicPoolInfo()
+    {
+        var sceneName = gameObject.scene.name;
+        Debug.Log($"=== 動態 PoolBank 機制啟動 ===");
+        Debug.Log($"當前場景: {sceneName}");
+        
+        // 顯示 Protected 物件統計
+        var protectedStats = GetProtectedObjectStats();
+        if (protectedStats.Count > 0)
+        {
+            Debug.Log("Protected 狀態的物件:");
+            foreach (var stat in protectedStats)
+            {
+                Debug.Log($"  - {stat.Key.name}: {stat.Value} 個");
+            }
+        }
+        else
+        {
+            Debug.Log("目前沒有 Protected 狀態的物件");
+        }
+        
+        Debug.Log("=== 使用提示 ===");
+        Debug.Log("1. 使用 obj.MarkAsProtected() 保護物件不被回收");
+        Debug.Log("2. 使用 obj.MarkAsReturnable() 標記物件可以回收");
+        Debug.Log("3. Pool 調整時會自動保護 Protected 狀態的物件");
+        Debug.Log("4. 場景配置決定 Pool 大小，Protected 物件不被強制回收");
+    }
+    
+    /// <summary>
+    /// 取得 Protected 物件統計
+    /// </summary>
+    private Dictionary<PoolObject, int> GetProtectedObjectStats()
+    {
+        var stats = new Dictionary<PoolObject, int>();
+        
+        foreach (var pool in PoolManager.Instance.allPools)
+        {
+            var protectedCount = 0;
+            foreach (var obj in pool.OnUseObjs)
+            {
+                if (obj != null && obj.IsProtected())
+                {
+                    protectedCount++;
+                }
+            }
+            
+            if (protectedCount > 0)
+            {
+                stats[pool._prefab] = protectedCount;
+            }
+        }
+        
+        return stats;
+    }
+    
+    /// <summary>
+  
 }
