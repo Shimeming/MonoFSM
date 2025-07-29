@@ -454,17 +454,16 @@ public class PoolManager : SingletonBehaviour<PoolManager>
 
     public void PrepareGlobalPrewarmData()
     {
-        
-        //CleanUp 沒用的資料
-#if UNITY_EDITOR
-         PoolManager.Instance.globalPrewarmDataLogger.objectEntries.RemoveAll((a) => a.prefab == null);
-         PoolManager.Instance.globalPrewarmDataLogger.objectEntries.RemoveAll((a) => !a.prefab.IsGlobalPool);
-         EditorUtility.SetDirty(PoolManager.Instance.globalPrewarmDataLogger);
-#endif
-        
         if (this.globalPrewarmDataLogger == null)
         {
             this.globalPrewarmDataLogger = PoolBank.FindGlobalPrewarmData();
+            //CleanUp 沒用的資料
+#if UNITY_EDITOR
+            PoolManager.Instance.globalPrewarmDataLogger.objectEntries.RemoveAll((a) => a.prefab == null);
+            PoolManager.Instance.globalPrewarmDataLogger.objectEntries.RemoveAll((a) => !a.prefab.IsGlobalPool);
+            EditorUtility.SetDirty(PoolManager.Instance.globalPrewarmDataLogger);
+#endif
+            
             this.globalPrewarmDataLogger.PrewarmObjects(this,this);
         }
         

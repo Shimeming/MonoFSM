@@ -1,5 +1,6 @@
 
 using MonoFSM.Core;
+using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
 
 #if UNITY_EDITOR
@@ -8,7 +9,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Profiling;
 
-public class PoolBank : MonoBehaviour,ISceneAwakeReverse,ISceneSavingCallbackReceiver
+public class PoolBank : MonoBehaviour,ISceneSavingCallbackReceiver,ISceneAwake
 {
     [InlineButton("FindOrCreatePoolPrewarmData","Create")]
     public PoolPrewarmData BindPrewarmData;
@@ -28,7 +29,7 @@ public class PoolBank : MonoBehaviour,ISceneAwakeReverse,ISceneSavingCallbackRec
         var path = "Assets/15_PoolManagerPrewarm/" + poolbank.gameObject.scene.name + "_Prewarm.asset";
         string resourcesId = poolbank.gameObject.scene.name + "_Prewarm";
 
-        PoolPrewarmData prewarmData = null; // = Resources.Load<PoolPrewarmData>(resourcesId);
+        PoolPrewarmData prewarmData = Resources.Load<PoolPrewarmData>(resourcesId);
 
         if (prewarmData == null)
         {
@@ -53,6 +54,9 @@ public class PoolBank : MonoBehaviour,ISceneAwakeReverse,ISceneSavingCallbackRec
         }
 
         poolbank.BindPrewarmData = prewarmData;
+#if UNITY_EDITOR
+        EditorUtility.SetDirty(poolbank);
+#endif
         return prewarmData;
     }
     
@@ -104,21 +108,28 @@ public class PoolBank : MonoBehaviour,ISceneAwakeReverse,ISceneSavingCallbackRec
 
         return prewarmData;
     }
-    
-    public void EnterSceneAwakeReverse()
+
+    public void OnBeforeSceneSave()
+    {
+        FindGlobalPrewarmData();
+        // 確保當前 PoolBank 的 BindPrewarmData 也被處理
+        if (BindPrewarmData == null)
+        {
+            FindOrCreatePoolPrewarmData();
+        }
+    }
+
+    public void EnterSceneAwake()
     {
         if (BindPrewarmData == null)
             return;
+        
+        Debug.Log("EnterSceneAwake?"+this.gameObject);
 
         Profiler.BeginSample("Prewarm GameLevel PoolObjects");
         PoolManager.Instance.PrepareGlobalPrewarmData();
         PoolManager.Instance.SetPrewarmData(BindPrewarmData,this);
         PoolManager.Instance.ReCalculatePools();
         Profiler.EndSample();
-    }
-
-    public void OnBeforeSceneSave()
-    {
-        FindGlobalPrewarmData();
     }
 }
