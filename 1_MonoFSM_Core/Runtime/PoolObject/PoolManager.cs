@@ -7,6 +7,10 @@ using Cysharp.Threading.Tasks;
 using MonoFSMCore.Runtime.LifeCycle;
 using MonoFSM.AddressableAssets;
 using MonoFSM.Runtime;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Profiling;
@@ -74,27 +78,27 @@ public class PoolManager : SingletonBehaviour<PoolManager>
         // obj.PoolObjectResetAndStart();
     }
 
-    public static void HandleGameLevelConfigSetting(MonoBehaviour level)
-    {
-        var ILevelConfigs = new List<ILevelConfig>(level.GetComponentsInChildren<ILevelConfig>(true));
-
-        foreach (var item in ILevelConfigs)
-        {
-            if (item == null)
-                continue;
-            try
-            {
-                item.SetLevelConfig();
-            }
-            catch (Exception e)
-            {
-                if (item is MonoBehaviour)
-                    Debug.LogError(e.StackTrace, item as MonoBehaviour);
-                else
-                    Debug.LogError(e.StackTrace);
-            }
-        }
-    }
+    // public static void HandleGameLevelConfigSetting(MonoBehaviour level)
+    // {
+    //     var ILevelConfigs = new List<ILevelConfig>(level.GetComponentsInChildren<ILevelConfig>(true));
+    //
+    //     foreach (var item in ILevelConfigs)
+    //     {
+    //         if (item == null)
+    //             continue;
+    //         try
+    //         {
+    //             item.SetLevelConfig();
+    //         }
+    //         catch (Exception e)
+    //         {
+    //             if (item is MonoBehaviour)
+    //                 Debug.LogError(e.StackTrace, item as MonoBehaviour);
+    //             else
+    //                 Debug.LogError(e.StackTrace);
+    //         }
+    //     }
+    // }
 
     //LevelReset, 重職關卡時，一換scene時
     //開放世界用不到？死掉復活？
@@ -305,34 +309,16 @@ public class PoolManager : SingletonBehaviour<PoolManager>
     }
 
     // public bool IsReady = false;
-    [Header("PrewarmData Logger")] public Transform poolbjects;
+    [Header("PrewarmData Logger")] 
+    public Transform poolbjects;
     public PoolPrewarmData prewarmDataLogger;
     public PoolPrewarmData globalPrewarmDataLogger;
 
-    /*  public void RegisterPoolRequest(MonoBehaviour requester, GameObject prefab, int count = 1)
-      {
-          if (prefab == null)
-              return;
+    
+    
 
-          PoolObject poolObject = prefab.GetComponent<PoolObject>();
+   
 
-          if (poolObject != null && count > 0)
-              records.Add(new PoolObjectRequestRecords(requester, poolObject, count));
-
-      }*/
-
-    /*public void RegisterPoolRequest(MonoBehaviour requester, PoolObject prefab, int count = 1)
-    {
-
-        if (prefab == null)
-            return;
-
-        if (count == 0)
-            return;
-
-        records.Add(new PoolObjectRequestRecords(requester, prefab, count));
-
-    }*/
 
     public void RegisterPoolPrewarmData(MonoBehaviour requester, PoolPrewarmData data)
     {
@@ -462,6 +448,33 @@ public class PoolManager : SingletonBehaviour<PoolManager>
         poolbjects.parent = transform;
         poolbjects.localPosition = Vector3.zero;
         poolbjects.gameObject.SetActive(false);
+        
+        
+    }
+
+    public void PrepareGlobalPrewarmData()
+    {
+        
+        //CleanUp 沒用的資料
+#if UNITY_EDITOR
+         PoolManager.Instance.globalPrewarmDataLogger.objectEntries.RemoveAll((a) => a.prefab == null);
+         PoolManager.Instance.globalPrewarmDataLogger.objectEntries.RemoveAll((a) => !a.prefab.IsGlobalPool);
+         EditorUtility.SetDirty(PoolManager.Instance.globalPrewarmDataLogger);
+#endif
+        
+        if (this.globalPrewarmDataLogger == null)
+        {
+            this.globalPrewarmDataLogger = PoolBank.FindGlobalPrewarmData();
+            this.globalPrewarmDataLogger.PrewarmObjects(this,this);
+        }
+        
+        
+    }
+
+    public void SetPrewarmData(PoolPrewarmData prewarmData,PoolBank bank)
+    {
+        this.prewarmDataLogger = prewarmData;
+        prewarmData.PrewarmObjects(this, bank);
     }
 
     //
@@ -553,7 +566,11 @@ public class PoolManager : SingletonBehaviour<PoolManager>
         Action<PoolObject> handler = null)
     {
         //FIXME: 這很糟
-        // if (IsReady == false) Debug.LogError("太早跟pool拿東西了，危險。" + prefab, prefab);
+        if (_recalculating)
+        {
+            Debug.LogError("為何會在ReCalculating的時候借東西？" + prefab, prefab);
+            return null;
+        }
 
 
         if (prefab.UseSceneAsPool)
@@ -615,10 +632,16 @@ public class PoolManager : SingletonBehaviour<PoolManager>
         // PoolDictionary[obj.OriginalPrefab].ReturnToPool(prefab);
         throw new NotImplementedException("ReturnToPool for MonoPoolObj is not implemented yet.");
     }
+    
+    //
 
+    private bool _recalculating = false;
+    
     //FIXME: 有可能保留AG_S2的pool, 或是在特定scene不做清除之類的動作
     public void ReCalculatePools()
     {
+        _recalculating = true;
+        
         Profiler.BeginSample("ReCalculatePools");
 
         //把null game level 清掉了
@@ -673,6 +696,8 @@ public class PoolManager : SingletonBehaviour<PoolManager>
         // UnityEngine.Debug.LogFormat("[Auto] Assigned <color={5}><b>{4}/{2}</b></color> [Auto*] variables in <color=#cc3300><b>{3} Milliseconds </b></color> - Analized {0} MonoBehaviours and {1} variables",
         //    monoBehavioursInSceneWithAuto.Count(), variablesAnalized, variablesWithAuto, sw.ElapsedMilliseconds, autoVarialbesAssigned_count, autoVarialbesAssigned_count + autoVarialbesNotAssigned_count, result_color);
         Profiler.EndSample();
+        
+        _recalculating = false;
     }
 
     public void ReturnAllObjects(Scene withScene)
@@ -766,7 +791,8 @@ public class PoolManager : SingletonBehaviour<PoolManager>
             var StillOnUses = new List<PoolObject>();
             StillOnUses.AddRange(OnUseObjs);
 
-            for (var i = 0; i < StillOnUses.Count; i++) StillOnUses[i].ReturnToPool();
+            for (var i = 0; i < StillOnUses.Count; i++) 
+                StillOnUses[i].ReturnToPool();
         }
 
         public void ReturnAllObjects(Scene scene)
@@ -811,7 +837,6 @@ public class PoolManager : SingletonBehaviour<PoolManager>
 
         public void ScalePoolToNewMaximum()
         {
-            // OnUseObjs.RemoveAllNull();
             AllObjs.RemoveAllNull();
             DisabledObjs.RemoveAllNull();
             ReturnAllObjects();
