@@ -1,4 +1,5 @@
 using System;
+using _1_MonoFSM_Core.Runtime.Attributes;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -12,8 +13,8 @@ namespace MonoFSM.Core.Attributes
     //     return AssetDatabase.FindAssets(SampleDataFilter).Select(AssetDatabase.GUIDToAssetPath)
     //         .Select(AssetDatabase.LoadAssetAtPath<DescriptableData>);
     // }
-
-    [AssetSelector(Paths = "Packages/com.monofsm.core|Assets",FlattenTreeView = true)] //fixme; 動態 path name? 從 ScriptableObjectPathConfig 取得？
+    [TypeRestrictFilter]
+    // [AssetSelector(Paths = "Packages/com.monofsm.core|Assets",FlattenTreeView = true)] //fixme; 動態 path name? 從 ScriptableObjectPathConfig 取得？
     [ListDrawerSettings(ShowFoldout = false)]
     public class SOConfigAttribute : Attribute
     {

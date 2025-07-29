@@ -251,8 +251,6 @@ namespace MonoFSM.Core
                     $"Transition failed from {Name} to {transition.TargetState.Name}: {e.Message}{e.StackTrace}", this);
                 return false;
             }
-            
-
             // if (transition.IsForced == true)
             //     return true;
 
@@ -261,7 +259,7 @@ namespace MonoFSM.Core
 
             if (transition.TargetState.CanEnterState() == false)
                 return false;
-            Debug.Log($"Can Transitioning from {Name} to {transition.TargetState.Name}", this);
+            // Debug.Log($"Can Transitioning from {Name} to {transition.TargetState.Name}", this);
             return true;
         }
     }

@@ -15,6 +15,7 @@ namespace MonoFSM.Core.Editor
     /// <summary>
     /// TypeRestrictFilterAttribute 的通用 OdinAttributeDrawer
     /// 用於過濾帶有 RestrictType 屬性的欄位下拉選項
+    /// 支援任何 ScriptableObject 類型
     /// </summary>
     public class TypeRestrictFilterAttributeDrawer : OdinAttributeDrawer<TypeRestrictFilterAttribute>
     {
@@ -22,18 +23,19 @@ namespace MonoFSM.Core.Editor
         {
             return property.ValueEntry != null &&
                    (property.ValueEntry.TypeOfValue == typeof(VariableTag) ||
-                    property.ValueEntry.TypeOfValue == typeof(MonoEntityTag));
+                    property.ValueEntry.TypeOfValue == typeof(MonoEntityTag) ||
+                    typeof(ScriptableObject).IsAssignableFrom(property.ValueEntry.TypeOfValue));
         }
 
         protected override void DrawPropertyLayout(GUIContent label)
         {
             var currentValue = Property.ValueEntry.WeakSmartValue;
+            var expectedType = GetExpectedType();
 
             // 驗證當前選中的值是否符合過濾條件
-            if (currentValue != null && Attribute.ExpectedType != null)
+            if (currentValue != null && expectedType != null)
             {
                 var actualType = Attribute.GetRestrictType(currentValue);
-                var expectedType = Attribute.ExpectedType;
                 var isValid = false;
 
                 if (actualType != null)
@@ -63,6 +65,28 @@ namespace MonoFSM.Core.Editor
             DrawFilteredSelector(label, currentValue);
         }
 
+        /// <summary>
+        ///     獲取期望的類型，如果 Attribute.ExpectedType 為 null，則使用 property 本身的型別
+        /// </summary>
+        private Type GetExpectedType()
+        {
+            if (Attribute.ExpectedType != null)
+                return Attribute.ExpectedType;
+
+            // 使用 property 本身的型別作為期望類型
+            var propertyType = Property.ValueEntry.TypeOfValue;
+
+            // 對於特殊類型，返回相應的類型
+            if (propertyType == typeof(VariableTag) || propertyType == typeof(MonoEntityTag))
+                return propertyType;
+
+            // 對於其他 ScriptableObject，直接返回該類型
+            if (typeof(ScriptableObject).IsAssignableFrom(propertyType))
+                return propertyType;
+
+            return null;
+        }
+
         private void DrawFilteredSelector(GUIContent label, object currentValue)
         {
             // 繪製按鈕來開啟選擇器
@@ -75,7 +99,8 @@ namespace MonoFSM.Core.Editor
 
                 if (SirenixEditorGUI.SDFIconButton(buttonText, 16, SdfIconType.CaretDownFill, IconAlignment.RightEdge))
                 {
-                    var selector = new TypeRestrictFilteredSelector(Attribute, Property.ValueEntry.TypeOfValue);
+                    var selector = new TypeRestrictFilteredSelector(Attribute, Property.ValueEntry.TypeOfValue,
+                        GetExpectedType());
                     selector.SelectionConfirmed += col =>
                     {
                         Property.ValueEntry.WeakSmartValue = col.FirstOrDefault();
@@ -93,11 +118,14 @@ namespace MonoFSM.Core.Editor
     {
         private readonly TypeRestrictFilterAttribute _filterAttribute;
         private readonly Type _targetType;
+        private readonly Type _expectedType;
 
-        public TypeRestrictFilteredSelector(TypeRestrictFilterAttribute filterAttribute, Type targetType)
+        public TypeRestrictFilteredSelector(TypeRestrictFilterAttribute filterAttribute, Type targetType,
+            Type expectedType = null)
         {
             _filterAttribute = filterAttribute;
             _targetType = targetType;
+            _expectedType = expectedType ?? filterAttribute.ExpectedType;
             DrawConfirmSelectionButton = false;
             SelectionTree.Config.SelectMenuItemsOnMouseDown = true;
             SelectionTree.Config.ConfirmSelectionOnDoubleClick = true;
@@ -151,22 +179,24 @@ namespace MonoFSM.Core.Editor
 
         private bool ValidateAsset(ScriptableObject asset)
         {
-            if (asset == null || _filterAttribute.ExpectedType == null)
-                return true;
+            if (asset == null)
+                return false;
+
+            // 如果沒有期望類型，則檢查是否與目標類型相符
+            if (_expectedType == null) return _targetType.IsAssignableFrom(asset.GetType());
 
             var actualType = _filterAttribute.GetRestrictType(asset);
-            var expectedType = _filterAttribute.ExpectedType;
 
             if (actualType == null)
                 return false;
 
             // 完全匹配
-            if (actualType == expectedType)
+            if (actualType == _expectedType)
                 return true;
 
             // 檢查是否允許相容類型
             if (_filterAttribute.AllowCompatibleTypes)
-                return expectedType.IsAssignableFrom(actualType);
+                return _expectedType.IsAssignableFrom(actualType);
 
             return false;
         }
@@ -176,7 +206,7 @@ namespace MonoFSM.Core.Editor
             if (asset == null) return "Unknown";
 
             var restrictType = _filterAttribute.GetRestrictType(asset);
-            return restrictType?.Name ?? "Unknown";
+            return restrictType?.Name ?? asset.GetType().Name;
         }
     }
 }

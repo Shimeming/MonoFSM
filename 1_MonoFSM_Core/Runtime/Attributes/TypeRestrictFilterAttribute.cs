@@ -1,11 +1,14 @@
 using System;
+using MonoFSM.Runtime.Mono;
+using MonoFSM.Variable;
+using UnityEngine;
 
 namespace _1_MonoFSM_Core.Runtime.Attributes
 {
     /// <summary>
     /// 用於過濾帶有 RestrictType 屬性的欄位的通用 Attribute
     /// 可以指定期望的類型來過濾下拉選單中的選項
-    /// 支援 VariableTag 和 MonoEntityTag 等類型
+    /// 支援 VariableTag 和 MonoEntityTag 等類型，以及任何 ScriptableObject
     /// </summary>
     public class TypeRestrictFilterAttribute : Attribute
     {
@@ -23,6 +26,13 @@ namespace _1_MonoFSM_Core.Runtime.Attributes
         /// 自定義錯誤訊息
         /// </summary>
         public string CustomErrorMessage { get; }
+
+        /// <summary>
+        ///     無參數構造函數 - 將使用 property 本身的型別作為期望類型
+        /// </summary>
+        public TypeRestrictFilterAttribute() : this(null)
+        {
+        }
         
         /// <summary>
         /// 構造函數
@@ -44,9 +54,10 @@ namespace _1_MonoFSM_Core.Runtime.Attributes
         {
             return target switch
             {
-                MonoFSM.Variable.VariableTag variableTag => variableTag.VariableMonoType,
-                MonoFSM.Runtime.Mono.MonoEntityTag entityTag => entityTag.RestrictType,
-                _ => null
+                VariableTag variableTag => variableTag.VariableMonoType,
+                MonoEntityTag entityTag => entityTag.RestrictType,
+                ScriptableObject scriptableObject => scriptableObject.GetType(),
+                _ => target?.GetType()
             };
         }
         
@@ -55,10 +66,14 @@ namespace _1_MonoFSM_Core.Runtime.Attributes
         /// </summary>
         public string GetAssetSearchFilter(Type targetType)
         {
-            if (targetType == typeof(MonoFSM.Variable.VariableTag))
+            if (targetType == typeof(VariableTag))
                 return "t:VariableTag";
-            if (targetType == typeof(MonoFSM.Runtime.Mono.MonoEntityTag))
+            if (targetType == typeof(MonoEntityTag))
                 return "t:MonoEntityTag";
+
+            // 通用處理：對於任何 ScriptableObject，搜尋所有 ScriptableObject
+            if (typeof(ScriptableObject).IsAssignableFrom(targetType))
+                return "t:ScriptableObject";
             
             // 通用處理：嘗試從類型名稱推斷
             return $"t:{targetType.Name}";
