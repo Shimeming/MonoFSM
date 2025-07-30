@@ -225,22 +225,6 @@ public class AnimatedPoolObject : PoolObject
 }
 ```
 
-### 自動銷毀功能
-
-```csharp
-public class AutoDestroyObject : PoolObject
-{
-    void Start()
-    {
-        // 設置 3 秒後自動歸還到池
-        UseAutoDestroy = true;
-        AutoDestroyTime = 3f;
-        
-        // 或者動態設置
-        OverrideDestroyTime(5f);
-    }
-}
-```
 
 ### 服務定位器模式
 

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using MonoFSMCore.Runtime.LifeCycle;
-using PrimeTween;
 using MonoFSM.Core.Attributes;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -284,16 +283,6 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IResetStateRestore, IPoola
     }
     
 
-    //Shooter 想要變更Destory 設定
-    public void OverrideDestroyTime(float time)
-    {
-        // RaisePoolObjectReturnEvent();
-
-        UseAutoDestroy = true;
-        AutoDestroyTime = time;
-
-        RegisterDestroy();
-    }
 
     public void PoolObjectResetAndStart() //只有收進去pool的才需要這個
     {
@@ -308,16 +297,11 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IResetStateRestore, IPoola
             iBorrowOnEnable.OnBorrowFromPoolOnEnable();
         }
 
-        if (UseAutoDestroy)
-        {
-            RegisterDestroy(); //打開了才註冊ㄋ
-        }
     }
 
 
     public void BeforeObjectReturnToPool(PoolManager manager)
     {
-        destroyTween.Stop();
         CheckList();
         // ResetAnim();
 
@@ -341,7 +325,6 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IResetStateRestore, IPoola
         _resetData = TransformResetHelper.TransformData.Create(_resetData.position, _resetData.rotation, _resetData.scale, null);
         
         CheckList();
-        destroyTween.Stop();
         
         if (TryGetComponent<PositionConstraint>(out var constraint))
         {
@@ -381,7 +364,6 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IResetStateRestore, IPoola
 
     public void ReturnToPool()
     {
-        destroyTween.Stop();
         PoolLogger.LogInfo("Attempting to return to pool", this);
         if (_bindingPoolManager == null)
         {
@@ -405,7 +387,6 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IResetStateRestore, IPoola
             }
 
             PoolLogger.LogInfo("Successfully returned to pool", this);
-            // destroyTween.Stop();
             _bindingPoolManager.ReturnToPool(this);
         }
     }
@@ -440,36 +421,14 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IResetStateRestore, IPoola
 
     private bool onScene = false;
 
-    private void RegisterDestroy()
-    {
-        if (UseAutoDestroy)
-        {
-            PoolLogger.LogInfo($"RegisterDestroy: {AutoDestroyTime}s", this);
-            destroyTween.Stop();
-            // UniTask.Delay(TimeSpan.FromSeconds(AutoDestroyTime)).Forget();
-            destroyTween = this.DelayTask(AutoDestroyTime, (target) =>
-            {
-                PoolLogger.LogInfo($"AutoDestroy triggered after {target.AutoDestroyTime}s", target);
-                target.ReturnToPool();
-                target.Log("AutoDestroyTime:", target.AutoDestroyTime);
-            });
-        }
-    }
-
-    [PreviewInInspector] private Tween destroyTween;
-
 
     //一開始就在場景上的物件
     public bool UseSceneAsPool => this.gameObject.scene.name != null && OriginalPrefab == null;
     private Transform oriParent; //在場景上的物件，要回到原本的parent
 
-    public bool UseAutoDestroy = false;
-    [ShowIf(nameof(UseAutoDestroy))] public float AutoDestroyTime = 0; //fixme: 用-1就好了？
-
     private void OnDestroy()
     {
         // RaisePoolObjectReturnEvent();
-        destroyTween.Stop();
         //被別人越權刪除前 跟pool講一聲
         if (this.IsFromPool)
         {
@@ -533,7 +492,6 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IResetStateRestore, IPoola
         TransformReset();
 
         // ResetAnim();
-        destroyTween.Stop();
         // this.Break();
     }
 
