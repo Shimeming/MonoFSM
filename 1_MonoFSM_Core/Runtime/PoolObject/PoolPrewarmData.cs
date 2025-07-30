@@ -23,7 +23,7 @@ public class PoolPrewarmData : ScriptableObject
     {
         addressableRecords.RemoveAll((a) => a._assetReference == null || a._prefab == null);
         // Debug.Log("[TryFindPrefab] targetReference.AssetGUID" + targetReference.AssetGUID);
-        //FIXME:怎麼會寫array...
+        // Search through addressable records for matching GUID
         foreach (var a in addressableRecords)
         {
             // Debug.Log("[TryFindPrefab] a._assetReference" + a._assetReference.AssetGUID);

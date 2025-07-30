@@ -22,28 +22,13 @@ using Debug = UnityEngine.Debug;
 public delegate void BeforeActiveHandler(PoolObject obj);
 
 /// <summary>
-/// FIXME: 重寫！
+/// 池管理器 - 管理所有物件池的建立、管理和生命週期
 /// </summary>
-public class PoolManager : SingletonBehaviour<PoolManager>
+public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
 {
     public static void PreparePoolObjectImplementation(PoolObject obj)
     {
-        if (obj.TryGetComponent<PrefabSerializeCache>(out var cache))
-        {
-            cache.RestoreReferenceCache();
-        }
-        else
-        {
-            AutoAttributeManager.AutoReferenceAllChildren(obj.gameObject); //
-        }
-
-        HandleGameLevelAwakeReverse(obj.gameObject);
-        HandleGameLevelAwake(obj.gameObject);
-        HandleGameLevelStartReverse(obj.gameObject);
-        HandleGameLevelStart(obj.gameObject);
-        LevelResetChildrenReload(obj.gameObject);
-        obj.OnPrepare();
-        // obj.PoolObjectResetAndStart();
+        MonoFSM.Runtime.SceneLifecycleManager.PreparePoolObjectImplementation(obj);
     }
 
     // public static void HandleGameLevelConfigSetting(MonoBehaviour level)
@@ -68,114 +53,37 @@ public class PoolManager : SingletonBehaviour<PoolManager>
     //     }
     // }
 
-    //LevelReset, 重職關卡時，一換scene時
-    //開放世界用不到？死掉復活？
-    public  static void ResetReload(GameObject root)
+    /// <summary>
+    /// 場景重置和重新載入處理
+    /// </summary>
+    public static void ResetReload(GameObject root)
     {
-        //每次重置都要做的, LevelReset, LevelResetAfter?
-        LevelResetChildrenReload(root);
-        //大便！
-        // HandleEnterLevelReset(root);
-        //FIXME: 再重整一下
-        LevelResetStart(root);
+        MonoFSM.Runtime.SceneLifecycleManager.ResetReload(root);
     }
 
 
     public static void OnBeforeDestroyScene(Scene s)
     {
-        
-        foreach (var g in s.GetRootGameObjects())
-        {
-            foreach (var rcgOnDestroy in g.GetComponentsInChildren<ISceneDestroy>(true))
-            {
-                try
-                {
-                    rcgOnDestroy.OnSceneDestroy();
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError(e);
-                }
-
-            }
-        }
+        MonoFSM.Runtime.SceneLifecycleManager.OnBeforeDestroyScene(s);
     }
 
 
+    [System.Obsolete("Use SceneLifecycleManager.LevelResetChildrenReload instead")]
     public static void LevelResetChildrenReload(GameObject gObj)
     {
-        var levelResets = new List<IResetStateRestore>();
-        gObj.GetComponentsInChildren(true, levelResets);
-        levelResets.Reverse();
-        foreach (var item in levelResets)
-        {
-            if (item == null)
-                continue;
-            try
-            {
-                item.ResetStateRestore();
-            }
-            catch (Exception e)
-            {
-                if (item is MonoBehaviour behaviour)
-                    Debug.LogError(e.Message + "\n" + e.StackTrace, behaviour);
-                else
-                    Debug.LogError(e.Message + "\n" + e.StackTrace);
-            }
-        }
+        MonoFSM.Runtime.SceneLifecycleManager.LevelResetChildrenReload(gObj);
     }
 
-    /// <summary>
-    /// 摸別人，綁定事件
-    /// </summary>
-    /// <param name="gObj"></param>
-    //最新規，九日沒在用？
-    public static void LevelResetStart(GameObject gObj) //由下往上
+    [System.Obsolete("Use SceneLifecycleManager.LevelResetStart instead")]
+    public static void LevelResetStart(GameObject gObj)
     {
-        var levelResets = new List<IResetStart>();
-        gObj.GetComponentsInChildren(true, levelResets);
-        levelResets.Reverse();
-        foreach (var item in levelResets)
-        {
-            if (item == null)
-                continue;
-            // try
-            // {
-            item.ResetStart();
-            // }
-            // catch (Exception e)
-            // {
-            //     if (item is MonoBehaviour behaviour)
-            //         Debug.LogError(e.Message + "\n" + e.StackTrace, behaviour);
-            //     else
-            //         Debug.LogError(e.Message + "\n" + e.StackTrace);
-            // }
-        }
+        MonoFSM.Runtime.SceneLifecycleManager.LevelResetStart(gObj);
     }
 
-    public static void HandleGameLevelAwake(GameObject level) //FIXME: 不要放這？
+    [System.Obsolete("Use SceneLifecycleManager.HandleGameLevelAwake instead")]
+    public static void HandleGameLevelAwake(GameObject level)
     {
-        var levelAwakes = new List<ISceneAwake>(level.GetComponentsInChildren<ISceneAwake>(true));
-        // ILevelAwakes.Reverse();
-        foreach (var item in levelAwakes)
-        {
-            if (item == null)
-                continue;
-            Profiler.BeginSample(item.ToString());
-            try
-            {
-                item.EnterSceneAwake();
-            }
-            catch (Exception e)
-            {
-                if (item is MonoBehaviour behaviour)
-                    Debug.LogError(e.StackTrace, behaviour);
-                else
-                    Debug.LogError(e.StackTrace);
-            }
-
-            Profiler.EndSample();
-        }
+        MonoFSM.Runtime.SceneLifecycleManager.HandleGameLevelAwake(level);
     }
 
     // public static void HandleEnterLevelReset(GameObject level)
@@ -201,79 +109,22 @@ public class PoolManager : SingletonBehaviour<PoolManager>
     // }
 
 
+    [System.Obsolete("Use SceneLifecycleManager.HandleGameLevelAwakeReverse instead")]
     public static void HandleGameLevelAwakeReverse(GameObject level)
     {
-        var ILevelAwakes = new List<ISceneAwakeReverse>(level.GetComponentsInChildren<ISceneAwakeReverse>(true));
-        ILevelAwakes.Reverse();
-        foreach (var item in ILevelAwakes)
-        {
-            if (item == null)
-                continue;
-            Profiler.BeginSample(item.ToString());
-            try
-            {
-                item.EnterSceneAwakeReverse();
-            }
-            catch (Exception e)
-            {
-                if (item is MonoBehaviour)
-                    Debug.LogError(e.StackTrace, item as MonoBehaviour);
-                else
-                    Debug.LogError(e.StackTrace);
-            }
-
-            Profiler.EndSample();
-        }
+        MonoFSM.Runtime.SceneLifecycleManager.HandleGameLevelAwakeReverse(level);
     }
 
+    [System.Obsolete("Use SceneLifecycleManager.HandleGameLevelStart instead")]
     public static void HandleGameLevelStart(GameObject level)
     {
-        var levelStarts = new List<ISceneStart>(level.GetComponentsInChildren<ISceneStart>(true));
-
-        //巢狀RCGArgEventBinder  要從下面往上組
-        // ILevelStarts.Reverse();
-
-        foreach (var item in levelStarts)
-        {
-            if (item == null)
-                continue;
-            try
-            {
-                item.EnterSceneStart();
-            }
-            catch (Exception e)
-            {
-                if (item is MonoBehaviour)
-                    Debug.LogError(e.Message + "\n" + e.StackTrace, item as MonoBehaviour);
-                else
-                    Debug.LogError(e.StackTrace);
-            }
-        }
+        MonoFSM.Runtime.SceneLifecycleManager.HandleGameLevelStart(level);
     }
 
+    [System.Obsolete("Use SceneLifecycleManager.HandleGameLevelStartReverse instead")]
     public static void HandleGameLevelStartReverse(GameObject level)
     {
-        var ILevelStarts = new List<ISceneStartReverse>(level.GetComponentsInChildren<ISceneStartReverse>(true));
-
-        //巢狀RCGArgEventBinder  要從下面往上組
-        ILevelStarts.Reverse();
-
-        foreach (var item in ILevelStarts)
-        {
-            if (item == null)
-                continue;
-            try
-            {
-                item.EnterSceneStartReverse();
-            }
-            catch (Exception e)
-            {
-                if (item is MonoBehaviour)
-                    Debug.LogError(e.StackTrace, item as MonoBehaviour);
-                else
-                    Debug.LogError(e.StackTrace);
-            }
-        }
+        MonoFSM.Runtime.SceneLifecycleManager.HandleGameLevelStartReverse(level);
     }
 
     // public bool IsReady = false;
@@ -371,7 +222,14 @@ public class PoolManager : SingletonBehaviour<PoolManager>
         poolbjects.localPosition = Vector3.zero;
         poolbjects.gameObject.SetActive(false);
         
-        
+        // Register this instance with the service locator
+        PoolServiceLocator.RegisterPoolManager(this);
+    }
+    
+    protected void OnDestroy()
+    {
+        // Clear services when manager is destroyed
+        PoolServiceLocator.ClearServices();
     }
 
     public void PrepareGlobalPrewarmData()
@@ -418,7 +276,7 @@ public class PoolManager : SingletonBehaviour<PoolManager>
         }
         else
         {
-            Debug.LogError("RunTime Instantiate");
+            PoolLogger.LogWarning("Runtime instantiate - object not pooled");
             return Instantiate(obj, position, rotation, parent);
         }
     }
@@ -437,10 +295,11 @@ public class PoolManager : SingletonBehaviour<PoolManager>
         }
 
 
+        PoolLogger.LogWarning($"Please prewarm asset: {obj.AssetReference.AssetGUID}");
 #if UNITY_EDITOR
-        Debug.LogError("Please Prewarm this:" + obj.editorAsset, obj.editorAsset);
+        if (obj.editorAsset != null)
+            PoolLogger.LogWarning("Please prewarm this asset", obj.editorAsset);
 #endif
-        Debug.LogError("Please Prewarm this:" + obj.AssetReference.AssetGUID);
 
         if (allLoadedRCGRefereces.Contains(obj) == false)
         {
@@ -469,7 +328,7 @@ public class PoolManager : SingletonBehaviour<PoolManager>
     {
         if (obj == null)
         {
-            Debug.LogError("BorrowOrInstantiate: obj is null");
+            PoolLogger.LogError("BorrowOrInstantiate: obj is null");
             return null;
         }
 
@@ -479,7 +338,7 @@ public class PoolManager : SingletonBehaviour<PoolManager>
         }
         else
         {
-            Debug.LogError("It's not a pool object...", obj);
+            PoolLogger.LogWarning("Object is not a pool object, using Instantiate", obj);
             return Instantiate(obj, position, rotation, parent);
         }
     }
@@ -487,44 +346,30 @@ public class PoolManager : SingletonBehaviour<PoolManager>
     private PoolObject Borrow(PoolObject prefab, Vector3 position, Quaternion rotation, Transform parent = null,
         Action<PoolObject> handler = null)
     {
-        //FIXME: 這很糟
+        // Prevent borrowing during pool recalculation to avoid inconsistent state
         if (_recalculating)
         {
-            Debug.LogError("為何會在ReCalculating的時候借東西？" + prefab, prefab);
+            PoolLogger.LogError($"Cannot borrow during recalculation: {prefab.name}", prefab);
             return null;
         }
 
 
         if (prefab.UseSceneAsPool)
         {
+            // 初始重置
             prefab.TransformReset();
-            //FIXME:這裡又跑一次...
             prefab.PoolObjectResetAndStart();
 
-            var transform1 = prefab.transform;
-            transform1.parent = parent;
-            transform1.rotation = rotation;
-            transform1.position = position;
-
-
-            prefab.OnBorrowFromPool(null); //OnPoolReset
-
-            // 這會影響設定黨 樹上有結構
-
-            //FIXME: 為什麼要做這件事？？
-
-            //先reset, 後面才
-            prefab.OverrideTransformSetting(position, rotation, parent, prefab.transform.localScale);
+            // 設置新的 Transform 位置
+            var defaultScale = TransformResetHelper.GetDefaultScale(prefab);
+            prefab.OverrideTransformSetting(position, rotation, parent, defaultScale);
             prefab.TransformReset();
 
+            prefab.OnBorrowFromPool(null);
             prefab.gameObject.SetActive(true);
-            // prefab.ResetAnim();
-            //FIXME:這裡又跑一次...
             prefab.PoolObjectResetAndStart();
 
-            handler?.Invoke(prefab); //TODO: 這個比較後面call的？
-
-            // Debug.Log("Use Scene As Pool");
+            handler?.Invoke(prefab);
 
             return prefab;
         }
@@ -532,10 +377,7 @@ public class PoolManager : SingletonBehaviour<PoolManager>
 
         if (!PoolDictionary.ContainsKey(prefab))
         {
-#if RCG_DEV
-            //FIXME: 先拿掉的註解
-            // Debug.LogError("PoolManager: " + prefab.name + " is not in the pool dictionary");
-#endif
+            // Pool not found, create new pool on demand
             AddAPool(prefab);
             PoolDictionary[prefab].UpdatePoolEntry();
         }
@@ -548,7 +390,9 @@ public class PoolManager : SingletonBehaviour<PoolManager>
         PoolDictionary[prefab.OriginalPrefab].ReturnToPool(prefab);
     }
 
-    //FIXME: 
+    /// <summary>
+    /// Return MonoPoolObj to pool (not yet implemented)
+    /// </summary>
     public void ReturnToPool(MonoPoolObj obj)
     {
         // PoolDictionary[obj.OriginalPrefab].ReturnToPool(prefab);
@@ -559,7 +403,9 @@ public class PoolManager : SingletonBehaviour<PoolManager>
 
     private bool _recalculating = false;
     
-    //FIXME: 有可能保留AG_S2的pool, 或是在特定scene不做清除之類的動作
+    /// <summary>
+    /// 重新計算所有池的大小和狀態
+    /// </summary>
     public void ReCalculatePools()
     {
         _recalculating = true;
@@ -583,7 +429,7 @@ public class PoolManager : SingletonBehaviour<PoolManager>
                 if (currentPool.HasProtectedObjects())
                 {
                     var protectedCount = currentPool.GetProtectedObjectCount();
-                    Debug.LogError($"[PoolManager] 嘗試銷毀包含 {protectedCount} 個受保護物件的池: {currentPool._prefab.name}！已阻止銷毀。");
+                    PoolLogger.LogError($"Attempted to destroy pool with {protectedCount} protected objects: {currentPool._prefab.name}. Destruction prevented.");
                     
                     // 創建緊急 Entry 以保護這些物件
                     var emergencyEntry = new PoolObjectEntry
@@ -595,7 +441,7 @@ public class PoolManager : SingletonBehaviour<PoolManager>
                     continue;
                 }
                 
-                Debug.Log($"[PoolManager] 銷毀未使用的池: {currentPool._prefab.name}");
+                PoolLogger.LogInfo($"Destroying unused pool: {currentPool._prefab.name}");
                 PoolDictionary.Remove(currentPool._prefab);
                 allPools[i].DestroyPool();
                 allPools[i] = null;
@@ -696,7 +542,7 @@ public class PoolManager : SingletonBehaviour<PoolManager>
             if (pool.HasProtectedObjects())
             {
                 int protectedCount = pool.GetProtectedObjectCount();
-                Debug.Log($"[PoolManager] 保持池 {prefab.name} 存活，因為有 {protectedCount} 個受保護物件");
+                PoolLogger.LogInfo($"Keeping pool {prefab.name} alive due to {protectedCount} protected objects");
                 
                 // 為受保護物件創建一個虛擬的 Entry
                 return new PoolObjectEntry
@@ -753,7 +599,7 @@ public class PoolManager : SingletonBehaviour<PoolManager>
     {
         bool allValid = true;
         
-        Debug.Log("[PoolManager] Starting system integrity validation...");
+        PoolLogger.LogInfo("Starting system integrity validation...");
         
         foreach (var pool in allPools)
         {
@@ -763,7 +609,7 @@ public class PoolManager : SingletonBehaviour<PoolManager>
                 if (pool.HasProtectedObjects())
                 {
                     int protectedCount = pool.GetProtectedObjectCount();
-                    Debug.Log($"[PoolManager] Pool {pool._prefab.name} has {protectedCount} protected objects");
+                    PoolLogger.LogInfo($"Pool {pool._prefab.name} has {protectedCount} protected objects");
                 }
                 
                 // Validate basic object counts
@@ -773,7 +619,7 @@ public class PoolManager : SingletonBehaviour<PoolManager>
                 
                 if (totalObjects != inUseObjects + availableObjects)
                 {
-                    Debug.LogError($"[PoolManager] Pool {pool._prefab.name} has inconsistent object counts: Total={totalObjects}, InUse={inUseObjects}, Available={availableObjects}");
+                    PoolLogger.LogError($"Pool {pool._prefab.name} has inconsistent object counts: Total={totalObjects}, InUse={inUseObjects}, Available={availableObjects}");
                     allValid = false;
                 }
             }
@@ -781,11 +627,11 @@ public class PoolManager : SingletonBehaviour<PoolManager>
         
         if (allValid)
         {
-            Debug.Log("[PoolManager] System integrity validation passed");
+            PoolLogger.LogInfo("System integrity validation passed");
         }
         else
         {
-            Debug.LogError("[PoolManager] System integrity validation failed - check individual pool errors above");
+            PoolLogger.LogError("System integrity validation failed - check individual pool errors above");
         }
         
         return allValid;

@@ -11,7 +11,7 @@ using Debug = UnityEngine.Debug;
 /// 物件池管理單個類型的 PoolObject 實例
 /// 負責物件的創建、借用、回收和智能管理
 /// </summary>
-public class ObjectPool
+public class ObjectPool : IObjectPool
 {
     public ObjectPool(PoolObjectEntry bindingEntry, PoolManager manager)
     {
@@ -33,6 +33,11 @@ public class ObjectPool
     public PoolObject _prefab;
 
     private bool init = false;
+
+    // IObjectPool interface properties
+    public int TotalObjectCount => AllObjs?.Count ?? 0;
+    public int InUseObjectCount => OnUseObjs?.Count ?? 0;
+    public int AvailableObjectCount => DisabledObjs?.Count ?? 0;
 
     public void PoolObjectOnDestroySignal(PoolObject p)
     {
@@ -80,7 +85,7 @@ public class ObjectPool
             if (obj && obj.gameObject)
                 MonoBehaviour.Destroy(obj.gameObject);
             else
-                Debug.LogWarning("[Warning]" + _prefab.gameObject.name + " is destroyed????");
+                PoolLogger.LogWarning($"Pool object {_prefab.gameObject.name} was unexpectedly destroyed");
 
         AllObjs.Clear();
         OnUseObjs.Clear();
@@ -143,9 +148,7 @@ public class ObjectPool
                 }
             }
             
-#if RCG_DEV
-            Debug.Log($"{_bindingEntry.prefab.name}: 嘗試移除 {removableObjects.Count}/{offset} 個物件");
-#endif
+            PoolLogger.LogDev($"{_bindingEntry.prefab.name}: 嘗試移除 {removableObjects.Count}/{offset} 個物件");
             
             foreach (var obj in removableObjects)
             {
@@ -196,7 +199,7 @@ public class ObjectPool
         var protectedCount = OnUseObjs.Count(obj => obj != null && obj.IsProtected());
         if (protectedCount > 0)
         {
-            Debug.Log($"[{_prefab.name}] 保護了 {protectedCount} 個 Protected 物件不被回收");
+            PoolLogger.LogPoolRecycle(_prefab.name, returnableObjects.Count, protectedCount, _prefab);
         }
     }
     
@@ -249,10 +252,7 @@ public class ObjectPool
     {
         if (DisabledObjs.Count == 0)
         {
-            //FIXME: 先拿掉的註解
-            // Debug.LogError(
-            //     "[Pool Manager]" + _prefab.gameObject.name + " Pool Bankrupt" + "OnUsed:" + OnUseObjs.Count,
-            //     _prefab);
+            // Pool is empty, create a new object
             AddAObject(true);
         }
 
@@ -263,12 +263,11 @@ public class ObjectPool
             DisabledObjs.RemoveAt(0);
             OnUseObjs.Add(obj);
 
-            obj.OnBorrowFromPool(_poolManager); //OnPoolReset
+            obj.OnBorrowFromPool(_poolManager);
 
-            // 這會影響設定黨 樹上有結構
-
-            //FIXME: 為什麼要做這件事？？
-            obj.OverrideTransformSetting(position, rotation, parent, obj.OriginalPrefab.transform.localScale);
+            // 設置 Transform 位置和重置狀態
+            var resetData = TransformResetHelper.SetupPoolObjectTransform(obj, position, rotation, parent);
+            obj.OverrideTransformSetting(position, rotation, parent, TransformResetHelper.GetDefaultScale(obj));
             obj.TransformReset();
 
 
@@ -284,7 +283,7 @@ public class ObjectPool
         }
         else
         {
-            Debug.LogError("[Pool Manager]" + _prefab.gameObject.name + " Pool Bankrupt");
+            PoolLogger.LogError($"Pool bankrupt: {_prefab.gameObject.name}", _prefab);
             return null;
         }
     }
@@ -292,18 +291,17 @@ public class ObjectPool
     public void AddAObject(bool updatePrewarm = false)
     {
         if (_poolManager == null)
-            Debug.LogError("What?");
+            PoolLogger.LogError("PoolManager is null during AddAObject");
 
         var originPrefabActive = _prefab.gameObject.activeSelf;
-        _prefab.gameObject.SetActive(false); //FIXME: 為什麼prefab instantiate前需要關著？？ 
-        //因為開著他會跑Awake 關起來才不會跑
+        // Disable prefab before instantiation to prevent Awake from running during instantiation
+        _prefab.gameObject.SetActive(false);
 
         var obj = MonoBehaviour.Instantiate(_prefab, Vector3.zero, Quaternion.identity);
         MonoBehaviour.DontDestroyOnLoad(obj);
         obj.SetBindingPool(_poolManager);
         PoolManager.PreparePoolObjectImplementation(obj);
-        //FIXME: 為什麼要關著prepare? 
-        //這邊會跑auto
+        // Prepare implementation while object is disabled to control initialization order
 
         obj.gameObject.SetActive(true);
         //打開 開始跑Awake
@@ -333,7 +331,7 @@ public class ObjectPool
             _bindingEntry.prefab.gameObject.scene.name != default &&
             _bindingEntry.prefab.gameObject.scene.name != null)
         {
-            Debug.LogError("Update Pre warm Data Failed :" + _bindingEntry.prefab.gameObject.name);
+            PoolLogger.LogError($"Update prewarm data failed: {_bindingEntry.prefab.gameObject.name}", _bindingEntry.prefab);
 
             return;
         }
@@ -343,7 +341,7 @@ public class ObjectPool
             if (_poolManager.globalPrewarmDataLogger != null)
             {
                 _poolManager.globalPrewarmDataLogger.UpdatePoolObjectEntry(_bindingEntry.prefab, AllObjs.Count);
-                Debug.LogError("Update Global Pool Entry" + AllObjs.Count, _bindingEntry.prefab);
+                PoolLogger.LogInfo($"Update Global Pool Entry: {AllObjs.Count}", _bindingEntry.prefab);
                 return;
             }
         }
@@ -352,14 +350,12 @@ public class ObjectPool
             if (_poolManager.prewarmDataLogger != null)
             {
                 _poolManager.prewarmDataLogger.UpdatePoolObjectEntry(_bindingEntry.prefab, AllObjs.Count);
-                Debug.LogError("Update Scene Pool Entry" + AllObjs.Count, _bindingEntry.prefab);
+                PoolLogger.LogInfo($"Update Scene Pool Entry: {AllObjs.Count}", _bindingEntry.prefab);
                 return;
             }
         }
 
-        //FIXME: 這裡有問題
-        // Debug.LogError("Update Pre warm Data Failed :" + _bindingEntry.prefab.gameObject.name,
-        //     _bindingEntry.prefab.gameObject);
+        // Note: Update prewarm data validation handled by caller
     }
 
 
@@ -375,8 +371,8 @@ public class ObjectPool
             OnUseObjs.Remove(obj);
             DisabledObjs.Insert(0, obj);
 
-            //FIXME: 
-            if (obj.transform.parent != null) //有被借到某個特定node才
+            // Reset parent to pool container if object was borrowed to a specific node
+            if (obj.transform.parent != null)
                 obj.transform.SetParent(_poolManager.poolbjects);
 
             obj.OnReturnToPool(_poolManager);
@@ -402,17 +398,12 @@ public class ObjectPool
         DisabledObjs = new List<PoolObject>();
         OnUseObjs = new HashSet<PoolObject>();
 
-#if RCG_DEV
-        Debug.Log(
-            "[PoolManager] Create New Pool: " + _bindingEntry.prefab + ":AllObjs.Count " +
-            _bindingEntry.DefaultMaximumCount);
-#endif
+        PoolLogger.LogDev($"Create New Pool: {_bindingEntry.prefab.name} with {_bindingEntry.DefaultMaximumCount} objects");
         // SetIsHandledPoolRequestPoolObject(_prefab, true);
         for (var i = 0; i < ObjectCount; i++)
             //關掉原型??
             AddAObject();
 
-        //TODO: PoolRequest給場上的東西？？
         init = true;
     }
 }

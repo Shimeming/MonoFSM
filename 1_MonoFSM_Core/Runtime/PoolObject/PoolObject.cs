@@ -33,7 +33,7 @@ public interface IPoolObjectPlayer
 }
 
 [DisallowMultipleComponent]
-public class PoolObject : MonoBehaviour, ISceneAwake, IResetStateRestore
+public class PoolObject : MonoBehaviour, ISceneAwake, IResetStateRestore, IPoolableObject
 {
     // public MonoReferenceCache _monoReferenceCache; //要是prefab asset才需要
 
@@ -52,17 +52,17 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IResetStateRestore
         this.SetFilterForAssignPrefab();
     }
 
-    public bool canBePlayByFXplayer = true; //可不可以被Fxplayer 丟出來 (FIXME: 狀聲詞ㄑ)
+    public bool canBePlayByFXplayer = true; // 可不可以被FXPlayer使用
     public bool IsGlobalPool;
     
     public enum ProtectionState
     {
-        Unprotected,  // 未受保護，可以被回收
-        Protected     // 受保護，不會被回收
+        Recyclable,   // 可回收狀態，可以被池管理器回收
+        Protected     // 受保護狀態，不會被強制回收
     }
     
-    [Header("物件生命週期管理")]
-    [HideInInspector] public ProtectionState CurrentProtectionState = ProtectionState.Unprotected;
+    [Header("物件保護管理")]
+    [HideInInspector] public ProtectionState CurrentProtectionState = ProtectionState.Recyclable;
 
     public enum ShootFrom
     {
@@ -77,40 +77,20 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IResetStateRestore
     }
 
 
-    //FIXME: 不一定會有hitData呀，怪物被噴出來了
-    [Header("決定要跟fxplayer, 還是hitData(Receiver)的位置")]
-    public ShootFrom InitPosType = ShootFrom.HitData; //TODO: 應該是IPoolObject... PoolOnShoot, OnSpawn
-    // public bool IsShootFromHitData = true;
-    // public List<EffectPositionConstrain> posContraints;
-    // [HideInInspector]
-    // public bool busy = false;
-
-    // public int UnsolvedIssueBeforeDestroy
-    // {
-    //     get
-    //     {
-    //         return _unsolvedIssueBeforeDestroy;
-    //     }
-    //     set
-    //     {
-    //         _unsolvedIssueBeforeDestroy = value;
-    //     }
-    // }
-
-    // private int _unsolvedIssueBeforeDestroy = 0;
+    [Header("決定要跟FXPlayer還是HitData(Receiver)的位置")]
+    public ShootFrom InitPosType = ShootFrom.HitData; // 決定初始位置的來源
 
 
     [HideInInspector] public PoolObject OriginalPrefab;
+    
+    // IPoolableObject interface properties
+    PoolObject IPoolableObject.OriginalPrefab => OriginalPrefab;
     // private bool _onUse = false;
 
     [HideInInspector] public PoolManager _bindingPoolManager;
 
     public PoolObjEvent OnReturnEvent = new PoolObjEvent();
 
-    // public bool IsFromPool()
-    // {
-    //     return _bindingPoolManager != null;
-    // }
 
     public void SetBindingPool(PoolManager manager)
     {
@@ -132,7 +112,7 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IResetStateRestore
 
     [PreviewInInspector] private bool _animResetterInited = false;
 
-    private void InitAnimResetters() //一次就夠了, FIXME: defensive爛扣一個進入點的話就沒有這個問題??
+    private void InitAnimResetters() // 初始化動畫重置器，只需執行一次
     {
         if (_animResetterInited)
             return;
@@ -155,9 +135,7 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IResetStateRestore
 
     private void OnEnable()
     {
-        //FIXME: 沒有cache, 很爛
-        // AutoAttributeManager.AutoReferenceAllChildren(gameObject);
-        // PoolManager.PreparePoolObjectImplementation(this);
+        // Note: Object preparation is handled by PoolManager during spawn process
     }
 
     // private void OnEnable() //從poolObject拿出來要確定動畫有重置，因為有人很壞，還沒開就被call Reset and Start
@@ -208,85 +186,45 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IResetStateRestore
     }
 
 
-    //Position , Parent, Rotation
+    /// <summary>
+    /// 重置 Transform 到初始狀態
+    /// </summary>
     public void TransformReset()
     {
-        if (!CheckResetParameterInit()) return; //FIXME: 這什麼意思？ 還沒初始化過，就塞回去會錯
+        if (!CheckResetParameterInit()) return;
+        
         if (_transformResetOverrider != null)
         {
             _transformResetOverrider.ResetTransform();
         }
         else
         {
-            var transform1 = transform;
-            transform1.SetParent(initParent);
-            //rigidbody2d的位置還沒跟上？
-            transform1.localPosition = initPosition;
-            //在levelreset的時候有call這個應該就對了，讓物理跟上transform
-            // Physics2D.SyncTransforms();
-            // Debug.Log("[PoolObjectResetAndStart] transform Reset", gameObject);
-            transform1.localRotation = initRotation;
-
-            transform1.localScale = initlocalScale;
+            TransformResetHelper.ResetTransform(transform, _resetData);
         }
     }
 
-    public void OverrideTransformSetting(Vector3 p = default, Quaternion rotation = default,
+    /// <summary>
+    /// 設置 Transform 並記錄為重置狀態
+    /// </summary>
+    public void OverrideTransformSetting(Vector3 position = default, Quaternion rotation = default,
         Transform parentTransform = null, Vector3 scale = default)
     {
-        var transform1 = transform;
-
-        transform1.SetParent(parentTransform);
-        transform1.position = p;
-        transform1.rotation = rotation;
-        // Debug.Log("[PoolObjectResetAndStart] transform" + transform1.rotation, transform1.parent);
-        initPosition = transform1.localPosition;
-        initRotation = transform1.localRotation;
-        //FIXME: 為什麼這個把initParent改掉了?
-        initParent = parentTransform;
-        // Debug.Log("[PoolObjectResetAndStart] transform initParent", t);
-        initlocalScale = scale;
-        isResetParameterInit = true;
+        _resetData = TransformResetHelper.SetupTransform(transform, position, rotation, scale, parentTransform);
+        _isResetDataInitialized = true;
     }
 
-    // public Vector3 InitPosition => initPosition; 
-    private Vector3 initPosition;
-
-    public void OverrideInitPosition(Vector3 pos)
-    {
-        initPosition = pos;
-        var transform1 = transform;
-        initRotation = transform1.localRotation;
-        // Debug.Log("[PoolObjectResetAndStart] transform initParent", transform1.parent);
-        initParent = transform1.parent;
-        initlocalScale = transform1.localScale;
-        isResetParameterInit = true;
-    }
-
-    [PreviewInInspector] private Quaternion initRotation;
-
-    [PreviewInInspector] private Vector3 InitEulerRotation => initRotation.eulerAngles;
-
-    [ShowInPlayMode] private Transform initParent;
-    private Vector3 initlocalScale;
-
-    public Vector3 ResetPos => initPosition;
-
-    private bool isResetParameterInit = false;
+    [PreviewInInspector] private TransformResetHelper.TransformData _resetData;
+    private bool _isResetDataInitialized = false;
+    
+    public Vector3 ResetPos => _resetData.position;
 
     private bool CheckResetParameterInit()
     {
-        if (isResetParameterInit)
+        if (_isResetDataInitialized)
             return true;
 
-        var transform1 = transform;
-        initPosition = transform1.localPosition;
-        initRotation = transform1.localRotation;
-        initParent = transform1.parent;
-        // Debug.Log("[PoolObjectResetAndStart] transform initParent", transform1.parent);
-        initlocalScale = transform.localScale;
-        isResetParameterInit = true;
-
+        _resetData = TransformResetHelper.CaptureTransformData(transform);
+        _isResetDataInitialized = true;
         return false;
     }
 
@@ -298,10 +236,7 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IResetStateRestore
     }
     
     /// <summary>
-    /// 設定物件為可回收狀態
-
-    /// <summary>
-    /// 設定物件為受保護狀態，不會被回收
+    /// 設定物件為受保護狀態，不會被強制回收
     /// </summary>
     public void MarkAsProtected()
     {
@@ -309,11 +244,11 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IResetStateRestore
     }
     
     /// <summary>
-    /// 設定物件為未受保護狀態，可以被回收
+    /// 設定物件為可回收狀態，允許被池管理器回收
     /// </summary>
-    public void MarkAsUnprotected()
+    public void MarkAsRecyclable()
     {
-        CurrentProtectionState = ProtectionState.Unprotected;
+        CurrentProtectionState = ProtectionState.Recyclable;
     }
 
     /// <summary>
@@ -322,6 +257,30 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IResetStateRestore
     public bool IsProtected()
     {
         return CurrentProtectionState == ProtectionState.Protected;
+    }
+    
+    /// <summary>
+    /// 檢查物件是否可以回收
+    /// </summary>
+    public bool IsRecyclable()
+    {
+        return CurrentProtectionState == ProtectionState.Recyclable;
+    }
+
+    // IPoolableObject interface implementation
+    /// <summary>
+    /// 設置保護狀態（IPoolableObject介面實作）
+    /// </summary>
+    public void SetProtectionState(bool isProtected)
+    {
+        if (isProtected)
+        {
+            MarkAsProtected();
+        }
+        else
+        {
+            MarkAsRecyclable();
+        }
     }
     
 
@@ -341,7 +300,7 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IResetStateRestore
         // this.Break();
         CheckList();
         // ResetAnim();
-        this.Log("[PoolObjectResetAndStart]", gameObject);
+        PoolLogger.LogInfo("PoolObjectResetAndStart executed", this);
         PoolManager.ResetReload(gameObject);
 
         foreach (var iBorrowOnEnable in IPoolBorrowedList)
@@ -370,23 +329,20 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IResetStateRestore
             }
             catch (Exception e)
             {
-                Debug.LogError(e.Message);
+                PoolLogger.LogError($"Error in PoolBeforeReturnToPool for {t.GetType().Name}", e, this);
             }
         }
     }
 
-    // private bool needResetAnim = false;
 
     public void OnReturnToPool(PoolManager manager)
     {
         lastPlayer = null;
-        initParent = null;
-        // Debug.Log("[PoolObject] return to pool", this);
-        // RaisePoolObjectReturnEvent();
+        _resetData = TransformResetHelper.TransformData.Create(_resetData.position, _resetData.rotation, _resetData.scale, null);
+        
         CheckList();
-        // needResetAnim = true;
-
         destroyTween.Stop();
+        
         if (TryGetComponent<PositionConstraint>(out var constraint))
         {
             constraint.enabled = false;
@@ -403,7 +359,7 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IResetStateRestore
             {
                 if (IPoolObjectList[i] == null)
                 {
-                    Debug.LogError("IPoolObjectList[" + i + "] == null", this.gameObject);
+                    PoolLogger.LogError($"IPoolObjectList[{i}] == null", this.gameObject);
                 }
                 else
                 {
@@ -412,24 +368,24 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IResetStateRestore
             }
             catch (Exception e)
             {
-                Debug.LogError(e.StackTrace);
+                PoolLogger.LogComponentError(IPoolObjectList[i], "PoolOnReturnToPool", e);
             }
         }
 
         if (OnReturnEvent != null)
         {
             OnReturnEvent.Invoke(this);
-            OnReturnEvent.RemoveAllListeners(); //FIXME: 這個會GC!
+            OnReturnEvent.RemoveAllListeners();
         }
     }
 
     public void ReturnToPool()
     {
         destroyTween.Stop();
-        this.Log("[PoolObject] return 0", gameObject);
+        PoolLogger.LogInfo("Attempting to return to pool", this);
         if (_bindingPoolManager == null)
         {
-            this.Log("[PoolObject] return object to pool failed", this);
+            PoolLogger.LogWarning("Return to pool failed - no binding pool manager", this);
             gameObject.SetActive(false);
             // GameObject.Destroy(gameObject);
         }
@@ -437,8 +393,7 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IResetStateRestore
         {
             if (!onScene)
             {
-                //FIXME: 好像還有return twice問題
-                //                Debug.LogWarning("return object to pool twice!", gameObject);
+                // Object already returned to pool, prevent double return
                 return;
             }
 
@@ -449,7 +404,7 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IResetStateRestore
                 OnReturnEvent.RemoveAllListeners();
             }
 
-            this.Log("[PoolObject] return object to pool", gameObject);
+            PoolLogger.LogInfo("Successfully returned to pool", this);
             // destroyTween.Stop();
             _bindingPoolManager.ReturnToPool(this);
         }
@@ -474,8 +429,7 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IResetStateRestore
             }
             catch (Exception e)
             {
-                Debug.LogError(e.Message);
-                Debug.LogError(e.StackTrace);
+                PoolLogger.LogComponentError(poolObj, "PoolOnPrepared", e);
             }
         }
     }
@@ -490,12 +444,12 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IResetStateRestore
     {
         if (UseAutoDestroy)
         {
-            Debug.Log("RegisterDestroy" + AutoDestroyTime, this);
+            PoolLogger.LogInfo($"RegisterDestroy: {AutoDestroyTime}s", this);
             destroyTween.Stop();
             // UniTask.Delay(TimeSpan.FromSeconds(AutoDestroyTime)).Forget();
             destroyTween = this.DelayTask(AutoDestroyTime, (target) =>
             {
-                Debug.Log("DelayTask AutoDestroyTime", target);
+                PoolLogger.LogInfo($"AutoDestroy triggered after {target.AutoDestroyTime}s", target);
                 target.ReturnToPool();
                 target.Log("AutoDestroyTime:", target.AutoDestroyTime);
             });
