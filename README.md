@@ -25,8 +25,27 @@ MonoFSM is a comprehensive Finite State Machine (FSM) framework for Unity, desig
 
 ## Installation
 
-* Just use: Install through Unity Package Manager with git url
-* To Contribute: use "git submodule" to include this module into your project, and add as local package through Unity package manager
+### Prerequisites
+
+Before installing MonoFSM, you must install the required dependencies:
+
+1. **Install Odin Inspector** (Paid)
+   - Purchase and install [Odin Inspector](https://odininspector.com/) from the Asset Store
+
+2. **Install Unity Official Packages**
+   - Open Package Manager → Unity Registry
+   - Install `Addressables` package
+   - Install `Timeline` package
+
+3. **Install Third-Party Packages**
+   - **UniTask**: Add `https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask` via Package Manager
+   - **ZString**: Add `https://github.com/Cysharp/ZString.git?path=src/ZString/Assets/Scripts/ZString` via Package Manager  
+   - **PrimeTween**: Add `https://github.com/KyryloKuzyk/PrimeTween.git` via Package Manager
+
+### Install MonoFSM
+
+* **Quick Setup**: Install through Unity Package Manager with git url
+* **For Contributors**: Use "git submodule" to include this module into your project, and add as local package through Unity Package Manager
 
 ## Why Use MonoFSM?
 
