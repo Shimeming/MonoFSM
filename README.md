@@ -24,6 +24,19 @@ MonoFSM is a comprehensive Finite State Machine (FSM) framework for Unity, desig
 
 ## Why Use MonoFSM?
 
+1. **Seamless Integration in Unity's Scene Hierarchy**  
+   MonoFSM appears directly in Unity’s Scene hierarchy, allowing roles like *programmers*, *designers*, and *artists* to work on the same objects naturally. This fosters organic information sharing within the project and reduces the need for extensive documentation.  
+
+2. **Prefab-Based Extensibility and Reusability**  
+   By leveraging Unity’s Prefab and Prefab Variant system, MonoFSM overcomes the traditional FSM limitations of poor reusability and difficulty in expansion, making it straightforward to build and extend state machines.  
+
+3. **Intent-Driven Dependency Injection (DI)**  
+   Using GameObjects as the foundation allows for clear and intuitive dependency injection. Object activation and deactivation become explicit expressions of intent, which can be further interpreted and adapted later.  
+
+4. **Tight Integration with Unity’s Native Tools**  
+   Because MonoFSM is built on GameObjects, it naturally supports Unity’s Animation Clips and Timeline. This enables designers to create timeline-driven state machines with fine-grained, time-based control suitable for level design and gameplay micro-adjustments.
+
+
 ## Core Features
 
 ### Editor Tools
