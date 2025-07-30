@@ -10,6 +10,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Profiling;
 
+[RequireComponent(typeof(MonoPoolObj))]
 public class PoolBank : MonoBehaviour,ISceneSavingCallbackReceiver,ISceneAwake
 {
     [InlineButton("FindOrCreatePoolPrewarmData","Create")]

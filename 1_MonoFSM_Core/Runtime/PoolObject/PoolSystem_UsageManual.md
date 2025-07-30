@@ -3,6 +3,8 @@
 ## 📋 目錄
 - [系統架構概覽](#系統架構概覽)
 - [快速開始](#快速開始)
+- [池預熱 (Prewarming) - 推薦使用 PoolBank](#池預熱-prewarming---推薦使用-poolbank)
+- [MonoPoolObj 依賴說明](#monopoolobj-依賴說明)
 - [基本功能](#基本功能)
 - [進階功能](#進階功能)
 - [編輯器工具](#編輯器工具)
@@ -19,9 +21,10 @@
 | 組件 | 職責 | 檔案位置 |
 |------|------|----------|
 | **PoolManager** | 池系統的中央管理器 | `PoolManager.cs` |
-| **PoolObject** | 可被池化的物件基類 | `PoolObject.cs` |
+| **PoolObject** | 可被池化的物件基類（基礎池功能） | `PoolObject.cs` |
+| **MonoPoolObj** | 生命週期管理器（進階池功能 + WorldUpdateSimulator 整合） | `MonoPoolObj.cs` |
 | **ObjectPool** | 管理單一類型物件的池 | `ObjectPool.cs` |
-| **PoolBank** | 場景池配置管理 | `PoolBank.cs` |
+| **PoolBank** | 🌟 自動化場景池配置管理（推薦使用） | `PoolBank.cs` |
 | **SceneLifecycleManager** | 場景生命週期管理 (在 MonoFSM.Runtime 命名空間中) | `SceneLifecycleManager.cs` |
 
 ### 新增的輔助系統
@@ -101,14 +104,52 @@ PoolManager.Instance.ReturnToPool(poolObject);
 
 ## 基本功能
 
-### 池預熱 (Prewarming)
+### 池預熱 (Prewarming) - 推薦使用 PoolBank
 
-#### 使用 PoolPrewarmData
+#### 🌟 方法一：PoolBank 自動化管理（推薦）
+
+PoolBank 提供完全自動化的預熱資料管理，是最簡單且推薦的使用方式：
+
+**設置步驟**：
+1. 在場景中放置一個 GameObject
+2. 添加 PoolBank 組件
+3. 點擊 Inspector 中的「Create」按鈕自動生成預熱資料
+4. 系統會自動在 `Assets/15_PoolManagerPrewarm/` 創建對應場景的預熱資產
+
+```csharp
+// PoolBank 會自動處理所有設置，無需手動程式碼
+// 只需在場景中放置 PoolBank 組件即可
+
+public class MySceneController : MonoBehaviour
+{
+    void Start()
+    {
+        // PoolBank 會在 EnterSceneAwake 時自動執行：
+        // 1. 準備全域預熱資料
+        // 2. 設置場景預熱資料  
+        // 3. 重新計算池大小
+        // 4. 顯示動態 Pool 統計資訊
+    }
+}
+```
+
+**自動化特性**：
+- ✅ 自動根據場景名稱生成 `{SceneName}_Prewarm.asset`
+- ✅ 自動處理全域預熱資料 `_Global_Prewarm.asset`  
+- ✅ 在 `EnterSceneAwake` 時自動設置和計算池
+- ✅ 支援 Protected 物件統計和動態監控
+- ✅ 場景保存時自動維護預熱資料
+- ✅ 無需手動撰寫初始化程式碼
+
+#### 方法二：手動 PoolPrewarmData 管理（進階）
+
+適用於需要精細控制或跨場景共享預熱資料的情況：
+
 ```csharp
 // 1. 建立 PoolPrewarmData 資產
 // 在 Project 視窗右鍵 -> Create -> Boa -> PoolManager -> Create PoolPrewarmData
 
-// 2. 設定預熱物件
+// 2. 手動設定預熱物件
 public class GameLevelController : MonoBehaviour
 {
     public PoolPrewarmData prewarmData;
@@ -121,22 +162,30 @@ public class GameLevelController : MonoBehaviour
 }
 ```
 
-#### 場景池設置
+**使用時機**：
+- 需要跨多個場景共享預熱設定
+- 需要在運行時動態調整預熱參數
+- 需要程式化控制預熱時機
+
+### MonoPoolObj 依賴說明
+
+**重要**：PoolBank 需要 MonoPoolObj 組件才能正常運作。
+
+MonoPoolObj 是生命週期管理組件，負責處理物件的場景喚醒、狀態重置等生命週期事件。當你使用 PoolBank 時，系統會自動添加 MonoPoolObj 組件到同一個 GameObject 上。
+
+#### 自動添加
 ```csharp
-// 使用 PoolBank 組件自動管理場景池
-public class SceneController : MonoBehaviour
-{
-    void Awake()
-    {
-        // PoolBank 會自動處理場景池的設置
-        var poolBank = GetComponent<PoolBank>();
-        if (poolBank != null)
-        {
-            // 池會在 EnterSceneAwake 時自動設置
-        }
-    }
-}
+// PoolBank 已設置 [RequireComponent(typeof(MonoPoolObj))]
+// 添加 PoolBank 組件時會自動添加 MonoPoolObj
 ```
+
+#### 生命週期處理
+MonoPoolObj 會自動處理以下生命週期事件：
+- **場景喚醒**：處理 ISceneAwake 介面
+- **狀態重置**：處理 IResetStateRestore 介面  
+- **場景開始**：處理 ISceneStart 介面
+
+大多數情況下，你不需要直接操作 MonoPoolObj，PoolBank 會自動管理所有相關功能。
 
 ### Transform 管理
 
@@ -441,9 +490,19 @@ public class MyPoolObjectController : MonoBehaviour
 
 ### 1. 效能優化
 
-#### 預熱策略
+#### 預熱策略選擇指南
+
+**🌟 推薦順序**：
+1. **PoolBank 自動化**：適合 90% 的使用場景
+2. **手動 PoolPrewarmData**：需要跨場景共享或精細控制時使用
+3. **動態池調整**：運行時根據需求動態調整池大小
+
 ```csharp
-// 在關卡開始前預熱所有需要的物件
+// 方法一：PoolBank 自動化（推薦）
+// 無需程式碼，只需在場景中放置 PoolBank 組件
+// PoolBank 會自動在 EnterSceneAwake 時處理所有預熱邏輯
+
+// 方法二：手動控制（進階）
 public class LevelManager : MonoBehaviour
 {
     public PoolPrewarmData levelPrewarmData;
@@ -461,6 +520,22 @@ public class LevelManager : MonoBehaviour
     }
 }
 ```
+
+**性能考量**：
+- ✅ PoolBank 會在場景喚醒時自動處理預熱，無需手動介入
+- ✅ 配合 MonoPoolObj 可獲得完整的生命週期管理
+- ✅ Protected 物件會被自動保護不被回收
+- ✅ 自動統計和監控池使用狀況
+
+**使用場景對照表**：
+
+| 需求 | PoolBank 自動化 | 手動 PoolPrewarmData |
+|------|:--------------:|:------------------:|
+| 單一場景池管理 | ✅ 推薦 | ⚠️ 過度複雜 |
+| 跨場景共享池 | ❌ 不支援 | ✅ 適合 |
+| 運行時調整 | ❌ 有限 | ✅ 靈活 |
+| 初學者使用 | ✅ 簡單 | ❌ 複雜 |
+| 維護成本 | ✅ 極低 | ⚠️ 中等 |
 
 #### 批量操作
 ```csharp
@@ -725,6 +800,24 @@ public class OptimizedSpawner : MonoBehaviour
 | `ResetTransform` | 重置Transform | `Transform, TransformData` |
 | `CaptureTransformData` | 捕捉Transform數據 | `Transform` |
 | `SetupTransform` | 設置Transform | `Transform, Vector3, Quaternion, Vector3, Transform` |
+
+#### PoolBank 方法
+
+| 方法 | 說明 | 參數 |
+|------|------|------|
+| `FindOrCreatePoolPrewarmData` | 自動尋找或創建預熱資料 | 無 |
+| `FindPoolPrewarmDataFor` | 為指定 PoolBank 尋找預熱資料 | `PoolBank` |
+| `FindGlobalPrewarmData` | 尋找全域預熱資料 | 無 |
+| `OnBeforeSceneSave` | 場景保存前的處理 | 無（自動調用）|
+| `EnterSceneAwake` | 場景喚醒時的自動處理 | 無（自動調用）|
+
+#### MonoPoolObj 相關介面（由 PoolBank 自動處理）
+
+| 介面 | 說明 |
+|------|------|
+| `ISceneAwake` | 場景喚醒處理 |
+| `IResetStateRestore` | 狀態重置還原 |
+| `ISceneStart` | 場景開始處理 |
 
 ---
 
