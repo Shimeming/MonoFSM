@@ -368,6 +368,9 @@ public class ObjectPool : IObjectPool
             obj.BeforeObjectReturnToPool(_poolManager);
             // if (obj.UnsolvedIssueBeforeDestroy <= 0)
             // {
+            
+            //歸還強制解除保護。
+            obj.MarkAsRecyclable();
             OnUseObjs.Remove(obj);
             DisabledObjs.Insert(0, obj);
 

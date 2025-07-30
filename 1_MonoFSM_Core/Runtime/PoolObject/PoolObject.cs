@@ -50,8 +50,118 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IResetStateRestore, IPoola
     {
         this.SetFilterForAssignPrefab();
     }
-
-    public bool canBePlayByFXplayer = true; // 可不可以被FXPlayer使用
+    
+    [BoxGroup("池測試工具")]
+    [Button("借用到場景", ButtonSizes.Medium)]
+    [ShowIf("@!UnityEngine.Application.isPlaying || !this.isOnScene")]
+    [EnableIf("@UnityEngine.Application.isPlaying")]
+    private void TestBorrowToScene()
+    {
+        if (!Application.isPlaying)
+        {
+            PoolLogger.LogWarning("借用功能只能在 Runtime 時使用", this);
+            return;
+        }
+        
+        if (PoolManager.Instance == null)
+        {
+            PoolLogger.LogError("找不到 PoolManager", this);
+            return;
+        }
+        
+        // 在攝影機前方生成物件
+        Vector3 spawnPosition = Vector3.zero;
+        if (Camera.main != null)
+        {
+            spawnPosition = Camera.main.transform.position + Camera.main.transform.forward * 5f;
+        }
+        
+        var borrowedObj = PoolManager.Instance.BorrowOrInstantiate(
+            this.OriginalPrefab!=null? this.OriginalPrefab.gameObject :this.gameObject, 
+            spawnPosition, 
+            Quaternion.identity, 
+            null,
+            (poolObj) => {
+                PoolLogger.LogInfo($"成功借用物件: {poolObj.name}", poolObj);
+            }
+        );
+        
+        if (borrowedObj != null)
+        {
+            PoolLogger.LogInfo($"借用物件到場景: {borrowedObj.name} 位置: {spawnPosition}", this);
+        }
+    }
+    
+    [BoxGroup("池測試工具")]
+    [Button("歸還到池", ButtonSizes.Medium)]
+    [ShowIf("@UnityEngine.Application.isPlaying && this.isOnScene")]
+    [EnableIf("@UnityEngine.Application.isPlaying && this.isOnScene")]
+    private void TestReturnToPool()
+    {
+        if (!Application.isPlaying)
+        {
+            PoolLogger.LogWarning("歸還功能只能在 Runtime 時使用", this);
+            return;
+        }
+        
+        if (!this.isOnScene)
+        {
+            PoolLogger.LogWarning("物件不在場景中，無法歸還", this);
+            return;
+        }
+        
+        PoolLogger.LogInfo($"準備歸還物件到池: {this.name}", this);
+        this.ReturnToPool();
+    }
+    
+    [BoxGroup("池測試工具")]
+    [Button("切換保護狀態", ButtonSizes.Small)]
+    [ShowIf("@UnityEngine.Application.isPlaying && this.isOnScene")]
+    [EnableIf("@UnityEngine.Application.isPlaying")]
+    private void TestToggleProtection()
+    {
+        if (!Application.isPlaying)
+        {
+            PoolLogger.LogWarning("保護狀態切換只能在 Runtime 時使用", this);
+            return;
+        }
+        
+        if (this.IsProtected())
+        {
+            this.MarkAsRecyclable();
+            PoolLogger.LogInfo($"物件 {this.name} 已設為可回收", this);
+        }
+        else
+        {
+            this.MarkAsProtected();
+            PoolLogger.LogInfo($"物件 {this.name} 已設為保護狀態", this);
+        }
+    }
+    
+    [BoxGroup("池測試工具")]
+    [ShowInInspector]
+    [ReadOnly]
+    [ShowIf("@UnityEngine.Application.isPlaying")]
+    private string TestStatus => GetTestStatus();
+    
+    private string GetTestStatus()
+    {
+        if (!Application.isPlaying)
+            return "請進入 Play Mode 使用測試功能";
+            
+        var status = new System.Text.StringBuilder();
+        status.AppendLine($"物件狀態: {(this.isOnScene ? "在場景中" : "在池中")}");
+        status.AppendLine($"保護狀態: {(this.IsProtected() ? "Protected" : "Recyclable")}");
+        status.AppendLine($"來自池: {(this.IsFromPool ? "是" : "否")}");
+        
+        if (this.IsFromPool && this._bindingPoolManager != null)
+        {
+            status.AppendLine($"綁定管理器: {this._bindingPoolManager.name}");
+        }
+        
+        return status.ToString();
+    }
+    
     public bool IsGlobalPool;
     
     public enum ProtectionState
