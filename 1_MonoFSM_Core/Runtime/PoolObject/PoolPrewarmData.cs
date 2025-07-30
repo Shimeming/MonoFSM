@@ -16,14 +16,14 @@ public class PoolPrewarmData : ScriptableObject
         PoolObjectUtility.GenCacheForAllPrefabs(this);
     }
 #endif
-    public List<PoolManager.PoolObjectEntry> objectEntries = new List<PoolManager.PoolObjectEntry>();
-    public List<PoolManager.AddressableEntry> addressableRecords = new ();
+    public List<PoolObjectEntry> objectEntries = new List<PoolObjectEntry>();
+    public List<AddressableEntry> addressableRecords = new ();
 
     public GameObject TryFindPrefab(AssetReference targetReference)
     {
         addressableRecords.RemoveAll((a) => a._assetReference == null || a._prefab == null);
         // Debug.Log("[TryFindPrefab] targetReference.AssetGUID" + targetReference.AssetGUID);
-        //FIXME:怎麼會寫array...
+        // Search through addressable records for matching GUID
         foreach (var a in addressableRecords)
         {
             // Debug.Log("[TryFindPrefab] a._assetReference" + a._assetReference.AssetGUID);
@@ -47,7 +47,7 @@ public class PoolPrewarmData : ScriptableObject
         }
 
         Debug.Log("PoolPrewarm Addressable Register" + asset.editorAsset, this);
-        addressableRecords.Add(new PoolManager.AddressableEntry(asset,g));
+        addressableRecords.Add(new AddressableEntry(asset,g));
         UnityEditor.EditorUtility.SetDirty(this);
 #endif
     }
@@ -72,7 +72,7 @@ public class PoolPrewarmData : ScriptableObject
             }
         }
 
-        var newEntry = new PoolManager.PoolObjectEntry
+        var newEntry = new PoolObjectEntry
         {
             prefab = poolObject,
             DefaultMaximumCount = count
