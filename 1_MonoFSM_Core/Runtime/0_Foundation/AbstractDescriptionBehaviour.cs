@@ -1,12 +1,14 @@
 using System;
-using System.Diagnostics;
-using RCGExtension;
-using UnityEngine;
-
-using Sirenix.OdinInspector;
+using System.Collections.Generic;
+using System.Reflection;
 using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Runtime;
+using RCGExtension;
+using Sirenix.OdinInspector;
+using UnityEditor;
+using UnityEditor.SceneManagement;
+using UnityEngine;
 using Debug = UnityEngine.Debug;
 
 namespace MonoFSM.Foundation
@@ -15,18 +17,18 @@ namespace MonoFSM.Foundation
         IAfterPrefabStageOpenCallbackReceiver, IDrawHierarchyBackGround
     {
         // Cache for required fields per type (serialized only)
-        private static readonly System.Collections.Generic.Dictionary<Type, System.Reflection.FieldInfo[]>
+        private static readonly Dictionary<Type, FieldInfo[]>
             _requiredFieldsCache = new();
 
         // Cache for required fields per type (including non-serialized)
-        private static readonly System.Collections.Generic.Dictionary<Type, System.Reflection.FieldInfo[]>
+        private static readonly Dictionary<Type, FieldInfo[]>
             _requiredFieldsCacheWithNonSerialized = new();
 
         // Track if we're in prefab stage mode for more detailed error checking
         private bool _isPrefabStageMode = false;
 
         //沒有做AutoComponent下會顯示error? 還是應該讓prefab openstage時做一次，scene上跳過這個判定，雖然稍嫌trivial
-        private static System.Reflection.FieldInfo[] GetRequiredHierarchyValidateFields(Type type,
+        private static FieldInfo[] GetRequiredHierarchyValidateFields(Type type,
             bool includeNonSerialized = false)
         {
             var cache = includeNonSerialized ? _requiredFieldsCacheWithNonSerialized : _requiredFieldsCache;
@@ -34,13 +36,13 @@ namespace MonoFSM.Foundation
             if (cache.TryGetValue(type, out var cachedFields))
                 return cachedFields;
 
-            var fields = type.GetFields(System.Reflection.BindingFlags.Instance |
-                                        System.Reflection.BindingFlags.NonPublic |
-                                        System.Reflection.BindingFlags.Public);
+            var fields = type.GetFields(BindingFlags.Instance |
+                                        BindingFlags.NonPublic |
+                                        BindingFlags.Public);
 
             // Find all fields with [Required] or [DropDownRef] attributes that are not "interfaces"
             //interface在組合component就會看到了, 也比較不會在refactor之後掉reference
-            System.Reflection.FieldInfo[] requiredFields;
+            FieldInfo[] requiredFields;
 
             if (includeNonSerialized)
                 // Include all fields with required attributes, regardless of serialization
@@ -100,7 +102,7 @@ namespace MonoFSM.Foundation
                     if (isShowError)
                     {
                         Debug.LogError($"Required field '{field.Name}' is null in {gameObject.name}", this);
-                        UnityEditor.EditorGUIUtility.PingObject(this);
+                        EditorGUIUtility.PingObject(this);
                     }
                         
                     return true;
@@ -130,8 +132,12 @@ namespace MonoFSM.Foundation
 #if UNITY_EDITOR
             try
             {
+                // Debug.Log("DescriptionTag: " + DescriptionTag, this);
+                // Debug.Log(
+                //     $"Description of {GetType()}: Description:{Description} process:{DescriptionPreprocess(Description)}",
+                //     this);
                 gameObject.name = $"[{DescriptionTag}] {DescriptionPreprocess(Description)}";
-                UnityEditor.EditorUtility.SetDirty(gameObject);    
+                EditorUtility.SetDirty(gameObject);    
             }
             catch (Exception e)
 
@@ -174,7 +180,7 @@ namespace MonoFSM.Foundation
 
 #if UNITY_EDITOR
             // Double-check using Unity's API for more reliability
-            if (UnityEditor.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage() != null) isInPrefabStage = true;
+            if (PrefabStageUtility.GetCurrentPrefabStage() != null) isInPrefabStage = true;
 
 
             if (isInPrefabStage)

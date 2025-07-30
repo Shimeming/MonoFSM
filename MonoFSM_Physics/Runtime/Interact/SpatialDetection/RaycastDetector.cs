@@ -1,10 +1,9 @@
-using System;
 using System.Collections.Generic;
+using MonoFSM.Core.Attributes;
+using MonoFSM.Core.Detection;
 using MonoFSM.Core.Simulate;
 using MonoFSM.Physics;
 using MonoFSM.Variable.Attributes;
-using MonoFSM.Core.Attributes;
-using MonoFSM.Core.Detection;
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;
 using UnityEngine;
@@ -72,7 +71,10 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
                     Debug.Log("Spatial enter: hitPoint " + hit.collider, hit.collider);
 
                     //Note: Detectable必須在 rigidbody上面？
-                    OnDetectEnter(hit.rigidbody.gameObject, hit.point, hit.normal);
+                    if (hit.rigidbody)
+                        OnDetectEnter(hit.rigidbody.gameObject, hit.point, hit.normal);
+                    else
+                        OnDetectEnter(hit.collider.gameObject, hit.point, hit.normal);
                 }
             }
             // foreach (var col in _thisFrameColliders)

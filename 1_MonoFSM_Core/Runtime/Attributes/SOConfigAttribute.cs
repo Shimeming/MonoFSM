@@ -7,14 +7,7 @@ namespace MonoFSM.Core.Attributes
 {
     [EditorOnly]
     [IncludeMyAttributes]
-    //FIXME: asset selector好難用
-    //        IEnumerable<DescriptableData> GetDescriptableData()
-    // {
-    //     return AssetDatabase.FindAssets(SampleDataFilter).Select(AssetDatabase.GUIDToAssetPath)
-    //         .Select(AssetDatabase.LoadAssetAtPath<DescriptableData>);
-    // }
-    [TypeRestrictFilter]
-    // [AssetSelector(Paths = "Packages/com.monofsm.core|Assets",FlattenTreeView = true)] //fixme; 動態 path name? 從 ScriptableObjectPathConfig 取得？
+    [TypeRestrictFilter] //FIXME: 好像要可以過濾對應的型別, list失敗
     [ListDrawerSettings(ShowFoldout = false)]
     public class SOConfigAttribute : Attribute
     {

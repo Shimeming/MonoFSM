@@ -44,5 +44,12 @@ namespace _1_MonoFSM_Core.Runtime._3_FlagData
 
             EditorUtility.SetDirty(this);
         }
+
+        public void AddFlag(GameFlagBase flag)
+        {
+            if (flag == null || Flags.Contains(flag)) return;
+            Flags.Add(flag);
+            EditorUtility.SetDirty(this);
+        }
     }
 }

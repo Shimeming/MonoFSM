@@ -1,20 +1,13 @@
-using MonoFSM.Variable;
-using MonoFSM.Variable.Attributes;
+using System;
 using MonoFSM.Core.Attributes;
+using MonoFSM.Core.Runtime;
 using MonoFSM.Runtime;
-using MonoFSM.Runtime.Variable;
-using MonoFSM.Runtime.Interact.EffectHit;
-using MonoFSM.Runtime.Mono;
+using MonoFSM.Variable.Attributes;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-/// <summary>
-/// FIXME: 繼承下面的
-/// 提供VariableOwner(可能會從一些奇怪的地方拿到), 必須要有HitDataProvider
-/// </summary>
-/// FIXME: 依照parent就能決定要用Dealer還是Receiver的Blackboard
-public class HitDataMonoEntityProvider : MonoBehaviour, IMonoEntityProvider //這個介面很怪？VariableOwner...那就直接I
+public class HitDataEntityProvider : AbstractEntityProvider, IEntityProvider //這個介面很怪？VariableOwner...那就直接I
 {
     //可是這裡
     [CompRef] [AutoParent] private IHitDataProvider _hitDataProvider;
@@ -26,11 +19,13 @@ public class HitDataMonoEntityProvider : MonoBehaviour, IMonoEntityProvider //�
         Receiver
     }
 
-    string IMonoEntityProvider.Description => $"{ownerType}'s Blackboard";
+    //FIXME: Owner可以 自動判斷吧，parent有Dealer就表示要用Receiver的
+
+    string IEntityProvider.Description => $"{ownerType}'s Blackboard";
 
     public HitDataVariableOwner ownerType;
 
-    public MonoEntity monoEntity
+    public override MonoEntity monoEntity //runtime才會有，要有？
     {
         get
         {
@@ -42,37 +37,31 @@ public class HitDataMonoEntityProvider : MonoBehaviour, IMonoEntityProvider //�
                 return null;
             }
 
-            var hitData = _hitDataProvider.GetHitData();
+            var hitData = _hitDataProvider.GetGeneralHitData();
             if (hitData == null)
                 // Debug.LogError("HitData is null in HitDataVariableOwnerProvider", this);
                 return null;
             switch (ownerType)
             {
                 case HitDataVariableOwner.Dealer:
-
                     Debug.Log(" HitDataVariableOwner.DealerOwner", hitData.Dealer.transform);
-                    return hitData.Dealer.transform.GetComponentInParent<MonoEntity>();
+                    return hitData.GeneralDealer.ParentEntity;
                 case HitDataVariableOwner.Receiver:
                     Debug.Log(" HitDataVariableOwner.ReceiverOwner", hitData.Receiver.transform);
-                    return hitData.Receiver.transform.GetComponentInParent<MonoEntity>();
+                    return hitData.GeneralReceiver.ParentEntity;
                 default:
-                    throw new System.NotImplementedException();
+                    throw new NotImplementedException();
             }
         }
     }
 
-    public MonoEntityTag entityTag => monoEntity?.Tag;
+
+  
 
     [ShowInDebugMode] private IEffectHitData currentHitData => _hitDataProvider?.GetHitData();
     
 
-    public T GetComponentOfOwner<T>() //好像有點白痴
-    {
-        var owner = monoEntity;
-        if (owner == null)
-            return default;
-        return owner.gameObject.GetComponent<T>();
-    }
+   
 }
 
 namespace MonoFSM.Core.Runtime
@@ -123,7 +112,7 @@ namespace MonoFSM.Core.Runtime
                     // Debug.Log(" HitDataVariableOwner.ReceiverOwner", hitData.Receiver.transform);
                     return _hitDataProvider.GetHitData().Receiver.transform.GetComponentInParent<T>();
                 default:
-                    throw new System.NotImplementedException();
+                    throw new NotImplementedException();
             }
         }
     }

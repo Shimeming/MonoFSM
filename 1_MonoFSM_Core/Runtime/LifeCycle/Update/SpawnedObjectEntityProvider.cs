@@ -1,8 +1,8 @@
 using System;
 using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
+using MonoFSM.Core.Runtime;
 using MonoFSM.Runtime;
-using MonoFSM.Runtime.Mono;
 using MonoFSM.Runtime.Variable;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -10,13 +10,14 @@ using UnityEngine;
 namespace MonoFSMCore.Runtime.LifeCycle
 {
     //FIXME: 好像很trivial, 不好懂
-    public class SpawnedObjectOwnerProvider : MonoBehaviour, IMonoEntityProvider, ICompProvider<MonoEntity>
+    //
+    public class SpawnedObjectEntityProvider : AbstractEntityProvider, IEntityProvider, ICompProvider<MonoEntity>
     {
         [Required] [ShowInInspector] [AutoParent]
-        private IMonoObjectProvider _monoObjectProvider; //我就是自己了...不行？
+        private IMonoObjectProvider _monoObjectProvider; //FIXME: 怪怪的，還是應該統一進入點SpawnAction就好？還有可能有別種嗎？
 
         [PreviewInInspector]
-        public MonoEntity monoEntity
+        public override MonoEntity monoEntity
         {
             get
             {
@@ -26,23 +27,24 @@ namespace MonoFSMCore.Runtime.LifeCycle
                     _monoObjectProvider = GetComponentInParent<IMonoObjectProvider>(true);
 #endif
                 // return _monoObjectProvider.
-
+                
                 return _monoObjectProvider?.Get()?.GetComponent<MonoEntity>();
             }
         }
 
-        //FIXME: Editor拿不到
-        [Required]
-        [PreviewInInspector]
-        public MonoEntityTag entityTag => _monoObjectProvider?.Get()?.GetComponent<MonoEntityTag>();
 
-        public T GetComponentOfOwner<T>()
-        {
-            var owner = monoEntity;
-            if (owner == null)
-                return default;
-            return owner.gameObject.GetComponent<T>();
-        }
+        //FIXME: Editor 不一定有啊..runtime才有？
+        // [Required]
+        // [PreviewInInspector]
+        // public MonoEntityTag entityTag => _monoObjectProvider?.Get()?.GetComponent<MonoEntityTag>();
+
+        // public T GetComponentOfOwner<T>()
+        // {
+        //     var owner = monoEntity;
+        //     if (owner == null)
+        //         return default;
+        //     return owner.gameObject.GetComponent<T>();
+        // }
 
         public MonoEntity Get()
         {

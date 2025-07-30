@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Auto.Utils;
 using Sirenix.OdinInspector;
+using UnityEngine;
 
 namespace MonoFSM.Runtime.Attributes
 {
@@ -28,6 +30,8 @@ namespace MonoFSM.Runtime.Attributes
         /// 期望的 ValueType（單一型別模式）
         /// </summary>
         public Type ExpectedType { get; }
+
+        public bool IsVariableNeeded { get; set; }
 
         /// <summary>
         /// 期望的 ValueType 陣列（多型別模式）
@@ -57,10 +61,10 @@ namespace MonoFSM.Runtime.Attributes
         /// <summary>
         /// 建構函式 - 單一型別
         /// </summary>
-        /// <param name="expectedType">期望的 ValueType</param>
-        public ValueTypeValidateAttribute(Type expectedType)
+        /// <param name="expectedValueType">期望的 ValueType</param>
+        public ValueTypeValidateAttribute(Type expectedValueType)
         {
-            ExpectedType = expectedType ?? throw new ArgumentNullException(nameof(expectedType));
+            ExpectedType = expectedValueType ?? throw new ArgumentNullException(nameof(expectedValueType));
         }
 
         /// <summary>
@@ -73,7 +77,7 @@ namespace MonoFSM.Runtime.Attributes
         }
 
         /// <summary>
-        /// 建構函式 - 動態函式
+        /// 建構函式 - 動態函式, 看class的，FIXME: 還是應該從property直接拿parent? 字串好嗎？
         /// </summary>
         /// <param name="dynamicTypeMethodName">返回 Type[] 或 IEnumerable&lt;Type&gt; 的方法名稱</param>
         public ValueTypeValidateAttribute(string dynamicTypeMethodName)
@@ -114,8 +118,8 @@ namespace MonoFSM.Runtime.Attributes
             {
                 // 首先嘗試標準的方法查找（public 方法）
                 var method = target.GetType().GetProperty(DynamicTypePropertyName,
-                    System.Reflection.BindingFlags.Instance |
-                    System.Reflection.BindingFlags.Public);
+                    BindingFlags.Instance |
+                    BindingFlags.Public);
 
                 // 如果找不到，使用 ReflectionHelperMethods 來查找繼承階層中的非公開方法
                 if (method == null)
@@ -132,10 +136,10 @@ namespace MonoFSM.Runtime.Attributes
                     }
                     catch (Exception ex)
                     {
-                        UnityEngine.Debug.LogError($"執行動態型別方法 '{DynamicTypePropertyName}' 時發生錯誤: {ex.Message}");
+                        Debug.LogError($"執行動態型別方法 '{DynamicTypePropertyName}' 時發生錯誤: {ex.Message}");
                     }
                 else
-                    UnityEngine.Debug.LogWarning($"找不到方法 '{DynamicTypePropertyName}' 在型別 {target.GetType().Name} 中");
+                    Debug.LogWarning($"找不到方法 '{DynamicTypePropertyName}' 在型別 {target.GetType().Name} 中");
             }
 
             return result;

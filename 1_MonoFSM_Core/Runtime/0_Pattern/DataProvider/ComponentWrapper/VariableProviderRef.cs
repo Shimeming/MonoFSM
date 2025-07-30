@@ -4,8 +4,8 @@ using System.Linq;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Utilities;
 using MonoFSM.Runtime;
-using MonoFSM.Runtime.Variable;
 using MonoFSM.Runtime.Mono;
+using MonoFSM.Runtime.Variable;
 using MonoFSM.Variable;
 using MonoFSM.Variable.Attributes;
 using Sirenix.OdinInspector;
@@ -111,7 +111,7 @@ namespace MonoFSM.Core.DataProvider
             var _ = owner;
             Debug.Log("OnVarOwnerChange" + owner, owner);
             if (owner)
-                _blackboardTag = owner.Tag; //需要set dirty嗎？
+                _blackboardTag = owner.DefaultTag; //需要set dirty嗎？
         }
 
         [OnValueChanged(nameof(OnVarOwnerChange))]
@@ -123,7 +123,7 @@ namespace MonoFSM.Core.DataProvider
         [Required]
         //開prefab
         //FIXME: 這個required會造成誤會嗎？有showif的情況
-        public IMonoEntityProvider _monoEntityProvider; 
+        public IEntityProvider _entityProvider; 
 
         private IEnumerable<ValueDropdownItem<VariableTag>> GetParentVariableTags() //editor time?
         {
@@ -133,11 +133,11 @@ namespace MonoFSM.Core.DataProvider
             {
                 case GetFromType.VariableOwnerProvider:
 
-                    if (_monoEntityProvider == null)
+                    if (_entityProvider == null)
                         return tagDropdownItems;
                     if (Application.isPlaying)
                     {
-                        var variables = _monoEntityProvider.monoEntity.VariableFolder.GetValues;
+                        var variables = _entityProvider.monoEntity.VariableFolder.GetValues;
                         foreach (var variable in variables)
                             if (variable is TVarMonoType)
                                 tagDropdownItems.Add(
@@ -261,18 +261,18 @@ namespace MonoFSM.Core.DataProvider
 
             if (_getFromType == GetFromType.VariableOwnerProvider)
             {
-                _monoEntityProvider = GetComponent<IMonoEntityProvider>();
-                if (_monoEntityProvider == null)
+                _entityProvider = GetComponent<IEntityProvider>();
+                if (_entityProvider == null)
                     // Debug.LogError("VariableOwnerProvider is null", this);
                     return null;
-                if (_monoEntityProvider.monoEntity == null)
+                if (_entityProvider.monoEntity == null)
                 {
                     if (Application.isPlaying)
                         Debug.LogError("VariableOwnerProvider.GetVariableOwner is null", this);
                     return null;
                 }
 
-                return _monoEntityProvider.monoEntity;
+                return _entityProvider.monoEntity;
             }
 
             if (_blackboardTag != null)
@@ -324,15 +324,15 @@ namespace MonoFSM.Core.DataProvider
                     
                     Debug.Log("_getFromType == GetFromType.VariableOwnerProvider",this);
 
-                    if (_monoEntityProvider == null)
+                    if (_entityProvider == null)
                         return null;
-                    if (_monoEntityProvider.monoEntity == null)
+                    if (_entityProvider.monoEntity == null)
                     {
                         Debug.LogError("_blackboardProvider.Board null", this);
                         return null;
                     }
 
-                    return _monoEntityProvider.monoEntity.GetVar(_varTag);
+                    return _entityProvider.monoEntity.GetVar(_varTag);
                 }
 
                 if (owner == null)

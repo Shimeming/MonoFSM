@@ -1,8 +1,6 @@
-using UnityEngine.Serialization;
-
 using Sirenix.OdinInspector;
-
-using MonoFSM.Condition;
+using UnityEngine;
+using UnityEngine.Serialization;
 
 public enum Operator //FIXME: equality operator
 {
@@ -22,11 +20,12 @@ namespace MonoFSM.Variable.Condition
     public class VarFloatCompareConstCondition : AbstractConditionBehaviour, ITransitionCheckInvoker
     {
         public override string Description => _monoVariableFloat != null
-            ? name = _monoVariableFloat.name + " " + GetOpString() + " " + targetValue
-            : name = "null var";
+            ? _monoVariableFloat.name + " " + GetOpString() + " " + targetValue
+            : "null var";
 
         private void OnVariableChanged()
         {
+            Debug.Log("OnVariableChanged: " + _monoVariableFloat.name, this);
             Rename();
         }
 

@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using MonoFSM.Variable.VariableBinder;
-using RCGExtension;
 using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.DataProvider;
+using MonoFSM.Variable.VariableBinder;
 using MonoFSM.VarRefOld;
+using RCGExtension;
 using Sirenix.OdinInspector;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
 using Object = UnityEngine.Object;
@@ -15,14 +16,14 @@ using Object = UnityEngine.Object;
 namespace MonoFSM.Variable
 {
     public abstract class AbstractMonoVariable : MonoBehaviour, IGuidEntity, IName, IValueOfKey<VariableTag>,
-        IOverrideHierarchyIcon, IValueProvider
+        IOverrideHierarchyIcon, IValueProvider, IBeforePrefabSaveCallbackReceiver
     {
 #if UNITY_EDITOR
         public string IconName { get; }
         public bool IsDrawingIcon => CustomIcon != null;
 
         public Texture2D CustomIcon =>
-            UnityEditor.EditorGUIUtility.ObjectContent(null, GetType()).image as Texture2D; //雞掰！
+            EditorGUIUtility.ObjectContent(null, GetType()).image as Texture2D; //雞掰！
         //UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>("Packages/com.rcgmaker.fsm/RCGMakerFSMCore/Runtime/2_Variable/VarFloatIcon.png");
 #endif
 
@@ -59,15 +60,20 @@ namespace MonoFSM.Variable
         [Button]
         private void UpdateTag()
         {
-            _varTag._variableType.SetType(GetType());
-            _varTag._valueFilterType.SetType(ValueType);
+            if (_varTag != null)
+            {
+                _varTag._variableType.SetType(GetType());
+                _varTag._valueFilterType.SetType(ValueType);
+            }
+                
+            
             // Debug.Log("Tag Changed");
             //variable folder refresh
             var variableFolder = GetComponentInParent<VariableFolder>();
             if (variableFolder)
                 variableFolder.Refresh();
 #if UNITY_EDITOR
-            UnityEditor.EditorUtility.SetDirty(_varTag);
+            EditorUtility.SetDirty(_varTag);
 #endif
         }
 
@@ -94,7 +100,7 @@ namespace MonoFSM.Variable
             return GetValue<T1>();
         }
 
-        public virtual Type ValueType => _varTag.ValueType;
+        public virtual Type ValueType => _varTag.ValueType; //遞回了ㄅ？
 
         //FIXME: 好亂喔QQ 好難trace
         public abstract object objectValue { get; } //不好？generic value?
@@ -150,6 +156,73 @@ namespace MonoFSM.Variable
             return EqualityComparer<T>.Default.Equals(v, value);
         }
 
+        public void SetValueByValueProvider(IValueProvider provider, Object byWho)
+        {
+            if (provider == null)
+            {
+                Debug.LogError("SetValueByValueProvider: provider is null", this);
+                return;
+            }
+
+            var type = provider.ValueType;
+
+            if (type == typeof(int))
+            {
+                SetValue(provider.Get<int>(), byWho);
+                return;
+            }
+
+            if (type == typeof(float))
+            {
+                SetValue(provider.Get<float>(), byWho);
+                return;
+            }
+
+            if (type == typeof(string))
+            {
+                SetValue(provider.Get<string>(), byWho);
+                return;
+            }
+
+            if (type == typeof(bool))
+            {
+                SetValue(provider.Get<bool>(), byWho);
+                return;
+            }
+
+            if (type == typeof(Vector2))
+            {
+                SetValue(provider.Get<Vector2>(), byWho);
+                return;
+            }
+
+            if (type == typeof(Vector3))
+            {
+                SetValue(provider.Get<Vector3>(), byWho);
+                return;
+            }
+
+            if (type == typeof(Vector4))
+            {
+                SetValue(provider.Get<Vector4>(), byWho);
+                return;
+            }
+
+            if (type == typeof(Quaternion))
+            {
+                SetValue(provider.Get<Quaternion>(), byWho);
+                return;
+            }
+
+            if (typeof(Object).IsAssignableFrom(type))
+            {
+                SetValue(provider.Get<Object>(), byWho);
+                return;
+            }
+
+            Debug.LogError("SetValueByValueProvider: Unsupported type " + type, this);
+            SetValue(provider.Get<object>(), byWho);
+        }
         public void SetValueByRef(AbstractSourceValueRef sourceValueRef, Object byWho)
         {
             if (sourceValueRef == null)
@@ -296,6 +369,11 @@ namespace MonoFSM.Variable
         public VariableTag[] GetKeys()
         {
             return new[] { _varTag };
+        }
+
+        public void OnBeforePrefabSave()
+        {
+            UpdateTag();
         }
     }
 }

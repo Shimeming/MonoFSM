@@ -61,7 +61,7 @@ namespace MonoFSM.VarRefOld
         //好像要指定對象耶...身上一堆provider誰知道你要哪個值？
     }
 
-    public abstract class AbstractSourceValueRef : AbstractDescriptionBehaviour
+    public abstract class AbstractSourceValueRef : AbstractDescriptionBehaviour 
     {
         public bool Equals<T>(T value)
         {
@@ -73,6 +73,14 @@ namespace MonoFSM.VarRefOld
         //還要再多一層比較好？
         [Required] [CompRef] [Auto] private IValueProvider _valueProvider; //什麼鬼命名，IValueProvider?
 
+        private IValueProvider valueProvider
+        {
+            get
+            {
+                this.EnsureComponent(ref _valueProvider);
+                return _valueProvider;
+            }
+        }
 #if UNITY_EDITOR
         //還要playmode版本？
         [ShowInDebugMode] private object _previewLastValue; // = new(); //這顆會boxing...
@@ -91,17 +99,22 @@ namespace MonoFSM.VarRefOld
             return value;
         }
 
-        [PreviewInInspector] public override string Description => ToString();
+        // [PreviewInInspector] 
+        public override string Description
+        {
+            get
+            {
+                // Debug.Log("SourceValueRef Description: " + _valueProvider.Description, this);
+                if (valueProvider == null) return "null provider";
+                return valueProvider.Description;
+            }
+        }
 
         protected override string DescriptionTag => "Source Value";
 
         public override string ToString()
         {
-#if UNITY_EDITOR
-            _valueProvider = GetComponent<IValueProvider>();
-            if (_valueProvider == null) return "";
-#endif
-            return _valueProvider.Description;
+            return Description;
         }
     }
 }

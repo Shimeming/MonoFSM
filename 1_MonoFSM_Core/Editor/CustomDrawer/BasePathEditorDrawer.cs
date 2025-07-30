@@ -5,7 +5,6 @@ using System.Reflection;
 using MonoDebugSetting;
 using MonoFSM.Core.DataProvider;
 using MonoFSM.Core.Utilities;
-using MonoFSM.Variable;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
 using UnityEditor;
@@ -56,14 +55,17 @@ namespace MonoFSM.Core.Editor
         /// </summary>
         protected void SetPathEntries(PropertyOfTypeProvider target, List<FieldPathEntry> entries)
         {
-            var field = target.GetType().GetField("_pathEntries",
-                BindingFlags.Public | BindingFlags.Instance);
-            field?.SetValue(target, entries);
+            //FIXME: 不好
+            // var field = target.GetType().GetField("_pathEntries",
+            //     BindingFlags.Public | BindingFlags.Instance);
+            // field?.SetValue(target, entries);
+            target._pathEntries = entries;
 
             // 觸發OnPathEntriesChanged方法
-            var method = target.GetType().GetMethod("OnPathEntriesChanged",
-                BindingFlags.NonPublic | BindingFlags.Instance);
-            method?.Invoke(target, null);
+            target.OnPathEntriesChanged();
+            // var method = target.GetType().GetMethod("OnPathEntriesChanged",
+            //     BindingFlags.NonPublic | BindingFlags.Instance);
+            // method?.Invoke(target, null);
         }
 
         /// <summary>
@@ -83,16 +85,16 @@ namespace MonoFSM.Core.Editor
             EditorGUILayout.LabelField("欄位路徑 (A.B.C 風格)", EditorStyles.boldLabel);
 
             // 顯示當前路徑
-            var currentPath = BuildPathString(pathEntries);
-            if (!string.IsNullOrEmpty(currentPath))
-            {
-                var style = new GUIStyle(EditorStyles.helpBox)
-                {
-                    normal = { textColor = new Color(0.2f, 0.7f, 0.2f) }, // 綠色文字
-                    fontStyle = FontStyle.Bold
-                };
-                EditorGUILayout.LabelField("當前路徑: " + currentPath, style);
-            }
+            // var currentPath = BuildPathString(pathEntries);
+            // if (!string.IsNullOrEmpty(currentPath))
+            // {
+            //     var style = new GUIStyle(EditorStyles.helpBox)
+            //     {
+            //         normal = { textColor = new Color(0.2f, 0.7f, 0.2f) }, // 綠色文字
+            //         fontStyle = FontStyle.Bold
+            //     };
+            //     EditorGUILayout.LabelField("當前路徑: " + target.GetObjectType.Name + "." + currentPath, style);
+            // }
             // else
             // {
             //     EditorGUILayout.LabelField("尚未設定路徑", EditorStyles.centeredGreyMiniLabel);
@@ -185,6 +187,7 @@ namespace MonoFSM.Core.Editor
 
                 // 使用OdinSelector來選擇屬性
                 var currentPropertyName = currentSegment._propertyName ?? "";
+                
                 var displayText = string.IsNullOrEmpty(currentPropertyName) ? "-- 選擇屬性 --" : currentPropertyName;
                 
                 // 檢查屬性是否存在，並且使用與FieldPathEntry相同的過濾邏輯

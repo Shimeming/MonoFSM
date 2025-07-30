@@ -1,15 +1,16 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using MonoFSM.Core;
-using MonoFSM.Core.Attributes;
-using Sirenix.OdinInspector;
-using UnityEngine;
-using System;
 using _1_MonoFSM_Core.Runtime.FSMCore.Core.StateBehaviour;
 using MonoFSM.AnimatorControl;
 using MonoFSM.AnimatorUtility;
-using MonoFSM.Foundation;
+using MonoFSM.Core;
+using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Editor;
+using MonoFSM.Foundation;
+using RCGExtension;
+using Sirenix.OdinInspector;
+using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.Animations;
@@ -25,7 +26,8 @@ namespace MonoFSM.Animation
     [HelpURL("https://www.notion.so/AnimatorPlayA-061be2a2d4e5414e88e84f1ed80d8ea2")]
     [Searchable]
     public class AnimatorPlayAction : AbstractDescriptionBehaviour, IAnimatorPlayAction,
-        ISceneSavingCallbackReceiver, ISelfValidator, ISerializableComponent, ITransitionCheckInvoker, IRenderAction
+        ISceneSavingCallbackReceiver, ISelfValidator, ISerializableComponent, ITransitionCheckInvoker, IRenderAction,
+        IOverrideHierarchyIcon
     {
         public override string Description => " " + animator.gameObject.name + ": " + StateName;
         protected override string DescriptionTag => "Anim";
@@ -33,6 +35,7 @@ namespace MonoFSM.Animation
         protected override void Awake()
         {
             base.Awake();
+            
             _stateNameHash = Animator.StringToHash(StateName);
         }
 
@@ -875,5 +878,9 @@ namespace MonoFSM.Animation
             base.OnBeforePrefabSave();
 #endif
         }
+
+        public string IconName => "AnimatorState Icon";
+        public bool IsDrawingIcon => true;
+        public Texture2D CustomIcon => null;
     }
 }

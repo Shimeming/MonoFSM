@@ -14,6 +14,11 @@ namespace MonoFSM_Physics.Runtime.PhysicsAction
         protected override void OnActionExecuteImplement()
         {
             var rb = _rigidbodyProvider.Get();
+            if (rb == null)
+            {
+                Debug.LogError("Rigidbody is null. Cannot perform LerpToPositionAction.", this);
+                return;
+            }
             rb.isKinematic = true;
             var targetPosition = rb.transform.position + _offsetPosition;
             // 使用Lerp方法平滑移动到目标位置

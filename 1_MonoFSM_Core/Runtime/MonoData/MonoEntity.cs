@@ -7,14 +7,15 @@ using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.DataProvider;
 using MonoFSM.Core.Simulate;
-using MonoFSM.Runtime.Variable;
 using MonoFSM.Runtime.Interact.EffectHit;
 using MonoFSM.Runtime.Mono;
+using MonoFSM.Runtime.Variable;
 using MonoFSM.Variable;
 using MonoFSM.Variable.FieldReference;
 using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;
+using UnityEditor;
 using UnityEngine;
 
 namespace MonoFSM.Runtime
@@ -30,6 +31,8 @@ namespace MonoFSM.Runtime
     public class MonoEntity : AbstractMonoDescriptable<DescriptableData>, IInstantiated,
         IBeforePrefabSaveCallbackReceiver, IGameDataProvider, IValueProvider //這樣data也要一直繼承，好ㄇ...
     {
+        //Utility? 開始要拿一些Rigidbody、Collider之類的東西了
+        public Rigidbody DefaultRigidbody => GetComponent<Rigidbody>();
         
         //FIXME: nested? MonoEntity dictionary?
         public void OnInstantiated(WorldUpdateSimulator world)
@@ -40,7 +43,7 @@ namespace MonoFSM.Runtime
             //從world去bind?
             var worldBinder = world.GetComponent<MonoEntityBinder>();
             if (worldBinder)
-                worldBinder.Add(Tag, this); //註冊法
+                worldBinder.Add(DefaultTag, this); //註冊法
             else
                 Debug.LogError("MonoDescriptableBinder not found in parent, cannot register to world binder", this);
             // GetComponent<MonoDescriptableBinder>().Add(DescriptableTag, this);
@@ -238,7 +241,7 @@ namespace MonoFSM.Runtime
             return _getMyProperty;
         }
 
-        public MonoEntityTag Key => Tag;
+        public MonoEntityTag Key => DefaultTag;
 
         public MonoEntityTag[] GetKeys()
         {
@@ -306,7 +309,7 @@ namespace MonoFSM.Runtime
                         descriptableTag.containsVariableTypeTags.Add(variable._varTag);    
                 }
 #if UNITY_EDITOR
-                UnityEditor.EditorUtility.SetDirty(descriptableTag);
+                EditorUtility.SetDirty(descriptableTag);
 #endif
             }
             

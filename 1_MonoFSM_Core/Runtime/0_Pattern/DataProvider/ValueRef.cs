@@ -1,16 +1,15 @@
 using System;
 using MonoFSM.Core.Utilities;
-using MonoFSM.Foundation;
-using Sirenix.OdinInspector;
+using MonoFSM.Variable;
 using UnityEngine;
 
 namespace MonoFSM.Core.DataProvider
 {
-    
-    public class ValueRef : PropertyOfTypeProvider
+    //讓ValueProvider可以自己拿就好？
+    public class ValueRef : AbstractVariableProviderRef
     {
         // [ShowDrawerChain]
-        [DropDownRef] [SerializeField] private PropertyOfTypeProvider _valueProvider;
+        [DropDownRef] [SerializeField] public AbstractVariableProviderRef _valueProvider;
 
         public override T1 Get<T1>()
         {
@@ -42,7 +41,27 @@ namespace MonoFSM.Core.DataProvider
             // return _valueProvider.Get<T1>();
         }
 
-        public override Type ValueType => lastPathEntryType;
+        public override Type ValueType => HasFieldPath
+            ? lastPathEntryType
+            : _valueProvider.ValueType;
+
+        public override AbstractMonoVariable VarRaw => _valueProvider?.VarRaw;
+        public override VariableTag varTag => _valueProvider?.varTag;
+
+        public override TVariable GetVar<TVariable>()
+        {
+            if (_valueProvider == null)
+            {
+                Debug.LogError("ValueRef: _valueProvider is null, cannot get variable.", this);
+                return null;
+            }
+
+            if (_valueProvider.ValueRaw is TVariable variable) return variable;
+
+            Debug.LogError($"ValueRef: Cannot cast {_valueProvider.ValueRaw.GetType()} to {typeof(TVariable)}", this);
+            return null;
+        }
+
         public override string Description => _valueProvider?.Description + "." + PropertyPath; //最後一段會重複？
         protected override string DescriptionTag => "ref";
         public override Type GetObjectType => _valueProvider?.ValueType;

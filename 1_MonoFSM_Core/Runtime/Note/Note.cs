@@ -1,7 +1,6 @@
-﻿using MonoFSM.Core.Attributes;
-using MonoFSM.Editor.DesignTool;
-using UnityEngine;
+﻿using MonoFSM.Editor.DesignTool;
 using Sirenix.OdinInspector;
+using UnityEngine;
 
 
 //Just for remind
@@ -33,7 +32,7 @@ public class Note : MonoBehaviour, IEditorOnly //IOverrideHierarchyIcon
     }
 #if UNITY_EDITOR
     [SerializeField] private NoteType _noteType = NoteType.NOTE;
-    [TextArea(5,100)]
+    [TextArea(5,100)] [Title("意圖、Prompt")]
     public string note;
 
     [ColorPalette] public Color bgColor = Color.yellow; //fixme:color 應該直接照著類型，和IDE這個註解一樣

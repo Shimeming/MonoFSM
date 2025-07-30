@@ -1,20 +1,9 @@
 using System;
-
-using System.Collections.Generic;
-using System.Reflection;
-using MonoFSM.Core.Attributes;
 using MonoFSM.Runtime;
 using MonoFSM.Runtime.Attributes;
-using MonoFSM.Runtime.Item_BuildSystem.MonoDescriptables;
-using MonoFSM.Runtime.Mono;
-using MonoFSM.Variable;
 using MonoFSM.Runtime.Variable;
-using MonoFSM.Runtime.Item_BuildSystem;
-using UIValueBinder;
-using Sirenix.OdinInspector;
+using MonoFSM.Variable;
 using UnityEngine;
-using UnityEngine.Scripting.APIUpdating;
-using UnityEngine.Serialization;
 
 namespace MonoFSM.Core.DataProvider
 {
@@ -305,6 +294,8 @@ namespace MonoFSM.Core.DataProvider
     {
         // public GameFlagBase FinalData => VarRaw?.FinalData;
         AbstractMonoVariable VarRaw { get; } //還是其實這個也可以？
+
+        public bool IsVariableValid { get; } //這個是null就不行了
         // Type GetValueType { get; }
 
         TVariable GetVar<TVariable>() where TVariable : AbstractMonoVariable;
@@ -430,30 +421,30 @@ namespace MonoFSM.Core.DataProvider
 
     //超級無敵複雜？
     //FIXME: 這個可以砍掉？
-    [Serializable]
-    public class VariableProviderFromMonoDescriptable : IVariableProvider
-    {
-        [SerializeReference] public IMonoDescriptableProvider _monoDescriptableProvider;
-
-        //FIXME: 連tag都可能需要DI
-        //FIXME: 任何資料都可能可以DI...VariableEntry
-        public VariableTag _varTag;
-
-        public AbstractMonoVariable VarRaw =>
-            _monoDescriptableProvider?.GetMonoDescriptable()?.GetVar(_varTag);
-
-        public Type GetValueType => typeof(MonoEntity);
-
-        public TVariable GetVar<TVariable>() where TVariable : AbstractMonoVariable
-        {
-            return VarRaw as TVariable;
-        }
-    }
-
-    public interface IDynamicVariableProvider //動態拿到Variable
-    {
-        AbstractMonoVariable GetMonoVariable(MonoBehaviour target);
-    }
+    // [Serializable]
+    // public class VariableProviderFromMonoDescriptable : IVariableProvider
+    // {
+    //     [SerializeReference] public IMonoDescriptableProvider _monoDescriptableProvider;
+    //
+    //     //FIXME: 連tag都可能需要DI
+    //     //FIXME: 任何資料都可能可以DI...VariableEntry
+    //     public VariableTag _varTag;
+    //
+    //     public AbstractMonoVariable VarRaw =>
+    //         _monoDescriptableProvider?.GetMonoDescriptable()?.GetVar(_varTag);
+    //
+    //     public Type GetValueType => typeof(MonoEntity);
+    //
+    //     public TVariable GetVar<TVariable>() where TVariable : AbstractMonoVariable
+    //     {
+    //         return VarRaw as TVariable;
+    //     }
+    // }
+    //
+    // public interface IDynamicVariableProvider //動態拿到Variable
+    // {
+    //     AbstractMonoVariable GetMonoVariable(MonoBehaviour target);
+    // }
 
     // public class VariableProviderFromParentEntity : IVariableProvider
     // {
@@ -465,81 +456,81 @@ namespace MonoFSM.Core.DataProvider
 
     //FIXME: 這個class很冗？
 
-    public class VariableProviderFromGlobalInstance<TVariable> : IVariableProvider
-        where TVariable : AbstractMonoVariable
-    {
-        [SerializeReferenceParentValidate] public MonoBehaviour propertyParent;
-
-        //FIXME: tag需要更鬆一點？類似同個型別都吃？interface...MonoDescriptable... MonoUISelecting
-        [FormerlySerializedAs("monoDescriptableTag")] [Required]
-        public MonoEntityTag _monoEntityTag;
-        [Required] public VariableTag varTag;
-
-        [PreviewInInspector]
-        public AbstractMonoVariable VarRaw
-        {
-            get
-            {
-                if (varTag == null && Application.isPlaying)
-                {
-                    Debug.LogError("Variable Tag is null", propertyParent);
-                    return null;
-                }
-
-                var descriptable = propertyParent.GetGlobalInstance(_monoEntityTag);
-                if (descriptable == null) return null;
-                return descriptable.GetVar(varTag);
-            }
-        }
-
-        public Type GetValueType => VarRaw.ValueType;
-
-        public TVariable1 GetVar<TVariable1>() where TVariable1 : AbstractMonoVariable
-        {
-            return VarRaw as TVariable1;
-        }
-
-        public TVariable GetMonoVar()
-        {
-            return VarRaw as TVariable;
-        }
-    }
-
-    //FIXME: 這個連型別都沒有，太粗了吧？
-    [Serializable]
-    public class VariableProviderFromGlobalInstance : IVariableProvider //fixme
-    {
-        [SerializeReferenceParentValidate] public MonoBehaviour propertyParent;
-
-        //FIXME: tag需要更鬆一點？類似同個型別都吃？interface...MonoDescriptable... MonoUISelecting
-        [FormerlySerializedAs("monoDescriptableTag")] [Required]
-        public MonoEntityTag _monoEntityTag;
-        [Required] public VariableTag varTag;
-
-        [PreviewInInspector]
-        public AbstractMonoVariable VarRaw
-        {
-            get
-            {
-                if (varTag == null && Application.isPlaying)
-                {
-                    Debug.LogError("Variable Tag is null", propertyParent);
-                    return null;
-                }
-
-                var descriptable = propertyParent.GetGlobalInstance(_monoEntityTag);
-                if (descriptable == null) return null;
-                return descriptable.GetVar(varTag);
-            }
-        }
-
-        public Type GetValueType => VarRaw.ValueType;
-
-        public TVariable GetVar<TVariable>() where TVariable : AbstractMonoVariable
-        {
-            return VarRaw as TVariable;
-        }
-    }
+    // public class VariableProviderFromGlobalInstance<TVariable> : IVariableProvider
+    //     where TVariable : AbstractMonoVariable
+    // {
+    //     [SerializeReferenceParentValidate] public MonoBehaviour propertyParent;
+    //
+    //     //FIXME: tag需要更鬆一點？類似同個型別都吃？interface...MonoDescriptable... MonoUISelecting
+    //     [FormerlySerializedAs("monoDescriptableTag")] [Required]
+    //     public MonoEntityTag _monoEntityTag;
+    //     [Required] public VariableTag varTag;
+    //
+    //     [PreviewInInspector]
+    //     public AbstractMonoVariable VarRaw
+    //     {
+    //         get
+    //         {
+    //             if (varTag == null && Application.isPlaying)
+    //             {
+    //                 Debug.LogError("Variable Tag is null", propertyParent);
+    //                 return null;
+    //             }
+    //
+    //             var descriptable = propertyParent.GetGlobalInstance(_monoEntityTag);
+    //             if (descriptable == null) return null;
+    //             return descriptable.GetVar(varTag);
+    //         }
+    //     }
+    //
+    //     public Type GetValueType => VarRaw.ValueType;
+    //
+    //     public TVariable1 GetVar<TVariable1>() where TVariable1 : AbstractMonoVariable
+    //     {
+    //         return VarRaw as TVariable1;
+    //     }
+    //
+    //     public TVariable GetMonoVar()
+    //     {
+    //         return VarRaw as TVariable;
+    //     }
+    // }
+    //
+    // //FIXME: 這個連型別都沒有，太粗了吧？
+    // [Serializable]
+    // public class VariableProviderFromGlobalInstance : IVariableProvider //fixme
+    // {
+    //     [SerializeReferenceParentValidate] public MonoBehaviour propertyParent;
+    //
+    //     //FIXME: tag需要更鬆一點？類似同個型別都吃？interface...MonoDescriptable... MonoUISelecting
+    //     [FormerlySerializedAs("monoDescriptableTag")] [Required]
+    //     public MonoEntityTag _monoEntityTag;
+    //     [Required] public VariableTag varTag;
+    //
+    //     [PreviewInInspector]
+    //     public AbstractMonoVariable VarRaw
+    //     {
+    //         get
+    //         {
+    //             if (varTag == null && Application.isPlaying)
+    //             {
+    //                 Debug.LogError("Variable Tag is null", propertyParent);
+    //                 return null;
+    //             }
+    //
+    //             var descriptable = propertyParent.GetGlobalInstance(_monoEntityTag);
+    //             if (descriptable == null) return null;
+    //             return descriptable.GetVar(varTag);
+    //         }
+    //     }
+    //
+    //     public Type GetValueType => VarRaw.ValueType;
+    //
+    //     public TVariable GetVar<TVariable>() where TVariable : AbstractMonoVariable
+    //     {
+    //         return VarRaw as TVariable;
+    //     }
+    // }
 
     // /// <summary>
     // ///     同個owner下的variable

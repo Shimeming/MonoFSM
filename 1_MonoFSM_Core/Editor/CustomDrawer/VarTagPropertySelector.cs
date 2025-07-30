@@ -2,11 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MonoFSM.Core.DataProvider;
-using MonoFSM.Runtime;
 using MonoFSM.Variable;
-using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace MonoFSM.Core.Editor
 {
@@ -15,10 +14,10 @@ namespace MonoFSM.Core.Editor
     /// </summary>
     public class VarTagPropertySelector : OdinSelector<VariableTag>
     {
-        private readonly PropertyOfTypeProvider _target;
+        private readonly ValueProvider _target;
         private readonly VariableTag _currentSelection;
 
-        public VarTagPropertySelector(PropertyOfTypeProvider target, VariableTag currentSelection = null)
+        public VarTagPropertySelector(ValueProvider target, VariableTag currentSelection = null)
         {
             _target = target;
             _currentSelection = currentSelection;
@@ -72,34 +71,35 @@ namespace MonoFSM.Core.Editor
         {
             try
             {
-                // 嘗試從target獲取變數標籤選項
-                var method = _target.GetType().GetMethod("GetParentVariableTags", 
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 
-                if (method != null)
-                {
-                    var result = method.Invoke(_target, null);
-                    if (result is IEnumerable<ValueDropdownItem<VariableTag>> dropdownItems)
-                    {
-                        return dropdownItems.Select(item => item.Value).Where(tag => tag != null);
-                    }
-                }
+                // 嘗試從target獲取變數標籤選項
+                //FIXME: 用Reflection不好
+                // _target.GetVarTagsFromEntity(out);
+                // var method = _target.GetType().GetMethod("GetVarTagsFromEntity",
+                //     BindingFlags.NonPublic | BindingFlags.Instance);
+
+                // if (method != null)
+                // {
+                var dropdownItems = _target.GetVarTagsFromEntity();
+                return dropdownItems.Select(item => item.Value).Where(tag => tag != null);
+
+                // }
 
                 // 備用方案：從MonoEntity獲取
-                if (_target is PropertyOfTypeProvider provider)
-                {
-                    // 嘗試獲取ParentEntity
-                    var entityField = provider.GetType().GetField("_parentEntity", 
-                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                    
-                    if (entityField?.GetValue(provider) is MonoEntity entity)
-                    {
-                        var options = entity.GetVarTagOptions();
-                        return options?.Select(item => item.Value).Where(tag => tag != null) ?? new List<VariableTag>();
-                    }
-                }
-
-                return new List<VariableTag>();
+                // if (_target is PropertyOfTypeProvider provider)
+                // {
+                //     // 嘗試獲取ParentEntity
+                //     var entityField = provider.GetType().GetField("_parentEntity",
+                //         BindingFlags.NonPublic | BindingFlags.Instance);
+                //     
+                //     if (entityField?.GetValue(provider) is MonoEntity entity)
+                //     {
+                //         var options = entity.GetVarTagOptions();
+                //         return options?.Select(item => item.Value).Where(tag => tag != null) ?? new List<VariableTag>();
+                //     }
+                // }
+                //
+                // return new List<VariableTag>();
             }
             catch (Exception e)
             {
@@ -120,7 +120,7 @@ namespace MonoFSM.Core.Editor
             if (valueType == typeof(bool)) return "布林變數";
             if (valueType == typeof(Vector2) || valueType == typeof(Vector3) || valueType == typeof(Vector4)) return "向量變數";
             if (valueType == typeof(Color)) return "顏色變數";
-            if (typeof(UnityEngine.Object).IsAssignableFrom(valueType)) return "物件變數";
+            if (typeof(Object).IsAssignableFrom(valueType)) return "物件變數";
             if (valueType.IsEnum) return "列舉變數";
             
             // MonoFSM 特定型別

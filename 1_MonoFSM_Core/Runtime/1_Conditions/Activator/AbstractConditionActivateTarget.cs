@@ -1,17 +1,17 @@
 using System;
-using _3_Script._0_RedCandleGamesUtilities.UICanvas.ActivateChecker;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Simulate;
+using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 namespace MonoFSM.Core.Condition
 {
     //這個要整個Panel OnEnable的時候才會檢查一遍，不會隨時檢查
     //ActivateChecker
     public abstract class //IReturnToPool? IDespawn?
-        AbstractConditionActivateTarget : MonoBehaviour, IUpdateSimulate //, ISelectedInstanceUpdater //ISubmitHandler
+        AbstractConditionActivateTarget : MonoBehaviour, IUpdateSimulate,
+        IResetStart //, ISelectedInstanceUpdater //ISubmitHandler
     {
 
         public void Simulate(float deltaTime)
@@ -37,5 +37,9 @@ namespace MonoFSM.Core.Condition
         // {
         //     ActivateCheck();
         // }
+        public void ResetStart() //開始時先檢查
+        {
+            ActivateCheck();
+        }
     }
 }

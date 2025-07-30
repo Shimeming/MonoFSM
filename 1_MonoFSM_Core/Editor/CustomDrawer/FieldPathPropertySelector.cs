@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Sirenix.OdinInspector.Editor;
+using Sirenix.Utilities;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace MonoFSM.Core.Editor
 {
@@ -80,8 +82,12 @@ namespace MonoFSM.Core.Editor
                 {
                     var displayName = $"{name} ({GetTypeDisplayName(type)})";
                     var path = group.Key == "其他" ? displayName : $"{group.Key}/{displayName}";
-                    
-                    tree.Add(path, name);
+
+                    var menuItem = tree.Add(path, name);
+
+                    // 如果是當前選擇的項目，設定為選中狀態
+                    if (!string.IsNullOrEmpty(_currentSelection) && name == _currentSelection)
+                        tree.Selection.AddRange(menuItem);
                 }
             }
 
@@ -106,7 +112,7 @@ namespace MonoFSM.Core.Editor
             if (type == typeof(bool)) return "布林";
             if (type == typeof(Vector2) || type == typeof(Vector3) || type == typeof(Vector4)) return "向量";
             if (type == typeof(Color) || type == typeof(Color32)) return "顏色";
-            if (typeof(UnityEngine.Object).IsAssignableFrom(type)) return "Unity物件";
+            if (typeof(Object).IsAssignableFrom(type)) return "Unity物件";
             if (type.IsArray) return "陣列";
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>)) return "列表";
             if (type.IsEnum) return "列舉";

@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using MonoDebugSetting;
 using MonoFSM.Core.DataProvider;
+using MonoFSM.Core.Runtime;
 using MonoFSM.Variable;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
@@ -107,6 +107,9 @@ namespace MonoFSM.Core.Editor
             //     return;
             // }
 
+
+            target._declarationName =
+                SirenixEditorFields.TextField("宣告名稱", target._declarationName, GUILayout.Height(20));
             SirenixEditorGUI.BeginBox();
 
             // 繪製UseSimplePathEditor勾選框
@@ -119,11 +122,13 @@ namespace MonoFSM.Core.Editor
             }
             else
             {
-                // 繪製原始的詳細編輯器，但不包含最外層的Box（避免雙重boxing）
-                SirenixEditorGUI.EndBox();
+                // EditorGUILayout.Space(5);
+                //
+                // // 繪製原始的詳細編輯器，但不包含最外層的Box（避免雙重boxing）
+                // SirenixEditorGUI.EndBox();
                 // CallNextDrawer(label);
                 base.DrawTree();
-                return;
+                // return;
             }
             
             SirenixEditorGUI.EndBox();
@@ -131,12 +136,92 @@ namespace MonoFSM.Core.Editor
         }
 
         /// <summary>
-        /// 繪製簡化編輯器（包含varTag和fieldPath）
+        /// 繪製entityProvider選擇器
+        /// </summary>
+        private void DrawEntityProviderSelector(ValueProvider target)
+        {
+            EditorGUILayout.LabelField("Entity", EditorStyles.boldLabel);
+
+            // 獲取當前的entityProvider
+            var currentEntityProvider = target._entityProvider;
+            var displayText = currentEntityProvider != null
+                ? $"{currentEntityProvider.name} ({currentEntityProvider.GetType().Name})"
+                : "-- 選擇實體提供者 --";
+
+            var selectorRect = EditorGUILayout.GetControlRect();
+            if (GUI.Button(selectorRect, displayText, EditorStyles.popup))
+                ShowEntityProviderSelector(target, currentEntityProvider, selectorRect);
+
+
+            // 顯示當前entityProvider的詳細資訊
+            if (currentEntityProvider != null)
+            {
+                var style = new GUIStyle(EditorStyles.helpBox)
+                {
+                    normal = { textColor = new Color(0.2f, 0.6f, 0.2f) }, // 綠色文字
+                    fontStyle = FontStyle.Italic
+                };
+                EditorGUI.BeginDisabledGroup(true);
+
+                SirenixEditorFields.UnityObjectField(currentEntityProvider, typeof(AbstractEntityProvider), true,
+                    GUILayout.Height(20));
+                EditorGUI.EndDisabledGroup();
+
+                // 顯示實體提供者的描述資訊
+                // EditorGUILayout.LabelField($"提供者型別: {currentEntityProvider.GetType().Name}", style);
+                if (currentEntityProvider.monoEntity != null)
+                    EditorGUILayout.LabelField($"關聯實體: {currentEntityProvider.monoEntity.name}", style);
+            }
+            else
+            {
+                // 顯示自動抓取 AbstractEntityProvider 的按鈕
+                if (GUILayout.Button("自動抓取 AbstractEntityProvider", GUILayout.Height(25)))
+                    AutoGrabEntityProvider(target);
+            }
+        }
+
+        /// <summary>
+        ///     顯示entityProvider選擇器
+        /// </summary>
+        private void ShowEntityProviderSelector(ValueProvider target, Component currentEntityProvider, Rect rect)
+        {
+            // 創建entityProvider的選擇器，使用AbstractEntityProvider作為過濾類型
+            var selector = new DropDownRefCompSelector(target, typeof(AbstractEntityProvider),
+                new DropDownRefAttribute { _findFromParentTransform = false });
+            selector.ShowInPopup(rect, 400);
+
+            // 啟用單擊確認選擇
+            selector.EnableSingleClickToConfirm();
+
+            selector.SelectionConfirmed += selection =>
+            {
+                var selectedEntityProvider = selection.FirstOrDefault() as AbstractEntityProvider;
+                if (selectedEntityProvider != null || selection.Any()) // 允許選擇null來清空
+                {
+                    Undo.RecordObject(target, "修改實體提供者");
+                    target._entityProvider = selectedEntityProvider;
+
+                    // 當entityProvider改變時，清空相關欄位（因為實體來源變了）
+                    // SetVarTag(target, null);
+                    // SetPathEntries(target, new List<FieldPathEntry>());
+
+                    // 強制重新繪製，確保UI更新
+                    EditorUtility.SetDirty(target);
+
+                    Debug.Log($"EntityProvider changed to: {selectedEntityProvider?.name ?? "null"}");
+                }
+            };
+        }
+
+        /// <summary>
+        /// 繪製簡化編輯器（包含entityProvider、varTag和fieldPath）
         /// </summary>
         private void DrawSimplifiedEditor(ValueProvider target)
         {
-            // 顯示Root Object資訊
-            DrawRootObjectInfo(target);
+            // 繪製entityProvider選擇器
+            DrawEntityProviderSelector(target);
+
+         
 
             EditorGUILayout.Space(5);
 
@@ -147,6 +232,10 @@ namespace MonoFSM.Core.Editor
                 EditorGUILayout.Space(5);
             }
 
+            EditorGUILayout.Space(5);
+
+            // 顯示Root Object資訊
+            DrawRootObjectInfo(target);
             // 繪製fieldPath編輯器
             DrawSimplifiedPathEditor(target, target.GetObjectType);
             
@@ -161,8 +250,7 @@ namespace MonoFSM.Core.Editor
         /// </summary>
         private void DrawVarTagSelector(ValueProvider target)
         {
-            
-            EditorGUILayout.LabelField("變數標籤選擇", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("VarTag", EditorStyles.boldLabel);
 
             // 直接使用 ValueProvider 的 varTag 屬性，確保一致性
             var currentVarTag = target.varTag;
@@ -181,10 +269,13 @@ namespace MonoFSM.Core.Editor
                     fontStyle = FontStyle.Italic
                 };
                 EditorGUI.BeginDisabledGroup(true);
-                SirenixEditorFields.UnityObjectField(target.VarRaw, typeof(AbstractMonoVariable), true,
+                SirenixEditorFields.UnityObjectField(currentVarTag, typeof(VariableTag), true,
+                    GUILayout.Height(20));
+                if (target.VarRaw != null)
+                    SirenixEditorFields.UnityObjectField(target.VarRaw, typeof(AbstractMonoVariable), true,
                     GUILayout.Height(20));
                 EditorGUI.EndDisabledGroup();
-                EditorGUILayout.LabelField($"變數型別: {currentVarTag.ValueType?.Name ?? "未知"}", style);
+                // EditorGUILayout.LabelField($"變數型別: {currentVarTag.ValueType?.Name ?? "未知"}", style);
             }
         }
 
@@ -224,7 +315,7 @@ namespace MonoFSM.Core.Editor
         /// <summary>
         /// 顯示varTag選擇器
         /// </summary>
-        private void ShowVarTagSelector(PropertyOfTypeProvider target, VariableTag currentVarTag, Rect rect)
+        private void ShowVarTagSelector(ValueProvider target, VariableTag currentVarTag, Rect rect)
         {
             // 創建varTag的選擇器
             var selector = new VarTagPropertySelector(target, currentVarTag);
@@ -241,15 +332,41 @@ namespace MonoFSM.Core.Editor
                     // 當變數改變時，清空fieldPath（因為型別可能不同）
                     SetPathEntries(target, new List<FieldPathEntry>());
 
+                    
+                 
+
                     // 強制重新繪製，確保UI更新
                     EditorUtility.SetDirty(target);
                     
                     // 如果是 ValueProvider，觸發相關事件或更新
-                    if (target is ValueProvider valueProvider)
+                    if (target is ValueProvider valueProvider2)
                     {
                         // 強制重新計算 GetObjectType
-                        var newObjectType = valueProvider.GetObjectType;
+                        var newObjectType = valueProvider2.GetObjectType;
                         Debug.Log($"VarTag changed to: {selectedVarTag?.name ?? "null"}, new object type: {newObjectType?.Name ?? "null"}");
+                    }
+                }
+                else
+                {
+                    // 如果選擇「不選擇變數」(null)，確保完整清空相關狀態
+                    if (selectedVarTag == null)
+                    {
+                        // 清空可能的內部快取或狀態
+                        if (target is ValueProvider valueProvider)
+                            // 強制清空任何內部計算的值
+                            try
+                            {
+                                target.ClearVarTag();
+                                // 觸發內部狀態重新計算
+                                var _ = valueProvider.GetObjectType;
+                                var __ = valueProvider.ValueType;
+                            }
+                            catch (Exception e)
+                            {
+                                Debug.LogWarning($"清空變數時重新計算型別發生警告: {e.Message}");
+                            }
+
+                        Debug.Log("已清空變數選擇，相關欄位已重置");
                     }
                 }
             };
@@ -279,8 +396,10 @@ namespace MonoFSM.Core.Editor
                         displayInfo = $"路徑結果: {valueType.Name}";
                         if (!string.IsNullOrEmpty(pathString))
                         {
-                            displayInfo += $" (來自路徑: {pathString})";
+                            displayInfo += $" ({target.GetObjectType.Name + "." + pathString})";
                         }
+
+                        // EditorGUILayout.LabelField("當前路徑: " + target.GetObjectType.Name + "." + currentPath, style);
                         textColor = new Color(0.1f, 0.6f, 0.1f); // 綠色
                     }
                     else
@@ -333,7 +452,7 @@ namespace MonoFSM.Core.Editor
         /// <summary>
         /// 顯示GetObjectType資訊
         /// </summary>
-        private void DrawRootObjectInfo(PropertyOfTypeProvider target)
+        private void DrawRootObjectInfo(ValueProvider target)
         {
             EditorGUILayout.LabelField("起始型別資訊", EditorStyles.boldLabel);
 
@@ -357,7 +476,7 @@ namespace MonoFSM.Core.Editor
                         else
                         {
                             // 沒有選擇varTag時，顯示Entity型別
-                            var entityName = GetEntityName(target);
+                            var entityName = target.fromEntity;
                             displayInfo = entityName != null
                                 ? $"{entityName} (型別: {objectType.Name})"
                                 : $"Entity (型別: {objectType.Name})";
@@ -385,31 +504,59 @@ namespace MonoFSM.Core.Editor
         }
 
         /// <summary>
-        /// 獲取Entity名稱
+        ///     自動抓取 AbstractEntityProvider 組件
         /// </summary>
-        private string GetEntityName(PropertyOfTypeProvider target)
+        private void AutoGrabEntityProvider(ValueProvider target)
         {
             try
             {
-                //FIXME: 需要這個嗎？
-                // 嘗試從其他可能的欄位獲取
-                var entityProviderField = target.GetType().GetField("_monoEntityProvider",
-                    BindingFlags.NonPublic | BindingFlags.Instance);
-                var entityProvider = entityProviderField?.GetValue(target);
-                if (entityProvider != null) return entityProvider.GetType().Name;
+                var entityProvider = target.GetComponentInParent<AbstractEntityProvider>();
 
-                // 嘗試從ParentEntity獲取名稱
-                var parentEntityField = target.GetType().GetField("_parentEntity",
-                    BindingFlags.NonPublic | BindingFlags.Instance);
+                if (entityProvider != null)
+                {
+                    Undo.RecordObject(target, "自動設定 EntityProvider");
+                    target._entityProvider = entityProvider;
+                    EditorUtility.SetDirty(target);
 
-                if (parentEntityField?.GetValue(target) is MonoBehaviour parentEntity) return parentEntity.name;
-
-                return null;
+                    Debug.Log($"成功自動設定 EntityProvider: {entityProvider.name} ({entityProvider.GetType().Name})");
+                }
+                else
+                {
+                    Debug.LogWarning($"在 {target.name} 及其父子物件中找不到 AbstractEntityProvider 組件");
+                }
             }
-            catch
+            catch (Exception e)
             {
-                return null;
+                Debug.LogError($"自動抓取 EntityProvider 時發生錯誤: {e.Message}");
             }
         }
+
+        /// <summary>
+        /// 獲取Entity名稱
+        /// </summary>
+        // private string GetEntityName(PropertyOfTypeProvider target)
+        // {
+        //     try
+        //     {
+        //         //FIXME: 需要這個嗎？
+        //         // 嘗試從其他可能的欄位獲取
+        //         var entityProviderField = target.GetType().GetField("_monoEntityProvider",
+        //             BindingFlags.NonPublic | BindingFlags.Instance);
+        //         var entityProvider = entityProviderField?.GetValue(target);
+        //         if (entityProvider != null) return entityProvider.GetType().Name;
+        //
+        //         // 嘗試從ParentEntity獲取名稱
+        //         var parentEntityField = target.GetType().GetField("_parentEntity",
+        //             BindingFlags.NonPublic | BindingFlags.Instance);
+        //
+        //         if (parentEntityField?.GetValue(target) is MonoBehaviour parentEntity) return parentEntity.name;
+        //
+        //         return null;
+        //     }
+        //     catch
+        //     {
+        //         return null;
+        //     }
+        // }
     }
 }

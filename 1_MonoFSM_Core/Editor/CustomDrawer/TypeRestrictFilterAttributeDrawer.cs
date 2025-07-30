@@ -9,6 +9,7 @@ using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace MonoFSM.Core.Editor
 {
@@ -27,35 +28,44 @@ namespace MonoFSM.Core.Editor
                     typeof(ScriptableObject).IsAssignableFrom(property.ValueEntry.TypeOfValue));
         }
 
+        /// <summary>
+        ///     獲取期望的限制型別，如果 Attribute.RestrictInstanceType 為 null，則不進行限制型別過濾
+        /// </summary>
+        private Type GetRestrictInstanceType()
+        {
+            return Attribute.RestrictInstanceType;
+        }
+
         protected override void DrawPropertyLayout(GUIContent label)
         {
             var currentValue = Property.ValueEntry.WeakSmartValue;
-            var expectedType = GetExpectedType();
+            var restrictInstanceType = GetRestrictInstanceType();
 
             // 驗證當前選中的值是否符合過濾條件
-            if (currentValue != null && expectedType != null)
+            if (currentValue != null && restrictInstanceType != null)
             {
-                var actualType = Attribute.GetRestrictType(currentValue);
+                var actualRestrictType = Attribute.GetRestrictType(currentValue);
                 var isValid = false;
 
-                if (actualType != null)
+                if (actualRestrictType != null)
                 {
                     // 完全匹配
-                    if (actualType == expectedType)
+                    if (actualRestrictType == restrictInstanceType)
                         isValid = true;
                     // 檢查是否允許相容類型
-                    else if (Attribute.AllowCompatibleTypes && expectedType.IsAssignableFrom(actualType))
+                    else if (Attribute.AllowCompatibleTypes &&
+                             restrictInstanceType.IsAssignableFrom(actualRestrictType))
                         isValid = true;
                 }
 
                 if (!isValid)
                 {
                     // 顯示警告訊息
-                    var expectedTypeName = expectedType.Name;
-                    var actualTypeName = actualType?.Name ?? "Unknown";
+                    var expectedTypeName = restrictInstanceType.Name;
+                    var actualTypeName = actualRestrictType?.Name ?? "Unknown";
                     var warningMessage = !string.IsNullOrEmpty(Attribute.CustomErrorMessage)
                         ? Attribute.CustomErrorMessage
-                        : $"選中的類型不符合期望。期望：{expectedTypeName}，實際：{actualTypeName}";
+                        : $"選中的限制型別不符合期望。期望：{expectedTypeName}，實際：{actualTypeName}";
 
                     SirenixEditorGUI.WarningMessageBox(warningMessage);
                 }
@@ -63,28 +73,19 @@ namespace MonoFSM.Core.Editor
 
             // 繪製帶過濾功能的選擇器
             DrawFilteredSelector(label, currentValue);
-        }
+            GUI.backgroundColor = Property.ValueEntry.WeakSmartValue == null
+                ? new Color(0.2f, 0.2f, 0.3f, 0.1f)
+                : new Color(0.35f, 0.3f, 0.1f, 0.2f);
 
-        /// <summary>
-        ///     獲取期望的類型，如果 Attribute.ExpectedType 為 null，則使用 property 本身的型別
-        /// </summary>
-        private Type GetExpectedType()
-        {
-            if (Attribute.ExpectedType != null)
-                return Attribute.ExpectedType;
-
-            // 使用 property 本身的型別作為期望類型
-            var propertyType = Property.ValueEntry.TypeOfValue;
-
-            // 對於特殊類型，返回相應的類型
-            if (propertyType == typeof(VariableTag) || propertyType == typeof(MonoEntityTag))
-                return propertyType;
-
-            // 對於其他 ScriptableObject，直接返回該類型
-            if (typeof(ScriptableObject).IsAssignableFrom(propertyType))
-                return propertyType;
-
-            return null;
+            var newObj = SirenixEditorFields.UnityObjectField(
+                Property.ValueEntry.WeakSmartValue as Object,
+                Property.ValueEntry.TypeOfValue, false); //GUILayout.Width(EditorGUIUtility.currentViewWidth) 這個會太肥噴掉
+            // if (newObj == _bindComp)
+            //     // Debug.Log("newObj == Property.ParentValues[0]");
+            //     Debug.LogError("newObj == Property.ParentValues[0], this should not happen, please check your code.");
+            // else
+            //     Property.ValueEntry.WeakSmartValue = newObj;
+            GUI.backgroundColor = Color.white;
         }
 
         private void DrawFilteredSelector(GUIContent label, object currentValue)
@@ -100,7 +101,7 @@ namespace MonoFSM.Core.Editor
                 if (SirenixEditorGUI.SDFIconButton(buttonText, 16, SdfIconType.CaretDownFill, IconAlignment.RightEdge))
                 {
                     var selector = new TypeRestrictFilteredSelector(Attribute, Property.ValueEntry.TypeOfValue,
-                        GetExpectedType());
+                        GetRestrictInstanceType());
                     selector.SelectionConfirmed += col =>
                     {
                         Property.ValueEntry.WeakSmartValue = col.FirstOrDefault();
@@ -117,15 +118,15 @@ namespace MonoFSM.Core.Editor
     public class TypeRestrictFilteredSelector : OdinSelector<ScriptableObject>
     {
         private readonly TypeRestrictFilterAttribute _filterAttribute;
-        private readonly Type _targetType;
-        private readonly Type _expectedType;
+        private readonly Type _propertyType;
+        private readonly Type _restrictInstanceType;
 
-        public TypeRestrictFilteredSelector(TypeRestrictFilterAttribute filterAttribute, Type targetType,
-            Type expectedType = null)
+        public TypeRestrictFilteredSelector(TypeRestrictFilterAttribute filterAttribute, Type propertyType,
+            Type restrictInstanceType = null)
         {
             _filterAttribute = filterAttribute;
-            _targetType = targetType;
-            _expectedType = expectedType ?? filterAttribute.ExpectedType;
+            _propertyType = propertyType;
+            _restrictInstanceType = restrictInstanceType;
             DrawConfirmSelectionButton = false;
             SelectionTree.Config.SelectMenuItemsOnMouseDown = true;
             SelectionTree.Config.ConfirmSelectionOnDoubleClick = true;
@@ -170,8 +171,8 @@ namespace MonoFSM.Core.Editor
 
         private IEnumerable<ScriptableObject> GetFilteredOptions()
         {
-            // 根據目標類型搜尋對應的 assets 並過濾
-            return AssetDatabase.FindAssets(_filterAttribute.GetAssetSearchFilter(_targetType))
+            // 根據 Property Type 搜尋對應的 assets 並過濾
+            return AssetDatabase.FindAssets(_filterAttribute.GetAssetSearchFilter(_propertyType))
                 .Select(AssetDatabase.GUIDToAssetPath)
                 .Select(AssetDatabase.LoadAssetAtPath<ScriptableObject>)
                 .Where(asset => asset != null && ValidateAsset(asset));
@@ -182,21 +183,26 @@ namespace MonoFSM.Core.Editor
             if (asset == null)
                 return false;
 
-            // 如果沒有期望類型，則檢查是否與目標類型相符
-            if (_expectedType == null) return _targetType.IsAssignableFrom(asset.GetType());
+            // 首先檢查 Property Type 是否匹配
+            if (!_propertyType.IsAssignableFrom(asset.GetType()))
+                return false;
 
-            var actualType = _filterAttribute.GetRestrictType(asset);
+            // 如果沒有指定 RestrictInstanceType，則只要 Property Type 匹配就接受
+            if (_restrictInstanceType == null)
+                return true;
 
-            if (actualType == null)
+            // 檢查 Restrict Type 是否匹配
+            var actualRestrictType = _filterAttribute.GetRestrictType(asset);
+            if (actualRestrictType == null)
                 return false;
 
             // 完全匹配
-            if (actualType == _expectedType)
+            if (actualRestrictType == _restrictInstanceType)
                 return true;
 
             // 檢查是否允許相容類型
             if (_filterAttribute.AllowCompatibleTypes)
-                return _expectedType.IsAssignableFrom(actualType);
+                return _restrictInstanceType.IsAssignableFrom(actualRestrictType);
 
             return false;
         }

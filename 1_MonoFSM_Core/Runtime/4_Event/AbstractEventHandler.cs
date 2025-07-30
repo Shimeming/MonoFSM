@@ -1,6 +1,8 @@
 using MonoFSM.Core.Attributes;
+using MonoFSM.Core.Runtime;
 using MonoFSM.Core.Runtime.Action;
 using MonoFSM.Variable.Attributes;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace MonoFSM.Core
@@ -27,6 +29,11 @@ namespace MonoFSM.Core
         [CompRef] [AutoChildren(DepthOneOnly = true)]
         protected IEventReceiver[] _eventReceivers; //IActions
 
+        [InfoBox("目前不是所有EntityProvider都是合法的喔")]
+        [CompRef]
+        [AutoChildren(DepthOneOnly = true)]
+        //FIXME: 要有篩選機制？靠Drawer去找囉？
+        private AbstractEntityProvider[] _entityProviders;
         /// <summary>
         /// Call all event receivers' <see cref="IEventReceiver.EventReceived"/> method.
         /// </summary>

@@ -7,15 +7,15 @@ namespace _1_MonoFSM_Core.Runtime.Attributes
 {
     /// <summary>
     /// 用於過濾帶有 RestrictType 屬性的欄位的通用 Attribute
-    /// 可以指定期望的類型來過濾下拉選單中的選項
+    /// 可以指定期望的限制型別來過濾下拉選單中的選項
     /// 支援 VariableTag 和 MonoEntityTag 等類型，以及任何 ScriptableObject
     /// </summary>
     public class TypeRestrictFilterAttribute : Attribute
     {
         /// <summary>
-        /// 期望的類型
+        /// 期望的限制型別 (從 ScriptableObject 實例中取得的型別，如 VariableTag.VariableMonoType)
         /// </summary>
-        public Type ExpectedType { get; }
+        public Type RestrictInstanceType { get; }
         
         /// <summary>
         /// 是否允許相容的類型
@@ -28,7 +28,7 @@ namespace _1_MonoFSM_Core.Runtime.Attributes
         public string CustomErrorMessage { get; }
 
         /// <summary>
-        ///     無參數構造函數 - 將使用 property 本身的型別作為期望類型
+        /// 無參數構造函數 - 將不限制 RestrictType，接受任何 Property Type 的實例
         /// </summary>
         public TypeRestrictFilterAttribute() : this(null)
         {
@@ -37,12 +37,13 @@ namespace _1_MonoFSM_Core.Runtime.Attributes
         /// <summary>
         /// 構造函數
         /// </summary>
-        /// <param name="expectedType">期望的類型</param>
+        /// <param name="restrictInstanceType">期望的限制型別</param>
         /// <param name="allowCompatibleTypes">是否允許相容的類型</param>
         /// <param name="customErrorMessage">自定義錯誤訊息</param>
-        public TypeRestrictFilterAttribute(Type expectedType, bool allowCompatibleTypes = true, string customErrorMessage = null)
+        public TypeRestrictFilterAttribute(Type restrictInstanceType, bool allowCompatibleTypes = true,
+            string customErrorMessage = null)
         {
-            ExpectedType = expectedType;
+            RestrictInstanceType = restrictInstanceType;
             AllowCompatibleTypes = allowCompatibleTypes;
             CustomErrorMessage = customErrorMessage;
         }
@@ -62,21 +63,21 @@ namespace _1_MonoFSM_Core.Runtime.Attributes
         }
         
         /// <summary>
-        /// 獲取 Asset 搜尋過濾器
+        /// 獲取 Asset 搜尋過濾器（基於 Property Type）
         /// </summary>
-        public string GetAssetSearchFilter(Type targetType)
+        public string GetAssetSearchFilter(Type propertyType)
         {
-            if (targetType == typeof(VariableTag))
+            if (propertyType == typeof(VariableTag))
                 return "t:VariableTag";
-            if (targetType == typeof(MonoEntityTag))
+            if (propertyType == typeof(MonoEntityTag))
                 return "t:MonoEntityTag";
 
             // 通用處理：對於任何 ScriptableObject，搜尋所有 ScriptableObject
-            if (typeof(ScriptableObject).IsAssignableFrom(targetType))
+            if (typeof(ScriptableObject).IsAssignableFrom(propertyType))
                 return "t:ScriptableObject";
             
             // 通用處理：嘗試從類型名稱推斷
-            return $"t:{targetType.Name}";
+            return $"t:{propertyType.Name}";
         }
     }
     

@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MonoFSM.Variable;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Utilities;
 using MonoFSM.Foundation;
+using MonoFSM.Variable;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -12,13 +12,18 @@ using UnityEngine.Serialization;
 namespace MonoFSM.Core.DataProvider
 {
     //FIXME: AbstractValueProvider?
+    //必定從MonoEntity出發？
     public abstract class PropertyOfTypeProvider : AbstractDescriptionBehaviour,IValueProvider
     {
         public abstract Type GetObjectType { get; }
+
+        [ShowInDebugMode]
         public abstract Type ValueType { get; }
         [ShowInDebugMode]
         public object ValueRaw => Get<object>();
 
+        
+        
         #region Field Path Support
 
         // [PropertyOrder(0)]
@@ -47,7 +52,7 @@ namespace MonoFSM.Core.DataProvider
 
         // [PreviewInInspector] [Auto] private ITypeRestrict _typeRestrict; //FIXME: 這個是最後一個...hmmm之後在想怎麼處理好了
 
-        private void OnPathEntriesChanged()
+        public void OnPathEntriesChanged()
         {
             // ReflectionUtility.UpdatePathEntryTypes(_pathEntries, GetVarType, _typeRestrict?.SupportedTypes,
             //     _indexInjector);
@@ -137,7 +142,7 @@ namespace MonoFSM.Core.DataProvider
     }
 
     //不一定有var? IVarProvider
-    public abstract class AbstractVariableProviderRef : PropertyOfTypeProvider
+    public abstract class AbstractVariableProviderRef : PropertyOfTypeProvider, IVariableProvider
     {
         // public GameFlagBase FinalData => VarRaw?.FinalData;
         //不一定有這個？再切一層？
@@ -145,8 +150,8 @@ namespace MonoFSM.Core.DataProvider
 
         //FIXME: get Object? Object Type & ValueType
         // public abstract Type GetValueType { get; }
-        
 
+        public bool IsVariableValid => varTag != null;
         public abstract VariableTag varTag { get; }
         public abstract TVariable GetVar<TVariable>() where TVariable : AbstractMonoVariable;
 

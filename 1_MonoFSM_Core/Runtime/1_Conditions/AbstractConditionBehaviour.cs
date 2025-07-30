@@ -1,11 +1,12 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using UnityEngine;
-using Sirenix.OdinInspector;
-using MonoFSM.Core.Attributes;
-using RCGExtension;
 using MonoDebugSetting;
-using MonoFSM.Variable;
+using MonoFSM.Core.Attributes;
 using MonoFSM.Foundation;
+using MonoFSM.Variable;
+using RCGExtension;
+using Sirenix.OdinInspector;
+using UnityEditor;
+using UnityEngine;
 
 
 //還是Condition要用Is開頭？
@@ -14,12 +15,15 @@ public abstract class AbstractConditionBehaviour : AbstractDescriptionBehaviour,
 {
 #if UNITY_EDITOR
     [ExcludeFromCodeCoverage]
-    public string IconName { get; }
+    public string IconName =>
+        Selection.activeGameObject == gameObject
+            ? "d__Help@2x"
+            : "_Help@2x"; //UnityEditor.EditorGUIUtility.ObjectContent(null, typeof(AbstractConditionBehaviour)).image.name;
     [ExcludeFromCodeCoverage]
     public bool IsDrawingIcon => true;
-    [ExcludeFromCodeCoverage]
-    public Texture2D CustomIcon =>
-        UnityEditor.EditorGUIUtility.ObjectContent(null, typeof(AbstractConditionBehaviour)).image as Texture2D;
+
+    [ExcludeFromCodeCoverage] public Texture2D CustomIcon => null;
+    // UnityEditor.EditorGUIUtility.ObjectContent(null, typeof(AbstractConditionBehaviour)).image as Texture2D;
     //UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>("Packages/com.rcgmaker.fsm/RCGMakerFSMCore/Runtime/2_Variable/VarFloatIcon.png");
 #endif
 //     [Button]

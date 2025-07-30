@@ -1,18 +1,49 @@
 using System;
 using MonoFSM.Core.Attributes;
+using MonoFSM.Core.Detection;
 using MonoFSM.Variable.Attributes;
 using RCGExtension;
 using Sirenix.OdinInspector;
+using UnityEngine;
+using UnityEngine.Serialization;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace MonoFSM.Runtime.Interact.EffectHit
 {
-    public abstract class EffectResolver : MonoBehaviour, IDefaultSerializable, IHierarchyValueInfo
+    public abstract class EffectResolver : MonoBehaviour, IDefaultSerializable, IHierarchyValueInfo, IHitDataProvider
     {
+        [AutoParent] private MonoEntity _parentEntity;
+
+        public MonoEntity ParentEntity
+        {
+            get
+            {
+                this.EnsureComponentInParent(ref _parentEntity);
+                return _parentEntity;
+            }
+        }
+
+        [ShowInDebugMode] protected IEffectHitData _currentHitData;
+        [ShowInDebugMode] protected DetectData? _detectData;
+
+#if UNITY_EDITOR
+        [Header("Debug Info")] [ShowInDebugMode]
+        protected IEffectHitData _lastHitData;
+#endif
+
+        public GeneralEffectHitData GetGeneralHitData()
+        {
+            return _currentHitData as GeneralEffectHitData;
+        }
+
+        public IEffectHitData GetHitData()
+        {
+            return _currentHitData;
+        }
+
+        
 #if UNITY_EDITOR
         private GlobalObjectId _globalId;
         public GlobalObjectId GetGlobalId()

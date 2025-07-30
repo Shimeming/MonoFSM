@@ -1,14 +1,11 @@
-using System;
-using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Detection;
-using MonoFSM.Variable;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace MonoFSM.Runtime.Interact.EffectHit
 {
     //FIXME: 應該要怎麼轉接比較好，我會有好幾種事件類型，幫每種事件類型定義類別，再讓下面的action去做事
-    public class GeneralEffectReceiver : EffectResolver, IEffectReceiver, IHitDataProvider, IDetectDataProvider
+    public class GeneralEffectReceiver : EffectResolver, IEffectReceiver, IDetectDataProvider
     {
         private void OnValidate()
         {
@@ -29,6 +26,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
             data.Override(dealer, this);
             return data;
         }
+        
 
         public void ForceDirectEffectHit(GeneralEffectDealer dealer)
         {
@@ -60,14 +58,6 @@ namespace MonoFSM.Runtime.Interact.EffectHit
 #endif
         }
 
-        [ShowInDebugMode] private IEffectHitData _currentHitData;
-        [ShowInDebugMode] private DetectData? _detectData;
-        
-#if UNITY_EDITOR
-        [Header("Debug Info")]
-        [ShowInDebugMode] private IEffectHitData _lastHitData;
-#endif
-
 
 
         public void OnEffectHitExit(IEffectHitData data)
@@ -81,10 +71,8 @@ namespace MonoFSM.Runtime.Interact.EffectHit
 
         //EffectExit也要呢
         protected override string TypeTag => "Receiver";
-        public IEffectHitData GetHitData()
-        {
-            return _currentHitData;
-        }
+
+
 
         public DetectData? GetDetectData()
         {

@@ -1,20 +1,19 @@
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using MonoFSM.Localization;
 // using I2.Loc;
 // using mixpanel;
-using MonoFSM.AddressableAssets;
-using MonoFSM.Core;
-using MonoFSM.Core.Attributes;
-using MonoFSM.Variable;
-using MonoFSM.Runtime.Item_BuildSystem;
-using MonoFSM.Runtime.Mono;
-using MonoFSMCore.Runtime.LifeCycle;
-using Sirenix.OdinInspector;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using MonoFSM.AddressableAssets;
+using MonoFSM.Core;
+using MonoFSM.Core.Attributes;
+using MonoFSM.Localization;
+using MonoFSM.Runtime.Mono;
+using MonoFSMCore.Runtime.LifeCycle;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
@@ -111,7 +110,8 @@ public class
     [FormerlySerializedAs("descriptableTag")]
     public MonoEntityTag _entityTag;
 
-
+    private AbstractDataFunction[] _dataFunctionsArray; //這個用hashSet會比較好？ 可是QQ
+    
     [SerializeReference] private IDataFunction[] _dataFunctions; //這個用hashSet會比較好？ 可是QQ
     private readonly Dictionary<Type, IDataFunction> _dataFunctionSet = new();
     // private readonly HashSet<IDataFunction> _hashSet = new();

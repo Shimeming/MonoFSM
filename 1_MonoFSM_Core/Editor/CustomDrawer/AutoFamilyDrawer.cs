@@ -1,13 +1,8 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using Auto.Utils;
-using MonoFSM.Variable;
 using Sirenix.OdinInspector.Editor;
-using UnityEditor.SceneManagement;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace MonoFSM.Core
 {
@@ -48,6 +43,13 @@ namespace MonoFSM.Core
         public static void SetSerialized(IPropertyValueEntry valueEntry, AutoFamilyAttribute autoAttribute,
             MonoBehaviour mb, Type componentType)
         {
+            if (valueEntry.WeakSmartValue != null && !valueEntry.TypeOfValue.IsArray)
+            {
+                Debug.Log("ValueEntry already set, no need to set again: " + valueEntry.WeakSmartValue, mb);
+                return; //already set, no need to set again
+            }
+
+            //array必定需要？
             valueEntry.WeakSmartValue = valueEntry.TypeOfValue.IsArray
                 ? autoAttribute.GetComponentsToReference(mb, mb.gameObject, componentType)
                 : autoAttribute.GetTheSingleComponent(mb, componentType);

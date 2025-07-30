@@ -5,6 +5,7 @@ using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Simulate;
 using MonoFSM.Runtime.Mono;
 using MonoFSM.Variable;
+using MonoFSM.Variable.Attributes;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -75,7 +76,7 @@ namespace MonoFSM.Runtime.Variable
         public List<MonoEntityTag> DescriptableTags => _descriptableTags;
 
         //FIXME: 可以多個tag? runtime 
-        public MonoEntityTag Tag => DescriptableTags?.Count > 0 ? DescriptableTags[0] : null;
+        public MonoEntityTag DefaultTag => DescriptableTags?.Count > 0 ? DescriptableTags[0] : null;
 
         //reflection 同名還會...
         public AbstractMonoVariable this[string statName] => GetVar(statName); //索引器，直接用GetVariable,還是也可以get comp?
@@ -113,7 +114,7 @@ namespace MonoFSM.Runtime.Variable
         }
 
         //FIXME: 可能有多個？ multiple folder
-        [Component] [PreviewInInspector] [AutoChildren]
+        [CompRef] [AutoChildren] [Required]
         private VariableFolder _variableFolder;
 
         //從一開始就應該做getter?? 然後用attribute來標記怎麼做的？ 像是[Networked]掛在getter上面？

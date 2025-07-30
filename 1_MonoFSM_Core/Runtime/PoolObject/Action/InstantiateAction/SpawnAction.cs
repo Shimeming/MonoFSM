@@ -1,10 +1,10 @@
 using System;
 using MonoFSM.Core.Attributes;
+using MonoFSM.Core.DataProvider;
 using MonoFSM.Core.Runtime.Action;
-using MonoFSM.Runtime;
+using MonoFSM.Runtime.Attributes;
 using MonoFSM.Runtime.Interact.EffectHit;
 using MonoFSM.Variable.Attributes;
-using MonoFSM.Runtime.Attributes;
 using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -20,7 +20,7 @@ namespace MonoFSM.Core.LifeCycle
         // private ICompProvider<MonoPoolObj> _targetVarProvider; //使用VarPoolObj來存儲目標物件
 
         [Required] [CompRef] [AutoChildren(DepthOneOnly = true)] [ValueTypeValidate(typeof(MonoPoolObj))]
-        private DataProvider.ValueProvider _poolObjProvider; //使用VarPoolObj來存儲目標物件
+        private ValueProvider _poolObjProvider; //使用VarPoolObj來存儲目標物件
 
         //檢查？SerializeClass的話？
 
@@ -28,6 +28,7 @@ namespace MonoFSM.Core.LifeCycle
         //FIXME: 應該要分ConfigPrefabProvider, 不可以都用ICompProvider，因為會有Runtime的Prefab
         //Prefab特殊，不該runtime去Instantiate對ㄅ，都應該從prefab來，就算要也是複製狀態
 
+        [PreviewInDebugMode]
         private MonoPoolObj Prefab => _poolObjProvider?.Get<MonoPoolObj>();
 
         [CompRef] [AutoChildren] private SpawnEventHandler _spawnEventHandler;
@@ -44,10 +45,16 @@ namespace MonoFSM.Core.LifeCycle
             
         }
 
+        public bool _isUsingSpawnTransformScale;
         [PreviewInInspector] private MonoPoolObj _lastSpawnedObj;
 
         private void Spawn(MonoPoolObj obj, Vector3 position, Quaternion rotation)
         {
+            if (obj == null)
+            {
+                Debug.LogError("SpawnAction: Prefab is null", this);
+                return;
+            }
             var monoObj = GetComponentInParent<MonoPoolObj>();
             if (monoObj == null)
             {
@@ -62,7 +69,9 @@ namespace MonoFSM.Core.LifeCycle
             }
             var newObj = monoObj.WorldUpdateSimulator.Spawn(obj, position, rotation); //Runner.spawn?
             //用目前這個action的transform的scale,fixme; 可能需要別種？物件本身的scale?還是應該避免
-            newObj.transform.localScale = transform.lossyScale;
+            //fixme: 為什麼要這樣？
+            if (_isUsingSpawnTransformScale)
+                newObj.transform.localScale = transform.lossyScale;
             //Rotation呢？
             _lastSpawnedObj = newObj;
             _spawnEventHandler?.OnSpawn(newObj, position, rotation);

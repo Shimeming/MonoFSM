@@ -214,13 +214,19 @@ namespace MonoFSM.Core
         {
             OnEnterStateRender();
             foreach (var renderAction in _renderActions) //FIXME: 條件？
-                renderAction.OnEnterRender();
+            {
+                if (renderAction.isActiveAndEnabled)
+                    renderAction.OnEnterRender();
+            }
+                
         }
 
         void IState.OnRender()
         {
             OnRender();
-            foreach (var renderAction in _renderActions) renderAction.OnRender();
+            foreach (var renderAction in _renderActions)
+                if (renderAction.isActiveAndEnabled)
+                    renderAction.OnRender();
         }
 
         void IState.OnExitStateRender()

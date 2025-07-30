@@ -1,12 +1,11 @@
 using System;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Runtime.Mono;
-using RCGExtension;
 using MonoFSM.Variable;
 using MonoFSM.Variable.FieldReference;
+using RCGExtension;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.Serialization;
 
 namespace MonoFSM.Runtime.Variable
@@ -18,13 +17,11 @@ namespace MonoFSM.Runtime.Variable
     [FormerlyNamedAs("VarBlackboard")]
     public class VarEntity : GenericUnityObjectVariable<MonoEntity>, IHierarchyValueInfo
     {
-        //FIXME: 還能做型別限制、檢查嗎？
-        //MonoSchema?
         [FormerlySerializedAs("_MonoDescriptableTag")]
         [SOConfig("10_Flags/VarMono")]
         [BoxGroup("定義型別")]
         [PropertyOrder(-1)]
-        public MonoEntityTag _monoEntityTag; //Class Name?
+        public MonoEntityTag _monoEntityTag; //FIXME: Expected MonoEntityTag, but can be null?
 
         [BoxGroup("定義型別")]
         [PropertyOrder(-1)]

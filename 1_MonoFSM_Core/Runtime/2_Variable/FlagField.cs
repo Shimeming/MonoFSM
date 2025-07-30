@@ -584,7 +584,7 @@ public class
         // }
         // else
         _currentValue = DebugSetting.IsDebugMode ? DevValue : ProductionValue;
-        Debug.Log("FlagField Init: " + _currentValue + " Mode: " + DebugSetting.IsDebugMode, owner);
+        // Debug.Log("FlagField Init: " + _currentValue + " Mode: " + DebugSetting.IsDebugMode, owner);
         //沒有register耶？
     }
 

@@ -285,8 +285,8 @@ namespace MonoFSM.Core.Utilities
         /// <param name="startType">起始型別</param>
         /// <param name="supportedTypes">支援的型別清單</param>
         /// <param name="indexInjector">索引注入器</param>
-        public static void UpdatePathEntryTypes(List<FieldPathEntry> pathEntries, Type startType, 
-            List<Type> supportedTypes = null, IIndexInjector indexInjector = null)
+        public static void UpdatePathEntryTypes(List<FieldPathEntry> pathEntries, Type startType,
+            List<Type> supportedTypes = null, IIndexInjector indexInjector = null) //FIXME: 拿掉indexInjector?
         {
             if (pathEntries == null) return;
 

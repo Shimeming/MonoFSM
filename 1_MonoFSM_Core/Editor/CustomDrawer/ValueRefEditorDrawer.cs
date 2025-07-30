@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Reflection;
 using MonoDebugSetting;
 using MonoFSM.Core.DataProvider;
 using Sirenix.OdinInspector.Editor;
@@ -89,9 +88,9 @@ namespace MonoFSM.Core.Editor
             // 繪製fieldPath編輯器
             var valueProvider = GetValueProvider(valueRef);
             if (valueProvider != null)
-                DrawSimplifiedPathEditor(valueRef, valueProvider.ValueType, "請先選擇數值提供者");
+                DrawSimplifiedPathEditor(valueRef, valueProvider.ValueType, "valueProvider.ValueType = null");
             else
-                SirenixEditorGUI.ErrorMessageBox("請先選擇數值提供者");
+                SirenixEditorGUI.ErrorMessageBox("valueProvider = null");
         }
 
         /// <summary>
@@ -137,7 +136,9 @@ namespace MonoFSM.Core.Editor
         {
             EditorGUILayout.LabelField("數值提供者選擇", EditorStyles.boldLabel);
             var targetProperty = Tree.RootProperty;
-            var valueProviderProperty = targetProperty.Children.FirstOrDefault(p => p.Name == "_valueProvider");
+
+            var valueProviderProperty =
+                targetProperty.Children.FirstOrDefault(p => p.Name == nameof(_target._valueProvider));
             if (valueProviderProperty != null)
             {
                 // EditorGUI.BeginChangeCheck();
@@ -159,9 +160,7 @@ namespace MonoFSM.Core.Editor
         /// </summary>
         private PropertyOfTypeProvider GetValueProvider(ValueRef valueRef)
         {
-            var field = valueRef.GetType().GetField("_valueProvider",
-                BindingFlags.NonPublic | BindingFlags.Instance);
-            return field?.GetValue(valueRef) as PropertyOfTypeProvider;
+            return valueRef._valueProvider;
         }
     }
 }

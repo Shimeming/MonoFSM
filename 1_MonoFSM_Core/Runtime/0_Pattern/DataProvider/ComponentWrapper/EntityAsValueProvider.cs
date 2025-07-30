@@ -9,16 +9,16 @@ namespace MonoFSM.Core.Runtime
     //把MonoBlackboard當成一個值提供者, 才可以被set到varMono上
     public class EntityAsValueProvider : MonoBehaviour, IValueProvider<MonoBlackboard>
     {
-        [CompRef] [Auto] private IMonoEntityProvider _monoEntityProvider;
+        [CompRef] [Auto] private IEntityProvider _entityProvider;
 
-        public MonoBlackboard Value => _monoEntityProvider.monoEntity;
+        public MonoBlackboard Value => _entityProvider.monoEntity;
 
         public T GetValue<T>()
         {
             if (typeof(T) != typeof(MonoBlackboard))
                 throw new InvalidOperationException("GetValue<T>() can only be used with MonoBlackboard type.");
 
-            return (T)(object)_monoEntityProvider.monoEntity;
+            return (T)(object)_entityProvider.monoEntity;
         }
 
         public Type ValueType => typeof(MonoBlackboard);
@@ -27,10 +27,10 @@ namespace MonoFSM.Core.Runtime
         public override string ToString()
         {
 #if UNITY_EDITOR
-            _monoEntityProvider = GetComponent<IMonoEntityProvider>();
-            if (_monoEntityProvider == null) return "";
+            _entityProvider = GetComponent<IEntityProvider>();
+            if (_entityProvider == null) return "";
 #endif
-            return _monoEntityProvider.Description + " as Value";
+            return _entityProvider.Description + " as Value";
         }
         //Assign A to B vs 
     }

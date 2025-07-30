@@ -3,7 +3,6 @@ using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.DataProvider;
 using MonoFSM.Variable.Attributes;
-using MonoFSM.Variable.FieldReference;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -92,6 +91,8 @@ namespace MonoFSM.Variable.FieldReference
         /// IVariableProvider.VarRaw 實作
         /// </summary>
         public AbstractMonoVariable VarRaw => _variableProvider?.VarRaw;
+
+        public bool IsVariableValid => _variableProvider?.IsVariableValid ?? false;
 
         /// <summary>
         /// IVariableProvider.GetValueType 實作

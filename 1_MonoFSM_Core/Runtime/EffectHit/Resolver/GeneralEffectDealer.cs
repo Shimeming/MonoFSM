@@ -4,8 +4,6 @@ using MonoFSM.Core.Attributes;
 using MonoFSM.Core.DataProvider;
 using MonoFSM.Core.Detection;
 using MonoFSM.Runtime.Interact.EffectHit.Resolver;
-using MonoFSM.Variable;
-using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace MonoFSM.Runtime.Interact.EffectHit
@@ -16,7 +14,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
 
     //FIXME: 篩選掉同個owner下的判斷？
 
-    public class GeneralEffectDealer : EffectResolver, IEffectDealer,IHitDataProvider
+    public class GeneralEffectDealer : EffectResolver, IEffectDealer
     {
         [PreviewInInspector] [Component] [AutoChildren(DepthOneOnly = true)]
         private AbstractEffectHitCondition[] _effectConditions;
@@ -137,8 +135,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
             _receivers.Add(data.Receiver);
             _lastReceiver = data.Receiver as GeneralEffectReceiver;
         }
-
-        private IEffectHitData _currentHitData;
+        
 
         public void OnHitExit(IEffectHitData data)
         {
@@ -150,9 +147,5 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         }
 
         protected override string TypeTag => "Dealer";
-        public IEffectHitData GetHitData()
-        {
-            return _currentHitData;
-        }
     }
 }

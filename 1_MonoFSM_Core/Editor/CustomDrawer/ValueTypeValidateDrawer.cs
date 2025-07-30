@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Auto.Utils;
 using JetBrains.Annotations;
-using MonoFSM.Core;
+using MonoFSM.Core.DataProvider;
 using MonoFSM.Runtime.Attributes;
 using MonoFSM.Variable.FieldReference;
 using Sirenix.OdinInspector.Editor;
@@ -29,9 +28,6 @@ namespace MonoFSM.Core.Editor
 
         protected override void DrawPropertyLayout(GUIContent label)
         {
-            // 先繪製原本的屬性
-            CallNextDrawer(label);
-            
             // 檢查是否為 IValueProvider
             var provider = Property.ValueEntry?.WeakSmartValue as IValueProvider;
             if (provider == null)
@@ -43,14 +39,16 @@ namespace MonoFSM.Core.Editor
                 }
                 else
                 {
-                    SirenixEditorGUI.InfoMessageBox("此欄位為空，無法進行 ValueType 驗證");
+                    SirenixEditorGUI.ErrorMessageBox("此欄位為空，無法進行 ValueType 驗證");
                 }
+
+                CallNextDrawer(label);
                 return;
             }
             
             // 進行 ValueType 驗證
             var result = ValidateValueType(provider);
-            
+
             // 根據驗證結果顯示對應的訊息
             if (!result.IsValid)
             {
@@ -60,15 +58,32 @@ namespace MonoFSM.Core.Editor
                     errorMessage += "\n建議：" + string.Join("、", result.Suggestions.ToArray());
                 }
                 SirenixEditorGUI.ErrorMessageBox(errorMessage);
+                CallNextDrawer(label);
             }
             else if (!string.IsNullOrEmpty(result.WarningMessage))
             {
                 SirenixEditorGUI.WarningMessageBox(result.WarningMessage);
+                CallNextDrawer(label);
             }
             else if (Attribute.ShowSuccessMessage)
             {
-                var successMessage = $"✓ ValueType 驗證成功：{provider.ValueType?.Name ?? "Unknown"}";
-                SirenixEditorGUI.InfoMessageBox(successMessage);
+                // 自定義繪製帶綠色勾勾的 label
+                var tooltip = $"ValueType 驗證成功：{provider.ValueType?.Name ?? "Unknown"}";
+                var modifiedLabel = label != null ? new GUIContent(label) : new GUIContent();
+                modifiedLabel.text = "✓ " + (modifiedLabel.text ?? "");
+                modifiedLabel.tooltip = string.IsNullOrEmpty(modifiedLabel.tooltip)
+                    ? tooltip
+                    : modifiedLabel.tooltip + " | " + tooltip;
+
+                // 使用綠色繪製
+                var oldColor = GUI.color;
+                GUI.color = new Color(0.3f, 0.8f, 0.3f, 1f); // 綠色
+                CallNextDrawer(modifiedLabel);
+                GUI.color = oldColor;
+            }
+            else
+            {
+                CallNextDrawer(label);
             }
         }
 
@@ -87,6 +102,17 @@ namespace MonoFSM.Core.Editor
             {
                 return TypeValidationResult.Error("IValueProvider.ValueType 為 null");
             }
+
+            if (Attribute.IsVariableNeeded)
+            {
+                if (provider is not IVariableProvider variableProvider)
+                    return TypeValidationResult.Error("並非 IVariableProvider");
+                if (!variableProvider.IsVariableValid)
+                    return TypeValidationResult.Error("IValueProvider 的變數無效或未設置");
+            }
+                
+                    
+            
 
             // 檢查是否使用多型別模式
             if (IsMultiTypeMode())
@@ -160,7 +186,8 @@ namespace MonoFSM.Core.Editor
 
             // 獲取所有期望的型別
             // var expectedTypes = GetExpectedTypesFromAttribute(target).ToList();
-            if (!expectedTypes.Any()) return TypeValidationResult.Error("沒有指定任何期望的型別");
+            if (!expectedTypes.Any() && Attribute.IsVariableNeeded == false)
+                return TypeValidationResult.Error("沒有指定任何期望的型別");
 
             var allowCompatibleTypes = Attribute.AllowCompatibleTypes;
             var customErrorMessage = Attribute.CustomErrorMessage;
@@ -185,6 +212,15 @@ namespace MonoFSM.Core.Editor
             }
 
             // 型別不相容
+            if (expectedTypes.Count == 0)
+            {
+                if (Attribute.IsVariableNeeded)
+                    return TypeValidationResult.Success();
+
+                return TypeValidationResult.Error(
+                    "沒有指定任何期望的型別，無法進行驗證。請檢查 ValueTypeValidateAttribute 的配置。");
+            }
+                
             var typeNames = expectedTypes.Select(t => t.Name).ToArray();
             var expectedTypeNames = string.Join("、", typeNames);
             var errorMessage = !string.IsNullOrEmpty(customErrorMessage)

@@ -1,13 +1,14 @@
-using System.Collections;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;
 using MonoFSM.Core.Attributes;
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
 using UnityEditor;
 using UnityEngine;
-using System.Collections.Generic;
-using System.Linq;
+using Object = UnityEngine.Object;
 
 namespace MonoFSM.Core
 {
@@ -21,7 +22,7 @@ namespace MonoFSM.Core
         private List<string> GetAvailablePaths()
         {
             var paths = new List<string> { "Assets" };
-            var localPackages = MonoFSM.Core.PackageHelper.GetLocalPackagePaths();
+            var localPackages = PackageHelper.GetLocalPackagePaths();
             paths.AddRange(localPackages);
             return paths;
         }
@@ -77,8 +78,8 @@ namespace MonoFSM.Core
                 Debug.Log("parentComp: " + parentComp, parentComp);
                 var type = parentComp.GetType();
                 var method = type.GetMethod(Attribute.PostProcessMethodName,
-                    System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic |
-                    System.Reflection.BindingFlags.Instance);
+                    BindingFlags.Public | BindingFlags.NonPublic |
+                    BindingFlags.Instance);
                 if (method != null)
                     method.Invoke(parentComp, new object[] { });
                 else
@@ -110,23 +111,25 @@ namespace MonoFSM.Core
             string fileName;
             if (Property.ParentValues[0] is ScriptableObject sObj)
             {
-                fileName = $"New {sObj.name}_{elementType.Name}.asset";
+                fileName = $"[{elementType.Name}] {sObj.name}";
             }
             else if (Property.ParentValues[0] is Component parentComp)
             {
+                Debug.LogError("有這個case?", parentComp);
                 if (parentComp)
                 {
                     var gObj = parentComp.gameObject;
-                    fileName = $"{gObj.name}_{elementType.Name}.asset";
+                    fileName = $"[{elementType.Name}] {gObj.name}";
                 }
                 else
                 {
-                    fileName = $"0_{elementType.Name}_{Property.Name}.asset";
+                    fileName = $"0_{elementType.Name}_{Property.Name}";
                 }
             }
             else
             {
-                fileName = $"New_{elementType.Name}.asset";
+                Debug.LogError("這啥？");
+                fileName = $"[_]_{elementType.Name}";
             }
 
             // 使用路徑配置建立新的 ScriptableObject
@@ -206,7 +209,7 @@ namespace MonoFSM.Core
             }
             
             // 原有的單一物件檢查
-            if ((UnityEngine.Object)Property.ValueEntry.WeakSmartValue != null)
+            if ((Object)Property.ValueEntry.WeakSmartValue != null)
             {
                 CallNextDrawer(label);
                 SirenixEditorGUI.EndBox();

@@ -1,21 +1,34 @@
-using _1_MonoFSM_Core.Runtime._0_Pattern.DataProvider.ComponentWrapper;
 using MonoFSM.Core.DataProvider;
 using MonoFSM.Core.Runtime.Action;
-using MonoFSM.Runtime.Item_BuildSystem.MonoDescriptables;
-using MonoFSM.Variable;
+using MonoFSM.Runtime;
+using MonoFSM.Runtime.Attributes;
 using UnityEngine;
 
 namespace _1_MonoFSM_Core.Runtime.Action.TransformAction
 {
+    //TODO: abstract化兩個Entity之間的作用
     public class SetTransformParentAction : AbstractStateAction
     {
         public Transform _target;
-        public VarCompProviderRef _targetVarRef; //拿到rigidbody的話，再拿transform
+
+        [ValueTypeValidate(typeof(MonoEntity))] [DropDownRef]
+        public ValueProvider _sourceValueProvider;
+
+        // public VarCompProviderRef _targetVarRef; //拿到rigidbody的話，再拿transform
+        [ValueTypeValidate(typeof(MonoEntity))] //FIXME: validation沒有辦法提示嗎
+        [DropDownRef]
+        public ValueProvider _targetValueProvider; 
 
         protected override void OnActionExecuteImplement()
         {
-            var comp = _targetVarRef.Value;
-            _target.SetParent(comp.transform);
+            var targetEntity = _targetValueProvider.Get<MonoEntity>();
+            // var comp = _targetVarRef.Value;
+            // if (comp == null)
+            // {
+            //     Debug.LogError("Target component is null. Cannot set parent.", this);
+            //     return;
+            // }
+            _sourceValueProvider.Get<MonoEntity>().transform.SetParent(targetEntity.transform);
         }
     }
 }

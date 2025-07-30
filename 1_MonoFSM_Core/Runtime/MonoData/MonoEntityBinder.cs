@@ -1,8 +1,8 @@
-using System;
 using MonoFSM.Core;
 using MonoFSM.Runtime.Mono;
 using MonoFSM.Runtime.Variable;
 using MonoFSMCore.Runtime.LifeCycle;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 namespace MonoFSM.Runtime
@@ -60,13 +60,13 @@ namespace MonoFSM.Runtime
             if (mono == null)
                 return null;
             var parentDescriptable = mono.GetComponentInParent<MonoEntity>();
-            if (parentDescriptable != null && parentDescriptable.Tag == tag || tag == null)
+            if ((parentDescriptable != null && parentDescriptable.DefaultTag == tag) || tag == null)
                 return parentDescriptable;
 
             var parents = mono.GetComponentsInParent<MonoEntity>();
             foreach (var parent in parents)
             {
-                if (parent.Tag == tag)
+                if (parent.DefaultTag == tag)
                 {
                     return parent;
                 }
@@ -132,7 +132,7 @@ namespace MonoFSM.Runtime
             if (binder == null)
             {
 #if UNITY_EDITOR //如果在Prefab裡不要噴error
-                var prefabStage = UnityEditor.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage();
+                var prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
                 if (prefabStage != null)
                     return null;
 #endif

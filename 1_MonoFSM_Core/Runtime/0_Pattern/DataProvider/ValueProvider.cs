@@ -1,31 +1,44 @@
 using System;
 using System.Collections.Generic;
+using Cysharp.Text;
 using MonoFSM.Core.Attributes;
+using MonoFSM.Core.Runtime;
 using MonoFSM.Core.Utilities;
 using MonoFSM.Runtime;
 using MonoFSM.Variable;
-using MonoFSM.Variable.Attributes;
+using RCGExtension;
 using Sirenix.OdinInspector;
+using Sirenix.Utilities;
 using UnityEngine;
 
 namespace MonoFSM.Core.DataProvider
 {
     //用這顆就夠了，其他應該都不需要了？除了literal
-    public class ValueProvider : AbstractVariableProviderRef
+    public class ValueProvider : AbstractVariableProviderRef, IOverrideHierarchyIcon, IHierarchyValueInfo
     {
-        //FIXME: 這裡自帶 field entry就可以找到任何東西了？
+        //自引用？
+        // [SerializeField] ValueProvider _valueProviderRef;
+        //Entity?
+        // [DropDownRef] [SerializeField] private ValueProvider _valueProviderRef; //還是是entity想要Ref?
+        
         [PropertyOrder(-1)]
         [BoxGroup("varTag")]
         [ShowInInspector]
-        [ValueDropdown(nameof(GetParentVariableTags), NumberOfItemsBeforeEnablingSearch = 5)]
+        [ValueDropdown(nameof(GetVarTagsFromEntity), NumberOfItemsBeforeEnablingSearch = 5)]
         private VariableTag DropDownVarTag
         {
             set => _varTag = value;
             get => _varTag;
         }
 
-        private IEnumerable<ValueDropdownItem<VariableTag>> GetParentVariableTags()
+        public IEnumerable<ValueDropdownItem<VariableTag>> GetVarTagsFromEntity()
         {
+            //FIXME: 不看Parent entity的entity tag嗎？
+            if (entityProvider != null)
+                if (entityProvider.entityTag == null)
+                    // Debug.LogError("EntityProvider has no entity tag, returning empty variable tags.", this);
+                    return new List<ValueDropdownItem<VariableTag>>();
+
             return entityProvider?.entityTag?.GetVariableTagItems() ?? ParentEntity?.GetVarTagOptions();
         }
 
@@ -35,12 +48,21 @@ namespace MonoFSM.Core.DataProvider
         // [Required]
         [SerializeField]
         private VariableTag _varTag;
+
+        public void ClearVarTag()
+        {
+            _varTag = null;
+            // Debug.Log("VarRef: Cleared varTag.", this);
+        }
         // private bool TypeCheckFail()
         // {
         //     if (_varTag == null) return false;
         //     return typeof(TValueType).IsAssignableFrom(_varTag._valueFilterType.RestrictType) == false;
         // }
 
+        //代表這個ValueProvider可以拿到對應的AbstractMonoVariable
+      
+        
         [ShowInPlayMode]
         public override AbstractMonoVariable VarRaw //可以去拿MonoEntity的資料？而不是一定要透過Var?
         {
@@ -56,7 +78,7 @@ namespace MonoFSM.Core.DataProvider
             }
         }
 
-        private MonoEntity ParentEntity
+        private MonoEntity ParentEntity //fixme; 避免這個？ fsm結構裡一定要放this.(ParentEntity)嗎？
         {
             get
             {
@@ -65,28 +87,88 @@ namespace MonoFSM.Core.DataProvider
             }
         }
 
-        [AutoParent] private MonoEntity _parentEntity;
-
-        [CompRef] [Auto] private IMonoEntityProvider _monoEntityProvider;
-
-        private IMonoEntityProvider entityProvider
+        public MonoEntity fromEntity //tag?
         {
             get
             {
-                this.EnsureComponent(ref _monoEntityProvider, false); //不一定需要這個物件
-                return _monoEntityProvider;
+                if (_entityProvider != null)
+                    return _entityProvider.monoEntity;
+                return ParentEntity;
             }
         }
 
-        protected override string DescriptionPreprocess(string text)
+        [AutoParent] private MonoEntity _parentEntity;
+
+        //可auto? 有ref就不覆蓋？還是身上的比較大？
+        [DropDownRef] [SerializeField] public AbstractEntityProvider _entityProvider;
+
+
+        private AbstractEntityProvider entityProvider
         {
-            if (entityProvider != null) return entityProvider.entityTag?.name + "(entity)." + text;
-            return text;
+            get
+            {
+                this.EnsureComponent(ref _entityProvider, false); //不一定需要這個物件
+                return _entityProvider;
+            }
+        }
+
+        public string _declarationName; //可以有default name?
+
+        public string DeclarationName
+        {
+            get
+            {
+                if (entityProvider.SuggestDeclarationName != null) return entityProvider.SuggestDeclarationName;
+                // Debug.Log($"VarRef: Using entityProvider declaration name: {_declarationName}", this);
+                return _declarationName;
+            }
+        }
+
+        public override string Description
+        {
+            get
+            {
+                var stringBuilder = ZString.CreateStringBuilder();
+                if (!_declarationName.IsNullOrWhitespace())
+                {
+                    Debug.Log($"VarRef: Using declaration name: {_declarationName}", this);
+                    stringBuilder.Append(_declarationName);
+                    stringBuilder.Append(": ");
+                }
+
+                // var text = PropertyPath;
+                // if (VarRaw != null)
+                //     return $"{VarRaw.name}.{text}";
+
+                // Debug.Log("VarRef: VarRaw is null, using entityProvider and varTag to build description.", this);
+                if (entityProvider != null && entityProvider.entityTag != null)
+                    // Debug.Log($"VarRef: EntityProvider found: {entityProvider.entityTag}", this);
+                    stringBuilder.Append(entityProvider.entityTag.name);
+                // stringBuilder.Append('.');
+                if (varTag != null)
+                {
+                    if (stringBuilder.Length > 0)
+                        stringBuilder.Append('.');
+                    stringBuilder.Append(varTag.name);
+                    // stringBuilder.Append('.');
+                }
+
+                if (stringBuilder.Length > 0 && HasFieldPath)
+                    stringBuilder.Append('.');
+                stringBuilder.Append(PropertyPath);
+                return stringBuilder.ToString();
+            }
+            
         }
 
         // public override AbstractMonoVariable VarRaw => _monoVariable;
 
-        [PreviewInInspector] public override Type ValueType => !HasFieldPath ? GetObjectType : lastPathEntryType;
+        [PreviewInInspector]
+        public override Type ValueType =>
+            HasFieldPath
+                ? lastPathEntryType
+                : GetTarget()?.ValueType ??
+                  varTag?.ValueType ?? entityProvider?.entityTag?.RestrictType ?? typeof(MonoEntity);
 
 
         private IValueProvider GetTarget()
@@ -112,7 +194,8 @@ namespace MonoFSM.Core.DataProvider
                 if (_varTag != null)
                     return _varTag.VariableMonoType;
                 //entityType (tag)
-                if (entityProvider != null) return entityProvider.entityTag?._entityType?.RestrictType;
+                if (entityProvider != null)
+                    return entityProvider.entityTag?._entityType?.RestrictType ?? typeof(MonoEntity);
                 //parentEntityType (instance)
                 if (ParentEntity != null) return ParentEntity.GetType();
 
@@ -181,7 +264,25 @@ namespace MonoFSM.Core.DataProvider
             return default;
         }
 
+        public string IconName => "Linked@2x";
+        public bool IsDrawingIcon => true;
+        public Texture2D CustomIcon => null;
+        public string ValueInfo => $"{ValueType.Name} {_declarationName}"; //一play會call這個...
+        public bool IsDrawingValueInfo => true;
 
-        // protected override string DescriptionTag => "varRef";
+        protected override string DescriptionTag
+        {
+            get
+            {
+                //Value, Var, Entity
+                if (HasFieldPath)
+                    return "Value";
+                if (_varTag != null)
+                    return "Var";
+                if (entityProvider != null)
+                    return "Entity";
+                return "Unknown";
+            }
+        }
     }
 }

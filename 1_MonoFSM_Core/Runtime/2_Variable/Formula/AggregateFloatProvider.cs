@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.DataProvider;
@@ -27,7 +28,7 @@ namespace MonoFSM.Core.Formula
         // [AutoChildren] [CompRef] [Required] [Tooltip("The component that provides the list of objects to process.")]
         // private IMonoDescriptableListProvider _inputProvider;
 
-        [ValueTypeValidate(typeof(VarListEntity))]
+        [ValueTypeValidate(typeof(List<MonoEntity>))] //var -> VarListEntity, value-> MonoEntity
         [Auto]
         [CompRef]
         [Required]
@@ -44,7 +45,6 @@ namespace MonoFSM.Core.Formula
         public float GetValue()
         {
             if (_monoEntityListProvider == null || _variableToAggregate == null) return 0f;
-
             var values = _monoEntityListProvider.GetVar<VarListEntity>().GetList()
                 .Select(GetFloatFromDescriptable)
                 .ToList();

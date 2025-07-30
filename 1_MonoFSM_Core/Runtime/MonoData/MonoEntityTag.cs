@@ -14,6 +14,8 @@ namespace MonoFSM.Runtime.Mono
     //為了DI可以找到相對應的物件用的tag, 先宣告下面有什麼變數可以用
     //先設計schema, 但這樣物件那邊又要對應，是不是很麻煩？
     //FIXME: 用DescriptableData是不是不太好？ 應該和data互斥？ 這個只是描述要尋找的類別
+    //MonoEntityDef?
+    //VarDef
     [CreateAssetMenu(menuName = "RCGMaker/MonoDescriptableTag")]
     public class MonoEntityTag : ScriptableObject, IStringKey
     {
@@ -74,7 +76,8 @@ namespace MonoFSM.Runtime.Mono
         [Button]
         void FindAllMonoDescriptable()
         {
-            _allMonoDescriptable = FindObjectsByType<MonoEntity>(FindObjectsSortMode.None).Where(x => x.Tag == this)
+            _allMonoDescriptable = FindObjectsByType<MonoEntity>(FindObjectsSortMode.None)
+                .Where(x => x.DefaultTag == this)
                 .ToArray();
         }
 
