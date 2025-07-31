@@ -129,7 +129,7 @@ First, add the `SinglePlayer World Simulator.prefab` to your scene (located in t
 ### Create New Prefab
 
 1. Right-click on `Packages/MonoFSM/0_MonoFSM_Example_Module/General FSM.prefab`
-2. Select **[Prefab Variant]**
+2. Select **[Create] > [Prefab Variant]**
 
 ![Create Prefab Variant](0_MonoFSM_Example_Module/Document/DocumentAssets/CreatePrefabVariant.png)
 
@@ -167,7 +167,7 @@ Add SpriteRenderer and Collider2D components to represent the door's visual and 
 **[Animator]**
 Create four Animation Clips corresponding to each state. Remember to turn off LoopTime on the Animation Clips (unless you really need looping).
 
-![Door Animations](0_MonoFSM_Example_Module/Document/DocumentAssets/PrefabExampleDoorAnimations.mov)
+[Door Animations Video](0_MonoFSM_Example_Module/Document/DocumentAssets/PrefabExampleDoorAnimations.mov)
 
 ### Bind States to Animations
 
@@ -195,7 +195,7 @@ Configure transitions and their corresponding conditions using the Should Open v
 
 Your SimpleDoor FSM is now ready! The door will respond to the Should Open variable changes and smoothly transition between states.
 
-![Simple Door Result](0_MonoFSM_Example_Module/Document/DocumentAssets/SimpleDoorResult.mov)
+[Simple Door Result Video](0_MonoFSM_Example_Module/Document/DocumentAssets/SimpleDoorResult.mov)
 
 ## Example Usage
 ### todo
