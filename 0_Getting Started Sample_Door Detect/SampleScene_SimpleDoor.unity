@@ -396,17 +396,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8fdaea9a50c9419b9e6f82ed28c91b37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &755125088 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4648563698561450127, guid: e1fbe6b3f9c74442ba549968ba534d31, type: 3}
-  m_PrefabInstance: {fileID: 775416108}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b799c9a280adf49b2bfa4a32f9ba7eae, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &775416108
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -464,6 +453,28 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e1fbe6b3f9c74442ba549968ba534d31, type: 3}
+--- !u!114 &775416109 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7040883137383129288, guid: e1fbe6b3f9c74442ba549968ba534d31, type: 3}
+  m_PrefabInstance: {fileID: 775416108}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26e7e83b1b2741b886d2ea9457d0f683, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &775416110 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3537927791211400061, guid: e1fbe6b3f9c74442ba549968ba534d31, type: 3}
+  m_PrefabInstance: {fileID: 775416108}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b799c9a280adf49b2bfa4a32f9ba7eae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &810571621 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4718785819807549033, guid: e1fbe6b3f9c74442ba549968ba534d31, type: 3}
@@ -855,17 +866,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20652729ee734c8fb742043ee0610cab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1745735429 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7562782915213703196, guid: e1fbe6b3f9c74442ba549968ba534d31, type: 3}
-  m_PrefabInstance: {fileID: 775416108}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 26e7e83b1b2741b886d2ea9457d0f683, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1755220887 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1367788737545227430, guid: e1fbe6b3f9c74442ba549968ba534d31, type: 3}
@@ -930,7 +930,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   monoReferenceCache:
     lastUpdateTime:
-      m_ticks: 638895717865409380
+      m_ticks: 638895772226889760
     monoValueCaches:
     - fieldCaches:
       - targetName: (local) SinglePlayer World Simulator
@@ -1340,7 +1340,7 @@ MonoBehaviour:
         typeName: GeneralState
         fieldName: _transitions
         valueArray:
-        - {fileID: 755125088}
+        - {fileID: 775416110}
         value: {fileID: 0}
       - targetName: '[State] Opening'
         typeName: GeneralState
@@ -1365,7 +1365,7 @@ MonoBehaviour:
         typeName: AnimatorPlayAction
         fieldName: doneEventTransition
         valueArray: []
-        value: {fileID: 755125088}
+        value: {fileID: 775416110}
       - targetName: '[Anim]  Animator: Opening'
         typeName: AnimatorPlayAction
         fieldName: _animatorPlayActionModule
@@ -1393,7 +1393,7 @@ MonoBehaviour:
         typeName: StateTransition
         fieldName: _conditions
         valueArray:
-        - {fileID: 1745735429}
+        - {fileID: 775416109}
         value: {fileID: 0}
       - targetName: '[Transition] => Opened'
         typeName: StateTransition
@@ -1410,7 +1410,7 @@ MonoBehaviour:
         fieldName: _self
         valueArray: []
         value: {fileID: 669854965}
-      TargetMb: {fileID: 755125088}
+      TargetMb: {fileID: 775416110}
       TargetMbName: '[Transition] => Opened'
     - fieldCaches:
       - targetName: '[Condition] AnimationDoneCondition'
@@ -1433,7 +1433,7 @@ MonoBehaviour:
         fieldName: _self
         valueArray: []
         value: {fileID: 669854965}
-      TargetMb: {fileID: 1745735429}
+      TargetMb: {fileID: 775416109}
       TargetMbName: '[Condition] AnimationDoneCondition'
     - fieldCaches:
       - targetName: '[State] Opened'
@@ -1678,8 +1678,8 @@ MonoBehaviour:
     - {fileID: 916710335}
     - {fileID: 810571621}
     - {fileID: 63290187}
-    - {fileID: 755125088}
-    - {fileID: 1745735429}
+    - {fileID: 775416110}
+    - {fileID: 775416109}
     - {fileID: 594676378}
     - {fileID: 1825068093}
     - {fileID: 1880533905}

@@ -231,4 +231,11 @@ Your SimpleDoor FSM is now ready! The door will respond to the Should Open varia
 ![Simple Door Result](0_MonoFSM_Example_Module/Document/DocumentAssets/SimpleDoorResult.gif)
 
 ## Example Usage
-### todo
+
+### Basic Door Example
+
+You can find a complete working example of the SimpleDoor implementation at:
+
+**Scene Location:** `MonoFSM/0_Getting Started Sample_Door Detect/SampleScene_SimpleDoor.unity`
+
+This scene demonstrates the most basic door open/close functionality using MonoFSM. It's a perfect starting point to understand how MonoFSM works with simple state transitions and variable-based conditions.
