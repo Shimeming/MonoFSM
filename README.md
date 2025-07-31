@@ -191,6 +191,15 @@ If you cannot find the **[Anim]** node under your State, you can create it manua
 - Define that Opening animation completion transitions to Opened state
 - Define that Closing animation completion transitions to Closed state
 
+**Step-by-step setup:**
+1. Select the **[Anim]** node under your State
+2. In Inspector → click **AddChild: StateTransition** → choose **StateTransition**
+3. A new **State Transition** node will be created where you can:
+   - Set the **Target State** (e.g., from Opening to Opened)
+4. On the State Transition node → click **AddChild: AbstractConditionBehaviour**
+5. Choose **AnimationDoneCondition**
+6. This configuration will automatically transition to the target state when the animation completes
+
 ![Animation Done Transition](0_MonoFSM_Example_Module/Document/DocumentAssets/AnimationDoneTransition.png)
 
 ### Setup Conditional Transitions
