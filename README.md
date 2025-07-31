@@ -207,6 +207,21 @@ If you cannot find the **[Anim]** node under your State, you can create it manua
 **[State, Variable & Transition Binding]**
 Configure transitions and their corresponding conditions using the Should Open variable.
 
+**Our goal is to set up the following logic:**
+- **[State] Init**: Initial state that checks **[VarBool] Should Open** to decide whether to jump to **[State] Closed** or **[State] Opened**
+- **[State] Closed**: When **[VarBool] Should Open** is **True**, transition to **[State] Opening**
+- **[State] Opened**: When **[VarBool] Should Open** is **False**, transition to **[State] Closing**
+
+**Step-by-step setup:**
+1. Select the corresponding **[State]** node (Init, Closed, or Opened)
+2. In Inspector → click **AddChild: TransitionBehaviour** → choose **TransitionBehaviour**
+3. Select the newly created **TransitionBehaviour** node
+4. Set the **Target State** (where you want to transition to)
+5. In Inspector → click **AddChild: AbstractConditionBehaviour** → choose **VarBoolValueCondition**
+6. In the **VarBoolValueCondition** settings:
+   - Select **[VarBool] Should Open** from the VarBool dropdown field
+   - Set whether the condition is met when the value is **True** or **False**
+
 ![Transition and Condition](0_MonoFSM_Example_Module/Document/DocumentAssets/TransitionAndCondition.png)
 
 ### Final Result
