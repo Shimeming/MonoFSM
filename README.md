@@ -115,8 +115,87 @@ Comprehensive editor toolset for enhanced development workflow and debugging exp
 - **Auto Attributes**: Automatic component reference resolution and hierarchy relationship management
 - **Custom Drawers**: Rich Inspector experience with specialized property drawers and selectors
 
-## Getting Started
-### todo
+## Getting Started: SimpleDoor Example
+
+This tutorial walks you through creating a simple door FSM that demonstrates MonoFSM's core concepts.
+
+### Scene Preparation
+
+First, add the `SinglePlayer World Simulator.prefab` to your scene (located in the project).
+*MonoFSM's lifecycle is controlled through this component*
+
+![World Simulator](MonoFSM/0_MonoFSM_Example_Module/Document/DocumentAssets/WorldSimulator.png)
+
+### Create New Prefab
+
+1. Right-click on `Packages/MonoFSM/0_MonoFSM_Example_Module/General FSM.prefab`
+2. Select **[Prefab Variant]**
+
+![Create Prefab Variant](MonoFSM/0_MonoFSM_Example_Module/Document/DocumentAssets/CreatePrefabVariant.png)
+
+3. Rename the generated `General FSM Variant` to your desired object name, for example:
+   `General FSM Variant - Door.prefab`
+4. Move it to your project's appropriate location, such as:
+   `Assets/FSMs/Puzzles/General FSM Variant - Door.prefab`
+
+### Configure States
+
+Edit the `[General FSM Variant - Door.prefab]`:
+
+**[States]**
+Copy and rename existing states to create: `[State] Closed`, `[State] Opening`, `[State] Opened`, `[State] Closing`
+
+![Create State](MonoFSM/0_MonoFSM_Example_Module/Document/DocumentAssets/CreateState.png)
+
+### Setup Variables
+
+**[Variables]**
+1. Click the Variables node
+2. In Inspector → AddChild → Add VarBool named `[VarBool] Should Open`
+
+![Variables](MonoFSM/0_MonoFSM_Example_Module/Document/DocumentAssets/Variables.png)
+
+### LogicRoot Setup
+
+**[LogicRoot]**
+Add SpriteRenderer and Collider2D components to represent the door's visual and physical properties.
+
+![Door Physics](MonoFSM/0_MonoFSM_Example_Module/Document/DocumentAssets/DoorPhysics.png)
+
+### Animator Configuration
+
+**[Animator]**
+Create four Animation Clips corresponding to each state. Remember to turn off LoopTime on the Animation Clips (unless you really need looping).
+
+![Door Animations](MonoFSM/0_MonoFSM_Example_Module/Document/DocumentAssets/PrefabExampleDoorAnimations.mov)
+
+### Bind States to Animations
+
+**[State & Animation Binding]**
+Connect each state with its corresponding animation.
+
+![State and Animations](MonoFSM/0_MonoFSM_Example_Module/Document/DocumentAssets/StateAndAnimations.png)
+
+### Configure Transitions
+
+**[State & Transition Binding]**
+- Define that Opening animation completion transitions to Opened state
+- Define that Closing animation completion transitions to Closed state
+
+![Animation Done Transition](MonoFSM/0_MonoFSM_Example_Module/Document/DocumentAssets/AnimationDoneTransition.png)
+
+### Setup Conditional Transitions
+
+**[State, Variable & Transition Binding]**
+Configure transitions and their corresponding conditions using the Should Open variable.
+
+![Transition and Condition](MonoFSM/0_MonoFSM_Example_Module/Document/DocumentAssets/TransitionAndCondition.png)
+
+### Final Result
+
+Your SimpleDoor FSM is now ready! The door will respond to the Should Open variable changes and smoothly transition between states.
+
+![Simple Door Result](MonoFSM/0_MonoFSM_Example_Module/Document/DocumentAssets/SimpleDoorResult.mov)
 
 ## Example Usage
 ### todo
