@@ -174,6 +174,15 @@ Create four Animation Clips corresponding to each state. Remember to turn off Lo
 **[State & Animation Binding]**
 Connect each state with its corresponding animation.
 
+By default, each **[State]** node contains an **[Anim]** child node where you can configure:
+- **Animator**: The Animator component to control
+- **State Name**: The animation state name to execute
+
+If you cannot find the **[Anim]** node under your State, you can create it manually:
+1. Select the **[State]** node
+2. In Inspector → click **AddChild: IRenderAction**
+3. Choose **AnimatorPlayAction** to generate the Anim node
+
 ![State and Animations](0_MonoFSM_Example_Module/Document/DocumentAssets/StateAndAnimations.png)
 
 ### Configure Transitions
