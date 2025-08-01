@@ -115,18 +115,20 @@ Comprehensive editor toolset for enhanced development workflow and debugging exp
 - **Auto Attributes**: Automatic component reference resolution and hierarchy relationship management
 - **Custom Drawers**: Rich Inspector experience with specialized property drawers and selectors
 
-## Getting Started: SimpleDoor Example
+## Getting Started
+
+### Example 1: SimpleDoor
 
 This tutorial walks you through creating a simple door FSM that demonstrates MonoFSM's core concepts.
 
-### Scene Preparation
+#### Scene Preparation
 
 First, add the `SinglePlayer World Simulator.prefab` to your scene (located in the project).
 *MonoFSM's lifecycle is controlled through this component*
 
 ![World Simulator](0_MonoFSM_Example_Module/Document/DocumentAssets/WorldSimulator.png)
 
-### Create New Prefab
+#### Create New Prefab
 
 1. Right-click on `Packages/MonoFSM/0_MonoFSM_Example_Module/General FSM.prefab`
 2. Select **[Create] > [Prefab Variant]**
@@ -138,7 +140,7 @@ First, add the `SinglePlayer World Simulator.prefab` to your scene (located in t
 4. Move it to your project's appropriate location, such as:
    `Assets/FSMs/Puzzles/General FSM Variant - Door.prefab`
 
-### Configure States
+#### Configure States
 
 Edit the `[General FSM Variant - Door.prefab]`:
 
@@ -147,7 +149,7 @@ Copy and rename existing states to create: `[State] Closed`, `[State] Opening`, 
 
 ![Create State](0_MonoFSM_Example_Module/Document/DocumentAssets/CreateState.png)
 
-### Setup Variables
+#### Setup Variables
 
 **[Variables]**
 1. Click the Variables node
@@ -155,21 +157,21 @@ Copy and rename existing states to create: `[State] Closed`, `[State] Opening`, 
 
 ![Variables](0_MonoFSM_Example_Module/Document/DocumentAssets/Variables.png)
 
-### LogicRoot Setup
+#### LogicRoot Setup
 
 **[LogicRoot]**
 Add SpriteRenderer and Collider2D components to represent the door's visual and physical properties.
 
 ![Door Physics](0_MonoFSM_Example_Module/Document/DocumentAssets/DoorPhysics.png)
 
-### Animator Configuration
+#### Animator Configuration
 
 **[Animator]**
 Create four Animation Clips corresponding to each state. Remember to turn off LoopTime on the Animation Clips (unless you really need looping).
 
 ![Door Animations](0_MonoFSM_Example_Module/Document/DocumentAssets/PrefabExampleDoorAnimations.gif)
 
-### Bind States to Animations
+#### Bind States to Animations
 
 **[State & Animation Binding]**
 Connect each state with its corresponding animation.
@@ -185,7 +187,7 @@ If you cannot find the **[Anim]** node under your State, you can create it manua
 
 ![State and Animations](0_MonoFSM_Example_Module/Document/DocumentAssets/StateAndAnimations.png)
 
-### Configure Transitions
+#### Configure Transitions
 
 **[State & Transition Binding]**
 - Define that Opening animation completion transitions to Opened state
@@ -202,7 +204,7 @@ If you cannot find the **[Anim]** node under your State, you can create it manua
 
 ![Animation Done Transition](0_MonoFSM_Example_Module/Document/DocumentAssets/AnimationDoneTransition.png)
 
-### Setup Conditional Transitions
+#### Setup Conditional Transitions
 
 **[State, Variable & Transition Binding]**
 Configure transitions and their corresponding conditions using the Should Open variable.
@@ -224,15 +226,15 @@ Configure transitions and their corresponding conditions using the Should Open v
 
 ![Transition and Condition](0_MonoFSM_Example_Module/Document/DocumentAssets/TransitionAndCondition.png)
 
-### Final Result
+#### Result
 
 Your SimpleDoor FSM is now ready! The door will respond to the Should Open variable changes and smoothly transition between states.
 
 ![Simple Door Result](0_MonoFSM_Example_Module/Document/DocumentAssets/SimpleDoorResult.gif)
 
-## Example Usage
+**Scene Location:** `MonoFSM/0_Getting Started Sample_Door Detect/SampleScene_SimpleDoor.unity`
 
-### SimpleButton Example
+### Example 2: SimpleButton
 
 This tutorial demonstrates how to create a button FSM that interacts with the door from the previous example, showcasing variable relay binding between different FSM instances.
 
@@ -292,11 +294,3 @@ In the VarBoolRelay interface, bind:
 The button's `Pressed` state will trigger the door to open when activated.
 
 ![Button Result](0_MonoFSM_Example_Module/Document/DocumentAssets/buttonResult.gif)
-
-### Basic Door Example
-
-You can find a complete working example of the SimpleDoor implementation at:
-
-**Scene Location:** `MonoFSM/0_Getting Started Sample_Door Detect/SampleScene_SimpleDoor.unity`
-
-This scene demonstrates the most basic door open/close functionality using MonoFSM. It's a perfect starting point to understand how MonoFSM works with simple state transitions and variable-based conditions.
