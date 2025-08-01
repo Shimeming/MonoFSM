@@ -232,6 +232,67 @@ Your SimpleDoor FSM is now ready! The door will respond to the Should Open varia
 
 ## Example Usage
 
+### SimpleButton Example
+
+This tutorial demonstrates how to create a button FSM that interacts with the door from the previous example, showcasing variable relay binding between different FSM instances.
+
+#### Step 1: Copy and Configure FSM Folder
+
+Right-click on the previous Door folder and select **MonoFSM > 複製FSM資料夾**
+
+![Button Copy Prefab Folder](0_MonoFSM_Example_Module/Document/DocumentAssets/ButtonCopyPrefabFolderPic.png)
+
+The FSM folder copy tool window will appear. Change the new base name to `Button`
+
+![Button FSM Tools Window](0_MonoFSM_Example_Module/Document/DocumentAssets/ButtonFSMToolsWindow.png)
+
+Set **Prefab copy mode** to **Direct Copy**
+Set **Animator copy mode** to **Direct Copy**
+Click **開始複製** (Start Copy)
+
+#### Step 2: Rename Context
+
+Open `General FSM Variant - Button.prefab` and rename the context:
+
+**Variables Example:**
+- `[VarBool] Should Open` → `[VarBool] Pressed`
+
+**States Example:**
+- `[State] Closed` → `[State] Released`
+- `[State] Opened` → `[State] Pressed`
+- `[State] Closing` → `[State] Releasing`
+- `[State] Opening` → `[State] Pressing`
+
+Also rename the FSM State, Animation Clips, and Animator States to define individual roles.
+
+![Button Rename Context](0_MonoFSM_Example_Module/Document/DocumentAssets/ButtonRenameContext.png)
+
+#### Step 3: Redesign Animations
+
+Redesign the Button's view and redefine the Animation Clips content.
+
+![Button Animation Clips](0_MonoFSM_Example_Module/Document/DocumentAssets/ButtonAnimationClips.gif)
+
+#### Step 4: Scene Setup and Variable Relay Configuration
+
+Place both `General FSM Variant - Door.prefab` and `General FSM Variant - Button.prefab` in the scene
+Create a parent GameObject named `[Variable Relay Binder]` and add:
+- `VariableRelayBinder` component
+- `MonoPoolObj` component
+
+On the VariableRelayBinder, click **[AddChild]** and select **VarBoolRelay**
+In the VarBoolRelay interface, bind:
+- **Source**: `[VarBool] Pressed`
+- **Target**: `[VarBool] Should Open`
+
+![VarBool Relay](0_MonoFSM_Example_Module/Document/DocumentAssets/VarBoolRelay.png)
+
+#### Result
+
+The button's `Pressed` state will trigger the door to open when activated.
+
+![Button Result](0_MonoFSM_Example_Module/Document/DocumentAssets/buttonResult.gif)
+
 ### Basic Door Example
 
 You can find a complete working example of the SimpleDoor implementation at:
