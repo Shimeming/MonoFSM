@@ -282,12 +282,15 @@ Create a parent GameObject named `[Variable Relay Binder]` and add:
 - `VariableRelayBinder` component
 - `MonoPoolObj` component
 
+![VarBool Relay](0_MonoFSM_Example_Module/Document/DocumentAssets/VarBoolRelay.png)
+
 On the VariableRelayBinder, click **[AddChild]** and select **VarBoolRelay**
 In the VarBoolRelay interface, bind:
 - **Source**: `[VarBool] Pressed`
 - **Target**: `[VarBool] Should Open`
 
-![VarBool Relay](0_MonoFSM_Example_Module/Document/DocumentAssets/VarBoolRelay.png)
+![VarBool Relay Entry](0_MonoFSM_Example_Module/Document/DocumentAssets/VarBoolRelayEntry.png)
+
 
 #### Result
 
