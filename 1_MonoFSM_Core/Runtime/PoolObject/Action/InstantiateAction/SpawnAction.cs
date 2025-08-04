@@ -19,7 +19,7 @@ namespace MonoFSM.Core.LifeCycle
         // [CompRef] [AutoChildren(DepthOneOnly = true)]
         // private ICompProvider<MonoPoolObj> _targetVarProvider; //使用VarPoolObj來存儲目標物件
 
-        [Required] [CompRef] [AutoChildren(DepthOneOnly = true)] [ValueTypeValidate(typeof(MonoPoolObj))]
+        [Required] [CompRef] [AutoChildren(DepthOneOnly = true)] [ValueTypeValidate(typeof(MonoObj))]
         private ValueProvider _poolObjProvider; //使用VarPoolObj來存儲目標物件
 
         //檢查？SerializeClass的話？
@@ -28,8 +28,7 @@ namespace MonoFSM.Core.LifeCycle
         //FIXME: 應該要分ConfigPrefabProvider, 不可以都用ICompProvider，因為會有Runtime的Prefab
         //Prefab特殊，不該runtime去Instantiate對ㄅ，都應該從prefab來，就算要也是複製狀態
 
-        [PreviewInDebugMode]
-        private MonoPoolObj Prefab => _poolObjProvider?.Get<MonoPoolObj>();
+        [PreviewInDebugMode] private MonoObj Prefab => _poolObjProvider?.Get<MonoObj>();
 
         [CompRef] [AutoChildren] private SpawnEventHandler _spawnEventHandler;
 
@@ -46,16 +45,17 @@ namespace MonoFSM.Core.LifeCycle
         }
 
         public bool _isUsingSpawnTransformScale;
-        [PreviewInInspector] private MonoPoolObj _lastSpawnedObj;
+        [PreviewInInspector] private MonoObj _lastSpawnedObj;
 
-        private void Spawn(MonoPoolObj obj, Vector3 position, Quaternion rotation)
+        private void Spawn(MonoObj obj, Vector3 position, Quaternion rotation)
         {
             if (obj == null)
             {
                 Debug.LogError("SpawnAction: Prefab is null", this);
                 return;
             }
-            var monoObj = GetComponentInParent<MonoPoolObj>();
+
+            var monoObj = GetComponentInParent<MonoObj>();
             if (monoObj == null)
             {
                 Debug.LogError("SpawnAction: No MonoPoolObj found in parent", this);
@@ -110,7 +110,7 @@ namespace MonoFSM.Core.LifeCycle
             // var newObj = PoolManager.Instance.BorrowOrInstantiate(target, t.position, t.rotation);
         }
 
-        public MonoPoolObj GetMonoObject()
+        public MonoObj GetMonoObject()
         {
             if (_lastSpawnedObj != null)
             {
@@ -136,10 +136,10 @@ namespace MonoFSM.Core.LifeCycle
             }
         }
 
-        public Type ValueType => typeof(MonoPoolObj);
+        public Type ValueType => typeof(MonoObj);
 
 
-        public MonoPoolObj Get()
+        public MonoObj Get()
         {
             if (!Application.isPlaying) return Prefab;
             if (_lastSpawnedObj != null)
@@ -157,7 +157,7 @@ namespace MonoFSM.Core.LifeCycle
 
     public interface ISpawnProcessor //想找一個static的對象來生成物件 (但不能真的static，multi peer的話)
     {
-        MonoPoolObj Spawn(MonoPoolObj obj, Vector3 position, Quaternion rotation);
-        public void Despawn(MonoPoolObj obj);
+        MonoObj Spawn(MonoObj obj, Vector3 position, Quaternion rotation);
+        public void Despawn(MonoObj obj);
     }
 }

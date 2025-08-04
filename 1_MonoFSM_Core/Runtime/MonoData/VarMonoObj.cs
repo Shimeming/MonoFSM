@@ -3,7 +3,7 @@ using MonoFSMCore.Runtime.LifeCycle;
 
 namespace MonoFSM.Core.Variable
 {
-    public class VarPoolObj : GenericUnityObjectVariable<MonoPoolObj>
+    public class VarMonoObj : GenericUnityObjectVariable<MonoObj>
     {
         // public override GameFlagBase FinalData { get; } //蛤？
     }

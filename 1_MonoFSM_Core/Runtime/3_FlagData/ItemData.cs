@@ -1,8 +1,7 @@
 using System;
-using MonoFSM.Core;
-using MonoFSM.Runtime.Item_BuildSystem.MonoDescriptables;
 using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
+using UnityEditor;
 using UnityEngine;
 
 namespace MonoFSM.Runtime.FSM._3_FlagData
@@ -24,10 +23,10 @@ namespace MonoFSM.Runtime.FSM._3_FlagData
         public virtual bool needInstance => false;
 
 //FIXME:要把PoolObject拿過來嗎？
-        [BoxGroup("物品")] [Required] public MonoPoolObj fsmPrefab;
-        public override MonoPoolObj bindPrefab => fsmPrefab; //需要這個變數嗎...
+        [BoxGroup("物品")] [Required] public MonoObj fsmPrefab;
+        public override MonoObj bindPrefab => fsmPrefab; //需要這個變數嗎...
 
-        public MonoPoolObj InstantiateFsm(Transform parent)
+        public MonoObj InstantiateFsm(Transform parent)
         {
             return MyInstantiate(bindPrefab, parent);
         }
@@ -45,7 +44,7 @@ namespace MonoFSM.Runtime.FSM._3_FlagData
             //FIXME: 要先關起來...
             var instance = Instantiate(prefab, parent);
 #if UNITY_EDITOR
-            UnityEditor.Undo.RegisterCreatedObjectUndo(instance.gameObject, "InstantiateEquipView");
+            Undo.RegisterCreatedObjectUndo(instance.gameObject, "InstantiateEquipView");
 #endif
             //PoolManager.Instance.BorrowOrInstantiate(
             //FIXME: 這個auto比較慢...awake先做掉了...

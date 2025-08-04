@@ -1,19 +1,14 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using Auto.Utils;
-using Cysharp.Threading.Tasks;
-using MonoFSMCore.Runtime.LifeCycle;
-using MonoFSM.AddressableAssets;
-using MonoFSM.Runtime;
-
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Cysharp.Threading.Tasks;
+using MonoFSM.AddressableAssets;
+using MonoFSM.Runtime;
+using MonoFSMCore.Runtime.LifeCycle;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 using UnityEngine.Profiling;
 using UnityEngine.SceneManagement;
 using Debug = UnityEngine.Debug;
@@ -28,7 +23,7 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
 {
     public static void PreparePoolObjectImplementation(PoolObject obj)
     {
-        MonoFSM.Runtime.SceneLifecycleManager.PreparePoolObjectImplementation(obj);
+        SceneLifecycleManager.PreparePoolObjectImplementation(obj);
     }
 
     // public static void HandleGameLevelConfigSetting(MonoBehaviour level)
@@ -58,32 +53,32 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
     /// </summary>
     public static void ResetReload(GameObject root)
     {
-        MonoFSM.Runtime.SceneLifecycleManager.ResetReload(root);
+        SceneLifecycleManager.ResetReload(root);
     }
 
 
     public static void OnBeforeDestroyScene(Scene s)
     {
-        MonoFSM.Runtime.SceneLifecycleManager.OnBeforeDestroyScene(s);
+        SceneLifecycleManager.OnBeforeDestroyScene(s);
     }
 
 
-    [System.Obsolete("Use SceneLifecycleManager.LevelResetChildrenReload instead")]
+    [Obsolete("Use SceneLifecycleManager.LevelResetChildrenReload instead")]
     public static void LevelResetChildrenReload(GameObject gObj)
     {
-        MonoFSM.Runtime.SceneLifecycleManager.LevelResetChildrenReload(gObj);
+        SceneLifecycleManager.LevelResetChildrenReload(gObj);
     }
 
-    [System.Obsolete("Use SceneLifecycleManager.LevelResetStart instead")]
+    [Obsolete("Use SceneLifecycleManager.LevelResetStart instead")]
     public static void LevelResetStart(GameObject gObj)
     {
-        MonoFSM.Runtime.SceneLifecycleManager.LevelResetStart(gObj);
+        SceneLifecycleManager.LevelResetStart(gObj);
     }
 
-    [System.Obsolete("Use SceneLifecycleManager.HandleGameLevelAwake instead")]
+    [Obsolete("Use SceneLifecycleManager.HandleGameLevelAwake instead")]
     public static void HandleGameLevelAwake(GameObject level)
     {
-        MonoFSM.Runtime.SceneLifecycleManager.HandleGameLevelAwake(level);
+        SceneLifecycleManager.HandleGameLevelAwake(level);
     }
 
     // public static void HandleEnterLevelReset(GameObject level)
@@ -109,22 +104,22 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
     // }
 
 
-    [System.Obsolete("Use SceneLifecycleManager.HandleGameLevelAwakeReverse instead")]
+    [Obsolete("Use SceneLifecycleManager.HandleGameLevelAwakeReverse instead")]
     public static void HandleGameLevelAwakeReverse(GameObject level)
     {
-        MonoFSM.Runtime.SceneLifecycleManager.HandleGameLevelAwakeReverse(level);
+        SceneLifecycleManager.HandleGameLevelAwakeReverse(level);
     }
 
-    [System.Obsolete("Use SceneLifecycleManager.HandleGameLevelStart instead")]
+    [Obsolete("Use SceneLifecycleManager.HandleGameLevelStart instead")]
     public static void HandleGameLevelStart(GameObject level)
     {
-        MonoFSM.Runtime.SceneLifecycleManager.HandleGameLevelStart(level);
+        SceneLifecycleManager.HandleGameLevelStart(level);
     }
 
-    [System.Obsolete("Use SceneLifecycleManager.HandleGameLevelStartReverse instead")]
+    [Obsolete("Use SceneLifecycleManager.HandleGameLevelStartReverse instead")]
     public static void HandleGameLevelStartReverse(GameObject level)
     {
-        MonoFSM.Runtime.SceneLifecycleManager.HandleGameLevelStartReverse(level);
+        SceneLifecycleManager.HandleGameLevelStartReverse(level);
     }
 
     // public bool IsReady = false;
@@ -239,9 +234,9 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
             this.globalPrewarmDataLogger = PoolBank.FindGlobalPrewarmData();
             //CleanUp 沒用的資料
 #if UNITY_EDITOR
-            PoolManager.Instance.globalPrewarmDataLogger.objectEntries.RemoveAll((a) => a.prefab == null);
-            PoolManager.Instance.globalPrewarmDataLogger.objectEntries.RemoveAll((a) => !a.prefab.IsGlobalPool);
-            EditorUtility.SetDirty(PoolManager.Instance.globalPrewarmDataLogger);
+            Instance.globalPrewarmDataLogger.objectEntries.RemoveAll((a) => a.prefab == null);
+            Instance.globalPrewarmDataLogger.objectEntries.RemoveAll((a) => !a.prefab.IsGlobalPool);
+            EditorUtility.SetDirty(Instance.globalPrewarmDataLogger);
 #endif
             
             this.globalPrewarmDataLogger.PrewarmObjects(this,this);
@@ -393,7 +388,7 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
     /// <summary>
     /// Return MonoPoolObj to pool (not yet implemented)
     /// </summary>
-    public void ReturnToPool(MonoPoolObj obj)
+    public void ReturnToPool(MonoObj obj)
     {
         // PoolDictionary[obj.OriginalPrefab].ReturnToPool(prefab);
         throw new NotImplementedException("ReturnToPool for MonoPoolObj is not implemented yet.");
@@ -559,7 +554,7 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
     /// <summary>
     /// 舊方法名稱的向後兼容性（已過時）
     /// </summary>
-    [System.Obsolete("Use ShouldKeepPoolAlive instead")]
+    [Obsolete("Use ShouldKeepPoolAlive instead")]
     public PoolObjectEntry isInRequest(PoolObject prefab)
     {
         return ShouldKeepPoolAlive(prefab);
@@ -570,7 +565,7 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
     /// </summary>
     public string GetSystemProtectedObjectsReport()
     {
-        var report = new System.Text.StringBuilder();
+        var report = new StringBuilder();
         report.AppendLine("=== Pool System Protected Objects Report ===");
         
         int totalProtected = 0;
@@ -641,7 +636,7 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
     /// <summary>
     /// Editor-only method to log detailed pool status
     /// </summary>
-    [UnityEditor.MenuItem("Tools/Pool System/Log Protected Objects Report")]
+    [MenuItem("Tools/Pool System/Log Protected Objects Report")]
     public static void LogProtectedObjectsReport()
     {
         if (Instance != null)
@@ -654,7 +649,7 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
         }
     }
     
-    [UnityEditor.MenuItem("Tools/Pool System/Validate System Integrity")]
+    [MenuItem("Tools/Pool System/Validate System Integrity")]
     public static void ValidateSystem()
     {
         if (Instance != null)

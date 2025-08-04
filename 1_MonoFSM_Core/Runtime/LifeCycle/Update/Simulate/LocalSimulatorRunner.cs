@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using MonoFSM.Core.Attributes;
 using MonoFSMCore.Runtime.LifeCycle;
@@ -32,7 +31,8 @@ namespace MonoFSM.Core.Simulate
     {
         //撈場上所有的MonoPoolObj？
         [PreviewInInspector]// [AutoChildren]
-        [SerializeField] MonoPoolObj[] _allSceneMonoPoolObjs;
+        [SerializeField]
+        private MonoObj[] _allSceneMonoPoolObjs;
         
         [Auto] private WorldUpdateSimulator _world;
 
@@ -40,7 +40,7 @@ namespace MonoFSM.Core.Simulate
         {
             //FIXME: 可以cache
             #if UNITY_EDITOR
-            _allSceneMonoPoolObjs = gameObject.scene.GetComponents<MonoPoolObj>(true,out _);
+            _allSceneMonoPoolObjs = gameObject.scene.GetComponents<MonoObj>(true, out _);
             #endif
             //scene上的
             foreach (var sceneMonoPoolObj in _allSceneMonoPoolObjs) _world.RegisterMonoObject(sceneMonoPoolObj);
@@ -68,7 +68,7 @@ namespace MonoFSM.Core.Simulate
 
         public void OnBeforeSceneSave()
         {
-            _allSceneMonoPoolObjs = gameObject.scene.GetComponents<MonoPoolObj>(true, out _);
+            _allSceneMonoPoolObjs = gameObject.scene.GetComponents<MonoObj>(true, out _);
         }
     }
 }

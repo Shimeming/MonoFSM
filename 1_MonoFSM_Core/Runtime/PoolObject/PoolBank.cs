@@ -1,16 +1,14 @@
-
 using System.Collections.Generic;
 using MonoFSM.Core;
 using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
-
+using UnityEngine;
+using UnityEngine.Profiling;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-using UnityEngine;
-using UnityEngine.Profiling;
 
-[RequireComponent(typeof(MonoPoolObj))]
+[RequireComponent(typeof(MonoObj))]
 public class PoolBank : MonoBehaviour,ISceneSavingCallbackReceiver,ISceneAwake
 {
     [InlineButton("FindOrCreatePoolPrewarmData","Create")]

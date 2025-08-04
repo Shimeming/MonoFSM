@@ -25,8 +25,8 @@ public abstract class AbstractDataFunction
 [Serializable]
 public class PickableData : AbstractDataFunction, IItemData //寫死還是有點不爽？
 {
-    public MonoPoolObj EntityPrefab => _entityPrefab;
-    [SerializeField] private MonoPoolObj _entityPrefab; //這個是用來生成實體的
+    public MonoObj EntityPrefab => _entityPrefab;
+    [SerializeField] private MonoObj _entityPrefab; //這個是用來生成實體的
     [SerializeField] private int _stackCount = 1; //這個是用來描述這個物品的堆疊數量
     public int MaxStackCount => _stackCount;
 

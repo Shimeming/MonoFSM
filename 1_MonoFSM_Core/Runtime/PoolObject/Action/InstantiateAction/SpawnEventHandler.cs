@@ -9,7 +9,7 @@ namespace MonoFSM.Core.LifeCycle
     {
         // [CompRef] [AutoChildren] private AbstractStateAction[] _actions;
 
-        public void OnSpawn(MonoPoolObj obj, Vector3 position, Quaternion rotation)
+        public void OnSpawn(MonoObj obj, Vector3 position, Quaternion rotation)
         {
             EventHandle(obj); //不對啊，為什麼要傳Rigidbody下去？
         }

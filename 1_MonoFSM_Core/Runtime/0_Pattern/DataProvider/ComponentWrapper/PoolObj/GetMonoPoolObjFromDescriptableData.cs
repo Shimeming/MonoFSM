@@ -5,14 +5,14 @@ using UnityEngine;
 
 namespace MonoFSM.Core.DataProvider.ComponentWrapper
 {
-    public class GetMonoPoolObjFromDescriptableData : MonoBehaviour, ICompProvider<MonoPoolObj>
+    public class GetMonoPoolObjFromDescriptableData : MonoBehaviour, ICompProvider<MonoObj>
     {
         [CompRef] [Auto] private IGameDataProvider _gameDataProvider;
 
         public string Description => "Get MonoPoolObj from DescriptableData";
 
         [ShowInPlayMode]
-        public MonoPoolObj Get()
+        public MonoObj Get()
         {
             return _gameDataProvider.GameData.bindPrefab;
         }

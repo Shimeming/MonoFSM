@@ -15,14 +15,14 @@ namespace MonoFSM.Runtime
             return PoolManager.Instance.BorrowOrInstantiate(obj, position, rotation);
         }
 
-        public MonoPoolObj Spawn(MonoPoolObj obj, Vector3 position, Quaternion rotation)
+        public MonoObj Spawn(MonoObj obj, Vector3 position, Quaternion rotation)
         {
             //FIXME: 還要做updateSimulator的註冊？
             var newObj = PoolManager.Instance.BorrowOrInstantiate(obj, position, rotation);
             return newObj;
         }
 
-        public void Despawn(MonoPoolObj obj)
+        public void Despawn(MonoObj obj)
         {
             if (obj == null) return;
             // Return the object to the pool

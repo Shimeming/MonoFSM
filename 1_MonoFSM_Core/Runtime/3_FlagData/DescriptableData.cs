@@ -267,7 +267,7 @@ public class
     public virtual int category => 0;
 
     [PreviewInInspector]
-    public virtual MonoPoolObj bindPrefab
+    public virtual MonoObj bindPrefab
     {
         get
         {

@@ -1,4 +1,3 @@
-using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Variable;
 using MonoFSMCore.Runtime.LifeCycle;
@@ -6,7 +5,7 @@ using UnityEngine;
 
 namespace MonoFSM.Core.DataProvider.ComponentWrapper
 {
-    public class GetPoolObjFromMonoList : GetCompFromMonoList<MonoPoolObj>, IMonoObjectProvider
+    public class GetPoolObjFromMonoList : GetCompFromMonoList<MonoObj>, IMonoObjectProvider
     {
         //這個類別是用來從MonoList中獲取MonoPoolObj的
         //可以直接使用Get()方法來獲取當前的MonoPoolObj

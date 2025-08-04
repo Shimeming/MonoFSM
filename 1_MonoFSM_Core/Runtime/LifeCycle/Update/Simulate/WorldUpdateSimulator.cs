@@ -1,11 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
-using MonoFSM.Variable.Attributes;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.LifeCycle;
+using MonoFSM.Variable.Attributes;
 using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;
+using UnityEditor;
+using UnityEditor.Compilation;
 using UnityEngine;
 
 namespace MonoFSM.Core.Simulate
@@ -16,7 +18,7 @@ namespace MonoFSM.Core.Simulate
     
     public static class WorldUpdateSimulatorExtensions
     {
-        public static MonoPoolObj Spawn(this GameObject gObj, MonoPoolObj obj, Vector3 position, Quaternion rotation)
+        public static MonoObj Spawn(this GameObject gObj, MonoObj obj, Vector3 position, Quaternion rotation)
         {
             if (gObj == null)
             {
@@ -60,7 +62,7 @@ namespace MonoFSM.Core.Simulate
         public static WorldUpdateSimulator GetWorldUpdateSimulator(GameObject me)
         {
             //這個是用來獲取當前的WorldUpdateSimulator
-            var monoPoolObj = me.GetComponent<MonoPoolObj>();
+            var monoPoolObj = me.GetComponent<MonoObj>();
             if (monoPoolObj == null)
             {
                 Debug.LogError("MonoPoolObj not found on the GameObject.", me);
@@ -75,7 +77,7 @@ namespace MonoFSM.Core.Simulate
         }
 
         //全世界都該透過這個spawn?
-        public MonoPoolObj Spawn(MonoPoolObj obj, Vector3 position, Quaternion rotation)
+        public MonoObj Spawn(MonoObj obj, Vector3 position, Quaternion rotation)
         {
             if (obj == null)
             {
@@ -100,7 +102,7 @@ namespace MonoFSM.Core.Simulate
             return result;
         }
 
-        public void Despawn(MonoPoolObj obj)
+        public void Despawn(MonoObj obj)
         {
             if (obj == null) return;
             // Unregister the object from the world update simulator
@@ -110,14 +112,14 @@ namespace MonoFSM.Core.Simulate
             //FIXME: 要先做事？OnReturnPool? OnDespawn
             _spawnProcessor.Despawn(obj); //看實作
         }
-        
-        public void RegisterMonoObject(MonoPoolObj target)
+
+        public void RegisterMonoObject(MonoObj target)
         {
             if(_monoObjectSet.Add(target))
                 target.WorldUpdateSimulator = this;
         }
 
-        public void UnregisterMonoObject(MonoPoolObj target)
+        public void UnregisterMonoObject(MonoObj target)
         {
             _monoObjectSet.Remove(target);
             target.WorldUpdateSimulator = null; //清除引用
@@ -163,17 +165,17 @@ namespace MonoFSM.Core.Simulate
         // private readonly HashSet<IUpdateSimulate> _simulators = new(); //HashSet?
 
         // [PreviewInInspector] [AutoChildren] private IMonoObject[] _localMonoObjects; //FIXME這顆要掛在？
-        private readonly HashSet<MonoPoolObj> _monoObjectSet = new(); //這個是用來做reset的？還是要有一個MonoObjectRunner?
+        private readonly HashSet<MonoObj> _monoObjectSet = new(); //這個是用來做reset的？還是要有一個MonoObjectRunner?
 
 #if UNITY_EDITOR
         // [PreviewInInspector] private IUpdateSimulate[] PreviewSimulators => _simulators.ToArray();
-        [PreviewInInspector] private MonoPoolObj[] PreviewMonoObjects => _monoObjectSet.ToArray();
+        [PreviewInInspector] private MonoObj[] PreviewMonoObjects => _monoObjectSet.ToArray();
 #endif
         [ShowInInspector]
         public bool IsReady { get; private set; } = false;
 
 
-        private HashSet<MonoPoolObj> _currentUpdatingObjs = new();
+        private readonly HashSet<MonoObj> _currentUpdatingObjs = new();
 
         /// <summary>
         /// 需要依照環境決定怎麼simulate
@@ -215,7 +217,7 @@ namespace MonoFSM.Core.Simulate
 
 
 #if UNITY_EDITOR
-        [UnityEditor.MenuItem("MonoFSM/ResetLevel %R")]
+        [MenuItem("MonoFSM/ResetLevel %R")]
         public static void TestResetLevel()
         {
             if (Application.isPlaying)
@@ -232,7 +234,7 @@ namespace MonoFSM.Core.Simulate
             }
             else
             {
-                UnityEditor.Compilation.CompilationPipeline.RequestScriptCompilation();
+                CompilationPipeline.RequestScriptCompilation();
             }
         }
 #endif

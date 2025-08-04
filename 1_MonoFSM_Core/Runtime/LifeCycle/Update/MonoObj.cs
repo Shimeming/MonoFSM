@@ -2,15 +2,15 @@ using System;
 using System.Collections.Generic;
 using Auto.Utils;
 using MonoFSM.Core;
-using MonoFSM.Core.Simulate;
 using MonoFSM.Core.Attributes;
+using MonoFSM.Core.Simulate;
 using MonoFSM.Runtime;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace MonoFSMCore.Runtime.LifeCycle
 {
-    public interface IMonoObjectProvider : ICompProvider<MonoPoolObj> //FIXME:這個不是很好...trace不到，最好還是都過一層？
+    public interface IMonoObjectProvider : ICompProvider<MonoObj> //FIXME:這個不是很好...trace不到，最好還是都過一層？
     {
         //FIXME: 需要提供 EntityTag嗎？還是說MonoPoolObj就有EntityTag了？那從 bindPrefab就要有EntityTag
         
@@ -50,7 +50,7 @@ namespace MonoFSMCore.Runtime.LifeCycle
     //這個和MonoEntity結構會類似？但分別做不同的角色？
     [ScriptTiming(-20000)]
     [DisallowMultipleComponent]
-    public sealed class MonoPoolObj : MonoBehaviour, IPrefabSerializeCacheOwner
+    public sealed class MonoObj : MonoBehaviour, IPrefabSerializeCacheOwner
     {
         //寫一個show error的Attribute，然後在這裡用
         [InfoBox("WorldUpdateSimulator is required for MonoPoolObj to function properly",InfoMessageType.Error,nameof(RuntimeCheckNoWorldUpdateSimulator))]
@@ -79,7 +79,7 @@ namespace MonoFSMCore.Runtime.LifeCycle
         [PreviewInInspector][AutoChildren] private IUpdateSimulate[] _updateSimulates;
         //FIXME: PoolBeforeReturnToPool? OnReturnPool?
 
-        private readonly List<MonoPoolObj> _parentObjs = new(2); //會拿到自己？
+        private readonly List<MonoObj> _parentObjs = new(2); //會拿到自己？
         public bool HasParent => _parentObjs.Count > 1; //有_parentObj就表示是nested的pool object，不作用，交給parent處理
 
         private void Awake()
