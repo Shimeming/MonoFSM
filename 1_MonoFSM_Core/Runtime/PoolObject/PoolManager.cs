@@ -398,7 +398,8 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
     public void ReturnToPool(MonoObj obj)
     {
         // PoolDictionary[obj.OriginalPrefab].ReturnToPool(prefab);
-        throw new NotImplementedException("ReturnToPool for MonoPoolObj is not implemented yet.");
+        // throw new NotImplementedException("ReturnToPool for MonoPoolObj is not implemented yet.");
+        ReturnToPool(obj.GetComponent<PoolObject>());
     }
     
     //
