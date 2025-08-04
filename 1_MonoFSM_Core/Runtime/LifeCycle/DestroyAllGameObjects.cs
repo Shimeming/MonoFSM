@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using MonoFSM.Core;
+using PrimeTween;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
@@ -45,6 +46,7 @@ public static class RCGLifeCycle
         => !DontDestroyObjList.Contains(g);
 }
 
+//FIXME: 還要留這個嗎？
 public class DestroyAllGameObjects : MonoBehaviour
 {
     public static bool DestroyingAll;
@@ -55,7 +57,7 @@ public class DestroyAllGameObjects : MonoBehaviour
     private IEnumerator _StartClear()
     {
         DestroyingAll = true;
-        PrimeTween.Tween.StopAll();
+        Tween.StopAll();
         Time.timeScale = 1;
         // yield return new WaitForSeconds(1f);
         //母災為啥要叫兩次才會清乾淨
@@ -95,7 +97,7 @@ public class DestroyAllGameObjects : MonoBehaviour
 
     private IEnumerator _DestroyAll()
     {
-        GameObject[] allObjects = Object.FindObjectsByType<GameObject>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        GameObject[] allObjects = FindObjectsByType<GameObject>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         
 
         foreach (var go in allObjects)

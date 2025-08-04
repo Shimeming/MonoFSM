@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 
 /// <summary>
@@ -17,6 +18,7 @@ public class ObjectPool : IObjectPool
         _bindingEntry = bindingEntry;
         ObjectCount = bindingEntry.DefaultMaximumCount;
         _prefab = bindingEntry.prefab;
+        Debug.Log($"Create ObjectPool for: manager:{manager}");
         _poolManager = manager;
     }
 

@@ -385,9 +385,11 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
         return PoolDictionary[prefab].Borrow(position, rotation, parent, handler);
     }
 
-    public void ReturnToPool(PoolObject prefab)
+
+    //從poolProvider的進入點
+    public void ReturnToPool(PoolObject instance)
     {
-        PoolDictionary[prefab.OriginalPrefab].ReturnToPool(prefab);
+        PoolDictionary[instance.OriginalPrefab].ReturnToPool(instance);
     }
 
     /// <summary>
@@ -485,6 +487,7 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
         _recalculating = false;
     }
 
+    //FIXME: 不可以直接call耶...要回去過world?
     public void ReturnAllObjects()
     {
         // Debug.Log("Return All PoolObj");

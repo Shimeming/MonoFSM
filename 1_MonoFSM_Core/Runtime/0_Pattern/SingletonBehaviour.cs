@@ -23,7 +23,18 @@ public abstract class SingletonBehaviour<T> : MonoBehaviour where T : MonoBehavi
             if (Application.isPlaying)
                 DontDestroyOnLoad(_instance);
         }
-            
+    }
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    public static void Clear()
+    {
+        lock (s_Lock)
+        {
+            //FIXME: 不會被call耶？
+            _instance = null;
+            _isInstanceCreated = false;
+            Debug.Log("SingletonBehaviour cleared: " + typeof(T).FullName);
+        }
     }
 
     public static T Instance
@@ -48,8 +59,12 @@ public abstract class SingletonBehaviour<T> : MonoBehaviour where T : MonoBehavi
 
             lock (s_Lock)
             {
-                if (_isInstanceCreated)
+                if (_isInstanceCreated && _instance != null)
+                {
+                    Debug.Log("SingletonBehaviour Instance already created: " + typeof(T).FullName, _instance);
                     return _instance;
+                }
+                    
 
 
                 _instance = (T)FindFirstObjectByType(typeof(T));
@@ -85,7 +100,7 @@ public abstract class SingletonBehaviour<T> : MonoBehaviour where T : MonoBehavi
 
     public virtual void OnDestroy()
     {
-        // Debug.Log("Singleton ondestroy...");
+        Debug.Log("Singleton ondestroy...");
         lock (s_Lock)
         {
             _instance = null;

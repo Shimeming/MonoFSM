@@ -31,6 +31,7 @@ public interface IPoolObjectPlayer
     IFXPlayerOwner Owner { get; }
 }
 
+[RequireComponent(typeof(MonoObj))]
 [DisallowMultipleComponent]
 public class PoolObject : MonoBehaviour, ISceneAwake, IPoolableObject
 {
@@ -497,7 +498,20 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IPoolableObject
             }
 
             PoolLogger.LogInfo("Successfully returned to pool", this);
-            _bindingPoolManager.ReturnToPool(this);
+            if (TryGetComponent<MonoObj>(out var monoObj))
+            {
+                monoObj.Despawn();
+            }
+            else
+            {
+                //舊規暫時？不該進來
+                PoolLogger.LogError("MonoObj component not found on PoolObject", this);
+                _bindingPoolManager.ReturnToPool(this);
+            }
+
+
+            // GetComponent<MonoObj>()
+            // 
         }
     }
 

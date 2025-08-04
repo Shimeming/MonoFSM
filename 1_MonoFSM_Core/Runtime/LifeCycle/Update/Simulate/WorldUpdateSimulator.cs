@@ -102,6 +102,7 @@ namespace MonoFSM.Core.Simulate
             return result;
         }
 
+        //FIXME: despawn都需要過這個？
         public void Despawn(MonoObj obj)
         {
             if (obj == null) return;
@@ -112,6 +113,8 @@ namespace MonoFSM.Core.Simulate
             //FIXME: 要先做事？OnReturnPool? OnDespawn
             _spawnProcessor.Despawn(obj); //看實作
         }
+        
+        
 
         public void RegisterMonoObject(MonoObj target)
         {

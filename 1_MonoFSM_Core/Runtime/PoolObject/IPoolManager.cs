@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// 池管理器介面 - 定義池管理的核心操作，減少具體實作的耦合
@@ -15,7 +16,7 @@ public interface IPoolManager
     /// <summary>
     /// 歸還物件到池中
     /// </summary>
-    void ReturnToPool(PoolObject poolObject);
+    void ReturnToPool(PoolObject instance);
 
     /// <summary>
     /// 通知池物件被銷毀
@@ -154,7 +155,7 @@ public interface ISceneLifecycleManager
     /// <summary>
     /// 場景銷毀前處理
     /// </summary>
-    void OnBeforeDestroyScene(UnityEngine.SceneManagement.Scene scene);
+    void OnBeforeDestroyScene(Scene scene);
 }
 
 /// <summary>
