@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using _1_MonoFSM_Core.Runtime._3_FlagData;
 using Sirenix.OdinInspector;
+using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-using UnityEngine;
+
 //所有的GameFlag, 存檔用
 [CreateAssetMenu(fileName = "GameFlagCollection", menuName = "System/FlagCollection", order = 1)]
 [Serializable]
 [Searchable]
-public class GameFlagCollection : ScriptableObject, ISelfValidator
+public class GameFlagCollection : MonoSOConfig, ISelfValidator //要改成MonoSOConfig?
 {
 #if UNITY_EDITOR 
     [Button("Clear")]
@@ -105,7 +108,7 @@ public class GameFlagCollection : ScriptableObject, ISelfValidator
         // Debug.Log("Find GameFlag:" + typeof(T).FullName);
         var myPath = AssetDatabase.GetAssetPath(this);
         // Debug.Log("Mypath" + name + ":" + myPath);
-        var dirPath = System.IO.Path.GetDirectoryName(myPath);
+        var dirPath = Path.GetDirectoryName(myPath);
         var allProjectFlags = AssetDatabase.FindAssets("t:GameFlagBase", new[] { dirPath });
         //All 10_Flags
         // string[] allProjectFlags = AssetDatabase.FindAssets("t:GameFlagBase", new[] { "Assets/10_Flags" });
@@ -238,7 +241,7 @@ public class GameFlagCollection : ScriptableObject, ISelfValidator
         var myPath = AssetDatabase.GetAssetPath(this);
         // FindAllFlags();
         var allProjectFlags =
-            AssetDatabase.FindAssets("t:GameFlagBase", new[] { System.IO.Path.GetDirectoryName(myPath) });
+            AssetDatabase.FindAssets("t:GameFlagBase", new[] { Path.GetDirectoryName(myPath) });
         // Debug.Log("allProjectFlags:" + allProjectFlags.Length);
         //find not in Flags
         for (var i = 0; i < allProjectFlags.Length; i++)

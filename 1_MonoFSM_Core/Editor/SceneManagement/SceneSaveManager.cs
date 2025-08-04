@@ -1,12 +1,13 @@
 #if UNITY_EDITOR
 using System;
 using _1_MonoFSM_Core.Runtime._3_FlagData;
-using Cysharp.Threading.Tasks;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 #endif
 using System.Collections.Generic;
+using System.Reflection;
 using MonoFSM.Core;
+using MonoFSM.Foundation;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
@@ -83,25 +84,25 @@ namespace EditorTool
             return true;
         }
 
-        public static async UniTask ScanScene(string sceneName, float percent)
-        {
-            Debug.Log("Scan Scene: " + sceneName);
-
-            EditorUtility.DisplayProgressBar("Open Scene", sceneName, 0);
-            EditorSceneManager.OpenScene(sceneName);
-            Debug.Log("OpenScene Scene: " + sceneName);
-            await UniTask.Delay(100);
-            //how to wait particle system to simulate?
-            FindSceneSavingAndProcess();
-            EditorUtility.DisplayProgressBar("Save Scene", sceneName, 0);
-            Debug.Log("Scan Scene Done: " + sceneName);
-            EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
-            AssetDatabase.SaveAssets();
-
-            Debug.Log("Save Scene Done: " + sceneName);
-            EditorUtility.ClearProgressBar();
-            // EditorUtility.ClearProgressBar();
-        }
+        // public static async UniTask ScanScene(string sceneName, float percent)
+        // {
+        //     Debug.Log("Scan Scene: " + sceneName);
+        //
+        //     EditorUtility.DisplayProgressBar("Open Scene", sceneName, 0);
+        //     EditorSceneManager.OpenScene(sceneName);
+        //     Debug.Log("OpenScene Scene: " + sceneName);
+        //     await UniTask.Delay(100);
+        //     //how to wait particle system to simulate?
+        //     FindSceneSavingAndProcess();
+        //     EditorUtility.DisplayProgressBar("Save Scene", sceneName, 0);
+        //     Debug.Log("Scan Scene Done: " + sceneName);
+        //     EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
+        //     AssetDatabase.SaveAssets();
+        //
+        //     Debug.Log("Save Scene Done: " + sceneName);
+        //     EditorUtility.ClearProgressBar();
+        //     // EditorUtility.ClearProgressBar();
+        // }
 
         private static void OnSceneClosing(Scene scene, bool removingscene)
         {
@@ -123,12 +124,12 @@ namespace EditorTool
                 var prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
                 var prefabRoot = prefabStage.prefabContentsRoot;
                 OnPrefabSaving(prefabRoot);
+                FindAllSOAndProcessSceneSave();
                 return;
             }
             
             Debug.Log("OnSceneSaving");
-            AllFlagCollection.Instance.FindAllFlagsInProject();
-            FindSceneSavingAndProcess();
+            CustomFindSceneSavingAndProcess();
             EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
             AssetDatabase.SaveAssets();
         }
@@ -180,20 +181,21 @@ namespace EditorTool
         {
             Debug.Log("OnPrefabStageClosing: " + prefabStage.assetPath);
             var prefabRoot = prefabStage.prefabContentsRoot;
-            var components = prefabRoot.GetComponentsInChildren<MonoFSM.Foundation.AbstractDescriptionBehaviour>(true);
+            var components = prefabRoot.GetComponentsInChildren<AbstractDescriptionBehaviour>(true);
 
             foreach (var component in components)
                 if (component != null)
                 {
                     // Reset prefab stage mode via reflection (since _isPrefabStageMode is private)
-                    var field = typeof(MonoFSM.Foundation.AbstractDescriptionBehaviour).GetField("_isPrefabStageMode",
-                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    var field = typeof(AbstractDescriptionBehaviour).GetField("_isPrefabStageMode",
+                        BindingFlags.NonPublic | BindingFlags.Instance);
                     if (field != null)
                         field.SetValue(component, false);
                 }
         }
 
 
+        //原本的Save監聽
         private static void OnSceneSaving(Scene scene, string path)
         {
             Debug.Log("OnSceneSaving");
@@ -244,7 +246,7 @@ namespace EditorTool
         }
 
 
-        public static void FindAllSOAndProcessSceneSave()
+        public static void FindAllSOAndProcessSceneSave() //ProcessCustomHeavySave?
         {
             // gameFlagDataList.Clear();
             // Debug.Log("Find GameFlag:" + typeof(T).FullName);
@@ -264,13 +266,19 @@ namespace EditorTool
                     sceneSavingCallbackReceiver.OnBeforeSceneSave();
                 if (flag is ISceneSavingAfterCallbackReceiver sceneSavingAfterCallbackReceiver)
                     sceneSavingAfterCallbackReceiver.OnAfterSceneSave();
+                if (flag is ICustomHeavySceneSavingCallbackReceiver heavySceneSavingCallbackReceiver)
+                {
+                    Debug.Log("OnHeavySceneSaving called in" + heavySceneSavingCallbackReceiver,
+                        heavySceneSavingCallbackReceiver as Object);
+                    heavySceneSavingCallbackReceiver.OnHeavySceneSaving();
+                }
+                    
                 // soList.Add(flag);
             }
         }
-        
-        
-        
-        private static void FindSceneSavingAndProcess()
+
+
+        private static void CustomFindSceneSavingAndProcess()
         {
             //scriptable object也可以做這個？
 
@@ -282,6 +290,20 @@ namespace EditorTool
             {
                 foreach (var gobj in rootGameObjects)
                 {
+                    var heavyObjs = new List<ICustomHeavySceneSavingCallbackReceiver>();
+                    gobj.GetComponentsInChildren(true, heavyObjs);
+                    foreach (var heavyObj in heavyObjs)
+                        try
+                        {
+                            heavyObj.OnHeavySceneSaving();
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.LogError("heavyObj error", heavyObj as Object);
+                            // Debug.LogError(e, heavyObj as MonoBehaviour);
+                        }
+
+
                     var savingObjs = new List<ISceneSavingCallbackReceiver>();
 
                     gobj.GetComponentsInChildren(true, savingObjs);

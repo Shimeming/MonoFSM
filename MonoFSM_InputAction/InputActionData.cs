@@ -1,11 +1,11 @@
+using _1_MonoFSM_Core.Runtime._3_FlagData;
 using RCGInputAction;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-
 [CreateAssetMenu(menuName = "MonoFSM/Input/InputActionData", fileName = "InputActionData", order = 0)]
-public class InputActionData : ScriptableObject
+public class InputActionData : MonoSOConfig
 {
     [Required]
     public InputActionReference inputAction;

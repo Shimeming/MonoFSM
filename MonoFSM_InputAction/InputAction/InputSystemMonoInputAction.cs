@@ -1,4 +1,5 @@
 using MonoFSM.Core.Attributes;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -8,9 +9,11 @@ namespace MonoFSM_InputAction
     [RequireComponent(typeof(AbstractMonoInputAction))]
     public class InputSystemMonoInputAction : MonoBehaviour, IMonoInputAction
     {
+        
         [PreviewInInspector] [AutoParent] private PlayerInput _localPlayerInput;
         public int InputActionId => _inputActionData.actionID; //還是monobehaviour自己assign就好？
 
+        [InlineEditor]
         [SOConfig("PlayerInputActionData")] [SerializeField]
         protected InputActionData _inputActionData;
         // private InputActionMap _inputActionMap;

@@ -5,6 +5,12 @@ namespace MonoFSM.Core
         void OnBeforeBuildSceneSave();
     }
 
+    public interface ICustomHeavySceneSavingCallbackReceiver
+    {
+        void OnHeavySceneSaving();
+        // void OnAfterHeavySceneSave();
+    }
+    
     //FIXME: 
     public interface ISceneSavingCallbackReceiver
     {

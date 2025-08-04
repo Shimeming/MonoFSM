@@ -23,8 +23,14 @@ namespace _1_MonoFSM_Core.Runtime._3_FlagData
             _instance = this;
         }
 
+
+        public override void OnHeavySceneSaving()
+        {
+            FindAllFlagsInProject();
+        }
+
         [Button]
-        public void FindAllFlagsInProject()
+        public void FindAllFlagsInProject() //FIXME: 用CustomSceneSave?
         {
             Flags.Clear();
             // gameFlagDataList.Clear();
