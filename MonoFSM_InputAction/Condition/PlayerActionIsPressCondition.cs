@@ -1,13 +1,12 @@
 using System;
 using MonoFSM.Core.Attributes;
-using MonoFSM.Variable;
-using MonoFSM.Core;
 using MonoFSM.Core.DataProvider;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 
 namespace RCGInputAction
 {
+    [Obsolete]
     public class PlayerActionIsPressCondition : AbstractConditionBehaviour,IFloatProvider
     {
         // string IValueProvider.Description => Description;

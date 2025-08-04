@@ -1,13 +1,13 @@
+using System;
 using MonoFSM.Core.Attributes;
-using MonoFSM.Variable;
 using Sirenix.OdinInspector;
-using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace PlayerActionControl
 {
     //GameplayActionWasPressCondition
     //有buffering
+    [Obsolete]
     public class PlayerActionWasPressCondition : AbstractConditionBehaviour
     {
         public override string Description =>
