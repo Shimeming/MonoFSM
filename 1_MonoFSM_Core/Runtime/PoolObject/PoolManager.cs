@@ -327,6 +327,10 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
             return null;
         }
 
+        if (obj is PoolObject pObj)
+            // 如果是 PoolObject，直接使用 Borrow 方法
+            return Borrow(pObj, position, rotation, parent, handler).GetComponent<T>();
+
         if (obj.TryGetComponent<PoolObject>(out var poolObj))
         {
             return Borrow(poolObj, position, rotation, parent, handler).GetComponent<T>();
@@ -349,6 +353,7 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
         }
 
 
+        //FIXME: 借用場上的，編輯參數蠻好用？看要不要砍掉？
         if (prefab.UseSceneAsPool)
         {
             // 初始重置
@@ -356,9 +361,9 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
             prefab.PoolObjectResetAndStart();
 
             // 設置新的 Transform 位置
-            var defaultScale = TransformResetHelper.GetDefaultScale(prefab);
-            prefab.OverrideTransformSetting(position, rotation, parent, defaultScale);
-            prefab.TransformReset();
+            var defaultScale = TransformResetHelper.GetDefaultScale(prefab); //scale清乾淨 (回到Prefab的scale)
+            // prefab.OverrideTransformSetting(position, rotation, parent, defaultScale);
+            // prefab.TransformReset();
 
             prefab.OnBorrowFromPool(null);
             prefab.gameObject.SetActive(true);
@@ -478,6 +483,13 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
         Profiler.EndSample();
         
         _recalculating = false;
+    }
+
+    public void ReturnAllObjects()
+    {
+        // Debug.Log("Return All PoolObj");
+        for (var i = 0; i < allPools.Count; i++)
+            allPools[i].ReturnAllObjects();
     }
 
     public void ReturnAllObjects(Scene withScene)

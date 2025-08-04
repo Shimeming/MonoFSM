@@ -1,5 +1,7 @@
+using System;
 using UnityEngine;
 
+//TODO: 要把場上的物件回到原本的位置
 /// <summary>
 /// Transform 重置輔助類 - 簡化和統一 Transform 重置邏輯
 /// </summary>
@@ -8,7 +10,7 @@ public static class TransformResetHelper
     /// <summary>
     /// Transform 重置資料結構
     /// </summary>
-    [System.Serializable]
+    [Serializable]
     public struct TransformData
     {
         public Vector3 position;
@@ -57,9 +59,10 @@ public static class TransformResetHelper
         if (transform == null) return default;
         
         transform.SetParent(parent);
-        transform.position = position;
-        transform.rotation = rotation;
-        
+        transform.SetPositionAndRotation(position, rotation);
+        Debug.Log(
+            $"Setting Transform: Position={position}, Rotation={rotation}, Scale={scale}, Parent={parent?.name ?? "null"}",
+            transform);
         // 返回本地座標作為重置資料
         return new TransformData
         {

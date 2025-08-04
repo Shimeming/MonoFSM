@@ -136,10 +136,14 @@ namespace MonoFSM.Core.Simulate
         {
             foreach (var monoObject in _monoObjectSet) monoObject.HandleSceneStart();
         }
+        
+        
 
         //從player進入？
         public void ResetLevelRestore()
         {
+            //Pool回收會
+            PoolManager.Instance.ReturnAllObjects();
             foreach (var mono in _monoObjectSet) mono.ResetStateRestore();
             Debug.Log($"WorldUpdateSimulator ResetStateRestore called with {_monoObjectSet.Count} MonoPoolObjs.", this);
         }
@@ -218,12 +222,13 @@ namespace MonoFSM.Core.Simulate
 
 #if UNITY_EDITOR
         [MenuItem("MonoFSM/ResetLevel %R")]
-        public static void TestResetLevel()
+        public static void TestResetLevel() //Cheat Reset?
         {
             if (Application.isPlaying)
             {
                 Debug.Log("ResetLevel CMD+Shift+R");
                 var simulators = FindObjectsByType<WorldUpdateSimulator>(FindObjectsSortMode.None);
+                //FIXME: 會拿到Temporary Runner Prefab所以才全拿
                 if (simulators.Length == 0)
                     Debug.LogError(
                         "No WorldUpdateSimulator found in the scene. Ensure it is present for proper reset.");

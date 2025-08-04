@@ -4,8 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using static PoolManager;
-using Debug = UnityEngine.Debug;
+using Object = UnityEngine.Object;
 
 /// <summary>
 /// 物件池管理單個類型的 PoolObject 實例
@@ -250,6 +249,7 @@ public class ObjectPool : IObjectPool
     public PoolObject Borrow(Vector3 position, Quaternion rotation, Transform parent = null,
         Action<PoolObject> beforeHandler = null)
     {
+        //先加新的到pool裡
         if (DisabledObjs.Count == 0)
         {
             // Pool is empty, create a new object
@@ -267,18 +267,15 @@ public class ObjectPool : IObjectPool
 
             // 設置 Transform 位置和重置狀態
             var resetData = TransformResetHelper.SetupPoolObjectTransform(obj, position, rotation, parent);
-            obj.OverrideTransformSetting(position, rotation, parent, TransformResetHelper.GetDefaultScale(obj));
-            obj.TransformReset();
+            // obj.OverrideTransformSetting(position, rotation, parent, TransformResetHelper.GetDefaultScale(obj));
+            // obj.TransformReset();
 
-
+            //scale清乾淨 (回到Prefab的scale)
             beforeHandler?.Invoke(obj);
-
             obj.gameObject.SetActive(true);
 
             //這裡才是真的onBorrow
-            obj.PoolObjectResetAndStart();
-
-
+            // obj.PoolObjectResetAndStart();
             return obj;
         }
         else
@@ -297,8 +294,8 @@ public class ObjectPool : IObjectPool
         // Disable prefab before instantiation to prevent Awake from running during instantiation
         _prefab.gameObject.SetActive(false);
 
-        var obj = MonoBehaviour.Instantiate(_prefab, Vector3.zero, Quaternion.identity);
-        MonoBehaviour.DontDestroyOnLoad(obj);
+        var obj = Object.Instantiate(_prefab, Vector3.zero, Quaternion.identity);
+        Object.DontDestroyOnLoad(obj);
         obj.SetBindingPool(_poolManager);
         PoolManager.PreparePoolObjectImplementation(obj);
         // Prepare implementation while object is disabled to control initialization order

@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Cysharp.Threading.Tasks;
-using MonoFSMCore.Runtime.LifeCycle;
+using System.Text;
 using MonoFSM.Core.Attributes;
+using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Animations;
@@ -32,7 +32,7 @@ public interface IPoolObjectPlayer
 }
 
 [DisallowMultipleComponent]
-public class PoolObject : MonoBehaviour, ISceneAwake, IResetStateRestore, IPoolableObject
+public class PoolObject : MonoBehaviour, ISceneAwake, IPoolableObject
 {
     // public MonoReferenceCache _monoReferenceCache; //要是prefab asset才需要
 
@@ -50,8 +50,8 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IResetStateRestore, IPoola
     {
         this.SetFilterForAssignPrefab();
     }
-    
-    [BoxGroup("池測試工具")]
+
+    [BoxGroup("Pool 測試工具")]
     [Button("借用到場景", ButtonSizes.Medium)]
     [ShowIf("@!UnityEngine.Application.isPlaying || !this.isOnScene")]
     [EnableIf("@UnityEngine.Application.isPlaying")]
@@ -148,8 +148,8 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IResetStateRestore, IPoola
     {
         if (!Application.isPlaying)
             return "請進入 Play Mode 使用測試功能";
-            
-        var status = new System.Text.StringBuilder();
+
+        var status = new StringBuilder();
         status.AppendLine($"物件狀態: {(this.isOnScene ? "在場景中" : "在池中")}");
         status.AppendLine($"保護狀態: {(this.IsProtected() ? "Protected" : "Recyclable")}");
         status.AppendLine($"來自池: {(this.IsFromPool ? "是" : "否")}");
@@ -595,15 +595,15 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IResetStateRestore, IPoola
         // }
     }
 
-    [Button]
-    public void ResetStateRestore()
-    {
-        //  Debug.Log("LevelReset", this);
-        TransformReset();
-
-        // ResetAnim();
-        // this.Break();
-    }
+    // [Button]
+    // public void ResetStateRestore()
+    // {
+    //     //  Debug.Log("LevelReset", this);
+    //     TransformReset();
+    //
+    //     // ResetAnim();
+    //     // this.Break();
+    // }
 
     [Auto(false)] private TransformResetOverrider _transformResetOverrider;
 

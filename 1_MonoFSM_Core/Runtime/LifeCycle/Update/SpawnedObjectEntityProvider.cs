@@ -10,7 +10,7 @@ using UnityEngine;
 namespace MonoFSMCore.Runtime.LifeCycle
 {
     //FIXME: 好像很trivial, 不好懂
-    //
+    //剛被Spawn的物件
     public class SpawnedObjectEntityProvider : AbstractEntityProvider, IEntityProvider, ICompProvider<MonoEntity>
     {
         [Required] [ShowInInspector] [AutoParent]
