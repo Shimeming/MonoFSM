@@ -4,6 +4,7 @@ using System.Linq;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Runtime;
 using MonoFSM.Variable;
+using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -14,7 +15,7 @@ namespace MonoFSM.Core.Variable
     {
     }
 
-    public class VarList<T> : AbstractVarList, ISerializationCallbackReceiver
+    public class VarList<T> : AbstractVarList, ISerializationCallbackReceiver, IResetStateRestore
     {
         
         public enum CollectionStorageType
@@ -35,8 +36,8 @@ namespace MonoFSM.Core.Variable
         [ShowInPlayMode]
         private object _activeCollection; // Runtime instance: List<T>, Queue<T>, or HashSet<T>
 
-        public int _currentIndex = -1;
-
+        public int _currentIndex = -1; //FIXME: save? var int?
+        public int _defaultIndex;
         public override void SetIndex(int index)
         {
             if (index < 0 || index >= Count)
@@ -339,6 +340,39 @@ namespace MonoFSM.Core.Variable
         // Since it's not, users of this class or an explicit Init() method would handle it.
         // OnAfterDeserialize helps with editor changes.
         // Methods also call EnsureActiveCollectionInitialized() as a safeguard.
+        public void ResetStateRestore()
+        {
+            EnsureActiveCollectionInitialized();
+
+            // 清空當前集合
+            Clear();
+
+            // 如果 backing list 有內容，恢復這些內容
+            if (_backingListForSerialization != null && _backingListForSerialization.Count > 0)
+                switch (_storageType)
+                {
+                    case CollectionStorageType.List:
+                        ((List<T>)_activeCollection).AddRange(_backingListForSerialization);
+                        break;
+                    case CollectionStorageType.Queue:
+                        var queue = (Queue<T>)_activeCollection;
+                        foreach (var item in _backingListForSerialization)
+                            queue.Enqueue(item);
+                        break;
+                    case CollectionStorageType.HashSet:
+                        var hashSet = (HashSet<T>)_activeCollection;
+                        foreach (var item in _backingListForSerialization)
+                            hashSet.Add(item);
+                        break;
+                }
+
+            // 重置索引到預設值
+            _currentIndex = _defaultIndex;
+
+            // 通知變更（Clear() 已經調用過，但如果有恢復內容需要再次通知）
+            if (_backingListForSerialization != null && _backingListForSerialization.Count > 0)
+                OnValueChanged();
+        }
     }
 
     //不想定義型別

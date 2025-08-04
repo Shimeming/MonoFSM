@@ -5,6 +5,7 @@ using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Simulate;
 using MonoFSM.Runtime;
+using MonoFSM.Variable.FieldReference;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -50,6 +51,7 @@ namespace MonoFSMCore.Runtime.LifeCycle
     //這個和MonoEntity結構會類似？但分別做不同的角色？
     [ScriptTiming(-20000)]
     [DisallowMultipleComponent]
+    [FormerlyNamedAs("MonoPoolObj")]
     public sealed class MonoObj : MonoBehaviour, IPrefabSerializeCacheOwner
     {
         //寫一個show error的Attribute，然後在這裡用
