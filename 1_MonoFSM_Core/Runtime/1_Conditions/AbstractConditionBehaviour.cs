@@ -74,6 +74,7 @@ public abstract class AbstractConditionBehaviour : AbstractDescriptionBehaviour,
     public virtual bool IsInvertResultOptionAvailable => true;
 
     [ShowIf(nameof(IsInvertResultOptionAvailable))]
+    [Tooltip("If true, the final result will be inverted. For example, if the condition is fulfilled when pressing a button normally, setting this to true will make it fulfilled when the button is not pressed.")]
     public bool FinalResultInverted = false;
 
     protected abstract bool IsValid { get; }
