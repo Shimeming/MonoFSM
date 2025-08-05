@@ -38,24 +38,25 @@ namespace MonoFSM.Runtime.Variable
         //FIXME: 要用T? VarComponent?
 
         //FIXME: 什麼意四？
-        [Header("預設值")] [SerializeField] [DropDownRef(null, nameof(SiblingValueFilter))]
-        private MonoEntity _siblingDefaultValue;
-
-        private Type SiblingValueFilter()
-        {
-            if (_varTag == null)
-                return typeof(MonoEntity);
-            // Debug.Log("RestrictType is " + varTag._valueFilterType.RestrictType);
-            return _varTag.ValueFilterType;
-        }
+        // [Header("預設值")] [SerializeField]
+        // [DropDownRef(null, nameof(SiblingValueFilter))]
+        // private MonoEntity _siblingDefaultValue;
+        //
+        // private Type SiblingValueFilter()
+        // {
+        //     if (_varTag == null)
+        //         return typeof(MonoEntity);
+        //     // Debug.Log("RestrictType is " + varTag._valueFilterType.RestrictType);
+        //     return _varTag.ValueFilterType;
+        // }
 
         //FIXME: 繼承時想要加更多attribute
         // [Header("預設值")] [HideIf(nameof(_siblingDefaultValue))] [SerializeField]
         // protected Component _defaultValue;
 
 
-        protected override MonoEntity DefaultValue =>
-            _siblingDefaultValue != null ? _siblingDefaultValue : _defaultValue;
+        protected override MonoEntity DefaultValue =>_defaultValue;
+            // _siblingDefaultValue != null ? _siblingDefaultValue : 
 
         //FIXME: 用Type更好嗎？
         // public override GameFlagBase FinalData => Value != null ? Value.Data : SampleData;

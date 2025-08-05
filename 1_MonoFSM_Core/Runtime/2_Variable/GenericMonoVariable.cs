@@ -20,6 +20,7 @@ using UnityEngine.Events;
 //FIXME: autoGen太複雜，可能需要再拆漂亮
 //FIXME: 改檔案名
 [Searchable]
+// [DisallowMultipleComponent]
 public abstract class GenericMonoVariable<TScriptableData, TField, TType> : AbstractMonoVariable,
     IBeforePrefabSaveCallbackReceiver, ISettable<TType>,
     IGameStateOwner, IDefaultSerializable, IResetStateRestore, IReferenceTarget,ISceneStart
@@ -50,7 +51,7 @@ public abstract class GenericMonoVariable<TScriptableData, TField, TType> : Abst
     {
         SetValueExecution(value, byWho);
     }
-
+    
     [CompRef]
     [Auto] private IVarValueSettingProcessor<TType> _beforeSetProcessor;
     private bool PrefabKindMatchTagCheck()

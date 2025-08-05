@@ -73,7 +73,8 @@ namespace MonoFSM.Variable
             if (variableFolder)
                 variableFolder.Refresh();
 #if UNITY_EDITOR
-            EditorUtility.SetDirty(_varTag);
+            if(_varTag)
+                EditorUtility.SetDirty(_varTag);
 #endif
         }
 

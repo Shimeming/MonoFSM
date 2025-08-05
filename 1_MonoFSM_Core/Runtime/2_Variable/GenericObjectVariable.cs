@@ -60,6 +60,7 @@ namespace MonoFSM.Variable
 
         //FIXME: 繼承時想要加更多attribute
         // [Header("預設值")] [HideIf(nameof(_siblingDefaultValue))]
+        [SOConfig("10_Flags/GameData")] //痾，只有SO類才需要ㄅ
         [SerializeField] protected TValueType _defaultValue;
 
 
