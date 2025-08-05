@@ -25,17 +25,18 @@ public abstract class SingletonBehaviour<T> : MonoBehaviour where T : MonoBehavi
         }
     }
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    public static void Clear()
-    {
-        lock (s_Lock)
-        {
-            //FIXME: 不會被call耶？
-            _instance = null;
-            _isInstanceCreated = false;
-            Debug.Log("SingletonBehaviour cleared: " + typeof(T).FullName);
-        }
-    }
+    //Generic class不行！
+    // [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    // public static void Clear()
+    // {
+    //     lock (s_Lock)
+    //     {
+    //         //FIXME: 不會被call耶？
+    //         _instance = null;
+    //         _isInstanceCreated = false;
+    //         Debug.Log("SingletonBehaviour cleared: " + typeof(T).FullName);
+    //     }
+    // }
 
     public static T Instance
     {
