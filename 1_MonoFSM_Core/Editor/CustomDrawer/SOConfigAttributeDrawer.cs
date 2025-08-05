@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using MonoFSM.Core.Attributes;
+using MonoFSM.Runtime.Mono;
+using MonoFSM.Variable;
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
@@ -28,6 +30,52 @@ namespace MonoFSM.Core
         }
 
         /// <summary>
+        /// 產生統一格式的檔案名稱
+        /// </summary>
+        private string GenerateFileName(Type configType)
+        {
+            var parentObject = Property.ParentValues[0];
+            var prefix = "s"; //scriptableObject 前綴
+            if (configType == typeof(VariableTag))
+            {
+                // 如果是 VariableTag，使用前綴 "vt_"
+                prefix = "v_";
+            }
+            else if (configType == typeof(MonoEntityTag))
+            {
+                prefix = "E_";
+            }
+
+            var postfix = "?";
+            
+            if (parentObject is ScriptableObject sObj)
+            {
+                postfix = sObj.name;
+                // return $"[{configType.Name}]_{sObj.name}";
+            }
+            else if (parentObject is Component parentComp)
+            {
+                if (parentComp)
+                {
+                    var gObj = parentComp.gameObject;
+                    postfix = gObj.name;
+                    // return $"[{configType.Name}]_{gObj.name}";
+                }
+                else
+                {
+                    postfix = Property.Name;
+                    // return $"[{configType.Name}]_0_{Property.Name}";
+                }
+            }
+            else
+            {
+                postfix = Property.Name+"_Unknown";
+                // return $"[{configType.Name}]_Unknown";
+            }
+            return $"{prefix}_{postfix}";
+        }
+
+        /// <summary>
         /// 使用路徑配置建立 ScriptableObject
         /// </summary>
         private ScriptableObject CreateScriptableObjectWithSelectedPath(Type configType, string defaultFileName)
@@ -44,9 +92,7 @@ namespace MonoFSM.Core
         private void CreateSOForSO()
         {
             var configType = Property.ValueEntry.TypeOfValue;
-            var sObj = Property.ParentValues[0] as ScriptableObject;
-            
-            var fileName = $"[{sObj.name}]_{configType.Name}.asset";
+            var fileName = GenerateFileName(configType);
             var myScriptableObject = CreateScriptableObjectWithSelectedPath(configType, fileName);
 
             Property.ValueEntry.WeakSmartValue = myScriptableObject;
@@ -56,18 +102,7 @@ namespace MonoFSM.Core
         {
             var configType = Property.ValueEntry.TypeOfValue;
             var parentComp = Property.ParentValues[0] as Component;
-
-            string fileName;
-            if (parentComp)
-            {
-                var gObj = parentComp.gameObject;
-                fileName = $"{gObj.name}_{configType.Name}.asset";
-            }
-            else
-            {
-                fileName = $"0_{configType.Name}_{Property.Name}.asset";
-            }
-
+            var fileName = GenerateFileName(configType);
             var myScriptableObject = CreateScriptableObjectWithSelectedPath(configType, fileName);
             Property.ValueEntry.WeakSmartValue = myScriptableObject;
 
@@ -108,29 +143,7 @@ namespace MonoFSM.Core
             var elementType = listType.GetGenericArguments()[0];
 
             // 產生檔案名稱
-            string fileName;
-            if (Property.ParentValues[0] is ScriptableObject sObj)
-            {
-                fileName = $"[{elementType.Name}] {sObj.name}";
-            }
-            else if (Property.ParentValues[0] is Component parentComp)
-            {
-                Debug.LogError("有這個case?", parentComp);
-                if (parentComp)
-                {
-                    var gObj = parentComp.gameObject;
-                    fileName = $"[{elementType.Name}] {gObj.name}";
-                }
-                else
-                {
-                    fileName = $"0_{elementType.Name}_{Property.Name}";
-                }
-            }
-            else
-            {
-                Debug.LogError("這啥？");
-                fileName = $"[_]_{elementType.Name}";
-            }
+            var fileName = GenerateFileName(elementType);
 
             // 使用路徑配置建立新的 ScriptableObject
             var newSO = CreateScriptableObjectWithSelectedPath(elementType, fileName);
@@ -188,11 +201,34 @@ namespace MonoFSM.Core
 
         protected override void DrawPropertyLayout(GUIContent label)
         {
+            
             // EditorGUILayout.BeginFadeGroup(1);
             // 檢查是否為 List 類型
             SirenixEditorGUI.BeginBox();
             var valueType = Property.ValueEntry.TypeOfValue;
+            
             var isListType = typeof(IList).IsAssignableFrom(valueType);
+            
+            // 檢查 valueType 是否繼承自 ScriptableObject
+            if (isListType)
+            {
+                var elementType = valueType.GetGenericArguments()[0];
+                if (!typeof(ScriptableObject).IsAssignableFrom(elementType))
+                {
+                    SirenixEditorGUI.EndBox();
+                    CallNextDrawer(label);
+                    return;
+                }
+            }
+            else
+            {
+                if (!typeof(ScriptableObject).IsAssignableFrom(valueType))
+                {
+                    SirenixEditorGUI.EndBox();
+                    CallNextDrawer(label);
+                    return;
+                }
+            }
             
             if (isListType)
             {
@@ -211,6 +247,8 @@ namespace MonoFSM.Core
             // 原有的單一物件檢查
             if ((Object)Property.ValueEntry.WeakSmartValue != null)
             {
+                
+                
                 CallNextDrawer(label);
                 SirenixEditorGUI.EndBox();
                 return;
