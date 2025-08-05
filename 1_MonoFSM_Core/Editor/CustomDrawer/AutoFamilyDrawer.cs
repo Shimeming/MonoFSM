@@ -45,7 +45,7 @@ namespace MonoFSM.Core
         {
             if (valueEntry.WeakSmartValue != null && !valueEntry.TypeOfValue.IsArray)
             {
-                Debug.Log("ValueEntry already set, no need to set again: " + valueEntry.WeakSmartValue, mb);
+                // Debug.Log("ValueEntry already set, no need to set again: " + valueEntry.WeakSmartValue, mb);
                 return; //already set, no need to set again
             }
 

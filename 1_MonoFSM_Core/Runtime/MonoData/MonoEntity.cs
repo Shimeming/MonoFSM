@@ -24,15 +24,14 @@ namespace MonoFSM.Runtime
     {
         bool IsAddValid();
     }
-
-    //FIXME: MonoEntity? 代表一個在場上的實體
+    
     [Searchable]
     [FormerlyNamedAs("MonoDescriptable")]
     public class MonoEntity : AbstractMonoDescriptable<DescriptableData>, IInstantiated,
         IBeforePrefabSaveCallbackReceiver, IGameDataProvider, IValueProvider //這樣data也要一直繼承，好ㄇ...
     {
         //Utility? 開始要拿一些Rigidbody、Collider之類的東西了
-        public Rigidbody DefaultRigidbody => GetComponent<Rigidbody>();
+        public Rigidbody DefaultRigidbody => GetComponent<Rigidbody>(); //FIXME: 位置對嗎？
         
         //FIXME: nested? MonoEntity dictionary?
         public void OnInstantiated(WorldUpdateSimulator world)

@@ -8,7 +8,6 @@ namespace MonoFSM.Core
     public interface ICustomHeavySceneSavingCallbackReceiver
     {
         void OnHeavySceneSaving();
-        // void OnAfterHeavySceneSave();
     }
     
     //FIXME: 

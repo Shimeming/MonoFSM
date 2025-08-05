@@ -9,7 +9,7 @@ namespace _1_MonoFSM_Core.Runtime.Action.TransformAction
     //TODO: abstract化兩個Entity之間的作用
     public class SetTransformParentAction : AbstractStateAction
     {
-        public Transform _target;
+        // public Transform _target;
 
         [ValueTypeValidate(typeof(MonoEntity))] [DropDownRef]
         public ValueProvider _sourceValueProvider;
@@ -28,7 +28,22 @@ namespace _1_MonoFSM_Core.Runtime.Action.TransformAction
             //     Debug.LogError("Target component is null. Cannot set parent.", this);
             //     return;
             // }
-            _sourceValueProvider.Get<MonoEntity>().transform.SetParent(targetEntity.transform);
+            var sourceTransform = _sourceValueProvider.Get<MonoEntity>().transform;
+            var targetTransform = targetEntity?.transform;
+            // _sourceValueProvider.Get<MonoEntity>().transform.SetParent(targetEntity.transform);
+            if (targetTransform == null)
+            {
+                Debug.LogError("Target transform is null. Cannot set parent.", this);
+                return;
+            }
+
+            if (sourceTransform == null)
+            {
+                Debug.LogError("Source transform is null. Cannot set parent.", this);
+                return;
+            }
+
+            sourceTransform.SetParent(targetTransform);
         }
     }
 }
