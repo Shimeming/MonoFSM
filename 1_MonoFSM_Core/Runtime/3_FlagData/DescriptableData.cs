@@ -83,7 +83,7 @@ public interface IProperty
     ValueDropdownList<string> GetProperties<T>();
 }
 
-public interface IItemData:IDataFunction
+public interface IItemData:IDataFeature
 {
     public int MaxStackCount { get; }
     void Use();
@@ -93,7 +93,7 @@ public interface IItemData:IDataFunction
 //ConfigData?
 //GameData?
 //用has來額外加功能？ ListOfDataFunction? pickableData?
-public interface IDataFunction
+public interface IDataFeature
 {
     DescriptableData Owner { get; }
     void SetOwner(DescriptableData owner);
@@ -110,13 +110,13 @@ public class
     [FormerlySerializedAs("descriptableTag")]
     public MonoEntityTag _entityTag;
 
-    private AbstractDataFunction[] _dataFunctionsArray; //這個用hashSet會比較好？ 可是QQ
+    [SerializeReference] private AbstractDataFunction[] _dataFunctionsArray; //這個用hashSet會比較好？ 可是QQ
     
-    [SerializeReference] private IDataFunction[] _dataFunctions; //這個用hashSet會比較好？ 可是QQ
-    private readonly Dictionary<Type, IDataFunction> _dataFunctionSet = new();
+    [SerializeReference] private IDataFeature[] _dataFunctions; //這個用hashSet會比較好？ 可是QQ
+    private readonly Dictionary<Type, IDataFeature> _dataFunctionSet = new();
     // private readonly HashSet<IDataFunction> _hashSet = new();
     
-    public T GetDataFunction<T>() where T : class, IDataFunction
+    public T GetDataFunction<T>() where T : class, IDataFeature
     {
         //沒有interface的對應實作...hmm好難
         if (_dataFunctionSet.TryGetValue(typeof(T), out var dataFunction))

@@ -4,6 +4,7 @@ using System.Reflection;
 using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.DataProvider;
+using MonoFSM.Core.Runtime;
 using MonoFSM.Variable.VariableBinder;
 using MonoFSM.VarRefOld;
 using RCGExtension;
@@ -15,6 +16,7 @@ using Object = UnityEngine.Object;
 
 namespace MonoFSM.Variable
 {
+    //FIXME: 應該要繼承AbstractSourceValueRef
     public abstract class AbstractMonoVariable : MonoBehaviour, IGuidEntity, IName, IValueOfKey<VariableTag>,
         IOverrideHierarchyIcon, IValueProvider, IBeforePrefabSaveCallbackReceiver
     {
@@ -75,6 +77,31 @@ namespace MonoFSM.Variable
 #if UNITY_EDITOR
             if(_varTag)
                 EditorUtility.SetDirty(_varTag);
+#endif
+        }
+
+        [Button("建立 ValueProvider Reference")]
+        private void CreateValueProvider()
+        {
+#if UNITY_EDITOR
+            if (_varTag == null)
+            {
+                Debug.LogError("請先設定變數標籤 (VarTag) 才能建立 ValueProvider", this);
+                return;
+            }
+
+            // 加入 ValueProvider 組件
+            var valueProvider = gameObject.TryGetCompOrAdd<ValueProvider>();
+            
+            valueProvider.DropDownVarTag = _varTag; //直接設定
+
+            // 設定 ValueProvider 的 EntityProvider
+            valueProvider._entityProvider = GetComponentInParent<ParentEntityProvider>();
+            // 標記為 dirty 以確保儲存
+            EditorUtility.SetDirty(valueProvider);
+            
+#else
+            Debug.LogWarning("此功能僅在編輯器模式下可用");
 #endif
         }
 

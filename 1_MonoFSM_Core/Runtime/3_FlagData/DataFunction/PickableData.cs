@@ -3,6 +3,7 @@ using MonoFSM.Core.Attributes;
 using MonoFSMCore.Runtime.LifeCycle;
 using UnityEngine;
 
+//FIXME: 不好用...valueProvider拿不到，還是要繼承DescriptableData, 或是用變數把值給想辦法資料化? 直接對表格？ json介面？ (SO不能彈性改變檔案型別...)
 [Serializable]
 public abstract class AbstractDataFunction
 {
@@ -35,4 +36,10 @@ public class PickableData : AbstractDataFunction, IItemData //寫死還是有點
         //?
         //丟出來？
     }
+}
+[Serializable]
+public class ScoreData : AbstractDataFunction
+{
+    [SerializeField] private int _score = 1; //這個是用來描述這個物品的分數
+    public int Score => _score;
 }

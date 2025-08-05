@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics;
 using Sirenix.OdinInspector;
 
-[Required] //FIXME: optional?
+// [Required] //FIXME: optional?
 [IncludeMyAttributes]
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
 [Conditional("UNITY_EDITOR")] //這個可以嗎？

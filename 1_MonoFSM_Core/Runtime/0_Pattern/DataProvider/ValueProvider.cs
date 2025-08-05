@@ -25,9 +25,19 @@ namespace MonoFSM.Core.DataProvider
         [BoxGroup("varTag")]
         [ShowInInspector]
         [ValueDropdown(nameof(GetVarTagsFromEntity), NumberOfItemsBeforeEnablingSearch = 5)]
-        private VariableTag DropDownVarTag
+        public VariableTag DropDownVarTag
         {
-            set => _varTag = value;
+            set
+            {
+                if (Application.isPlaying)
+                {
+                    Debug.LogError("VarRef: Cannot set varTag in play mode. Please set it in edit mode.", this);
+                    return;
+                }
+                    
+                _varTag = value;
+            }
+            //only editor Set? 另外開？
             get => _varTag;
         }
 
@@ -100,6 +110,7 @@ namespace MonoFSM.Core.DataProvider
         [AutoParent] private MonoEntity _parentEntity;
 
         //可auto? 有ref就不覆蓋？還是身上的比較大？
+        //自己也是？
         [DropDownRef] [SerializeField] public AbstractEntityProvider _entityProvider;
 
 
@@ -118,7 +129,7 @@ namespace MonoFSM.Core.DataProvider
         {
             get
             {
-                if (entityProvider.SuggestDeclarationName != null) return entityProvider.SuggestDeclarationName;
+                if (entityProvider?.SuggestDeclarationName != null) return entityProvider?.SuggestDeclarationName;
                 // Debug.Log($"VarRef: Using entityProvider declaration name: {_declarationName}", this);
                 return _declarationName;
             }
@@ -131,7 +142,7 @@ namespace MonoFSM.Core.DataProvider
                 var stringBuilder = ZString.CreateStringBuilder();
                 if (!DeclarationName.IsNullOrWhitespace())
                 {
-                    Debug.Log($"VarRef: Using declaration name: {DeclarationName}", this);
+                    // Debug.Log($"VarRef: Using declaration name: {DeclarationName}", this);
                     stringBuilder.Append(DeclarationName);
                     stringBuilder.Append(": ");
                 }

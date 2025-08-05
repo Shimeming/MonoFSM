@@ -1,9 +1,7 @@
 using System;
 using MonoFSMCore.Runtime.LifeCycle;
 using UnityEngine;
-using UnityEngine.Events;
 using Object = UnityEngine.Object;
-
 using Sirenix.OdinInspector;
 using MonoFSM.Core.Attributes;
 using UnityEngine.Serialization;
@@ -35,19 +33,19 @@ namespace MonoFSM.Variable
         //         Debug.LogError("Action type mismatch. Expected UnityAction<TValueType>.", this);
         // }
 
-        [Button]
-        protected virtual void Rename()
-        {
-            var str = "";
-            if (_varTag != null)
-                str += _varTag.name;
-            else
-            {
-                str += "[" + GetType().Name + "]";
-            }
-
-            name = str;
-        }
+        // [Button]
+        // protected virtual void Rename()
+        // {
+        //     var str = "";
+        //     if (_varTag != null)
+        //         str += _varTag.name;
+        //     else
+        //     {
+        //         str += "[" + GetType().Name + "]";
+        //     }
+        //
+        //     name = str;
+        // }
 
 
         // Type SiblingValueFilter()

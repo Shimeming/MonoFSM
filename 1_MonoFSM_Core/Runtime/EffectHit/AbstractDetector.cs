@@ -75,8 +75,8 @@ namespace MonoFSM.Core.Detection
 
         protected abstract void OnDisableImplement(); 
 
-        [AutoParent] private StateMachineOwner owner;
-        public StateMachineOwner Owner => owner;
+        // [AutoParent] private StateMachineOwner owner;
+        // public StateMachineOwner Owner => owner;
         [CompRef] [AutoChildren] private GeneralEffectDealer[] dealers;
 
         //GameObject必定要在Detector的layer

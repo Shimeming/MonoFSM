@@ -12,48 +12,10 @@ using UnityEngine.Serialization;
 
 namespace MonoFSM.Runtime.Interact.EffectHit.Resolver.ApplyEffect
 {
-    // public abstract class AbstractEffectHitAction : AbstractStateAction, IArgEventReceiver<GeneralEffectHitData>
-    // {
-    //     public void ArgEventReceived(GeneralEffectHitData arg)
-    //     {
-    //         _runtimeDealer = arg.Dealer as GeneralEffectDealer;
-    //         _runtimeReceiver = arg.Receiver as GeneralEffectReceiver;
-    //         
-    //         // Debug.Log("EffectHitAction EventReceived", this);
-    //         ApplyEffect(arg.Dealer as GeneralEffectDealer, arg.Receiver as GeneralEffectReceiver);
-    //     }
-    //
-    //     protected abstract void ApplyEffect(GeneralEffectDealer dealer, GeneralEffectReceiver receiver);
-    //     [AutoParent] [PreviewInInspector] private GeneralEffectDealer _runtimeDealer;
-    //     [AutoParent] [PreviewInInspector] private GeneralEffectReceiver _runtimeReceiver;
-    //
-    //     public override void EventReceived<T>(T arg)
-    //     {
-    //         var data = arg as GeneralEffectHitData;
-    //         if (data == null) return;
-    //         ArgEventReceived(data);
-    //     }
-    //
-    //     // public void EventReceived()
-    //     // {
-    //     //     //沒參數？這樣算有問題？
-    //     //     throw new System.NotImplementedException();
-    //     // }
-    //
-    //     // public bool IsValid 
-    // }
-    //
+ 
     // //最完整的應該用這個
     public class FloatMathAction : AbstractStateAction
     {
-        //FIXME: value overrider?
-        
-        // public enum OperandType
-        // {
-        //     Dealer,
-        //
-        //     Receiver
-        //     // Constant
         [AutoChildren] [CompRef] private TargetVarRef _targetVariableProvider; // }
 
         [AutoChildren] [CompRef] private SourceValueRef _source1VariableProvider;
@@ -72,6 +34,8 @@ namespace MonoFSM.Runtime.Interact.EffectHit.Resolver.ApplyEffect
 
         private bool IsSource2Needed()
         {
+            if(_source1VariableProvider == null)
+                return false;
             return Arithmetic != ArithmeticType.AdditionAssign && Arithmetic != ArithmeticType.SubtractionAssign;
         }
 
@@ -105,16 +69,15 @@ namespace MonoFSM.Runtime.Interact.EffectHit.Resolver.ApplyEffect
         {
             get
             {
-                switch (Arithmetic)
+                var targetDesc = _targetVariableProvider?.Description;
+                var source1Desc = _source1VariableProvider?.ToString();
+                
+                return Arithmetic switch
                 {
-                    case ArithmeticType.AdditionAssign:
-                        return $"{setterVariable?.name} += {_source1VariableProvider}";
-                    case ArithmeticType.SubtractionAssign:
-                        return $"{setterVariable?.name} -= {_source1VariableProvider}";
-                    default:
-                        return
-                            $"{setterVariable?.name} = {_source1VariableProvider?.ToString()} {ArithmeticString} {_source2VariableProvider}";
-                }
+                    ArithmeticType.AdditionAssign => $"{targetDesc} += {source1Desc}",
+                    ArithmeticType.SubtractionAssign => $"{targetDesc} -= {source1Desc}",
+                    _ => $"{targetDesc} = {source1Desc} {ArithmeticString} {_source2VariableProvider}"
+                };
             }
         }
         // $"{setterVariable?.name} = {_operator1}.{op1?.name} {ArithmeticString} {_operator2}.{op2?.name}";
