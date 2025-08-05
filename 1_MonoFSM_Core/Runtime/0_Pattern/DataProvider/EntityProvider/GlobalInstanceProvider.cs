@@ -13,6 +13,7 @@ namespace MonoFSM.Core.Runtime
         // [Required] [TypeRestrictFilter(typeof(MonoEntity), true, "請選擇 MonoEntity 類型的 VariableTag")] [SerializeField]
         // private MonoEntityTag _monoEntityTag;
 
+        public override string SuggestDeclarationName => "global";
         [PreviewInInspector] public override MonoEntity monoEntity => GetBlackboardFromGlobalInstance();
 
         // public MonoEntityTag entityTag => _monoEntityTag;

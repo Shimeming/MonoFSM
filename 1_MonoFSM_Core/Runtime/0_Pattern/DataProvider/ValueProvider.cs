@@ -129,10 +129,10 @@ namespace MonoFSM.Core.DataProvider
             get
             {
                 var stringBuilder = ZString.CreateStringBuilder();
-                if (!_declarationName.IsNullOrWhitespace())
+                if (!DeclarationName.IsNullOrWhitespace())
                 {
-                    Debug.Log($"VarRef: Using declaration name: {_declarationName}", this);
-                    stringBuilder.Append(_declarationName);
+                    Debug.Log($"VarRef: Using declaration name: {DeclarationName}", this);
+                    stringBuilder.Append(DeclarationName);
                     stringBuilder.Append(": ");
                 }
 
@@ -142,8 +142,12 @@ namespace MonoFSM.Core.DataProvider
 
                 // Debug.Log("VarRef: VarRaw is null, using entityProvider and varTag to build description.", this);
                 if (entityProvider != null && entityProvider.entityTag != null)
+                {
+                    // stringBuilder.Append(entityProvider.GetType());
                     // Debug.Log($"VarRef: EntityProvider found: {entityProvider.entityTag}", this);
                     stringBuilder.Append(entityProvider.entityTag.name);
+                }
+                    
                 // stringBuilder.Append('.');
                 if (varTag != null)
                 {
@@ -267,7 +271,7 @@ namespace MonoFSM.Core.DataProvider
         public string IconName => "Linked@2x";
         public bool IsDrawingIcon => true;
         public Texture2D CustomIcon => null;
-        public string ValueInfo => $"{ValueType.Name} {_declarationName}"; //一play會call這個...
+        public string ValueInfo => $"{ValueType.Name} {DeclarationName}"; //一play會call這個...
         public bool IsDrawingValueInfo => true;
 
         protected override string DescriptionTag

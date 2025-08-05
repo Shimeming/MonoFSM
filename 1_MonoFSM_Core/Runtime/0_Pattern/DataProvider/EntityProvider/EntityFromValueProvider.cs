@@ -7,6 +7,7 @@ namespace MonoFSM.Core.Runtime
 {
     public class EntityFromValueProvider : AbstractEntityProvider
     {
+        public override string SuggestDeclarationName => "value:";
         public override MonoEntity monoEntity => _monoEntityProvider.Get<MonoEntity>();
 
         [ValueTypeValidate(typeof(MonoEntity))] [SerializeField] [DropDownRef]

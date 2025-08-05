@@ -16,6 +16,8 @@ namespace MonoFSMCore.Runtime.LifeCycle
         [Required] [ShowInInspector] [AutoParent]
         private IMonoObjectProvider _monoObjectProvider; //FIXME: 怪怪的，還是應該統一進入點SpawnAction就好？還有可能有別種嗎？
 
+        public override string SuggestDeclarationName =>"spawned";
+
         [PreviewInInspector]
         public override MonoEntity monoEntity
         {

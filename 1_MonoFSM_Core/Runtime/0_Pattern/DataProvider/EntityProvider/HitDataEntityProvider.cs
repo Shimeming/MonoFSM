@@ -11,8 +11,7 @@ public class HitDataEntityProvider : AbstractEntityProvider, IEntityProvider //�
 {
     //可是這裡
     [CompRef] [AutoParent] private IHitDataProvider _hitDataProvider;
-
-
+    
     public enum HitDataVariableOwner
     {
         Dealer, //rename?
@@ -55,8 +54,10 @@ public class HitDataEntityProvider : AbstractEntityProvider, IEntityProvider //�
         }
     }
 
+    public override string SuggestDeclarationName => "HitData";
 
-  
+    // public override string NickName => "HitData";
+
 
     [ShowInDebugMode] private IEffectHitData currentHitData => _hitDataProvider?.GetHitData();
     

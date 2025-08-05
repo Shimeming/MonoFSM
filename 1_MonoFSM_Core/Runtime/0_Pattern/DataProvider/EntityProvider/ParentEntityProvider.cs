@@ -17,6 +17,7 @@ namespace MonoFSM.Core.Runtime
         // [PreviewInInspector] public MonoEntity monoEntity => _monoBlackboard;
         // public MonoEntityTag entityTag => _monoBlackboard?.Tag;
         public override MonoEntity monoEntity => _parentEntity;
+        // public override string NickName => "this."
     }
     //Description應該要套娃？
 }

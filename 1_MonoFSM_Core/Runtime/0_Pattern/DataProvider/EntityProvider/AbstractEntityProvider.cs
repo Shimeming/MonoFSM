@@ -1,5 +1,6 @@
 using _1_MonoFSM_Core.Runtime.Attributes;
 using MonoFSM.Core.Attributes;
+using MonoFSM.Foundation;
 using MonoFSM.Runtime;
 using MonoFSM.Runtime.Mono;
 using Sirenix.OdinInspector;
@@ -15,7 +16,7 @@ namespace MonoFSM.Core.Runtime
     /// FIXME: 依照parent就能決定要用Dealer還是Receiver的Blackboard
     public abstract class AbstractEntityProvider : MonoBehaviour, IEntityProvider
     {
-        public virtual string SuggestDeclarationName => "";
+        public abstract string SuggestDeclarationName { get; }
 
 
         [FormerlySerializedAs("_monoEntityTag")]
@@ -35,5 +36,7 @@ namespace MonoFSM.Core.Runtime
                 return default;
             return owner.GetComponent<T>();
         }
+        
+        // public abstract string NickName { get; } 
     }
 }
