@@ -377,6 +377,9 @@ namespace CommandPalette
                     GUI.color = originalColor;
                 }
 
+                // 處理拖曳操作
+                HandleDragAndDrop(rect, asset);
+
                 // 處理滑鼠點擊
                 if (Event.current.type == EventType.MouseDown && rect.Contains(Event.current.mousePosition))
                 {
@@ -392,6 +395,53 @@ namespace CommandPalette
             }
 
             GUI.EndScrollView();
+        }
+
+        /// <summary>
+        /// 處理拖曳操作
+        /// </summary>
+        /// <param name="rect">項目的矩形區域</param>
+        /// <param name="asset">要拖曳的資源</param>
+        private void HandleDragAndDrop(Rect rect, AssetEntry asset)
+        {
+            var controlID = GUIUtility.GetControlID(FocusType.Passive, rect);
+            var eventType = Event.current.GetTypeForControl(controlID);
+
+            switch (eventType)
+            {
+                case EventType.MouseDown:
+                    if (rect.Contains(Event.current.mousePosition) && Event.current.button == 0)
+                    {
+                        // 開始拖曳準備
+                        GUIUtility.hotControl = controlID;
+                        DragAndDrop.PrepareStartDrag();
+                    }
+                    break;
+
+                case EventType.MouseDrag:
+                    if (GUIUtility.hotControl == controlID && Event.current.button == 0)
+                    {
+                        // 設置拖曳資料
+                        DragAndDrop.objectReferences = new UnityEngine.Object[] { asset.asset };
+                        DragAndDrop.paths = new string[] { asset.path };
+                        
+                        // 設置拖曳的視覺標題
+                        DragAndDrop.SetGenericData("AssetEntry", asset);
+                        DragAndDrop.StartDrag(asset.name);
+                        
+                        // 釋放控制
+                        GUIUtility.hotControl = 0;
+                        Event.current.Use();
+                    }
+                    break;
+
+                case EventType.MouseUp:
+                    if (GUIUtility.hotControl == controlID)
+                    {
+                        GUIUtility.hotControl = 0;
+                    }
+                    break;
+            }
         }
 
         private void LoadAssetsFromCache()
