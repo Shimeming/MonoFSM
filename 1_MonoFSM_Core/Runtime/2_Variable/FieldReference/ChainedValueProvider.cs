@@ -93,6 +93,7 @@ namespace MonoFSM.Variable.FieldReference
         public AbstractMonoVariable VarRaw => _variableProvider?.VarRaw;
 
         public bool IsVariableValid => _variableProvider?.IsVariableValid ?? false;
+        public Type VariableType => _variableProvider?.VariableType;
 
         /// <summary>
         /// IVariableProvider.GetValueType 實作

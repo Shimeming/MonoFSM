@@ -8,10 +8,10 @@ using UnityEngine;
 public abstract class AbstractDataFunction
 {
     //FIXME: 抽出去
-    [ShowInDebugMode] [SerializeField] private DescriptableData _owner; //這個是用來描述這個物品的擁有者
-    public DescriptableData Owner => _owner;
+    [ShowInDebugMode] [SerializeField] private GameData _owner; //這個是用來描述這個物品的擁有者
+    public GameData Owner => _owner;
 
-    public void SetOwner(DescriptableData owner)
+    public void SetOwner(GameData owner)
     {
         if (owner == null)
         {

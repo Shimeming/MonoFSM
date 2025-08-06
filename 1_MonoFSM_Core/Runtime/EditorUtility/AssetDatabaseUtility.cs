@@ -263,7 +263,7 @@ namespace MonoFSM.Core
             asset = ScriptableObject.CreateInstance(type);
             if (asset == null)
             {
-                Debug.LogError($"Failed to create ScriptableObject of type {type}");
+                Debug.LogError($"Failed to ScriptableObject.CreateInstance of type {type}");
                 return null;
             }
 

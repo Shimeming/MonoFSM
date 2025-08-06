@@ -14,6 +14,7 @@ namespace MonoFSM.VarRefOld
 
         public AbstractMonoVariable VarRaw => _providerRef?.VarRaw;
         public bool IsVariableValid => _providerRef?.IsVariableValid ?? false;
+        public Type VariableType => _providerRef?.VariableType;
         public Type GetValueType => _providerRef?.ValueType;
 
         public TVariable GetVar<TVariable>() where TVariable : AbstractMonoVariable

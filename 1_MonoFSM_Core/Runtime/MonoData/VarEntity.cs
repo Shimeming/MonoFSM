@@ -26,7 +26,7 @@ namespace MonoFSM.Runtime.Variable
         [BoxGroup("定義型別")]
         [PropertyOrder(-1)]
         [PreviewInInspector]
-        public DescriptableData SampleData 
+        public GameData SampleData 
 #if UNITY_EDITOR
             => _monoEntityTag
                 ? _monoEntityTag.SamepleData 

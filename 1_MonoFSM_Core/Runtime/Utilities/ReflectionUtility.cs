@@ -87,6 +87,18 @@ namespace MonoFSM.Core.Utilities
         /// <returns>成員型別，如果找不到則回傳 null</returns>
         public static Type GetMemberType(Type parentType, string memberName)
         {
+            return GetMemberType(parentType, memberName, null);
+        }
+        
+        /// <summary>
+        /// 取得指定型別與成員名稱的成員型別，支援動態型別推斷
+        /// </summary>
+        /// <param name="parentType">父型別</param>
+        /// <param name="memberName">成員名稱</param>
+        /// <param name="instance">實際物件實例，用於動態型別推斷</param>
+        /// <returns>成員型別，如果找不到則回傳 null</returns>
+        public static Type GetMemberType(Type parentType, string memberName, object instance)
+        {
             if (parentType == null || string.IsNullOrEmpty(memberName))
                 return null;
 
@@ -102,10 +114,29 @@ namespace MonoFSM.Core.Utilities
             if (member is PropertyInfo prop)
             {
                 memberType = prop.PropertyType;
+                
+                // 檢查是否有DynamicType attribute
+                var dynamicTypeAttr = prop.GetCustomAttribute<Attributes.DynamicTypeAttribute>();
+                if (dynamicTypeAttr != null && instance != null)
+                {
+                    Debug.Log($"動態型別：{dynamicTypeAttr.TypeProviderMethod} 來自屬性 {prop.Name}");
+                    memberType = GetDynamicMemberType(parentType, prop, dynamicTypeAttr, instance) ?? memberType;
+                }
+                else
+                {
+                    Debug.Log($"靜態型別：{memberType} 來自屬性 {prop.Name}");
+                }
             }
             else if (member is FieldInfo field)
             {
                 memberType = field.FieldType;
+                
+                // 檢查是否有DynamicType attribute
+                var dynamicTypeAttr = field.GetCustomAttribute<MonoFSM.Core.Attributes.DynamicTypeAttribute>();
+                if (dynamicTypeAttr != null && instance != null)
+                {
+                    memberType = GetDynamicMemberType(parentType, field, dynamicTypeAttr, instance) ?? memberType;
+                }
             }
             else
             {
@@ -130,6 +161,50 @@ namespace MonoFSM.Core.Utilities
             // 快取結果（即使是 null 也要快取，避免重複查找）
             MemberTypeCache[key] = memberType;
             return memberType;
+        }
+        
+        /// <summary>
+        /// 取得動態成員的實際型別
+        /// </summary>
+        private static Type GetDynamicMemberType(Type parentType, MemberInfo member, Attributes.DynamicTypeAttribute dynamicTypeAttr, object instance)
+        {
+            try
+            {
+                // 嘗試找到VarTag欄位
+                var varTagField = parentType.GetField(dynamicTypeAttr.VarTagFieldName, 
+                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                
+                if (varTagField?.FieldType == typeof(MonoFSM.Variable.VariableTag) && instance != null)
+                {
+                    // 取得實際的VarTag實例
+                    var varTag = varTagField.GetValue(instance) as MonoFSM.Variable.VariableTag;
+                    if (varTag?.ValueFilterType != null)
+                    {
+                        // 返回VarTag的RestrictType！
+                        Debug.Log($"動態型別：{varTag.ValueFilterType} 來自 VarTag {varTagField.Name}");
+                        return varTag.ValueFilterType;
+                    }
+                }
+                
+                // 嘗試透過TypeProvider方法取得動態型別
+                var typeProviderMethod = parentType.GetMethod(dynamicTypeAttr.TypeProviderMethod, 
+                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                
+                if (typeProviderMethod?.ReturnType == typeof(Type) && instance != null)
+                {
+                    var dynamicType = typeProviderMethod.Invoke(instance, null) as Type;
+                    if (dynamicType != null)
+                    {
+                        return dynamicType;
+                    }
+                }
+            }
+            catch
+            {
+                // 如果發生錯誤，回退到預設行為
+            }
+            
+            return null;
         }
 
         /// <summary>

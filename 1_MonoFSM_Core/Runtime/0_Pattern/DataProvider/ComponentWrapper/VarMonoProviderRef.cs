@@ -11,7 +11,7 @@ namespace MonoFSM.VarRefOld
     [Obsolete]
     public class VarMonoProviderRef : VariableProviderRef<VarEntity, MonoEntity> //, IVarMonoProvider
     {
-        public DescriptableData SampleData => Variable.SampleData;
+        public GameData SampleData => Variable.SampleData;
 
         public MonoBlackboard MonoBlackboard => Value;
 

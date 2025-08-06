@@ -35,43 +35,45 @@ namespace MonoFSM.Core
         private string GenerateFileName(Type configType)
         {
             var parentObject = Property.ParentValues[0];
-            var prefix = "s"; //scriptableObject 前綴
+            var propertyName = Property.Name;
+            var actualType = GetActualConfigType(configType);
+            // var typeOfValue = Property.ValueEntry.TypeOfValue; //這是用property type, 而不是實際想要的type
+            var prefix = "d"; //scriptableObject 前綴
             if (configType == typeof(VariableTag))
             {
-                // 如果是 VariableTag，使用前綴 "vt_"
-                prefix = "v_";
+                prefix = "v";
             }
             else if (configType == typeof(MonoEntityTag))
             {
-                prefix = "E_";
+                prefix = "E";
             }
 
-            var postfix = "?";
+            var postfix = actualType.Name;
             
-            if (parentObject is ScriptableObject sObj)
-            {
-                postfix = sObj.name;
-                // return $"[{configType.Name}]_{sObj.name}";
-            }
-            else if (parentObject is Component parentComp)
-            {
-                if (parentComp)
-                {
-                    var gObj = parentComp.gameObject;
-                    postfix = gObj.name;
-                    // return $"[{configType.Name}]_{gObj.name}";
-                }
-                else
-                {
-                    postfix = Property.Name;
-                    // return $"[{configType.Name}]_0_{Property.Name}";
-                }
-            }
-            else
-            {
-                postfix = Property.Name+"_Unknown";
-                // return $"[{configType.Name}]_Unknown";
-            }
+            // if (parentObject is ScriptableObject sObj)
+            // {
+            //     postfix = sObj.name;
+            //     // return $"[{configType.Name}]_{sObj.name}";
+            // }
+            // else if (parentObject is Component parentComp)
+            // {
+            //     if (parentComp)
+            //     {
+            //         var gObj = parentComp.gameObject;
+            //         postfix = gObj.name;
+            //         // return $"[{configType.Name}]_{gObj.name}";
+            //     }
+            //     else
+            //     {
+            //         postfix = Property.Name;
+            //         // return $"[{configType.Name}]_0_{Property.Name}";
+            //     }
+            // }
+            // else
+            // {
+            //     
+            //     // return $"[{configType.Name}]_Unknown";
+            // }
             return $"{prefix}_{postfix}";
         }
 
@@ -89,21 +91,51 @@ namespace MonoFSM.Core
             // 建立 ScriptableObject
             return configType.CreateScriptableObjectAt(basePath, relativePath, defaultFileName);
         }
+
+        /// <summary>
+        /// 取得要建立的實際類型（考慮VarTag的RestrictType）
+        /// </summary>
+        private Type GetActualConfigType(Type defaultConfigType)
+        {
+            if (!Attribute.UseVarTagRestrictType)
+            {
+                // Debug.Log("Using default config type: " + defaultConfigType.Name+" property:"+Property.Name);
+                return defaultConfigType;
+            }
+                
+
+            // 嘗試從父物件取得VarTag的RestrictType
+            var parentObject = Property.ParentValues[0];
+            if (parentObject is AbstractMonoVariable monoVar && monoVar._varTag != null)
+            {
+                var restrictType = monoVar._varTag.ValueFilterType;
+                if (restrictType != null && typeof(ScriptableObject).IsAssignableFrom(restrictType))
+                {
+                    // Debug.Log("Using RestrictType from VarTag: " + restrictType.Name);
+                    return restrictType;
+                }
+            }
+
+            // Debug.Log("Using default config type: " + defaultConfigType.Name+"parentObject: " + parentObject);
+            return defaultConfigType;
+        }
         private void CreateSOForSO()
         {
-            var configType = Property.ValueEntry.TypeOfValue;
-            var fileName = GenerateFileName(configType);
-            var myScriptableObject = CreateScriptableObjectWithSelectedPath(configType, fileName);
+            var defaultConfigType = Property.ValueEntry.TypeOfValue;
+            var actualConfigType = GetActualConfigType(defaultConfigType);
+            var fileName = GenerateFileName(actualConfigType);
+            var myScriptableObject = CreateScriptableObjectWithSelectedPath(actualConfigType, fileName);
 
             Property.ValueEntry.WeakSmartValue = myScriptableObject;
         }
 
         private void CreateSOForMonoBehavior()
         {
-            var configType = Property.ValueEntry.TypeOfValue;
+            var defaultConfigType = Property.ValueEntry.TypeOfValue;
+            var actualConfigType = GetActualConfigType(defaultConfigType);
             var parentComp = Property.ParentValues[0] as Component;
-            var fileName = GenerateFileName(configType);
-            var myScriptableObject = CreateScriptableObjectWithSelectedPath(configType, fileName);
+            var fileName = GenerateFileName(actualConfigType);
+            var myScriptableObject = CreateScriptableObjectWithSelectedPath(actualConfigType, fileName);
             Property.ValueEntry.WeakSmartValue = myScriptableObject;
 
             // 執行後處理方法
@@ -140,13 +172,14 @@ namespace MonoFSM.Core
         {
             // 取得 List 的元素類型
             var listType = Property.ValueEntry.TypeOfValue;
-            var elementType = listType.GetGenericArguments()[0];
+            var defaultElementType = listType.GetGenericArguments()[0];
+            var actualElementType = GetActualConfigType(defaultElementType);
 
             // 產生檔案名稱
-            var fileName = GenerateFileName(elementType);
+            var fileName = GenerateFileName(actualElementType);
 
             // 使用路徑配置建立新的 ScriptableObject
-            var newSO = CreateScriptableObjectWithSelectedPath(elementType, fileName);
+            var newSO = CreateScriptableObjectWithSelectedPath(actualElementType, fileName);
 
             // 將新建立的 ScriptableObject 加入到 List 中
             if (newSO != null)
@@ -236,8 +269,9 @@ namespace MonoFSM.Core
                 CallNextDrawer(label);
                 
                 // 取得 List 的元素類型來顯示路徑選擇器
-                var elementType = valueType.GetGenericArguments()[0];
-                DrawPathSelector(elementType);
+                var defaultElementType = valueType.GetGenericArguments()[0];
+                var actualElementType = GetActualConfigType(defaultElementType);
+                DrawPathSelector(actualElementType);
                 
                 DrawCreateButtonForList();
                 SirenixEditorGUI.EndBox();
@@ -257,8 +291,9 @@ namespace MonoFSM.Core
             CallNextDrawer(label);
             
             // 顯示路徑選擇器
-            var configType = Property.ValueEntry.TypeOfValue;
-            DrawPathSelector(configType);
+            var defaultConfigType = Property.ValueEntry.TypeOfValue;
+            var actualConfigType = GetActualConfigType(defaultConfigType);
+            DrawPathSelector(actualConfigType);
             
             // 建立按鈕
             var guiContent = new GUIContent("Create", null, "Create a new ScriptableObject for this field");

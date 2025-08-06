@@ -1,7 +1,9 @@
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
+using _1_MonoFSM_Core.Runtime.Attributes;
 using MonoFSM.Core.Attributes;
+using MonoFSM.Runtime.Attributes;
 using MonoFSM.Variable.FieldReference;
 using MonoFSM.Variable.TypeTag;
 using Sirenix.OdinInspector;
@@ -31,24 +33,32 @@ namespace MonoFSM.Variable
             _valueFilterType._bindObject = this;
         }
 
+        /// <summary>
+        /// 變數綁定的型別，通常是 MonoVariable 或其子類別
+        /// </summary>
         [ShowInInspector]
         [DisplayAsString]
         [PropertyOrder(-1)]
         [LabelText("變數綁定型別")]
         public Type VariableMonoType => _variableTypeTag?.Type ?? _variableType.RestrictType;
 
-        [FormerlySerializedAs("_variableTypeData")]
-        public AbstractTypeTag _variableTypeTag;
+        // [ShowDrawerChain]
+        [SOConfig("VarMonoTypeTags")]
+        [TypeRestrictFilter(typeof(VarMonoTypeTag))]
+        // [FormerlySerializedAs("_variableTypeData")]
+        public VarMonoTypeTag _variableTypeTag;
 
-        [FormerlySerializedAs("_valueTypeData")]
-        public AbstractTypeTag _valueTypeTag;
+        [SOConfig("objectValueTypeTags")]
+        [TypeRestrictFilter]
+        // [FormerlySerializedAs("_valueTypeData")]
+        public ValueTypeTag _valueTypeTag;
         //SystemTypeData
 
         [ShowInInspector]
         [DisplayAsString]
         [PropertyOrder(-1)]
         [LabelText("變數數值型別")]
-        public Type ValueType => _valueFilterType.RestrictType;
+        public Type ValueType => _valueTypeTag?.Type ?? _valueFilterType.RestrictType;
         //FIXME: 限定型別？
         //FIXME: 下拉式巢狀分類:
         // sampleData? sampleDescriptableTag?

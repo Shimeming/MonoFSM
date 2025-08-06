@@ -8,7 +8,7 @@ namespace MonoFSM.Runtime.FSM._3_FlagData
 {
     [Obsolete("用datafunction?")]
     [CreateAssetMenu(menuName = "RCG/ItemData")]
-    public class ItemData : DescriptableData, IItemData
+    public class ItemData : GameData, IItemData
     {
         [BoxGroup("物品")] [SerializeField] int slotStackCount = 1;
         public int MaxStackCount => slotStackCount;
@@ -54,8 +54,8 @@ namespace MonoFSM.Runtime.FSM._3_FlagData
             return instance;
         }
 
-        public DescriptableData Owner => this;
-        public void SetOwner(DescriptableData owner)
+        public GameData Owner => this;
+        public void SetOwner(GameData owner)
         {
             
         }

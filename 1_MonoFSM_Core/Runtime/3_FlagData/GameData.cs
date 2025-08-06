@@ -12,6 +12,7 @@ using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Localization;
 using MonoFSM.Runtime.Mono;
+using MonoFSM.Variable.FieldReference;
 using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -95,17 +96,18 @@ public interface IItemData:IDataFeature
 //用has來額外加功能？ ListOfDataFunction? pickableData?
 public interface IDataFeature
 {
-    DescriptableData Owner { get; }
-    void SetOwner(DescriptableData owner);
+    GameData Owner { get; }
+    void SetOwner(GameData owner);
 }
 
 
 
 [CreateAssetMenu(fileName = "Descriptable", menuName = "ScriptableObjects/Descriptable", order = 1)]
 [Searchable]
+[FormerlyNamedAs("DescriptableData")]
 public class
-    DescriptableData : GameFlagBase, IDescriptableData, IMonoDescriptable,
-    ISceneSavingCallbackReceiver //以前是GameFlagDescriptable
+    GameData : GameFlagBase, IDescriptableData, IMonoDescriptable,
+    ISceneSavingCallbackReceiver
 {
     [FormerlySerializedAs("descriptableTag")]
     public MonoEntityTag _entityTag;
@@ -230,7 +232,7 @@ public class
         return dropdownList;
     }
 
-    public static ValueDropdownList<string> GetProperties(List<Type> supportedTypes, DescriptableData sampleData)
+    public static ValueDropdownList<string> GetProperties(List<Type> supportedTypes, GameData sampleData)
     {
         // AppDomain.CurrentDomain.GetAssemblies().
         var type = sampleData.GetType();
@@ -251,7 +253,7 @@ public class
 
 #if UNITY_EDITOR
     [ShowInInspector] [BoxGroup("CopyFrom")]
-    private DescriptableData toCopySource;
+    private GameData toCopySource;
 
     [BoxGroup("CopyFrom")]
     [Button]

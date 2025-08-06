@@ -82,7 +82,7 @@ namespace MonoFSM.Core.Editor
             }
 
             // 顯示標題
-            EditorGUILayout.LabelField("欄位路徑 (A.B.C 風格)", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Property Path", EditorStyles.boldLabel);
 
             // 顯示當前路徑
             // var currentPath = BuildPathString(pathEntries);
@@ -160,6 +160,7 @@ namespace MonoFSM.Core.Editor
         protected List<FieldPathEntry> DrawPathSegments(List<FieldPathEntry> currentEntries, Type rootType, PropertyOfTypeProvider target)
         {
             var currentType = rootType;
+            // Debug.Log("Current Root Type: " + (currentType != null ? currentType.FullName : "null"));
             const int maxSegments = 6; // 最多6個層級
 
             for (var i = 0; i < maxSegments && i < currentEntries.Count; i++)
@@ -210,6 +211,7 @@ namespace MonoFSM.Core.Editor
                 if (!string.IsNullOrEmpty(currentPropertyName) && isPropertyValid)
                 {
                     var memberType = GetMemberType(currentType, currentPropertyName);
+                    // Debug.Log("Member Type: " + (memberType != null ? memberType.FullName : "null"));
                     if (memberType != null && memberType.IsArray)
                     {
                         // 顯示陣列索引輸入
@@ -404,7 +406,7 @@ namespace MonoFSM.Core.Editor
         /// <summary>
         /// 獲取成員的型別（使用統一的 ReflectionUtility）
         /// </summary>
-        protected Type GetMemberType(Type type, string memberName)
+        protected virtual Type GetMemberType(Type type, string memberName)
         {
             if (type == null || string.IsNullOrEmpty(memberName))
                 return null;

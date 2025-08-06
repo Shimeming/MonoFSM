@@ -2,6 +2,7 @@ using System;
 
 namespace MonoFSM.Runtime.Attributes
 {
+    [Obsolete]
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public class DropDownAssetAttribute:Attribute
     {

@@ -58,7 +58,7 @@ namespace MonoFSM.Variable
 
         //FIXME: 繼承時想要加更多attribute
         // [Header("預設值")] [HideIf(nameof(_siblingDefaultValue))]
-        [SOConfig("10_Flags/GameData")] //痾，只有SO類才需要ㄅ
+        [SOConfig("10_Flags/GameData", useVarTagRestrictType: true)] //痾，只有SO類才需要ㄅ
         [SerializeField] protected TValueType _defaultValue;
 
 
@@ -69,8 +69,12 @@ namespace MonoFSM.Variable
         }
         // _siblingDefaultValue != null ? _siblingDefaultValue : _defaultValue;
 
+        /// <summary>
+        /// 保持原有的強型別Value屬性，但使用動態轉型
+        /// </summary>
         [PreviewInDebugMode]
-        public TValueType Value
+        [DynamicType] // 標示此屬性的型別會根據VarTag動態決定
+        public TValueType Value //動態？ varTag的RestrictType 才決定型別？
         {
             get
             {

@@ -99,7 +99,7 @@ namespace MonoFSM.Variable.FieldReference
             if (type != null) return type;
 
             // 2. 搜尋所有已載入的 Assembly 中的型別
-
+            Debug.Log("Searching for former type: " + currentName);
             var formerNameTypes = TypeCache.GetTypesWithAttribute<FormerlyNamedAsAttribute>();
             foreach (var formerType in formerNameTypes)
             {
@@ -108,7 +108,7 @@ namespace MonoFSM.Variable.FieldReference
 
                 foreach (var attr in formerNameAttrs)
                 {
-                    Debug.Log("Checking former name: " + attr.FormerName + " for searchName: " + currentName);
+                    // Debug.Log("Checking former name: " + attr.FormerName + " for searchName: " + currentName);
                     if (currentName.Contains(attr.FormerName) ||
                         currentName.Contains($"{formerType.Namespace}.{attr.FormerName}"))
                     {

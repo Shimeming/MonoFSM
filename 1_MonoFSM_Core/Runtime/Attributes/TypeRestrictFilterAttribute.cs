@@ -34,6 +34,8 @@ namespace _1_MonoFSM_Core.Runtime.Attributes
         {
         }
         
+        //FIXME: better AssetPicker?
+        
         /// <summary>
         /// 構造函數
         /// </summary>
@@ -67,17 +69,17 @@ namespace _1_MonoFSM_Core.Runtime.Attributes
         /// </summary>
         public string GetAssetSearchFilter(Type propertyType)
         {
-            if (propertyType == typeof(VariableTag))
-                return "t:VariableTag";
-            if (propertyType == typeof(MonoEntityTag))
-                return "t:MonoEntityTag";
-
-            // 通用處理：對於任何 ScriptableObject，搜尋所有 ScriptableObject
-            if (typeof(ScriptableObject).IsAssignableFrom(propertyType))
-                return "t:ScriptableObject";
+            // if (propertyType == typeof(VariableTag))
+            //     return "t:VariableTag";
+            // if (propertyType == typeof(MonoEntityTag))
+            //     return "t:MonoEntityTag";
+            //
+            // // 通用處理：對於任何 ScriptableObject，搜尋所有 ScriptableObject
+            // if (typeof(ScriptableObject).IsAssignableFrom(propertyType))
+            //     return "t:ScriptableObject";
             
             // 通用處理：嘗試從類型名稱推斷
-            return $"t:{propertyType.Name}";
+            return $"t:{propertyType.Name}"; //為什麼不這樣做？
         }
     }
     

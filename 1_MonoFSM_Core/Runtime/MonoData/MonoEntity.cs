@@ -27,7 +27,7 @@ namespace MonoFSM.Runtime
     
     [Searchable]
     [FormerlyNamedAs("MonoDescriptable")]
-    public class MonoEntity : AbstractMonoDescriptable<DescriptableData>, IInstantiated,
+    public class MonoEntity : AbstractMonoDescriptable<GameData>, IInstantiated,
         IBeforePrefabSaveCallbackReceiver, IGameDataProvider, IValueProvider //這樣data也要一直繼承，好ㄇ...
     {
         //Utility? 開始要拿一些Rigidbody、Collider之類的東西了
@@ -53,7 +53,7 @@ namespace MonoFSM.Runtime
             FillVarTagsToMonoDescriptableTag();
         }
 
-        public DescriptableData GameData => Data;
+        public GameData GameData => Data;
 
         public T1 Get<T1>()
         {
@@ -73,7 +73,7 @@ namespace MonoFSM.Runtime
     //不該有variable嗎？
     //FIXME: 這層多餘嗎？
     public class AbstractMonoDescriptable<TMonoDescriptable> : MonoBlackboard, IMonoDescriptable, ISceneAwake
-        where TMonoDescriptable : DescriptableData //,IVariableOwner //VariableOwner?
+        where TMonoDescriptable : GameData //,IVariableOwner //VariableOwner?
     {
         
         
@@ -155,7 +155,7 @@ namespace MonoFSM.Runtime
 
         public virtual IDescriptableData Descriptable => data;
 
-        public T GetData<T>() where T : DescriptableData
+        public T GetData<T>() where T : GameData
         {
             return data as T;
         }

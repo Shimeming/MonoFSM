@@ -71,7 +71,7 @@ public class GameFlagCollection : MonoSOConfig, ISelfValidator //要改成MonoSO
     {
         foreach (var flag in Flags)
         {
-            if (flag is DescriptableData descriptable)
+            if (flag is GameData descriptable)
             {
                 // var descriptable = flag as GameFlagDescriptable;
                 // descriptable.UpgradeSpriteToAddressable();

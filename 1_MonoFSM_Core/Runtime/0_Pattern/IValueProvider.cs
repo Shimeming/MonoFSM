@@ -3,11 +3,8 @@ using UnityEngine;
 
 namespace MonoFSM.Core
 {
-    //IReferenceProvider?
     public interface IValueProvider
     {
-        //FIXME: 這個有點討厭...
-        // object GetValue { get; } //無法避免boxing, 不該存在？
         public object ValueRaw => Get<object>();
 
         public bool IsValueExist

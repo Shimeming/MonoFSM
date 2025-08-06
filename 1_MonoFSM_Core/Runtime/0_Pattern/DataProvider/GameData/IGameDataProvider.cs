@@ -9,7 +9,7 @@ namespace MonoFSM.Core.DataProvider
     public interface IGameDataProvider //
     {
         // public DescriptableData GetGameData();
-        public DescriptableData GameData { get; }
+        public GameData GameData { get; }
     }
 
     // [Serializable]
@@ -52,8 +52,8 @@ namespace MonoFSM.Core.DataProvider
     [System.Serializable]
     public class GameDataProviderFromTable : IGameDataProvider
     {
-        IRandomGenerator<DescriptableData> randomGenerator;
+        IRandomGenerator<GameData> randomGenerator;
 
-        public DescriptableData GameData => randomGenerator.GetRandom();
+        public GameData GameData => randomGenerator.GetRandom();
     }
 }

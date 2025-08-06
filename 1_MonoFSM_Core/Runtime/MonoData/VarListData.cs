@@ -3,8 +3,8 @@ using MonoFSM.Core.Variable;
 
 namespace _1_MonoFSM_Core.Runtime.MonoData
 {
-    public class VarListData : VarList<DescriptableData>, IGameDataProvider
+    public class VarListData : VarList<GameData>, IGameDataProvider
     {
-        public DescriptableData GameData => CurrentListItem;
+        public GameData GameData => CurrentListItem;
     }
 }

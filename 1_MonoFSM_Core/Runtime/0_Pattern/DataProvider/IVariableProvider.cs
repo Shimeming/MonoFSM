@@ -12,7 +12,7 @@ namespace MonoFSM.Core.DataProvider
     public interface IVarMonoProvider //IVarMonoProvider
     {
         VarEntity Variable { get; }
-        DescriptableData SampleData { get; }
+        GameData SampleData { get; }
         MonoEntity Value => Variable?.Value;
     }
 
@@ -296,6 +296,12 @@ namespace MonoFSM.Core.DataProvider
         AbstractMonoVariable VarRaw { get; } //還是其實這個也可以？
 
         public bool IsVariableValid { get; } //這個是null就不行了
+        
+        /// <summary>
+        /// 取得變數本身的型別（例如：VarFloat, VarInt 等）
+        /// </summary>
+        public Type VariableType { get; }
+        
         // Type GetValueType { get; }
 
         TVariable GetVar<TVariable>() where TVariable : AbstractMonoVariable;

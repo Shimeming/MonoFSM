@@ -6,8 +6,8 @@ namespace MonoFSM.VarRefOld
     /// <summary>
     /// 可以拿到一個VarGameData的MonoBehaviour
     /// </summary>
-    public class VarDescriptableDataRef : VariableProviderRef<VarDescriptableData, DescriptableData>, IGameDataProvider
+    public class VarDescriptableDataRef : VariableProviderRef<VarGameData, GameData>, IGameDataProvider
     {
-        public DescriptableData GameData => Value;
+        public GameData GameData => Value;
     }
 }

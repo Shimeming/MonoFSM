@@ -29,7 +29,7 @@ namespace MonoFSM.Runtime.Mono
         }
        
         
-        public MySerializedType<DescriptableData> DataType;
+        public MySerializedType<GameData> DataType;
 
         public IEnumerable<ValueDropdownItem<VariableTag>> GetVariableTagItems()
         {
@@ -56,14 +56,14 @@ namespace MonoFSM.Runtime.Mono
 
         // [AssetList(CustomFilterMethod = nameof(TypeFilter))]
 #if UNITY_EDITOR
-        IEnumerable<DescriptableData> GetDescriptableData()
+        IEnumerable<GameData> GetDescriptableData()
         {
             return AssetDatabase.FindAssets(SampleDataFilter).Select(AssetDatabase.GUIDToAssetPath)
-                .Select(AssetDatabase.LoadAssetAtPath<DescriptableData>);
+                .Select(AssetDatabase.LoadAssetAtPath<GameData>);
         }
 
         [ValueDropdown(nameof(GetDescriptableData))]
-        public DescriptableData SamepleData; //FIXME: 需要嗎？
+        public GameData SamepleData; //FIXME: 需要嗎？
 #endif
 
 

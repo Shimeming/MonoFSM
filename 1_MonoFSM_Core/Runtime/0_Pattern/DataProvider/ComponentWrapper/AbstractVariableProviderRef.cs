@@ -152,6 +152,7 @@ namespace MonoFSM.Core.DataProvider
         // public abstract Type GetValueType { get; }
 
         public bool IsVariableValid => varTag != null;
+        public Type VariableType => varTag?.VariableMonoType;
         public abstract VariableTag varTag { get; }
         public abstract TVariable GetVar<TVariable>() where TVariable : AbstractMonoVariable;
 

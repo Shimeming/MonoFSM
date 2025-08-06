@@ -5,9 +5,9 @@ using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEngine;
 
-public abstract class GameFlagBaseCollection<T> : AbstractGameFlagCollection where T : DescriptableData
+public abstract class GameFlagBaseCollection<T> : AbstractGameFlagCollection where T : GameData
 {
-    protected virtual bool isValidLastSavedFlag(DescriptableData f)
+    protected virtual bool isValidLastSavedFlag(GameData f)
     {
         return true;
     }
@@ -36,8 +36,8 @@ public abstract class GameFlagBaseCollection<T> : AbstractGameFlagCollection whe
     
 
     // public GameFlagInt indexFlag; //要存可以用這個
-    public override List<DescriptableData> rawCollection => gameFlagDataList.ToList<DescriptableData>();
-    public override DescriptableData currentItem => gameFlagDataList[currentIndex];
+    public override List<GameData> rawCollection => gameFlagDataList.ToList<GameData>();
+    public override GameData currentItem => gameFlagDataList[currentIndex];
 
 
     protected virtual bool FlagBelongThisCollection(T t)//用一些條件去篩掉特定flag, 例如要做百科分類
@@ -103,7 +103,7 @@ public abstract class GameFlagBaseCollection<T> : AbstractGameFlagCollection whe
     protected FlagFieldString serializedLastSaveID; //存檔點最後一個碰到的
 
 //用這個寫出去
-    public void SetLastSaveItem(DescriptableData item)
+    public void SetLastSaveItem(GameData item)
     {
         
         if (item == null)
@@ -132,7 +132,7 @@ public abstract class GameFlagBaseCollection<T> : AbstractGameFlagCollection whe
 
     [TabGroup("lastSaveItem")]
     [ShowInInspector]
-    public DescriptableData lastSaveItem => isLastSaveIndexValid ? rawCollection[LastSaveIndex] : null;
+    public GameData lastSaveItem => isLastSaveIndexValid ? rawCollection[LastSaveIndex] : null;
 
     private void BuildSaveIDToIndex() //從SaveID對回index的對照表
     {

@@ -129,9 +129,12 @@ namespace MonoFSM.Core.DataProvider
         {
             get
             {
+                if(!_declarationName.IsNullOrWhitespace())
+                    return _declarationName;
                 if (entityProvider?.SuggestDeclarationName != null) return entityProvider?.SuggestDeclarationName;
                 // Debug.Log($"VarRef: Using entityProvider declaration name: {_declarationName}", this);
                 return _declarationName;
+
             }
         }
 
@@ -144,7 +147,7 @@ namespace MonoFSM.Core.DataProvider
                 {
                     // Debug.Log($"VarRef: Using declaration name: {DeclarationName}", this);
                     stringBuilder.Append(DeclarationName);
-                    stringBuilder.Append(": ");
+                    stringBuilder.Append(".");
                 }
 
                 // var text = PropertyPath;
@@ -156,7 +159,7 @@ namespace MonoFSM.Core.DataProvider
                 {
                     // stringBuilder.Append(entityProvider.GetType());
                     // Debug.Log($"VarRef: EntityProvider found: {entityProvider.entityTag}", this);
-                    stringBuilder.Append(entityProvider.entityTag.name);
+                    stringBuilder.Append(entityProvider.entityTag.name.Split("_")[^1]);
                 }
                     
                 // stringBuilder.Append('.');
@@ -164,14 +167,17 @@ namespace MonoFSM.Core.DataProvider
                 {
                     if (stringBuilder.Length > 0)
                         stringBuilder.Append('.');
-                    stringBuilder.Append(varTag.name);
+                    stringBuilder.Append(varTag.name.Split("_")[^1]);
                     // stringBuilder.Append('.');
                 }
 
                 if (stringBuilder.Length > 0 && HasFieldPath)
                     stringBuilder.Append('.');
                 stringBuilder.Append(PropertyPath);
-                return stringBuilder.ToString();
+                var final = stringBuilder.ToString();
+                //把final裡的_都拿掉
+                // final = final.Replace("_", " ");
+                return final;
             }
             
         }
@@ -184,7 +190,7 @@ namespace MonoFSM.Core.DataProvider
                 ? lastPathEntryType
                 : GetTarget()?.ValueType ??
                   varTag?.ValueType ?? entityProvider?.entityTag?.RestrictType ?? typeof(MonoEntity);
-
+        //選了VarRaw.Value後反而變成原本的type...這樣外面就沒有提示了
 
         private IValueProvider GetTarget()
         {
@@ -207,7 +213,7 @@ namespace MonoFSM.Core.DataProvider
             {
                 //varType (tag
                 if (_varTag != null)
-                    return _varTag.VariableMonoType;
+                    return _varTag.VariableMonoType; //hmm少 var value type...
                 //entityType (tag)
                 if (entityProvider != null)
                     return entityProvider.entityTag?._entityType?.RestrictType ?? typeof(MonoEntity);
@@ -282,7 +288,8 @@ namespace MonoFSM.Core.DataProvider
         public string IconName => "Linked@2x";
         public bool IsDrawingIcon => true;
         public Texture2D CustomIcon => null;
-        public string ValueInfo => $"{ValueType.Name} {DeclarationName}"; //一play會call這個...
+        public string ValueInfo => $"{DeclarationName}"; //一play會call這個...
+        // public string ValueInfo => $"{ValueType.Name} {DeclarationName}"; //一play會call這個...
         public bool IsDrawingValueInfo => true;
 
         protected override string DescriptionTag

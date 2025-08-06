@@ -1,14 +1,11 @@
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Runtime._0_Pattern.DataProvider.ComponentWrapper;
 using MonoFSM.Core.Runtime.Action;
-using MonoFSM.DataProvider;
-using MonoFSM.Core.DataProvider;
 using MonoFSM.Variable;
 using MonoFSM.Variable.Attributes;
 using MonoFSM.VarRefOld;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace MonoFSM.Runtime.Interact.EffectHit.Resolver.ApplyEffect
 {

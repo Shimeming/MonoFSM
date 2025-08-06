@@ -33,7 +33,29 @@ namespace MonoFSM.Core.DataProvider
         IVariableProvider, IValueProvider<TValueType> //, IStringProvider,IValueProvider<TValueType>
         where TVarMonoType : AbstractMonoVariable
     {
-        public override Type GetObjectType => typeof(TVarMonoType);
+        public override Type GetObjectType 
+        {
+            get
+            {
+                // 對於支援動態型別的變數，返回其ValueType而非固定的變數型別
+                if (VarRaw != null && HasDynamicValueType(VarRaw))
+                {
+                    return VarRaw.ValueType;
+                }
+                
+                return typeof(TVarMonoType);
+            }
+        }
+        
+        /// <summary>
+        /// 檢查變數是否支援動態型別（目前僅VarGameData）
+        /// </summary>
+        private bool HasDynamicValueType(AbstractMonoVariable variable)
+        {
+            // 檢查是否為VarGameData或其他支援動態型別的變數
+            return variable.GetType().Name.Contains("VarGameData") && 
+                   variable._varTag?.ValueFilterType != null;
+        }
 
         [OnValueChanged(nameof(OnVarOwnerChange))]
         [TabGroup("Owner Setting")] public GetFromType _getFromType = GetFromType.ParentVarOwner;
@@ -79,7 +101,12 @@ namespace MonoFSM.Core.DataProvider
         [ValueDropdown(nameof(GetParentVariableTags), NumberOfItemsBeforeEnablingSearch = 5)]
         private VariableTag DropDownVarTag
         {
-            set => _varTag = value;
+            set 
+            { 
+                _varTag = value;
+                // 當變數標籤改變時，重新更新路徑條目的型別
+                OnPathEntriesChanged();
+            }
             get => _varTag;
         }
 

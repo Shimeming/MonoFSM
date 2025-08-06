@@ -7,9 +7,9 @@ using UnityEngine;
 using UnityEngine.Serialization;
 
 //主角有多個這個東西，可以選一個用
-public class MultipleChooseOneCollection<T> : GameFlagBaseCollection<T>, ICollection where T : DescriptableData, IToggleable
+public class MultipleChooseOneCollection<T> : GameFlagBaseCollection<T>, ICollection where T : GameData, IToggleable
 {
-    public override DescriptableData currentItem => current;
+    public override GameData currentItem => current;
 
     // _current = gameFlagDataList[CurrentIndex];
     // return gameFlagDataList[CurrentIndex];
@@ -161,7 +161,7 @@ public class MultipleChooseOneCollection<T> : GameFlagBaseCollection<T>, ICollec
 
     public virtual void SetCurrent(T data)
     {
-        SetCurrent(data as DescriptableData);
+        SetCurrent(data as GameData);
     }
     [Button("InspectorSetCurrent")]
     public void InspectorSetCurrent()
@@ -170,7 +170,7 @@ public class MultipleChooseOneCollection<T> : GameFlagBaseCollection<T>, ICollec
     }
 
 
-    public sealed override void SetCurrent(DescriptableData data)//選擇
+    public sealed override void SetCurrent(GameData data)//選擇
     {
         //這個有點多餘？
         if (_lastItem)

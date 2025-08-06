@@ -72,7 +72,8 @@ namespace MonoFSM.Core.Editor
             }
 
             // 繪製帶過濾功能的選擇器
-            DrawFilteredSelector(label, currentValue);
+            var objValue = Property.ValueEntry.WeakSmartValue as Object;
+            DrawFilteredSelector(label, objValue);
             GUI.backgroundColor = Property.ValueEntry.WeakSmartValue == null
                 ? new Color(0.2f, 0.2f, 0.3f, 0.1f)
                 : new Color(0.35f, 0.3f, 0.1f, 0.2f);
@@ -88,11 +89,14 @@ namespace MonoFSM.Core.Editor
             GUI.backgroundColor = Color.white;
         }
 
-        private void DrawFilteredSelector(GUIContent label, object currentValue)
+        private void DrawFilteredSelector(GUIContent label, Object currentValue)
         {
             // 繪製按鈕來開啟選擇器
             var buttonText = "None";
-            if (currentValue is ScriptableObject scriptableObj) buttonText = scriptableObj.name;
+            
+            //刪掉就會missing...
+            if (currentValue != null && currentValue is ScriptableObject scriptableObj)
+             buttonText = scriptableObj.name;
 
             using (new GUILayout.HorizontalScope())
             {
@@ -171,11 +175,26 @@ namespace MonoFSM.Core.Editor
 
         private IEnumerable<ScriptableObject> GetFilteredOptions()
         {
-            // 根據 Property Type 搜尋對應的 assets 並過濾
-            return AssetDatabase.FindAssets(_filterAttribute.GetAssetSearchFilter(_propertyType))
-                .Select(AssetDatabase.GUIDToAssetPath)
-                .Select(AssetDatabase.LoadAssetAtPath<ScriptableObject>)
-                .Where(asset => asset != null && ValidateAsset(asset));
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            var searchFilter = _filterAttribute.GetAssetSearchFilter(_propertyType);
+            
+            var guids = AssetDatabase.FindAssets(searchFilter);
+            var results = new List<ScriptableObject>(guids.Length);
+            Debug.Log("[TypeRestrictFilteredSelector] GetFilteredOptions: Found " + guids.Length +
+                      " assets matching filter: " + _filterAttribute.GetAssetSearchFilter(_propertyType));
+            for (int i = 0; i < guids.Length; i++)
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guids[i]);
+                //FIXME: 不該load? 這樣有點貴
+                var asset = AssetDatabase.LoadAssetAtPath<ScriptableObject>(path);
+                if (asset != null && ValidateAsset(asset))
+                {
+                    results.Add(asset);
+                }
+            }
+            sw.Stop();
+            Debug.Log($"[TypeRestrictFilteredSelector] GetFilteredOptions: Found {results.Count} valid assets in {sw.ElapsedMilliseconds} ms.");
+            return results;
         }
 
         private bool ValidateAsset(ScriptableObject asset)

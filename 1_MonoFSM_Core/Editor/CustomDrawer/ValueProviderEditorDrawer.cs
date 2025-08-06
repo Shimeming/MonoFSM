@@ -91,9 +91,11 @@ namespace MonoFSM.Core.Editor
             
             // public override void OnInspectorGUI()
             // {
+            
             // base.OnInspectorGUI();
-            var target = (ValueProvider)serializedObject.targetObject;
-            if (target == null)
+            // var targetProvider = (ValueProvider)serializedObject.targetObject;
+            var targetProvider = (ValueProvider)target;
+            if (targetProvider == null)
             {
                 EditorGUILayout.HelpBox("目標物件為空，無法繪製編輯器。", MessageType.Warning);
                 return;
@@ -108,17 +110,17 @@ namespace MonoFSM.Core.Editor
             // }
 
 
-            target._declarationName =
-                SirenixEditorFields.TextField("宣告名稱", target._declarationName, GUILayout.Height(20));
+            targetProvider._declarationName =
+                SirenixEditorFields.TextField("宣告名稱", targetProvider._declarationName, GUILayout.Height(20));
             SirenixEditorGUI.BeginBox();
 
             // 繪製UseSimplePathEditor勾選框
-            var useSimpleEditor = GetUseSimplePathEditor(target);
+            var useSimpleEditor = GetUseSimplePathEditor(targetProvider);
 
 
             if (useSimpleEditor)
             {
-                DrawSimplifiedEditor(target);
+                DrawSimplifiedEditor(targetProvider);
             }
             else
             {
@@ -226,11 +228,11 @@ namespace MonoFSM.Core.Editor
             EditorGUILayout.Space(5);
 
             // 只有在有varTag欄位時才顯示varTag選擇器
-            if (HasVarTagField(target))
-            {
+            // if (HasVarTagField(target))
+            // {
                 DrawVarTagSelector(target);
-                EditorGUILayout.Space(5);
-            }
+                // EditorGUILayout.Space(5);
+            // }
 
             EditorGUILayout.Space(5);
 
@@ -297,18 +299,20 @@ namespace MonoFSM.Core.Editor
         /// <summary>
         /// 設定VariableTag（確保與 ValueProvider 同步）
         /// </summary>
-        private void SetVarTag(PropertyOfTypeProvider target, VariableTag varTag)
+        private void SetVarTag(ValueProvider targetProvider, VariableTag varTag)
         {
             // 直接設定私有欄位，這會影響到 varTag 屬性
-            var field = target.GetType().GetField("_varTag",
-                BindingFlags.NonPublic | BindingFlags.Instance);
-            field?.SetValue(target, varTag);
+            // var field = targetProvider.GetType().GetField("_varTag",
+            //     BindingFlags.NonPublic | BindingFlags.Instance);
+            // field?.SetValue(targetProvider, varTag);
             
             // 如果是 ValueProvider，確保 DropDownVarTag 屬性也同步
-            if (target is ValueProvider valueProvider)
+            // if (targetProvider is ValueProvider valueProvider)
             {
+                targetProvider.DropDownVarTag = varTag;
                 // DropDownVarTag 的 setter 會設定 _varTag，所以這裡不需要額外處理
                 // 因為我們已經直接設定了 _varTag 欄位
+                
             }
         }
 
@@ -442,21 +446,22 @@ namespace MonoFSM.Core.Editor
         /// <summary>
         /// 檢查目標物件是否有varTag欄位
         /// </summary>
-        private bool HasVarTagField(PropertyOfTypeProvider target)
+        private bool HasVarTagField(ValueProvider targetProvider)
         {
-            var field = target.GetType().GetField("_varTag",
-                BindingFlags.NonPublic | BindingFlags.Instance);
-            return field != null;
+            // var field = target.GetType().GetField("_varTag",
+            //     BindingFlags.NonPublic | BindingFlags.Instance);
+            
+            return targetProvider.DropDownVarTag != null;
         }
 
         /// <summary>
         /// 顯示GetObjectType資訊
         /// </summary>
-        private void DrawRootObjectInfo(ValueProvider target)
+        private void DrawRootObjectInfo(ValueProvider targetProvider)
         {
             EditorGUILayout.LabelField("起始型別資訊", EditorStyles.boldLabel);
 
-            var objectType = target.GetObjectType;
+            var objectType = targetProvider.GetObjectType;
             var displayInfo = "未知型別";
 
             // 顯示GetObjectType的型別資訊
@@ -465,9 +470,9 @@ namespace MonoFSM.Core.Editor
                 // Debug.Log($"GetObjectType: {objectType?.Name ?? "null"}");
                 if (objectType != null)
                 {
-                    if (HasVarTagField(target))
+                    if (HasVarTagField(targetProvider))
                     {
-                        var varTag = GetVarTag(target);
+                        var varTag = GetVarTag(targetProvider);
                         if (varTag != null)
                         {
                             // 有選擇varTag時，顯示變數資訊
@@ -476,7 +481,7 @@ namespace MonoFSM.Core.Editor
                         else
                         {
                             // 沒有選擇varTag時，顯示Entity型別
-                            var entityName = target.fromEntity;
+                            var entityName = targetProvider.fromEntity;
                             displayInfo = entityName != null
                                 ? $"{entityName} (型別: {objectType.Name})"
                                 : $"Entity (型別: {objectType.Name})";
@@ -532,31 +537,25 @@ namespace MonoFSM.Core.Editor
         }
 
         /// <summary>
-        /// 獲取Entity名稱
+        /// Override GetMemberType to support dynamic types based on VarTag
         /// </summary>
-        // private string GetEntityName(PropertyOfTypeProvider target)
-        // {
-        //     try
-        //     {
-        //         //FIXME: 需要這個嗎？
-        //         // 嘗試從其他可能的欄位獲取
-        //         var entityProviderField = target.GetType().GetField("_monoEntityProvider",
-        //             BindingFlags.NonPublic | BindingFlags.Instance);
-        //         var entityProvider = entityProviderField?.GetValue(target);
-        //         if (entityProvider != null) return entityProvider.GetType().Name;
-        //
-        //         // 嘗試從ParentEntity獲取名稱
-        //         var parentEntityField = target.GetType().GetField("_parentEntity",
-        //             BindingFlags.NonPublic | BindingFlags.Instance);
-        //
-        //         if (parentEntityField?.GetValue(target) is MonoBehaviour parentEntity) return parentEntity.name;
-        //
-        //         return null;
-        //     }
-        //     catch
-        //     {
-        //         return null;
-        //     }
-        // }
+        protected override Type GetMemberType(Type type, string memberName)
+        {
+            // 對於VarGameData的Value屬性，使用動態型別推斷
+            if (memberName == "Value" && type.Name.Contains("VarGameData"))
+            {
+                var target = (ValueProvider)serializedObject.targetObject;
+                var varTag = target?.varTag;
+                
+                if (varTag?.ValueFilterType != null)
+                {
+                    // Debug.Log($"動態型別推斷成功：{type.Name}.{memberName} -> {varTag.ValueFilterType.Name}");
+                    return varTag.ValueFilterType; // 返回FoodData而不是GameData！
+                }
+            }
+            
+            // 使用父類的預設實現
+            return base.GetMemberType(type, memberName);
+        }
     }
 }

@@ -45,7 +45,7 @@ namespace UIValueBinder
 
         // [ShowIf(nameof(sourceType),SourceType.MonoTag)]
         [Required] //FIXME: 一定要有sampleData才能選property?
-        public DescriptableData SampleItemData;
+        public GameData SampleItemData;
         //從上面怎麼灌到？
         //怎麼DI綁這個？
 

@@ -211,6 +211,7 @@ namespace MonoFSM.Variable
             if (!string.IsNullOrEmpty(typeName))
             {
                 var type = RefactorSafeNameResolver.FindTypeByCurrentOrFormerName(typeName, _assemblyName);
+                // Debug.Log($"RefactorSafeNameResolver 查找型別 '{typeName}' 結果：{type?.FullName ?? "未找到"}", _bindObject);
                 if (type != null)
                 {
                     // 同步 MetadataToken 資訊（保留向後相容性）
@@ -221,7 +222,7 @@ namespace MonoFSM.Variable
             }
             
             // 最終回退：直接用名稱查找
-            Debug.LogError($"RefactorSafeNameResolver 無法找到型別 '{typeName}'");
+            Debug.LogError($"RefactorSafeNameResolver 無法找到型別 '{typeName}'",_bindObject);
             // Debug.LogWarning($"使用 RefactorSafeNameResolver 和 MetadataToken 都失敗，回退到標準名稱查找: {typeName}");
             return null;
         }
