@@ -28,7 +28,7 @@ namespace MonoFSM.Runtime
     [Searchable]
     [FormerlyNamedAs("MonoDescriptable")]
     public class MonoEntity : AbstractMonoDescriptable<GameData>, IInstantiated,
-        IBeforePrefabSaveCallbackReceiver, IGameDataProvider, IValueProvider //這樣data也要一直繼承，好ㄇ...
+        IBeforePrefabSaveCallbackReceiver, IGameDataProvider, IValueProvider, IAnimatorProvider //這樣data也要一直繼承，好ㄇ...
     {
         //Utility? 開始要拿一些Rigidbody、Collider之類的東西了
         public Rigidbody DefaultRigidbody => GetComponent<Rigidbody>(); //FIXME: 位置對嗎？
@@ -65,6 +65,9 @@ namespace MonoFSM.Runtime
 
         public Type ValueType => GetType();
         public string Description { get; }
+        public Animator ChildAnimator => GetComponentInChildren<Animator>();
+
+        public Animator[] ChildAnimators => GetComponentsInChildren<Animator>();
     }
 
     //描述物件的monoNode, Entity? MonoEntity?
