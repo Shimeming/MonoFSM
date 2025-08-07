@@ -29,7 +29,7 @@ namespace MonoFSM.Animation
         ISceneSavingCallbackReceiver, ISelfValidator, ISerializableComponent, ITransitionCheckInvoker, IRenderAction,
         IOverrideHierarchyIcon
     {
-        public override string Description => " " + animator.gameObject.name + ": " + StateName;
+        public override string Description => animator ? " " + animator.gameObject.name + ": " + StateName : "NO ANIMATOR";
         protected override string DescriptionTag => "Anim";
 
         protected override void Awake()
