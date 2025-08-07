@@ -14,6 +14,7 @@ namespace MonoFSM.Core.DataType.Vector
             global
         }
 
+        [Tooltip("Determines whether the vector operates in a global or local coordinate system. If the space is set to local, when the value is retrieved, it will be transformed to global space.")]
         public VectorSpace vectorSpace = VectorSpace.global;
 
         public Vector3 GetValue() //
