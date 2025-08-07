@@ -131,6 +131,7 @@ public class PlayerStartSpawnPoint : MonoBehaviour, IBeforeBuildProcess,IActionP
         }
     }
 
+    [Required]
     [CompRef] [Auto] private IRaycastProcessor _raycastProcessor;
     public void EventReceived(Vector3 arg)
     {
