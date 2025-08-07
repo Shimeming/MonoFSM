@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-public interface ICollection
+public interface IDataCollection
 {
     GameData currentItem { get; }
     List<GameData> rawCollection { get; }

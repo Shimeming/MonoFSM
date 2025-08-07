@@ -11,11 +11,11 @@ using UnityToolbarExtender;
 
 public class AnimationClipSearchWindow : OdinEditorWindow, IToolbarWindow
 {
-    [MenuItem("Window/赤燭RCG/AnimationClipSearchWindow")]
-    public static void ShowCustomWindow()
-    {
-        GetWindow<AnimationClipSearchWindow>().Show();
-    }
+    // [MenuItem("Window/赤燭RCG/AnimationClipSearchWindow")]
+    // public static void ShowCustomWindow()
+    // {
+    //     GetWindow<AnimationClipSearchWindow>().Show();
+    // }
 
 
     // private void CreateGUI()

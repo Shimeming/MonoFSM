@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 
 //主角有多個這個東西，可以選一個用
-public class MultipleChooseOneCollection<T> : GameFlagBaseCollection<T>, ICollection where T : GameData, IToggleable
+public class MultipleChooseOneCollection<T> : GameFlagBaseCollection<T>, IDataCollection where T : GameData, IToggleable
 {
     public override GameData currentItem => current;
 

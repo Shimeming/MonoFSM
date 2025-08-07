@@ -18,11 +18,12 @@ namespace _1_MonoFSM_Core.Runtime.Action.VariableAction
         [InfoBox("$TypeValidationMessage", InfoMessageType.Warning, VisibleIf = "ShowTypeWarning")]
         [InfoBox("$TypeValidationMessage", InfoMessageType.None, VisibleIf = "ShowTypeInfo")]
         [SerializeField] [DropDownRef] 
-        [ValueTypeValidate(typeof(float),IsVariableNeeded = true)]
+        [ValueTypeValidate(typeof(float))] //,IsVariableNeeded = true錯了？
         private ValueProvider _operandProvider;
 
         [ShowIf(nameof(RequiresTwoOperands))]
         [SerializeField] [DropDownRef] 
+        [ValueTypeValidate(typeof(float), ConditionalMethod = nameof(RequiresTwoOperands))]
         private ValueProvider _secondOperandProvider;
 
         public enum ArithmeticOperation

@@ -29,6 +29,13 @@ namespace MonoFSM.Core.Editor
 
         protected override void DrawPropertyLayout(GUIContent label)
         {
+            // 檢查是否有條件方法，如果有且條件不滿足，則跳過驗證
+            if (!ShouldValidate())
+            {
+                CallNextDrawer(label);
+                return;
+            }
+
             var provider = Property.ValueEntry?.WeakSmartValue as IValueProvider;
             if (provider == null)
             {
@@ -38,6 +45,52 @@ namespace MonoFSM.Core.Editor
             
             var result = ValidateValueType(provider);
             DisplayValidationResultAndCallNextDrawer(result, provider, label);
+        }
+
+        /// <summary>
+        /// 檢查是否應該執行驗證（根據條件方法）
+        /// </summary>
+        private bool ShouldValidate()
+        {
+            // 如果沒有指定條件方法，則總是驗證
+            if (string.IsNullOrEmpty(Attribute.ConditionalMethod))
+                return true;
+
+            // 獲取父物件
+            var target = Property.ParentValues.FirstOrDefault();
+            if (target == null)
+                return true; // 如果無法獲取目標物件，預設為驗證
+
+            try
+            {
+                // 嘗試調用條件方法
+                var method = target.GetType().GetMethod(Attribute.ConditionalMethod,
+                    System.Reflection.BindingFlags.Instance | 
+                    System.Reflection.BindingFlags.Public | 
+                    System.Reflection.BindingFlags.NonPublic);
+
+                if (method == null)
+                {
+                    Debug.LogWarning($"找不到條件方法 '{Attribute.ConditionalMethod}' 在型別 {target.GetType().Name} 中");
+                    return true; // 找不到方法時預設為驗證
+                }
+
+                // 檢查方法返回型別是否為 bool
+                if (method.ReturnType != typeof(bool))
+                {
+                    Debug.LogWarning($"條件方法 '{Attribute.ConditionalMethod}' 必須返回 bool 型別");
+                    return true;
+                }
+
+                // 調用方法並返回結果
+                var result = method.Invoke(target, null);
+                return result is bool boolResult && boolResult;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"執行條件方法 '{Attribute.ConditionalMethod}' 時發生錯誤: {ex.Message}");
+                return true; // 發生錯誤時預設為驗證
+            }
         }
 
         /// <summary>

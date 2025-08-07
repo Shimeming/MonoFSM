@@ -194,6 +194,8 @@ namespace Auto.Utils
         /// <returns></returns>
         public bool IsCollectionType(Type variableType)
         {
+            //FIXME: 啥？
+            Debug.LogError("IsCollectionType is deprecated, use ImplementsInterface instead");
             return ImplementsInterface(variableType, "ICollection`1") || ImplementsInterface(variableType, "ICollection");
         }
 

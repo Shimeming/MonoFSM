@@ -59,6 +59,11 @@ namespace MonoFSM.Runtime.Attributes
         public string CustomErrorMessage { get; set; }
 
         /// <summary>
+        /// 條件方法名稱，只有當此方法返回 true 時才執行驗證
+        /// </summary>
+        public string ConditionalMethod { get; set; }
+
+        /// <summary>
         /// 建構函式 - 單一型別
         /// </summary>
         /// <param name="expectedValueType">期望的 ValueType</param>

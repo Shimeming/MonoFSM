@@ -36,7 +36,7 @@ namespace MonoFSM.Editor
             Selection.activeGameObject = anim.gameObject;
         }
 
-        [MenuItem("RCGs/ShortCut/Edit Animation of State  %_E")]
+        // [MenuItem("RCGs/ShortCut/Edit Animation of State  %_E")]
         // [Shortcut("NOT_Lonely/Edit Animation of Monster", typeof(SceneView), KeyCode.E, ShortcutModifiers.Shift)]
         private static void DoEditAnimation()
         {
@@ -59,7 +59,7 @@ namespace MonoFSM.Editor
                     Debug.Log("[ShortCut] Edit anim of animator" + animator);
                     //open animator window
                     AssetDatabase.OpenAsset(animator.runtimeAnimatorController);
-                    AnimationClipSearchWindow.ShowCustomWindow();
+                    // AnimationClipSearchWindow.ShowCustomWindow();
                     
                 }
             }

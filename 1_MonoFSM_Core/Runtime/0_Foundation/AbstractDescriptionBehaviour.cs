@@ -4,6 +4,7 @@ using System.Reflection;
 using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Runtime;
+using MonoFSM.Runtime.Attributes;
 using RCGExtension;
 using Sirenix.OdinInspector;
 using UnityEditor;
@@ -64,12 +65,15 @@ namespace MonoFSM.Foundation
         }
 
         //用reflection找到所有[Required]的field，然後檢查是否有null
-
         private bool CheckNullOfRequiredFields()
         {
             var requiredFields = GetRequiredHierarchyValidateFields(GetType());
             foreach (var field in requiredFields)
             {
+                // 檢查是否應該驗證此欄位（根據條件方法）
+                if (!ShouldValidateField(field))
+                    continue;
+
                 // Debug.Log($"Checking required field: {field.Name} in {gameObject.name}", this);
                 var value = field.GetValue(this);
                 if (value == null)
@@ -93,6 +97,10 @@ namespace MonoFSM.Foundation
             var requiredFields = GetRequiredHierarchyValidateFields(GetType(), true);
             foreach (var field in requiredFields)
             {
+                // 檢查是否應該驗證此欄位（根據條件方法）
+                if (!ShouldValidateField(field))
+                    continue;
+
                 var value = field.GetValue(this);
                 if (value == null)
                 {
@@ -111,6 +119,48 @@ namespace MonoFSM.Foundation
 
             _errorMessage = "pass!";
             return false;
+        }
+
+        /// <summary>
+        /// 檢查是否應該驗證指定的欄位（根據 ValueTypeValidateAttribute 的條件方法）
+        /// </summary>
+        private bool ShouldValidateField(FieldInfo field)
+        {
+            // 獲取欄位上的 ValueTypeValidateAttribute
+            var validateAttribute = field.GetCustomAttribute<ValueTypeValidateAttribute>();
+            if (validateAttribute == null || string.IsNullOrEmpty(validateAttribute.ConditionalMethod))
+                return true; // 沒有條件方法，總是驗證
+
+            try
+            {
+                // 嘗試調用條件方法
+                var method = GetType().GetMethod(validateAttribute.ConditionalMethod,
+                    BindingFlags.Instance | 
+                    BindingFlags.Public | 
+                    BindingFlags.NonPublic);
+
+                if (method == null)
+                {
+                    Debug.LogWarning($"找不到條件方法 '{validateAttribute.ConditionalMethod}' 在型別 {GetType().Name} 中，欄位 '{field.Name}'");
+                    return true; // 找不到方法時預設為驗證
+                }
+
+                // 檢查方法返回型別是否為 bool
+                if (method.ReturnType != typeof(bool))
+                {
+                    Debug.LogWarning($"條件方法 '{validateAttribute.ConditionalMethod}' 必須返回 bool 型別，欄位 '{field.Name}'");
+                    return true;
+                }
+
+                // 調用方法並返回結果
+                var result = method.Invoke(this, null);
+                return result is bool boolResult && boolResult;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"執行條件方法 '{validateAttribute.ConditionalMethod}' 時發生錯誤: {ex.Message}，欄位 '{field.Name}'");
+                return true; // 發生錯誤時預設為驗證
+            }
         }
 
         [AutoParent] protected MonoEntity _self;
