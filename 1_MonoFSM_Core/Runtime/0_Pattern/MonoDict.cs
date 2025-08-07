@@ -264,6 +264,7 @@ namespace MonoFSM.Core
 #endif
             _isPrepared = true;
             // Debug.Log("PrepareDictCheck" + name + collections.Length, this);
+            if (_collections == null) return;
             foreach (var item in _collections)
             {
                 if (CanBeAdded(item) == false)
@@ -272,22 +273,9 @@ namespace MonoFSM.Core
                         Debug.Log($"Can't add {item}", item as Object);
                     continue;
                 }
-
-
-                // item.GetKeys().ForEach(key =>
-                // {
-                //     if (key == null)
-                //         return;
-                //     Add(key, item);
-                // });
-                // Debug.Log($"PrepareDictCheck Add key:{item.Key} item:{item}", item as Object);
+                
                 Add(item.Key, item);
-                // Debug.Log(_dict.Count);
-                // Debug.Log($"Add key:{item.Key} item:{item}",item as Object);
             }
-
-            // _isPrepared = true;
-            // enabled = false;
         }
 
         protected abstract bool CanBeAdded(TU item);

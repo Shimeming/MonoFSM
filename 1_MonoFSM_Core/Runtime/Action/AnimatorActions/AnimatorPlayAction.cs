@@ -55,7 +55,8 @@ namespace MonoFSM.Animation
         [TabGroup("Animator", false, 1)]
         [Required]
         // [InlineEditor]
-        [ValueDropdown(nameof(GetAnimatorsInChildren), IsUniqueList = true, NumberOfItemsBeforeEnablingSearch = 3)]
+        // [ValueDropdown(nameof(GetAnimatorsInChildren), IsUniqueList = true, NumberOfItemsBeforeEnablingSearch = 3)]
+        [DropDownRef]
         public Animator animator;
 
         [InlineEditor] [PreviewInInspector] private Animator animatorComp => animator;

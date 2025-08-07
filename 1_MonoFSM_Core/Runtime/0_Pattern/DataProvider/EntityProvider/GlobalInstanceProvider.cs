@@ -8,12 +8,13 @@ namespace MonoFSM.Core.Runtime
     ///     提供 Global Instance 的 Provider，參考 ParentBlackboardProvider 的實作方式
     ///     FIXME: 怎麼拿到目前player的Inventory? condition? runtime tag? (LocalPlayer,Inventory?) tuple key?
     /// </summary>
+    /// 改名叫做world?
     public class GlobalInstanceProvider : AbstractEntityProvider, IEntityProvider
     {
         // [Required] [TypeRestrictFilter(typeof(MonoEntity), true, "請選擇 MonoEntity 類型的 VariableTag")] [SerializeField]
         // private MonoEntityTag _monoEntityTag;
 
-        public override string SuggestDeclarationName => "global";
+        public override string SuggestDeclarationName => "world";
         [PreviewInInspector] public override MonoEntity monoEntity => GetBlackboardFromGlobalInstance();
 
         // public MonoEntityTag entityTag => _monoEntityTag;
@@ -41,11 +42,5 @@ namespace MonoFSM.Core.Runtime
             // 否則嘗試從 instance 取得 MonoBlackboard component
             return instance;
         }
-
-        // public T GetComponentOfOwner<T>()
-        // {
-        //     var blackboard = GetBlackboardFromGlobalInstance();
-        //     return blackboard != null ? blackboard.GetComponent<T>() : default;
-        // }
     }
 }

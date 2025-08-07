@@ -113,7 +113,7 @@ namespace MonoFSMCore.Runtime.LifeCycle
                 return;
             HandleIAwake();
             //這可以嗎？
-            HandleIInstantiated(world);
+            HandleIInstantiated(world); //和IAwake合併？
             
         }
 
@@ -254,6 +254,11 @@ namespace MonoFSMCore.Runtime.LifeCycle
         }
 
 
+        /// <summary>
+        /// 兩個進入點，SpawnFromPool 和 SceneAwake
+        /// 1. SpawnFromPool 是從Pool中取出來的物件，
+        /// 2. SceneAwake ?
+        /// </summary>
         private void HandleIAwake()
         {
             var ILevelAwakes = new List<ISceneAwake>(_sceneAwakes);

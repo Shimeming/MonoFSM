@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.LifeCycle;
+using MonoFSM.Runtime;
 using MonoFSM.Variable.Attributes;
 using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
@@ -56,8 +57,14 @@ namespace MonoFSM.Core.Simulate
         {
             _spawnProcessor = GetComponent<ISpawnProcessor>();
             _simulateRunner = GetComponent<ISimulateRunner>();
+            
             // _simulators.AddRange(_localSimulators); //不需要了？
+            _binder = GetComponent<MonoEntityBinder>();
+            
+            _binder.EnterSceneAwake();
         }
+
+       [CompRef] [Auto]  private MonoEntityBinder _binder;
         
         public static WorldUpdateSimulator GetWorldUpdateSimulator(GameObject me)
         {
@@ -77,6 +84,7 @@ namespace MonoFSM.Core.Simulate
         }
 
         //全世界都該透過這個spawn?
+        //FIXME: 好像不對，photon應該用他原本的Spawn方法，這個處理要在之後觸發？
         public MonoObj Spawn(MonoObj obj, Vector3 position, Quaternion rotation)
         {
             if (obj == null)
@@ -92,13 +100,8 @@ namespace MonoFSM.Core.Simulate
             Debug.Log($"AutoReferenceAllChildren: {result.name}", result);
             AutoAttributeManager.AutoReferenceAllChildren(result.gameObject);
 #endif
-            //重置狀態
-            result.ResetStateRestore();
-            result.ResetStart();
-            
             RegisterMonoObject(result);
-            //poolObject spawn lifecycle? 可以整進去？
-            result.SpawnFromPool();
+            
             return result;
         }
 
@@ -118,8 +121,16 @@ namespace MonoFSM.Core.Simulate
 
         public void RegisterMonoObject(MonoObj target)
         {
-            if(_monoObjectSet.Add(target))
+            if (_monoObjectSet.Add(target))
+            {
+                Debug.Log($"Registering MonoPoolObj: {target.name} in WorldUpdateSimulator.", target);
                 target.WorldUpdateSimulator = this;
+                //重置狀態
+                // target.ResetStateRestore();
+                // target.ResetStart();
+                target.SpawnFromPool();//ISceneAwake叫兩次？
+            }
+                
         }
 
         public void UnregisterMonoObject(MonoObj target)
@@ -145,8 +156,8 @@ namespace MonoFSM.Core.Simulate
         //從player進入？
         public void ResetLevelRestore()
         {
-            //Pool回收會
-            PoolManager.Instance.ReturnAllObjects();
+            //FIXME: Pool回收會
+            // PoolManager.Instance.ReturnAllObjects(); //會把player也回收掉？
             foreach (var mono in _monoObjectSet) mono.ResetStateRestore();
             Debug.Log($"WorldUpdateSimulator ResetStateRestore called with {_monoObjectSet.Count} MonoPoolObjs.", this);
         }
