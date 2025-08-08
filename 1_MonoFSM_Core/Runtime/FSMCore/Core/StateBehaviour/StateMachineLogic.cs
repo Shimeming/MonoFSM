@@ -82,7 +82,7 @@ namespace Fusion.Addons.FSM
         public void InitializeLogic()
         {
             if (!_stateMachinesCollected) CollectStateMachines();
-            Debug.Log($"Initializing MonoStateMachineController on {gameObject.name}");
+            // Debug.Log($"Initializing MonoStateMachineController on {gameObject.name}");
         }
 
         public void SetManualUpdateMode(bool manualUpdate)

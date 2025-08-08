@@ -49,6 +49,7 @@ namespace MonoFSM.Core.LifeCycle
 
         private void Spawn(MonoObj obj, Vector3 position, Quaternion rotation)
         {
+            //FIXME: canspawn?
             if (obj == null)
             {
                 Debug.LogError("SpawnAction: Prefab is null", this);
@@ -68,6 +69,8 @@ namespace MonoFSM.Core.LifeCycle
                 return;
             }
             var newObj = monoObj.WorldUpdateSimulator.Spawn(obj, position, rotation); //Runner.spawn?
+            if (newObj == null)
+                return;
             //用目前這個action的transform的scale,fixme; 可能需要別種？物件本身的scale?還是應該避免
             //fixme: 為什麼要這樣？
             if (_isUsingSpawnTransformScale)

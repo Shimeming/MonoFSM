@@ -101,7 +101,6 @@ namespace MonoFSMCore.Runtime.LifeCycle
             //這兩行 Pool 準備的時候就要先call了吧？
             HandleIAwake();
             HandleSceneStart();
-
             ResetStateRestore();
             ResetStart();
         }
@@ -186,17 +185,18 @@ namespace MonoFSMCore.Runtime.LifeCycle
             {
                 if (item == null)
                     continue;
-                try
-                {
+                //FIXEM: 用trycatch不好debug?
+                // try
+                // {
                     item.ResetStart();
-                }
-                catch (Exception e)
-                {
-                    if (item is MonoBehaviour)
-                        Debug.LogError(e.Message + "\n" + e.StackTrace, item as MonoBehaviour);
-                    else
-                        Debug.LogError(e.Message + "\n" + e.StackTrace);
-                }
+                // }
+                // catch (Exception e)
+                // {
+                //     if (item is MonoBehaviour)
+                //         Debug.LogError(e.Message + "\n" + e.StackTrace, item as MonoBehaviour);
+                //     else
+                //         Debug.LogError(e.Message + "\n" + e.StackTrace);
+                // }
             }
         }
 

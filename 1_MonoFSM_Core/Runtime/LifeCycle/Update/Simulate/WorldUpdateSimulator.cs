@@ -70,7 +70,7 @@ namespace MonoFSM.Core.Simulate
         public static WorldUpdateSimulator GetWorldUpdateSimulator(GameObject me)
         {
             //這個是用來獲取當前的WorldUpdateSimulator
-            var monoPoolObj = me.GetComponent<MonoObj>();
+            var monoPoolObj = me.GetComponentInParent<MonoObj>();
             if (monoPoolObj == null)
             {
                 Debug.LogError("MonoPoolObj not found on the GameObject.", me);
@@ -96,11 +96,14 @@ namespace MonoFSM.Core.Simulate
 
             //Spawn Strategy? 透過 Fusion的PoolObject 系統...那何不都用他的就好?
             var result = _spawnProcessor.Spawn(obj, position, rotation);
+            if (result == null)
+                return null;
 #if UNITY_EDITOR
             //Editor裡還是直接使用AutoAttributeManager，cache太容易髒掉了
             Debug.Log($"AutoReferenceAllChildren: {result.name}", result);
             AutoAttributeManager.AutoReferenceAllChildren(result.gameObject);
 #endif
+            //FIXME: spawner本來就該來call這個？順便call auto?
             RegisterMonoObject(result);
             
             return result;
@@ -129,9 +132,16 @@ namespace MonoFSM.Core.Simulate
                 //重置狀態
                 // target.ResetStateRestore();
                 // target.ResetStart();
-                target.SpawnFromPool();//ISceneAwake叫兩次？
             }
-                
+        }
+        public void AfterPoolSpawn(MonoObj target)
+        {
+            if (target == null) return;
+            //FIXME: 在這auto?
+            
+            //這個是用來做初始化的？
+            RegisterMonoObject(target);
+            target.SpawnFromPool();//ISceneAwake叫兩次？
         }
 
         public void UnregisterMonoObject(MonoObj target)
@@ -165,9 +175,13 @@ namespace MonoFSM.Core.Simulate
 
         public void ResetLevelStart()
         {
-            foreach (var mono in _monoObjectSet) mono.ResetStart();
+            //FIXME: 有人在這個過程spawn?
+            var list = _monoObjectSet.ToList();
+            foreach (var mono in list) mono.ResetStart();
+            // foreach (var mono in _monoObjectSet) mono.ResetStart();
         }
 
+        //世界進入點
         public void WorldInit()
         {
             //SceneAwake可以自己做ㄅ？
