@@ -27,25 +27,14 @@ namespace MonoFSM_InputAction
 
         // public abstract bool WasPressBuffered();
         [ShowInPlayMode] public bool WasReleased => _abstractMonoInputAction.WasReleased; //FIXME: 這個是local的
-
-        // [SOConfig("PlayerInputActionData")] [SerializeField]
-        // protected InputActionData _inputActionData;
-
+ 
+        //FIXME: read Vector2 input, 混用? 還是要再抽一層？
         public int InputActionId => _abstractMonoInputAction.InputActionId; //還是monobehaviour自己assign就好？
 
         [PreviewInInspector] public bool IsLocalPressed => _abstractMonoInputAction.IsLocalPressed; //這個是local的
 
-        //這個是Uinput的
-        // public InputActionReference _actionRef;
-        //FIXME: Unity input 再抽一層？
-
-        //要做local buffer queue嗎？
-
-        // private void Update()
-        // {
-        //     if (IsLocalPressed)
-        //         Debug.Log("IsLocalPressed: " + name + " " + myAction.name + " " + myAction.triggered);
-        // }
+        //FIXME: buffer queue坐在input還是action上？
+        
         // [PreviewInInspector] private float _lastPressTime = -1;
         // private const float InputBufferTime = 0.25f;
         // [PreviewInInspector] private List<float> _bufferedQueue = new(); //玩家過去按下的時間 ex: 連按兩下

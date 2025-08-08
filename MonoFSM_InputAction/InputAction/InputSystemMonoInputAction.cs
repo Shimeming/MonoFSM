@@ -23,7 +23,9 @@ namespace MonoFSM_InputAction
 
         public virtual bool IsLocalPressed =>
             Application.isPlaying && (myAction.IsPressed() || myAction.WasPressedThisFrame());
+        Vector2 LocalReadValueVector2 => myAction.ReadValue<Vector2>();
 
+        public virtual Vector2 ReadValueVector2 => LocalReadValueVector2;
         public virtual bool IsPressed => myAction.IsPressed(); //如果外掛
 
         public virtual bool WasPressed => myAction.WasPressedThisFrame(); //FIXME: 這個是local的
