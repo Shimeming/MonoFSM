@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.LifeCycle;
 using MonoFSM.Runtime;
@@ -194,7 +195,6 @@ namespace MonoFSM.Core.Simulate
 
 
         private readonly HashSet<MonoObj> _currentUpdatingObjs = new();
-
         /// <summary>
         /// 需要依照環境決定怎麼simulate
         /// </summary>
@@ -205,13 +205,30 @@ namespace MonoFSM.Core.Simulate
                 return;
          
             _currentUpdatingObjs.Clear();
-            _currentUpdatingObjs.AddRange(_monoObjectSet); 
+
+        #if UNITY_EDITOR //FIXME: 亂call destroy可能導致這個
+            foreach (var _mono in _monoObjectSet)
+            {
+                if (_mono == null)
+                {
+                    _monoObjectSet.Remove(_mono);
+                }
+            }
+        #endif
+            
+            _currentUpdatingObjs.AddRange(_monoObjectSet);
+            
             
 
             //FIXME: isProxy? 要ㄇ 跳過模擬，或是regiester要兩階段
             foreach (var monoObject in _currentUpdatingObjs)
+            {
+       
+                
                 if (monoObject is { isActiveAndEnabled: true })
                     monoObject.Simulate(deltaTime);
+            }
+                
             
                     
             // else

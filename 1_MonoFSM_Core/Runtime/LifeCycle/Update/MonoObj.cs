@@ -71,7 +71,6 @@ namespace MonoFSMCore.Runtime.LifeCycle
             WorldUpdateSimulator.Despawn(this);
         }
 
-
         [PreviewInInspector] [AutoChildren] private ISceneAwake[] _sceneAwakes; 
         [PreviewInInspector][AutoChildren] private ISceneStart[] _sceneStarts;
         [PreviewInInspector] [AutoChildren] private ISceneDestroy[] _sceneDestroys;
@@ -81,6 +80,7 @@ namespace MonoFSMCore.Runtime.LifeCycle
         [PreviewInInspector][AutoChildren] private IUpdateSimulate[] _updateSimulates;
         //FIXME: PoolBeforeReturnToPool? OnReturnPool?
 
+        [ShowInDebugMode]
         private readonly List<MonoObj> _parentObjs = new(2); //會拿到自己？
         public bool HasParent => _parentObjs.Count > 1; //有_parentObj就表示是nested的pool object，不作用，交給parent處理
 

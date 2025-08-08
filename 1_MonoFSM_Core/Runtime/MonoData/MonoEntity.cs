@@ -25,6 +25,8 @@ namespace MonoFSM.Runtime
         bool IsAddValid();
     }
     
+    //FIXME: 必定需要MonoObj?
+    [RequireComponent(typeof(MonoObj))] 
     [Searchable]
     [FormerlyNamedAs("MonoDescriptable")]
     public class MonoEntity : AbstractMonoDescriptable<GameData>, IInstantiated,
@@ -40,13 +42,21 @@ namespace MonoFSM.Runtime
             //想要註冊世界了，顆顆
             //掉在外面就不能註冊了，binder是不是不好？
             //從world去bind?
-            var worldBinder = world.GetComponent<MonoEntityBinder>();
-            if (worldBinder)
-                worldBinder.Add(DefaultTag, this); //註冊法
+            //FIXME: 哪些要註冊？localplayer才需要？
+            _worldBinder = world.GetComponent<MonoEntityBinder>();
+            if (_worldBinder)
+            {
+                Debug.Log("Registering MonoEntity to WorldBinder: " + name, this);
+                _worldBinder.Add(DefaultTag, this); //註冊法
+            }
+                
             else
                 Debug.LogError("MonoDescriptableBinder not found in parent, cannot register to world binder", this);
             // GetComponent<MonoDescriptableBinder>().Add(DescriptableTag, this);
         }
+        
+        [PreviewInInspector]
+        MonoEntityBinder _worldBinder;
 
         public void OnBeforePrefabSave()
         {

@@ -188,8 +188,28 @@ namespace MonoFSM.Core.DataProvider
         public override Type ValueType =>
             HasFieldPath
                 ? lastPathEntryType
-                : GetTarget()?.ValueType ??
+                : 
+                //GetTarget()?.ValueType ??
                   varTag?.ValueType ?? entityProvider?.entityTag?.RestrictType ?? typeof(MonoEntity);
+
+        [PreviewInInspector]
+        public string ValueTypeSourceFrom
+        {
+            get
+            {
+                if(HasFieldPath)
+                    return "Field Path";
+                else if (_varTag != null)
+                    return "Var Tag";
+                else if (entityProvider != null && entityProvider.entityTag != null)
+                    return "Entity Tag";
+                else if (ParentEntity != null)
+                    return "Parent Entity";
+                return "Unknown";
+            }
+        }
+        
+        //FIXME: 型別有可能和實際不符合嗎？
         //選了VarRaw.Value後反而變成原本的type...這樣外面就沒有提示了
 
         private IValueProvider GetTarget()

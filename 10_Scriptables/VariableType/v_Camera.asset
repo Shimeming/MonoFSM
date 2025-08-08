@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c04251230671b427c952ae00fb192c5e, type: 3}
-  m_Name: Rigidbody
+  m_Name: v_Camera
   m_EditorClassIdentifier: 
   _variableTypeTag: {fileID: 0}
   _valueTypeTag: {fileID: 0}
@@ -24,9 +24,8 @@ MonoBehaviour:
       PublicKeyToken=null
   _valueFilterType:
     _bindObject: {fileID: 11400000}
-    _baseFilterTypeName: UnityEngine.Component, UnityEngine.CoreModule, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-    _typeFullName: UnityEngine.Component
+    _baseFilterTypeName: 
+    _typeFullName: UnityEngine.Camera
     _assemblyName: UnityEngine.CoreModule
-    typeName: UnityEngine.Component, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+    typeName: UnityEngine.Camera, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
