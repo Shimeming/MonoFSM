@@ -1,11 +1,15 @@
 using UnityEngine;
+using Sirenix.OdinInspector;
+using MonoFSM.Variable.Attributes;
+using MonoFSM.Core.Attributes;
 
 namespace MonoFSM.Core.Detection
 {
     public class TriggerDetector : AbstractDetector
     {
+        [PreviewInInspector]
         public AbstractDetector virtualDetector;
-        [Auto] private Collider _collider;
+        [Required] [CompRef] [Auto] private Collider _collider;
 
         private void OnTriggerEnter(Collider other)
         {

@@ -84,6 +84,7 @@ namespace MonoFSM.Core.Detection
         [CustomSerializable]
         [ShowInInspector]
         [OnValueChanged(nameof(SetLayerOverride))]
+        [Required]
         public LayerMask HittingLayer;
 
         //FIXME: 這個要做什麼？
