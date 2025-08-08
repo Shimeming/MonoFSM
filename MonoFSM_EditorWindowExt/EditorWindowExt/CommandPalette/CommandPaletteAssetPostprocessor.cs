@@ -1,8 +1,8 @@
 #if UNITY_EDITOR
 using System.Collections.Generic;
 using System.Linq;
-using _1_MonoFSM_Core.Runtime._3_FlagData;
-using MonoDebugSetting;
+// using _1_MonoFSM_Core.Runtime._3_FlagData;
+// using MonoDebugSetting;
 using UnityEditor;
 using UnityEngine;
 
@@ -33,26 +33,27 @@ namespace CommandPalette
                 {
                     if (assetPath.EndsWith(".prefab"))
                     {
-                        SearchPrefabCommandPaletteWindow.AddOrUpdateAssetInCache(assetPath);
+                        SearchCommandPaletteWindow.AddOrUpdateAssetInCache(assetPath);
                         assetChangeCounts[".prefab"]++;
                     }
                     else if (assetPath.EndsWith(".asset"))
                     {
                         var assetType = AssetDatabase.GetMainAssetTypeAtPath(assetPath);
+                        //FIXME: 想要加到AllFlagCollection裡
                         //如果assetType是ScriptableObject或其子類型
-                        if (assetType.IsSubclassOf(typeof(GameFlagBase)))
-                        {
-                            AllFlagCollection.Instance.AddFlag(
-                                AssetDatabase.LoadAssetAtPath<GameFlagBase>(assetPath));
-                            Debug.Log($"[CommandPalette] 添加 GameFlagBase: {assetPath}");
-                        }
+                        // if (assetType.IsSubclassOf(typeof(GameFlagBase)))
+                        // {
+                        //     AllFlagCollection.Instance.AddFlag(
+                        //         AssetDatabase.LoadAssetAtPath<GameFlagBase>(assetPath));
+                        //     Debug.Log($"[CommandPalette] 添加 GameFlagBase: {assetPath}");
+                        // }
 
-                        SearchPrefabCommandPaletteWindow.AddOrUpdateAssetInCache(assetPath);
+                        SearchCommandPaletteWindow.AddOrUpdateAssetInCache(assetPath);
                         assetChangeCounts[".asset"]++;
                     }
                     else if (assetPath.EndsWith(".unity"))
                     {
-                        SearchPrefabCommandPaletteWindow.AddOrUpdateAssetInCache(assetPath);
+                        SearchCommandPaletteWindow.AddOrUpdateAssetInCache(assetPath);
                         assetChangeCounts[".unity"]++;
                     }
                 }
@@ -63,17 +64,17 @@ namespace CommandPalette
                 {
                     if (assetPath.EndsWith(".prefab"))
                     {
-                        SearchPrefabCommandPaletteWindow.RemoveAssetFromCache(assetPath);
+                        SearchCommandPaletteWindow.RemoveAssetFromCache(assetPath);
                         assetChangeCounts[".prefab"]++;
                     }
                     else if (assetPath.EndsWith(".asset"))
                     {
-                        SearchPrefabCommandPaletteWindow.RemoveAssetFromCache(assetPath);
+                        SearchCommandPaletteWindow.RemoveAssetFromCache(assetPath);
                         assetChangeCounts[".asset"]++;
                     }
                     else if (assetPath.EndsWith(".unity"))
                     {
-                        SearchPrefabCommandPaletteWindow.RemoveAssetFromCache(assetPath);
+                        SearchCommandPaletteWindow.RemoveAssetFromCache(assetPath);
                         assetChangeCounts[".unity"]++;
                     }
                 }
@@ -89,38 +90,38 @@ namespace CommandPalette
                     {
                         // 先移除舊路徑，再添加新路徑
                         if (!string.IsNullOrEmpty(oldPath))
-                            SearchPrefabCommandPaletteWindow.RemoveAssetFromCache(oldPath);
-                        SearchPrefabCommandPaletteWindow.AddOrUpdateAssetInCache(newPath);
+                            SearchCommandPaletteWindow.RemoveAssetFromCache(oldPath);
+                        SearchCommandPaletteWindow.AddOrUpdateAssetInCache(newPath);
                         assetChangeCounts[".prefab"]++;
                     }
                     else if (newPath.EndsWith(".asset"))
                     {
                         // 先移除舊路徑，再添加新路徑
                         if (!string.IsNullOrEmpty(oldPath))
-                            SearchPrefabCommandPaletteWindow.RemoveAssetFromCache(oldPath);
-                        SearchPrefabCommandPaletteWindow.AddOrUpdateAssetInCache(newPath);
+                            SearchCommandPaletteWindow.RemoveAssetFromCache(oldPath);
+                        SearchCommandPaletteWindow.AddOrUpdateAssetInCache(newPath);
                         assetChangeCounts[".asset"]++;
                     }
                     else if (newPath.EndsWith(".unity"))
                     {
                         // 先移除舊路徑，再添加新路徑
                         if (!string.IsNullOrEmpty(oldPath))
-                            SearchPrefabCommandPaletteWindow.RemoveAssetFromCache(oldPath);
-                        SearchPrefabCommandPaletteWindow.AddOrUpdateAssetInCache(newPath);
+                            SearchCommandPaletteWindow.RemoveAssetFromCache(oldPath);
+                        SearchCommandPaletteWindow.AddOrUpdateAssetInCache(newPath);
                         assetChangeCounts[".unity"]++;
                     }
                 }
 
             // 詳細分析變更（僅在偵錯時）
-            if (DebugSetting.IsDebugMode)
-            {
+            // if (DebugSetting.IsDebugMode)
+            // {
                 if (importedAssets?.Length > 0)
                     AnalyzeAssetChanges(importedAssets, "導入");
                 if (deletedAssets?.Length > 0)
                     AnalyzeAssetChanges(deletedAssets, "刪除");
                 if (movedAssets?.Length > 0)
                     AnalyzeAssetChanges(movedAssets, "移動");
-            }
+            // }
 
             // 記錄變更統計
             if (assetChangeCounts[".prefab"] > 0) 

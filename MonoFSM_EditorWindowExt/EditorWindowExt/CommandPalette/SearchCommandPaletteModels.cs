@@ -14,7 +14,8 @@ namespace CommandPalette
     {
         Prefabs,
         ScriptableObjects,
-        Scenes
+        Scenes,
+        MenuItems
     }
 
     /// <summary>
@@ -96,7 +97,7 @@ namespace CommandPalette
             this.path = path;
             this._asset = asset;
             this.guid = AssetDatabase.AssetPathToGUID(path);
-            this.assetType = asset.GetType();
+            this.assetType = asset?.GetType();
             this.iconLoaded = false;
         }
 
@@ -159,6 +160,77 @@ namespace CommandPalette
                 }
             }
         }
+    }
+
+    /// <summary>
+    ///     MenuItem快取資料結構
+    /// </summary>
+    [Serializable]
+    public class MenuItemCacheData
+    {
+        public string menuPath;
+        public string displayName;
+        public string category;
+        public bool isValidated;
+        public bool isEnabled;
+
+        public MenuItemCacheData(string menuPath, string displayName, string category, bool isValidated, bool isEnabled)
+        {
+            this.menuPath = menuPath;
+            this.displayName = displayName;
+            this.category = category;
+            this.isValidated = isValidated;
+            this.isEnabled = isEnabled;
+        }
+    }
+
+    /// <summary>
+    ///     MenuItem條目結構
+    /// </summary>
+    [Serializable]
+    public class MenuItemEntry
+    {
+        public string menuPath;
+        public string displayName;
+        public string category;
+        public bool isValidated;
+        public bool isEnabled;
+        
+        public MenuItemEntry(string menuPath, string displayName, string category, bool isValidated = true, bool isEnabled = true)
+        {
+            this.menuPath = menuPath;
+            this.displayName = displayName;
+            this.category = category;
+            this.isValidated = isValidated;
+            this.isEnabled = isEnabled;
+        }
+
+        public MenuItemEntry(MenuItemCacheData cacheData)
+        {
+            this.menuPath = cacheData.menuPath;
+            this.displayName = cacheData.displayName;
+            this.category = cacheData.category;
+            this.isValidated = cacheData.isValidated;
+            this.isEnabled = cacheData.isEnabled;
+        }
+
+        public void Execute()
+        {
+            if (!string.IsNullOrEmpty(menuPath) && isEnabled)
+            {
+                EditorApplication.ExecuteMenuItem(menuPath);
+            }
+        }
+    }
+
+    /// <summary>
+    ///     MenuItem快取容器結構
+    /// </summary>
+    [Serializable]
+    public class MenuItemCacheContainer
+    {
+        public List<MenuItemCacheData> menuItems = new();
+        public long cacheTimestamp;
     }
 }
 #endif

@@ -65,6 +65,7 @@
 
     public void HandleDropdownEventsFirst()
     {
+        
         // 如果有dropdown顯示，在原始AnimationWindow處理事件之前先檢查dropdown事件
         if (!showDropdown || string.IsNullOrEmpty(searchText)) return;
         
