@@ -71,6 +71,12 @@ namespace MonoFSMCore.Runtime.LifeCycle
             WorldUpdateSimulator.Despawn(this);
         }
 
+        private void OnDestroy()
+        {
+            //fixme: ??
+            //play mode 被刪掉要怎麼處理？
+        }
+
         [PreviewInInspector] [AutoChildren] private ISceneAwake[] _sceneAwakes; 
         [PreviewInInspector][AutoChildren] private ISceneStart[] _sceneStarts;
         [PreviewInInspector] [AutoChildren] private ISceneDestroy[] _sceneDestroys;

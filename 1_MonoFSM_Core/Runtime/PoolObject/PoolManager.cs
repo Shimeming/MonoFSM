@@ -19,6 +19,7 @@ public delegate void BeforeActiveHandler(PoolObject obj);
 /// <summary>
 /// 池管理器 - 管理所有物件池的建立、管理和生命週期
 /// </summary>
+[DefaultExecutionOrder(10000)] //晚點被destroy, 好像是對的喔
 public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
 {
     public static void PreparePoolObjectImplementation(PoolObject obj)

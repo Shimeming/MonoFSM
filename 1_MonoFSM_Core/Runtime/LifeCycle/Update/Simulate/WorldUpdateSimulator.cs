@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.LifeCycle;
 using MonoFSM.Runtime;

@@ -20,7 +20,8 @@ namespace EditorTool
     {
         //public static bool IsBuilding = false;
 #if UNITY_EDITOR
-
+        
+    
 
         [InitializeOnLoadMethod]
         private static void Init()
@@ -42,7 +43,11 @@ namespace EditorTool
             // Listen for prefab stage closed events
             PrefabStage.prefabStageClosing -= OnPrefabStageClosing;
             PrefabStage.prefabStageClosing += OnPrefabStageClosing;
+            
+           
         }
+        
+       
 
         // public static async UniTask ScanSceneAndBuildCache(RCGBuildConfig config, bool isTinyBuild = false)
         // {
