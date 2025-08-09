@@ -8,6 +8,7 @@ using System.Reflection;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEditor.SceneManagement;
+using UnityEditor.Search;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -28,7 +29,7 @@ namespace CommandPalette
     /// </summary>
     public class SearchCommandPaletteWindow : EditorWindow
     {
-        private SearchField searchField;
+        private UnityEditor.IMGUI.Controls.SearchField searchField;
         private string searchString = "";
         private string prevSearchString = "";
         private Vector2 scrollPos;
@@ -322,7 +323,7 @@ namespace CommandPalette
         {
             if (searchField == null)
             {
-                searchField = new SearchField();
+                searchField = new UnityEditor.IMGUI.Controls.SearchField();
                 searchField.SetFocus();
             }
 
@@ -569,17 +570,35 @@ namespace CommandPalette
             }
             else
             {
-                var searchResults = new List<(AssetEntry asset, float cost)>();
-                var matchIndexes = new int[searchString.Length];
-
+                var searchResults = new List<(AssetEntry asset, long score)>();
+                
+                // 預處理搜尋字串：支援多詞搜尋，將空格替換為下劃線進行匹配
+                var normalizedSearch = searchString.ToLowerInvariant();
+                var spaceToUnderscoreSearch = normalizedSearch.Replace(' ', '_');
+                
                 foreach (var asset in allAssets)
                 {
-                    var cost = 0f;
-                    if (TryFuzzyMatch(asset.name, searchString, matchIndexes, ref cost))
-                        searchResults.Add((asset, cost));
+                    var assetNameLower = asset.name.ToLowerInvariant();
+                    
+                    // 使用 Unity 的 FuzzySearch API
+                    var normalMatch = FuzzySearch.FuzzyMatch(normalizedSearch, assetNameLower);
+                    var spaceMatch = FuzzySearch.FuzzyMatch(spaceToUnderscoreSearch, assetNameLower);
+                    
+                    // 如果任一匹配成功，計算優先級分數
+                    if (normalMatch || spaceMatch)
+                    {
+                        // 使用匹配優先級作為分數（數字越小優先級越高，所以用負數讓 ThenByDescending 正確排序）
+                        var priority = GetMatchPriority(asset.name, searchString);
+                        var spaceToUnderscorePriority = GetMatchPriority(asset.name, spaceToUnderscoreSearch);
+                        var bestPriority = Math.Min(priority, spaceToUnderscorePriority);
+                        
+                        searchResults.Add((asset, -bestPriority)); // 負數讓優先級高的排在前面
+                    }
                 }
 
-                filteredAssets = searchResults.OrderBy(x => x.cost)
+                // 智慧排序：優先級越高（數字越小）排在前面，然後按名稱排序
+                filteredAssets = searchResults
+                    .OrderByDescending(x => x.score) // score 已經是負的優先級，所以用 Descending
                     .ThenBy(x => x.asset.name)
                     .Select(x => x.asset)
                     .ToList();
@@ -589,86 +608,86 @@ namespace CommandPalette
             Repaint();
         }
 
-        private bool TryFuzzyMatch(string targetName, string query, int[] matchIndexes, ref float cost)
-        {
-            var wordInitialsIndexes = new List<int> { 0 };
-
-            for (var i = 1; i < targetName.Length; i++)
-            {
-                var separators = new[] { ' ', '-', '_', '.', '(', ')', '[', ']' };
-
-                var prevChar = targetName[i - 1];
-                var curChar = targetName[i];
-                var nextChar = i + 1 < targetName.Length ? targetName[i + 1] : default;
-
-                var isSeparatedWordStart = separators.Contains(prevChar) && !separators.Contains(curChar);
-                var isCamelcaseHump = (char.IsUpper(curChar) && char.IsLower(prevChar)) ||
-                                      (char.IsUpper(curChar) && char.IsLower(nextChar));
-                var isNumberStart = char.IsDigit(curChar) && (!char.IsDigit(prevChar) || prevChar == '0');
-                var isAfterNumber = char.IsDigit(prevChar) && !char.IsDigit(curChar);
-
-                if (isSeparatedWordStart || isCamelcaseHump || isNumberStart || isAfterNumber)
-                    wordInitialsIndexes.Add(i);
-            }
-
-            var nextWordInitialsIndexMap = new int[targetName.Length];
-            var nextWordIndex = 0;
-
-            for (var i = 0; i < targetName.Length; i++)
-            {
-                if (i == wordInitialsIndexes[nextWordIndex])
-                    if (nextWordIndex + 1 < wordInitialsIndexes.Count)
-                        nextWordIndex++;
-                    else break;
-
-                nextWordInitialsIndexMap[i] = wordInitialsIndexes[nextWordIndex];
-            }
-
-            var iName = 0;
-            var iQuery = 0;
-            var prevMatchIndex = -1;
-
-            cost = 0;
-
-            while (iName < targetName.Length && iQuery < query.Length)
-            {
-                var curQuerySymbol = char.ToLower(query[iQuery]);
-                var curNameSymbol = char.ToLower(targetName[iName]);
-
-                if (curNameSymbol == curQuerySymbol)
-                {
-                    var gapLength = iName - prevMatchIndex - 1;
-                    cost += gapLength;
-
-                    matchIndexes[iQuery] = iName;
-                    iQuery++;
-                    iName = iName + 1;
-                    prevMatchIndex = iName - 1;
-                    continue;
-                }
-
-                var nextWordInitialIndex = nextWordInitialsIndexMap[iName];
-                var nextWordInitialSymbol = nextWordInitialIndex == default
-                    ? default
-                    : char.ToLower(targetName[nextWordInitialIndex]);
-
-                if (nextWordInitialSymbol == curQuerySymbol)
-                {
-                    var gapLength = nextWordInitialIndex - prevMatchIndex - 1;
-                    cost += gapLength * 0.01f;
-
-                    matchIndexes[iQuery] = nextWordInitialIndex;
-                    iQuery++;
-                    iName = nextWordInitialIndex + 1;
-                    prevMatchIndex = nextWordInitialIndex;
-                    continue;
-                }
-
-                iName++;
-            }
-
-            return iQuery >= query.Length;
-        }
+        // private bool TryFuzzyMatch(string targetName, string query, int[] matchIndexes, ref float cost)
+        // {
+        //     var wordInitialsIndexes = new List<int> { 0 };
+        //
+        //     for (var i = 1; i < targetName.Length; i++)
+        //     {
+        //         var separators = new[] { ' ', '-', '_', '.', '(', ')', '[', ']' };
+        //
+        //         var prevChar = targetName[i - 1];
+        //         var curChar = targetName[i];
+        //         var nextChar = i + 1 < targetName.Length ? targetName[i + 1] : default;
+        //
+        //         var isSeparatedWordStart = separators.Contains(prevChar) && !separators.Contains(curChar);
+        //         var isCamelcaseHump = (char.IsUpper(curChar) && char.IsLower(prevChar)) ||
+        //                               (char.IsUpper(curChar) && char.IsLower(nextChar));
+        //         var isNumberStart = char.IsDigit(curChar) && (!char.IsDigit(prevChar) || prevChar == '0');
+        //         var isAfterNumber = char.IsDigit(prevChar) && !char.IsDigit(curChar);
+        //
+        //         if (isSeparatedWordStart || isCamelcaseHump || isNumberStart || isAfterNumber)
+        //             wordInitialsIndexes.Add(i);
+        //     }
+        //
+        //     var nextWordInitialsIndexMap = new int[targetName.Length];
+        //     var nextWordIndex = 0;
+        //
+        //     for (var i = 0; i < targetName.Length; i++)
+        //     {
+        //         if (i == wordInitialsIndexes[nextWordIndex])
+        //             if (nextWordIndex + 1 < wordInitialsIndexes.Count)
+        //                 nextWordIndex++;
+        //             else break;
+        //
+        //         nextWordInitialsIndexMap[i] = wordInitialsIndexes[nextWordIndex];
+        //     }
+        //
+        //     var iName = 0;
+        //     var iQuery = 0;
+        //     var prevMatchIndex = -1;
+        //
+        //     cost = 0;
+        //
+        //     while (iName < targetName.Length && iQuery < query.Length)
+        //     {
+        //         var curQuerySymbol = char.ToLower(query[iQuery]);
+        //         var curNameSymbol = char.ToLower(targetName[iName]);
+        //
+        //         if (curNameSymbol == curQuerySymbol)
+        //         {
+        //             var gapLength = iName - prevMatchIndex - 1;
+        //             cost += gapLength;
+        //
+        //             matchIndexes[iQuery] = iName;
+        //             iQuery++;
+        //             iName = iName + 1;
+        //             prevMatchIndex = iName - 1;
+        //             continue;
+        //         }
+        //
+        //         var nextWordInitialIndex = nextWordInitialsIndexMap[iName];
+        //         var nextWordInitialSymbol = nextWordInitialIndex == default
+        //             ? default
+        //             : char.ToLower(targetName[nextWordInitialIndex]);
+        //
+        //         if (nextWordInitialSymbol == curQuerySymbol)
+        //         {
+        //             var gapLength = nextWordInitialIndex - prevMatchIndex - 1;
+        //             cost += gapLength * 0.01f;
+        //
+        //             matchIndexes[iQuery] = nextWordInitialIndex;
+        //             iQuery++;
+        //             iName = nextWordInitialIndex + 1;
+        //             prevMatchIndex = nextWordInitialIndex;
+        //             continue;
+        //         }
+        //
+        //         iName++;
+        //     }
+        //
+        //     return iQuery >= query.Length;
+        // }
 
         private void RefreshAssetsInternal()
         {
@@ -713,9 +732,12 @@ namespace CommandPalette
                 }
                 Debug.Log($"[CommandPalette] 載入 {assetTypeDefinition.DisplayName} 完成，Assets: {assetsCount} 個，Packages: {packagesCount} 個，總計 {tempAssets.Count} 個，耗時 {stopwatch.ElapsedMilliseconds - phase2Start}ms");
 
-                // 階段3：排序
+                // 階段3：智慧排序（Assets 資料夾優先，然後按名稱）
                 var sortStart = stopwatch.ElapsedMilliseconds;
-                tempAssets = tempAssets.OrderBy(p => p.name).ToList();
+                tempAssets = tempAssets
+                    .OrderBy(p => p.path.StartsWith("Packages/") ? 1 : 0) // Assets 資料夾優先於 Packages
+                    .ThenBy(p => p.name)
+                    .ToList();
                 Debug.Log($"[CommandPalette] 排序完成，耗時 {stopwatch.ElapsedMilliseconds - sortStart}ms");
                 
                 // 更新快取
@@ -799,6 +821,7 @@ namespace CommandPalette
                         if (menuItem != null && menuItem.isValidated && menuItem.isEnabled)
                         {
                             EditorApplication.ExecuteMenuItem(menuPath);
+                            
                             Debug.Log($"已執行MenuItem: {menuItem.displayName} -> {menuPath}");
                         }
                         else
@@ -856,6 +879,44 @@ namespace CommandPalette
             Close();
         }
 
+        /// <summary>
+        /// 取得匹配優先級（數字越小優先級越高）
+        /// 0 = 完全匹配
+        /// 1 = 大小寫無關完全匹配  
+        /// 2 = 開頭匹配
+        /// 3 = 大小寫無關開頭匹配
+        /// 4 = 包含匹配
+        /// 5 = 大小寫無關包含匹配
+        /// 6 = 模糊匹配
+        /// </summary>
+        private int GetMatchPriority(string assetName, string searchTerm)
+        {
+            if (string.IsNullOrEmpty(searchTerm))
+                return 6;
+            
+            var assetNameLower = assetName.ToLowerInvariant();
+            var searchTermLower = searchTerm.ToLowerInvariant();
+            
+            // 支援空格和下劃線互換的搜尋
+            var normalizedAssetName = assetNameLower.Replace('_', ' ');
+            var normalizedSearchTerm = searchTermLower.Replace('_', ' ');
+            
+            // 完全匹配
+            if (assetNameLower == searchTermLower || normalizedAssetName == normalizedSearchTerm)
+                return 0;
+            
+            // 開頭匹配
+            if (assetNameLower.StartsWith(searchTermLower) || normalizedAssetName.StartsWith(normalizedSearchTerm))
+                return 2;
+            
+            // 包含匹配
+            if (assetNameLower.Contains(searchTermLower) || normalizedAssetName.Contains(normalizedSearchTerm))
+                return 4;
+            
+            // 模糊匹配（已通過 FuzzyMatch 驗證）
+            return 6;
+        }
+        
         private void OnLostFocus()
         {
             Close();
