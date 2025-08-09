@@ -47,6 +47,10 @@ namespace CommandPalette
         // EditorPrefs 鍵值
         private const string SEARCH_STRING_PREF_KEY = "CommandPalette_SearchString";
         private const string SEARCH_MODE_PREF_KEY = "CommandPalette_SearchMode";
+        private const string WINDOW_WIDTH_PREF_KEY = "CommandPalette_WindowWidth";
+        private const string WINDOW_HEIGHT_PREF_KEY = "CommandPalette_WindowHeight";
+        private const string WINDOW_X_PREF_KEY = "CommandPalette_WindowX";
+        private const string WINDOW_Y_PREF_KEY = "CommandPalette_WindowY";
 
         // 輔助方法：取得資源類型定義
         private static AssetTypeDefinition GetAssetTypeDefinition(SearchMode mode)
@@ -67,6 +71,9 @@ namespace CommandPalette
         
         // 靜態視窗實例引用
         private static SearchCommandPaletteWindow instance;
+        
+        // 視窗位置和尺寸追蹤
+        private Rect previousPosition;
         
         // AssetDatabase 事件監聽
         private static bool isAssetChangeListenerRegistered = false;
@@ -128,13 +135,30 @@ namespace CommandPalette
             instance.ShowUtility();
             instance.Focus();
 
-            // 設置視窗位置和大小 - 置中於螢幕
-            var mainWindowRect = EditorGUIUtility.GetMainWindowPosition();
-            var centerX = mainWindowRect.x + (mainWindowRect.width - WINDOW_WIDTH) / 2;
-            var centerY = mainWindowRect.y + (mainWindowRect.height - WINDOW_HEIGHT) / 2;
+            // 設置視窗位置和大小 - 從 EditorPrefs 載入或使用預設值
+            var savedWidth = EditorPrefs.GetFloat(WINDOW_WIDTH_PREF_KEY, WINDOW_WIDTH);
+            var savedHeight = EditorPrefs.GetFloat(WINDOW_HEIGHT_PREF_KEY, WINDOW_HEIGHT);
+            var savedX = EditorPrefs.GetFloat(WINDOW_X_PREF_KEY, -1f);
+            var savedY = EditorPrefs.GetFloat(WINDOW_Y_PREF_KEY, -1f);
 
-            var rect = new Rect(centerX, centerY, WINDOW_WIDTH, WINDOW_HEIGHT);
+            var rect = new Rect();
+            
+            // 如果有保存的位置，使用保存的位置
+            if (savedX >= 0 && savedY >= 0)
+            {
+                rect = new Rect(savedX, savedY, savedWidth, savedHeight);
+            }
+            else
+            {
+                // 否則置中於螢幕
+                var mainWindowRect = EditorGUIUtility.GetMainWindowPosition();
+                var centerX = mainWindowRect.x + (mainWindowRect.width - savedWidth) / 2;
+                var centerY = mainWindowRect.y + (mainWindowRect.height - savedHeight) / 2;
+                rect = new Rect(centerX, centerY, savedWidth, savedHeight);
+            }
+
             instance.position = rect;
+            instance.previousPosition = rect;
 
             instance.LoadAssetsFromCache();
         }
@@ -146,8 +170,28 @@ namespace CommandPalette
             prevSearchString = "";
             currentMode = (SearchMode)EditorPrefs.GetInt(SEARCH_MODE_PREF_KEY, (int)SearchMode.Prefabs);
             
-            LoadAssetsFromCache();
+            // 初始化位置追蹤
+            previousPosition = position;
             
+            LoadAssetsFromCache();
+        }
+        
+        private void Update()
+        {
+            // 監聽視窗位置和尺寸變化
+            if (position != previousPosition)
+            {
+                SaveWindowState();
+                previousPosition = position;
+            }
+        }
+        
+        private void SaveWindowState()
+        {
+            EditorPrefs.SetFloat(WINDOW_WIDTH_PREF_KEY, position.width);
+            EditorPrefs.SetFloat(WINDOW_HEIGHT_PREF_KEY, position.height);
+            EditorPrefs.SetFloat(WINDOW_X_PREF_KEY, position.x);
+            EditorPrefs.SetFloat(WINDOW_Y_PREF_KEY, position.y);
         }
 
         private readonly Stopwatch onGuiStopwatch = new();
@@ -924,6 +968,9 @@ namespace CommandPalette
 
         private void OnDestroy()
         {
+            // 保存視窗狀態
+            SaveWindowState();
+            
             // 清除靜態引用
             if (instance == this)
                 instance = null;
