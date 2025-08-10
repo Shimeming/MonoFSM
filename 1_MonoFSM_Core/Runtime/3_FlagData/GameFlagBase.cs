@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using _1_MonoFSM_Core.Runtime._3_FlagData;
 //using Newtonsoft.Json;
 //using Newtonsoft.Json.Linq;
 using MonoFSM.Core;
@@ -87,7 +88,7 @@ public interface INativeDataConsumer
 }
 
 //最基礎的GameFlag元件
-public abstract class GameFlagBase : ScriptableObject, ISerializable, ISelfValidator, INativeData
+public abstract class GameFlagBase : MonoSOConfig, ISerializable, ISelfValidator, INativeData
 {
     public IEnumerable<string> GetAllFlagFieldNames<T>()
     {

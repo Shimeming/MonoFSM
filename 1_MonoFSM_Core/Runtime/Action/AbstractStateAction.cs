@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using MonoFSM.Foundation;
-using RCGExtension;
+using MonoFSM.EditorExtension;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Runtime.Interact.EffectHit;
 using MonoFSM.Runtime.Vote;

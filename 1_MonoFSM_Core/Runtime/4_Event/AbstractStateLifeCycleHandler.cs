@@ -6,7 +6,7 @@ using MonoFSM.Core.Runtime.Action;
 using MonoFSM.Foundation;
 using MonoFSM.Runtime.Vote;
 using MonoFSM.Variable.Attributes;
-using RCGExtension;
+using MonoFSM.EditorExtension;
 using Sirenix.OdinInspector;
 using UnityEngine;
 

@@ -7,6 +7,6 @@ namespace MonoFSM.Core.Variable
     [FormerlyNamedAs("VarPoolObj")]
     public class VarMonoObj : GenericUnityObjectVariable<MonoObj>
     {
-        // public override GameFlagBase FinalData { get; } //蛤？
+        //FIxME: 要區分Prefab和Runtime Object嗎？ 提示？
     }
 }

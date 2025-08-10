@@ -26,6 +26,23 @@ namespace MonoFSM.Variable
 
             return items;
         }
+        
+        public static IList<ValueDropdownItem<VariableTag>> GetVariableTagDropdownItems<T>(this MonoBehaviour self)
+            where T : AbstractMonoVariable
+        {
+            var items = new List<ValueDropdownItem<VariableTag>>();
+            var contexts = self.GetComponentsInParent<MonoBlackboard>(true);
+            foreach (var context in contexts)
+            {
+                var vars = context.GetComponentsInChildren<T>(true);
+                foreach (var var in vars)
+                {
+                    var owner = var.GetComponentInParent<MonoBlackboard>();
+                    items.Add(new ValueDropdownItem<VariableTag>(owner.name + "/" + var.name, var._varTag));
+                }
+            }
+            return items;
+        }
     }
 
     //set flag, pick item...和GameFlag有關的要用一個interface才可以撈出來

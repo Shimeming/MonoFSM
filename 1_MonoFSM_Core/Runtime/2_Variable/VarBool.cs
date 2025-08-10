@@ -2,7 +2,7 @@
 
 using UnityEngine;
 
-using RCGExtension;
+using MonoFSM.EditorExtension;
 using MonoFSM.Core.Attributes;
 
 namespace MonoFSM.Variable

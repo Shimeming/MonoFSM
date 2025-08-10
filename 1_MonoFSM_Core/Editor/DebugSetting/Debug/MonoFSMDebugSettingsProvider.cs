@@ -1,15 +1,13 @@
-using MonoFSM.Core;
 #if UNITY_EDITOR
-using RCGExtension;
+using MonoFSM.EditorExtension;
 using UnityEditor;
-// using UnityEditor.SettingsManagement;
 #endif
-// using UnityEditor.SettingsManagement;
+using MonoFSM_EditorWindowExt.EditorWindowExt;
 using UnityEngine;
 
 namespace MonoDebugSetting
 {
-
+//這段不能放到editor嗎？
 #if UNITY_EDITOR
         // public class DebugSetting<T> : UserSetting<T>
         // {
@@ -24,59 +22,57 @@ namespace MonoDebugSetting
             //     "Enable Debug Mode (Ctrl/Cmd + Shift + D)", 
             //     "打開debug mode")]
             // public static DebugSetting<bool> IsDebugMode = new("rcg.isDebugMode", false);
-            public static bool IsDebugMode;
+            public const string PrefPath = "MonoFSM.DebugSetting.IsDebugMode";
+            private static bool _isDebugMode;
+
+            public static bool IsDebugMode
+            {
+                get => _isDebugMode;
+                set
+                {
+                    if (_isDebugMode == value) return;
+                    
+                    _isDebugMode = value;
+                    RuntimeDebugSetting.SetDebugMode(_isDebugMode);
+                    HierarchyDebug.IsDebugMode = _isDebugMode;
+                    EditorPrefs.SetBool(PrefPath, _isDebugMode);
+                    EditorApplication.RepaintHierarchyWindow();
+                    EditorWindowKeyboardNavigate.RepaintAll();
+                    EditorWindowKeyboardNavigate.RepaintToolBar();
+                    
+                    Debug.Log("ToggleDebugMode: " + _isDebugMode + " " +
+                              EditorPrefs.GetBool(PrefPath, false));
+                }
+            }
             [InitializeOnLoadMethod]
             static void Init()
             {
+                //FIXME: 要用什麼？
                 //rcgdev
                 //添加rcgdev的define
-                
-                ScriptingDefineUtility.Add("RCG_DEV", EditorUserBuildSettings.selectedBuildTargetGroup, true);
-                IsDebugMode = EditorPrefs.GetBool("DebugSetting.IsDebugMode", false);
-                HierarchyDebug.IsDebugMode = IsDebugMode;
+                // ScriptingDefineUtility.Add("RCG_DEV", EditorUserBuildSettings.selectedBuildTargetGroup, true);
+                _isDebugMode = EditorPrefs.GetBool(PrefPath, false);
+                RuntimeDebugSetting.SetDebugMode(_isDebugMode);
+                HierarchyDebug.IsDebugMode = _isDebugMode;
             }
+            
             // Shared team settings
             // [UserSetting("Auto-add BlackBox component", "To new Prefabs", 
             //     "Automatically adds a BlackBox component to all newly created Prefabs.")]
             // public static DebugSetting<bool> AutoAddToPrefabs = new("general.autoAddToPrefab", false);
-        }
-
-        static class RCGDebugSettingsProvider
-        {
-            // const string SettingsPath = "RCG/Debug Setting";
-            
-            private const string MenuName = "RCGs/Toggle DebugMode (Hierarchy Coloring) #%_D";
+  
+            private const string MenuName = "Tools/MonoFSM/Toggle DebugMode #%_D";
 
             [MenuItem(MenuName)]
             private static void ToggleDebugMode()
             {
                 // RCGDebugSetting.IsDebugMode.SetValue(!RCGDebugSetting.IsDebugMode.value);
-                MonoFSMDebugSetting.IsDebugMode = !MonoFSMDebugSetting.IsDebugMode;
-                HierarchyDebug.IsDebugMode = MonoFSMDebugSetting.IsDebugMode;
-                EditorPrefs.SetBool("DebugSetting.IsDebugMode", MonoFSMDebugSetting.IsDebugMode);
-                Debug.Log("ToggleDebugMode: " + MonoFSMDebugSetting.IsDebugMode + " " +
-                          EditorPrefs.GetBool("DebugSetting.IsDebugMode", false));
-                EditorApplication.RepaintHierarchyWindow();
+                IsDebugMode = !IsDebugMode;
             }
-
-            // [SettingsProvider]
-            // static SettingsProvider CreateSettingsProvider()
-            // {
-            //     UserSettingsProvider provider = new(SettingsPath,
-            //         RCGDebugSetting.settings,
-            //         new[] { typeof(RCGDebugSettingsProvider).Assembly }, SettingsScope.User)
-            //     {
-            //         keywords = new[] { "Debug", "FSM" }
-            //     };
-            //
-            //     RCGDebugSetting.settings.afterSettingsSaved += OnSettingsSaved;
-            //     return provider;
-            // }
-
+            
             private static void OnSettingsSaved()
             {
                 SaveSettingsRuntimeSide();
-                // SceneWatcher.UpdateAllPrefabsInScene();
             }
 
             [InitializeOnLoadMethod]

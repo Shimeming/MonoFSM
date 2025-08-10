@@ -8,7 +8,7 @@ using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Editor;
 using MonoFSM.Foundation;
-using RCGExtension;
+using MonoFSM.EditorExtension;
 using Sirenix.OdinInspector;
 using UnityEngine;
 #if UNITY_EDITOR

@@ -5,7 +5,7 @@ using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Runtime;
 using MonoFSM.Runtime.Attributes;
-using RCGExtension;
+using MonoFSM.EditorExtension;
 using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEditor.SceneManagement;

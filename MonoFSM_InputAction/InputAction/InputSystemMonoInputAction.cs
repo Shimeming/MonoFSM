@@ -1,4 +1,5 @@
 using MonoFSM.Core.Attributes;
+using MonoFSM.Foundation;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -7,9 +8,10 @@ namespace MonoFSM_InputAction
 {
     //FIXME: 應該綁這個為主？DI IsPressed實作
     [RequireComponent(typeof(AbstractMonoInputAction))]
-    public class InputSystemMonoInputAction : MonoBehaviour, IMonoInputAction
+    public class InputSystemMonoInputAction : AbstractDescriptionBehaviour, IMonoInputAction
     {
         
+        [Required]
         [PreviewInInspector] [AutoParent] private PlayerInput _localPlayerInput;
         public int InputActionId => _inputActionData.actionID; //還是monobehaviour自己assign就好？
 
@@ -32,6 +34,8 @@ namespace MonoFSM_InputAction
 
 
         public virtual bool WasReleased => myAction.WasReleasedThisFrame(); //FIXME: 這個是local的
-        
+
+        protected override string DescriptionTag => "Input";
+        public override string Description => _inputActionData.name;
     }
 }

@@ -40,7 +40,7 @@ namespace MonoFSM.Core
         }
         
         protected readonly Dictionary<T, TU> _dict = new();
-        protected readonly Dictionary<string, TU> _stringDict = new();
+        protected readonly Dictionary<string, TU> _stringDict = new(); //FIXME: 可能會過期喔？要檢查看看null了要清掉？
 
         //FIXME: 如果一個type有多個實例，要用List<TU>? firstOrDefault? 好像是耶
         //GetAll, 和GetComponentsInChildren<TU> 有點像 GetComponentsInChildren<TU>就回傳第一個

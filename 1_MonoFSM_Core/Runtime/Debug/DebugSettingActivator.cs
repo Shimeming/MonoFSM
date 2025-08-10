@@ -22,7 +22,7 @@ namespace MonoDebugSetting
 
         private IEnumerable<string> GetAllDebugSettingNames()
         {
-            foreach (var property in typeof(DebugSetting).GetProperties())
+            foreach (var property in typeof(RuntimeDebugSetting).GetProperties())
             {
                 if (property.PropertyType != typeof(bool)) continue;
                 yield return property.Name;
@@ -36,7 +36,7 @@ namespace MonoDebugSetting
         {
             if (_getActivateProperty == null)
             {
-                var propertyInfo = typeof(DebugSetting).GetProperty(activatePropertyName,
+                var propertyInfo = typeof(RuntimeDebugSetting).GetProperty(activatePropertyName,
                     BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
                 if (propertyInfo == null)
                 {

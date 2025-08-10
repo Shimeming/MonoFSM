@@ -112,7 +112,7 @@ namespace Fusion.Addons.FSM
             {
                 Profiler.BeginSample(
                     $"MonoStateMachineController.FixedUpdate ({_fsmLogic.StateMachines[i].Name})");
-                _fsmLogic.StateMachines[i].FixedUpdateNetwork(); // Assuming IStateMachine can handle null Runner
+                _fsmLogic.StateMachines[i].FixedUpdate(); // Assuming IStateMachine can handle null Runner
                 Profiler.EndSample();
             }
         }

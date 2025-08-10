@@ -159,7 +159,7 @@ public static class EditorMonoNodeExtension
     [Conditional("UNITY_EDITOR")]
     public static void DebugLog(this Component owner, string result)
     {
-        if (DebugSetting.IsDebugMode)
+        if (RuntimeDebugSetting.IsDebugMode)
             Debug.Log(result, owner);
     }
 }

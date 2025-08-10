@@ -866,7 +866,7 @@ namespace CommandPalette
                         {
                             EditorApplication.ExecuteMenuItem(menuPath);
                             
-                            Debug.Log($"已執行MenuItem: {menuItem.displayName} -> {menuPath}");
+                            Debug.Log($"🎨已執行MenuItem: {menuItem.displayName} -> {menuPath}");
                         }
                         else
                         {

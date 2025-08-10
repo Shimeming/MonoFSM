@@ -1,5 +1,5 @@
 using MonoFSM.Foundation;
-using RCGExtension;
+using MonoFSM.EditorExtension;
 using UnityEngine;
 
 namespace MonoFSM.Core

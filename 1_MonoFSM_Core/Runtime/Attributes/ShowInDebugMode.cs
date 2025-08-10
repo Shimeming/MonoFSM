@@ -1,5 +1,6 @@
 using System;
 using JetBrains.Annotations;
+using MonoDebugSetting;
 using Sirenix.OdinInspector;
 
 namespace MonoFSM.Core.Attributes
@@ -7,7 +8,7 @@ namespace MonoFSM.Core.Attributes
     [GUIColor(1, 1, 0, 1)]
     [IncludeMyAttributes]
     [ShowInInspector]
-    [ShowIf("@DebugSetting.IsDebugMode")]
+    [ShowIf("@"+nameof(RuntimeDebugSetting)+"."+nameof(RuntimeDebugSetting.IsDebugMode))]
     // [UsedImplicitly]
     [MeansImplicitUse]
     public class ShowInDebugMode : Attribute
@@ -16,7 +17,7 @@ namespace MonoFSM.Core.Attributes
     }
 
     [GUIColor(1, 1, 0, 1)]
-    [ShowIf("@DebugSetting.IsDebugMode")]
+    [ShowIf("@"+nameof(RuntimeDebugSetting)+"."+nameof(RuntimeDebugSetting.IsDebugMode))]
     [MeansImplicitUse]
     [IncludeMyAttributes]
     [ShowInInspector]

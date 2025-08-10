@@ -3,7 +3,7 @@ using MonoFSM.Core.Attributes;
 using MonoFSM.Runtime.Mono;
 using MonoFSM.Variable;
 using MonoFSM.Variable.FieldReference;
-using RCGExtension;
+using MonoFSM.EditorExtension;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Serialization;

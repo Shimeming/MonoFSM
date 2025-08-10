@@ -30,8 +30,9 @@ namespace MonoFSM.Core.Attributes.Editor
 
             if (showInPlayModeAttribute._debugModeOnly)
             {
-                Debug.Log("[ShowInPlayModeAttributeProcessor] DebugModeOnly: " + DebugSetting.IsDebugMode);
-                attributes.Add(new ShowIfAttribute("@DebugSetting.IsDebugMode"));
+                
+                // Debug.Log("[ShowInPlayModeAttributeProcessor] DebugModeOnly: " + RuntimeDebugSetting.IsDebugMode);
+                attributes.Add(new ShowIfAttribute($"{nameof(RuntimeDebugSetting)}.{nameof(RuntimeDebugSetting.IsDebugMode)}"));
                 //
                 // // Debug.Log("[ShowInPlayModeAttributeProcessor] DebugModeOnly");
                 // if (DebugSetting.IsDebugMode)

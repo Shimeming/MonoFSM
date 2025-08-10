@@ -1,4 +1,4 @@
-using RCGExtension;
+using MonoFSM.EditorExtension;
 using UnityEngine;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Variable.FieldReference;

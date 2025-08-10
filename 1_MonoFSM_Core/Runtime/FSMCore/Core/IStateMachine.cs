@@ -10,7 +10,7 @@
 
         // void Initialize(NetworkStateMachineController controller, NetworkRunner runner);
         void Initialize(StateMachineLogic logic, ITickProvider tickProvider);
-        void FixedUpdateNetwork();
+        void FixedUpdate();
         void Render();
         void Deinitialize(bool hasState);
         void SetDefaultState(int stateId);

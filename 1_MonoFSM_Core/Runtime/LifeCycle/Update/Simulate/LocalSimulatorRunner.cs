@@ -58,11 +58,12 @@ namespace MonoFSM.Core.Simulate
         //會需要Update嗎？
         private void Update()
         {
-            _world.Render(Time.deltaTime);
+            // _world.Simulate(Time.deltaTime);
         }
 
         private void LateUpdate()
         {
+            _world.Render(Time.deltaTime);
             _world.AfterUpdate();
         }
 

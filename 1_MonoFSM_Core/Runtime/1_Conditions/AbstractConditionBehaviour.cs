@@ -3,7 +3,7 @@ using MonoDebugSetting;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Foundation;
 using MonoFSM.Variable;
-using RCGExtension;
+using MonoFSM.EditorExtension;
 using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEngine;
@@ -114,7 +114,7 @@ public abstract class AbstractConditionBehaviour : AbstractDescriptionBehaviour,
     public bool OverrideValue =>
         _debugConditionResultOverrider != null && _debugConditionResultOverrider.OverrideResultValue;
 
-    private static bool IsDebugMode => DebugSetting.IsDebugMode;
+    private static bool IsDebugMode => RuntimeDebugSetting.IsDebugMode;
 #endif
 
     //For Cheat Code

@@ -11,7 +11,7 @@ namespace MonoDebugSetting
 #if UNITY_EDITOR
     [InitializeOnLoad]
 #endif
-    public static class DebugSetting
+    public static class RuntimeDebugSetting
     {
         
         public static bool Is2DFXEnabledInEditor
@@ -64,9 +64,9 @@ namespace MonoDebugSetting
 
         //FIXME: debug ui?
         
-        static DebugSetting()
+        static RuntimeDebugSetting()
         {
-            foreach (var property in typeof(DebugSetting).GetProperties())
+            foreach (var property in typeof(RuntimeDebugSetting).GetProperties())
             {
                 
                 if (property.PropertyType != typeof(bool)) continue;
@@ -222,12 +222,18 @@ get => false;
         //     var result = IsBoolPropertyEnabled(moduleName);
         //     QuantumConsole.Instance.LogToConsole($"{moduleName} is " + (result ? "enabled" : "disabled"));
         // }
-        
+
+        static bool _isDebugMode;
+
+        public static void SetDebugMode(bool value) //FIXME: 要擋掉？interface pass?
+        {
+            _isDebugMode = value;
+        }
         public static bool IsDebugMode
         {
             //FIXME: 怎麼從這邊拿...
 #if UNITY_EDITOR
-            get => MonoFSMDebugSetting.IsDebugMode;
+            get => _isDebugMode;
 #else
             get => false;
 #endif

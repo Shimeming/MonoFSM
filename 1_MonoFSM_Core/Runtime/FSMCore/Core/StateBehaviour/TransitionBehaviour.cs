@@ -2,7 +2,7 @@ using Fusion.Addons.FSM;
 using MonoFSM.Core;
 using MonoFSM.Foundation;
 using MonoFSM.Variable.Attributes;
-using RCGExtension;
+using MonoFSM.EditorExtension;
 using Sirenix.OdinInspector;
 using UnityEngine;
 

@@ -6,7 +6,7 @@ using MonoFSM.Core.Runtime;
 using MonoFSM.Core.Utilities;
 using MonoFSM.Runtime;
 using MonoFSM.Variable;
-using RCGExtension;
+using MonoFSM.EditorExtension;
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;
 using UnityEngine;
@@ -46,8 +46,12 @@ namespace MonoFSM.Core.DataProvider
             //FIXME: 不看Parent entity的entity tag嗎？
             if (entityProvider != null)
                 if (entityProvider.entityTag == null)
+                {
+                    return entityProvider.GetVariableTagDropdownItems<AbstractMonoVariable>();
                     // Debug.LogError("EntityProvider has no entity tag, returning empty variable tags.", this);
                     return new List<ValueDropdownItem<VariableTag>>();
+                }
+                    
 
             return entityProvider?.entityTag?.GetVariableTagItems() ?? ParentEntity?.GetVarTagOptions();
         }

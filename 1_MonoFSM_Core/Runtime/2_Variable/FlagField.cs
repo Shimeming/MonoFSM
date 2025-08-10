@@ -312,7 +312,7 @@ public class
         {
             if (Application.isPlaying == false)
             {
-                if (DebugSetting.IsDebugMode)
+                if (RuntimeDebugSetting.IsDebugMode)
                     return DevValue;
                 return ProductionValue;
             }
@@ -583,7 +583,7 @@ public class
         //     // Debug.Log("FlagField: CurrentValue" + CurrentValue);
         // }
         // else
-        _currentValue = DebugSetting.IsDebugMode ? DevValue : ProductionValue;
+        _currentValue = RuntimeDebugSetting.IsDebugMode ? DevValue : ProductionValue;
         // Debug.Log("FlagField Init: " + _currentValue + " Mode: " + DebugSetting.IsDebugMode, owner);
         //沒有register耶？
     }

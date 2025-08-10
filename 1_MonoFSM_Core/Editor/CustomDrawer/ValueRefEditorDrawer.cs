@@ -24,7 +24,7 @@ namespace MonoFSM.Core.Editor
             //FIXME: 好像不該這樣弄，還是ValueDrawer比較好？針對path處理就好
             Tree.BeginDraw(true);
             _target = serializedObject.targetObject as ValueRef;
-            if (DebugSetting.IsDebugMode)
+            if (RuntimeDebugSetting.IsDebugMode)
             {
                 // 繪製原始的Inspector內容
                 base.DrawTree();

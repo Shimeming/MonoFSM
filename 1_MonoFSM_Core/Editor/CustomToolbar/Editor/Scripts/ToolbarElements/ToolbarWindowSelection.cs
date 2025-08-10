@@ -80,7 +80,21 @@ namespace UnityToolbarExtender.ToolbarElements
 
         protected override void OnDrawInToolbar()
         {
-            
+            var style = new GUIStyle(GUI.skin.label)
+            {
+                normal =
+                {
+                    textColor = new Color(0.2f, 0.5f, 0.1f)
+                },
+                fontSize = 12,
+                alignment = TextAnchor.MiddleCenter
+            };
+            if (EditorWindow.focusedWindow)
+            {
+                var labelContent = new GUIContent(EditorWindow.focusedWindow.titleContent.text, "Focusing Window");
+                GUILayout.Label(labelContent, style);
+                //repaint?
+            }
             //偷懶了...每個工具都要寫一個BaseToolbarElement很麻煩，直接在這裡寫
             if (GUILayout.Button(_pasteLinkBtn, ToolbarStyles.commandButtonStyle))
             {
@@ -129,22 +143,24 @@ namespace UnityToolbarExtender.ToolbarElements
             }
 
             //偷懶放label
-            var isDebugMode = EditorPrefs.GetBool("DebugSetting.IsDebugMode", false);
+            //FIXME: 改名會爛掉
+            var isDebugMode = EditorPrefs.GetBool("MonoFSM.DebugSetting.IsDebugMode", false);
+          
             if (isDebugMode)
             {
                 
                 //green text
-                GUIStyle style = new GUIStyle(GUI.skin.label);
-                style.normal.textColor = new Color(0.2f, 0.5f, 0.1f);
-                style.fontSize = 12;
-                style.alignment = TextAnchor.MiddleCenter;
+               
                 // style.padding = new RectOffset(0, 0, 0, 0);
                 // style.margin = new RectOffset(0, 0, 0, 0);
                 // style.fontStyle = FontStyle.Bold;
                 // style.normal.background = null;
                 GUILayout.Label("Debug Mode", style);
             }
-             
+
+
+                
+            
         }
     }
 }

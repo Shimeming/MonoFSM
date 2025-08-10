@@ -7,7 +7,7 @@ using MonoFSM.Core.DataProvider;
 using MonoFSM.Core.Runtime;
 using MonoFSM.Variable.VariableBinder;
 using MonoFSM.VarRefOld;
-using RCGExtension;
+using MonoFSM.EditorExtension;
 using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEngine;

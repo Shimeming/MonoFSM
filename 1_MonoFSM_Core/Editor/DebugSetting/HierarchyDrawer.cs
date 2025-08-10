@@ -362,7 +362,7 @@ namespace Febucci.HierarchyData
         /// </summary>
         static void RetrieveDataFromScene()
         {
-            if (!DebugSetting.IsDebugMode)
+            if (!RuntimeDebugSetting.IsDebugMode)
             {
                 return;
             }

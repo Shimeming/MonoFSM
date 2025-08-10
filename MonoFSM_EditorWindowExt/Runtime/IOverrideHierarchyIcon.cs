@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace RCGExtension
+namespace MonoFSM.EditorExtension
 {
     public interface IOverrideHierarchyIcon
     {

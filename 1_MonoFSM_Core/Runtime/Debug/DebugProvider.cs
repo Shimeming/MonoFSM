@@ -6,17 +6,14 @@ using MonoDebugSetting;
 using Sirenix.OdinInspector;
 using UnityEditor;
 #if UNITY_EDITOR
-using RCGExtension;
+using MonoFSM.EditorExtension;
 using UnityEditorInternal;
 #endif
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 
-public class DebugProvider : MonoBehaviour, IEditorOnly
-#if UNITY_EDITOR
-    , IOverrideHierarchyIcon //往上找
-#endif
+public class DebugProvider : MonoBehaviour, IEditorOnly, IOverrideHierarchyIcon //往上找
 {
 #if UNITY_EDITOR
     [MenuItem("RCGMaker/Debug/Toggle DebugProvider %#_L")]
@@ -45,7 +42,7 @@ public class DebugProvider : MonoBehaviour, IEditorOnly
     [AutoChildren] StateMachineOwner _stateMachineOwner;
     // public GeneralState currentState => _stateMachineOwner?.FsmContext?.currentStateType;
 
-    private bool IsNotDebugMode => !DebugSetting.IsDebugMode && IsLogInChildren;
+    private bool IsNotDebugMode => !RuntimeDebugSetting.IsDebugMode && IsLogInChildren;
 
 #if UNITY_EDITOR
     [InfoBox("Is Not DebugMode, Will Not Log", InfoMessageType.Warning, VisibleIf = "IsNotDebugMode")]
@@ -89,7 +86,7 @@ public class DebugProvider : MonoBehaviour, IEditorOnly
     }
 
     public string IconName => "console.infoicon@2x";
-    public bool IsDrawingIcon => IsLogInChildren && DebugSetting.IsDebugMode;
+    public bool IsDrawingIcon => IsLogInChildren && RuntimeDebugSetting.IsDebugMode;
     public Texture2D CustomIcon => null;
     public bool IsPosAtHead => true;
 }

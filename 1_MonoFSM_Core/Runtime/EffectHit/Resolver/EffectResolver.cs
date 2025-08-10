@@ -2,7 +2,7 @@ using System;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Detection;
 using MonoFSM.Variable.Attributes;
-using RCGExtension;
+using MonoFSM.EditorExtension;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Serialization;

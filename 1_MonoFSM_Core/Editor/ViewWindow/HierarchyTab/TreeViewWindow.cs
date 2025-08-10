@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using HierarchyIDEWindow.MonoFSM_HierarchyDrawer.Editor;
-using RCGExtension;
+using MonoFSM.EditorExtension;
 using MonoFSM.Editor;
 using RCGMakerFSMCore.Editor.ViewWindow.HierarchyTab;
 using Sirenix.OdinInspector;

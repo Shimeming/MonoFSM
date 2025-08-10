@@ -83,9 +83,9 @@ namespace RCG.Core
         {
             base.OnImGUI();
             //display all debug settings properties
-            if (!DebugSetting.IsShowAllFields)
+            if (!RuntimeDebugSetting.IsShowAllFields)
                 return;
-            var fields = typeof(DebugSetting).GetProperties(BindingFlags.Public | BindingFlags.Static);
+            var fields = typeof(RuntimeDebugSetting).GetProperties(BindingFlags.Public | BindingFlags.Static);
             foreach (var field in fields)
             {
                 if (field.PropertyType != typeof(bool)) continue;

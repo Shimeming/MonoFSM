@@ -23,16 +23,19 @@ namespace MonoFSM_InputAction
         [CompRef] [Auto] private IMonoInputAction _abstractMonoInputAction;
         [ShowInPlayMode] public bool IsPressed => _abstractMonoInputAction.IsPressed; //如果外掛
 
-        [ShowInPlayMode] public bool WasPressed => _abstractMonoInputAction.WasPressed; //FIXME: 這個是local的
+        [ShowInPlayMode] public bool WasPressed => _abstractMonoInputAction.WasPressed;
 
         // public abstract bool WasPressBuffered();
-        [ShowInPlayMode] public bool WasReleased => _abstractMonoInputAction.WasReleased; //FIXME: 這個是local的
+        [ShowInPlayMode] public bool WasReleased => _abstractMonoInputAction.WasReleased;
  
         //FIXME: read Vector2 input, 混用? 還是要再抽一層？
         public int InputActionId => _abstractMonoInputAction.InputActionId; //還是monobehaviour自己assign就好？
 
-        [PreviewInInspector] public bool IsLocalPressed => _abstractMonoInputAction.IsLocalPressed; //這個是local的
+        [PreviewInInspector] public bool IsLocalPressed => _abstractMonoInputAction?.IsLocalPressed ?? false; //這個是local的
 
+        //FIXME: Debug last press time?
+        
+        
         //FIXME: buffer queue坐在input還是action上？
         
         // [PreviewInInspector] private float _lastPressTime = -1;

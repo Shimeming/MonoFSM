@@ -1,6 +1,6 @@
 using Fusion.Addons.FSM;
 using MonoFSM.Core;
-using RCGExtension;
+using MonoFSM.EditorExtension;
 using UnityEngine;
 
 namespace _1_MonoFSM_Core.Runtime.FSMCore.Core.StateBehaviour

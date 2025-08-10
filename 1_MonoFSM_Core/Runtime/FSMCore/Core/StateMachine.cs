@@ -215,7 +215,7 @@ namespace Fusion.Addons.FSM
             }
         }
 
-        void IStateMachine.FixedUpdateNetwork() //FIXME: rename
+        void IStateMachine.FixedUpdate() //FIXME: rename
         {
             if (IsPaused == true)
                 return;
@@ -314,7 +314,7 @@ namespace Fusion.Addons.FSM
             _previousStateId = _activeStateId;
             _activeStateId = stateId;
 
-            if (DebugSetting.IsDebugMode)
+            if (RuntimeDebugSetting.IsDebugMode)
                 LogStateChange();
 
             Profiler.BeginSample("Exit State");

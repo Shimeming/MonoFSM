@@ -28,7 +28,7 @@ public static class MonoExtensionLogger
     {
 // #if RCG_DEV
 
-        if (DebugSetting.IsDebugMode == false)
+        if (RuntimeDebugSetting.IsDebugMode == false)
             return (false, null);
         // var isLogging = false;
         // var providerName = "";

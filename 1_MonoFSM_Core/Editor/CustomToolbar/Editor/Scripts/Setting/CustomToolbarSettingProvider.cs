@@ -55,7 +55,7 @@ namespace UnityToolbarExtender
 			elementsList.DoLayoutList();
 
 			EditorGUILayout.EndScrollView();
-
+			
 			m_toolbarSetting.ApplyModifiedProperties();
 			if (GUI.changed) {
 				EditorUtility.SetDirty(m_toolbarSetting.targetObject);
@@ -83,11 +83,18 @@ namespace UnityToolbarExtender
 				{
 					keywords = GetSearchKeywordsFromGUIContentProperties<Styles>()
 				};
-
+				_instance = provider;
 				return provider;
 			}
 
 			return null;
+		}
+
+		private static SettingsProvider _instance;
+
+		public static void Repaint()
+		{
+			_instance.Repaint();
 		}
 	}
 }

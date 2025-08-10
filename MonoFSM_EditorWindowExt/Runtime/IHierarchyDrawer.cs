@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace RCGExtension
+namespace MonoFSM.EditorExtension
 {
     //FIXME: 這個獨立抽出來有什麼差？interface還不是被引用了
     public static class HierarchyResource

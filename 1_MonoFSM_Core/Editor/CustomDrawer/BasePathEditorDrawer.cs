@@ -26,7 +26,7 @@ namespace MonoFSM.Core.Editor
         /// </summary>
         protected bool GetUseSimplePathEditor(PropertyOfTypeProvider target)
         {
-            if (DebugSetting.IsDebugMode) return false;
+            if (RuntimeDebugSetting.IsDebugMode) return false;
             return true;
         }
 
