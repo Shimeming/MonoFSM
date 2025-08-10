@@ -62,6 +62,7 @@ namespace MonoFSM.Core.Simulate
             _binder = GetComponent<MonoEntityBinder>();
             
             _binder.EnterSceneAwake();
+            Debug.Log("MonoEntityBinder Init");
         }
 
        [CompRef] [Auto]  private MonoEntityBinder _binder;

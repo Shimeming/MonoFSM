@@ -13,6 +13,8 @@ public class InputActionData : MonoSOConfig
     [Required]
     public InputActionReference inputAction;
 
+    [ShowInInspector]
+    private string expectedControlType => inputAction.action.expectedControlType;
     //FIXME://enum mapping for network, 改成自動mapping
     [PreviewInInspector]
     public int actionID;

@@ -19,7 +19,6 @@ public class HitDataEntityProvider : AbstractEntityProvider, IEntityProvider //�
     }
 
     //FIXME: Owner可以 自動判斷吧，parent有Dealer就表示要用Receiver的
-
     string IEntityProvider.Description => $"{ownerType}'s Blackboard";
 
     public HitDataVariableOwner ownerType;

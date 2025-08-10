@@ -36,7 +36,6 @@ public abstract class GenericMonoVariable<TScriptableData, TField, TType> : Abst
         ValueCommited(last, current);
     }
 
-
     //可以用abstract比較好？但目前只用到VarFloat
     protected virtual void ValueCommited(TType lastValue, TType currentValue)
     {

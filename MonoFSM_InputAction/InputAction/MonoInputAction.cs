@@ -7,31 +7,51 @@ namespace MonoFSM_InputAction
     //UnityMonoInputAction / RewireMonoInputAction
     //FIXME:好像包的有點亂，這個又要polling local, 又要提供處理完的?
     //寫錯啦！應該給一個能串接的對象，然後實作抽出去
-    public interface IMonoInputAction
+    public interface IInputActionImplementation
     {
-        bool IsPressed { get; }
-        bool WasPressed { get; }
-        bool WasReleased { get; }
-        int InputActionId { get; }
-        bool IsLocalPressed { get; }
+        public int InputActionId { get; }
+        protected internal bool IsPressed { get; }
+        protected internal bool WasPressed { get; }
+        protected internal bool WasReleased { get; }
+        protected internal bool IsLocalPressed { get; }
+        protected internal Vector2 ReadLocalVec2 { get; }
+        protected internal Vector2 Vec2Value { get; }
+        protected internal bool IsVec2 { get; }
     }
-
-    //要叫什麼名字？
+    
     //抽象的input介面
-    public class AbstractMonoInputAction : MonoBehaviour //不要綁定 InputSystem?
+    //多這層的好處是，reference拉好後，要切換實作就換上面的IMonoInputAction就好
+    public class MonoInputAction : MonoBehaviour //不要綁定 InputSystem?
     {
-        [CompRef] [Auto] private IMonoInputAction _abstractMonoInputAction;
-        [ShowInPlayMode] public bool IsPressed => _abstractMonoInputAction.IsPressed; //如果外掛
+        #region 不會被Override, local input result
+        
+        public Vector2 LocalVec2 => _abstractInputActionImplementation.ReadLocalVec2; //不會被Override
+        [PreviewInInspector] public bool IsLocalPressed => _abstractInputActionImplementation?.IsLocalPressed ?? false; //這個是local的
 
-        [ShowInPlayMode] public bool WasPressed => _abstractMonoInputAction.WasPressed;
+        #endregion 
+     
+        //FIXME: 重命名, relay?
+        [CompRef] [Auto] private IInputActionImplementation _abstractInputActionImplementation;
+        
+     
+        //可能被network版的inputActionHandler override
+        public Vector2 ReadValueVec2 => _abstractInputActionImplementation.Vec2Value; //可以被Override
+        
+        
+        
+        //什麼時候需要用到？local直接接？
+        [ShowInPlayMode] public bool IsPressed => _abstractInputActionImplementation.IsPressed; //如果外掛
+
+        [ShowInPlayMode] public bool WasPressed => _abstractInputActionImplementation.WasPressed;
 
         // public abstract bool WasPressBuffered();
-        [ShowInPlayMode] public bool WasReleased => _abstractMonoInputAction.WasReleased;
+        [ShowInPlayMode] public bool WasReleased => _abstractInputActionImplementation.WasReleased;
  
         //FIXME: read Vector2 input, 混用? 還是要再抽一層？
-        public int InputActionId => _abstractMonoInputAction.InputActionId; //還是monobehaviour自己assign就好？
-
-        [PreviewInInspector] public bool IsLocalPressed => _abstractMonoInputAction?.IsLocalPressed ?? false; //這個是local的
+        public int InputActionId => _abstractInputActionImplementation.InputActionId; //還是monobehaviour自己assign就好？
+        public bool ReadsVec2 => _abstractInputActionImplementation.IsVec2;
+        
+  
 
         //FIXME: Debug last press time?
         

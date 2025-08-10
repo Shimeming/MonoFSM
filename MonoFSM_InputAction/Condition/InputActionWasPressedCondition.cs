@@ -21,7 +21,7 @@ namespace Fusion.Addons.KCC.ECM2.Examples.Networking.Fusion_v2.Characters.Script
         // public InputActionData actionData;
 
         //FIXME: 用一個介面
-        [DropDownRef] public AbstractMonoInputAction _inputAction;
+        [DropDownRef] public MonoInputAction _inputAction;
         //resolve 去哪找？往上找
         // [AutoParent] AbstractFusionPlayerInput playerInput;
         // [AutoParent] private IPlayerInputProvider _playerInputProvider;

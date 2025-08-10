@@ -7,8 +7,8 @@ using UnityEngine.InputSystem;
 namespace MonoFSM_InputAction
 {
     //FIXME: 應該綁這個為主？DI IsPressed實作
-    [RequireComponent(typeof(AbstractMonoInputAction))]
-    public class InputSystemMonoInputAction : AbstractDescriptionBehaviour, IMonoInputAction
+    [RequireComponent(typeof(MonoInputAction))]
+    public class InputSystemInputActionImplementation : AbstractDescriptionBehaviour, IInputActionImplementation
     {
         
         [Required]
@@ -18,22 +18,24 @@ namespace MonoFSM_InputAction
         [InlineEditor]
         [SOConfig("PlayerInputActionData")] [SerializeField]
         protected InputActionData _inputActionData;
+
+        // private bool _readLocalVec2;
+
         // private InputActionMap _inputActionMap;
         public InputAction myAction =>
             _inputActionData ? _localPlayerInput?.actions[_inputActionData?.inputAction?.name] : null;
         // public InputAction myAction => _localPlayerInput.currentActionMap.FindAction(_inputActionData.inputAction.name);
 
-        public virtual bool IsLocalPressed =>
+        bool IInputActionImplementation.IsLocalPressed =>
             Application.isPlaying && (myAction.IsPressed() || myAction.WasPressedThisFrame());
-        Vector2 LocalReadValueVector2 => myAction.ReadValue<Vector2>();
 
-        public virtual Vector2 ReadValueVector2 => LocalReadValueVector2;
-        public virtual bool IsPressed => myAction.IsPressed(); //如果外掛
-
-        public virtual bool WasPressed => myAction.WasPressedThisFrame(); //FIXME: 這個是local的
-
-
-        public virtual bool WasReleased => myAction.WasReleasedThisFrame(); //FIXME: 這個是local的
+        Vector2 IInputActionImplementation.ReadLocalVec2 => myAction.ReadValue<Vector2>();
+        Vector2 IInputActionImplementation.Vec2Value => ((IInputActionImplementation)this).ReadLocalVec2;
+        [ShowInInspector]
+        bool IInputActionImplementation.IsVec2 => _inputActionData.inputAction.action.expectedControlType == "Vector2";
+        bool IInputActionImplementation.IsPressed => myAction.IsPressed(); //如果外掛
+        bool IInputActionImplementation.WasPressed => myAction.WasPressedThisFrame();
+        bool IInputActionImplementation.WasReleased => myAction.WasReleasedThisFrame();
 
         protected override string DescriptionTag => "Input";
         public override string Description => _inputActionData.name;
