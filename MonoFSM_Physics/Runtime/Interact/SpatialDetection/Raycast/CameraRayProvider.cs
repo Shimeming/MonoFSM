@@ -2,7 +2,7 @@ using System;
 using MonoFSM.Core.Runtime.Interact.SpatialDetection;
 using UnityEngine;
 
-namespace MonoFSM.Physics
+namespace MonoFSM.PhysicsWrapper
 {
     //FIXME: 還是弄回component?
     [Serializable]

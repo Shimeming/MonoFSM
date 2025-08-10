@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Detection;
 using MonoFSM.Core.Simulate;
-using MonoFSM.Physics;
+using MonoFSM.PhysicsWrapper;
 using MonoFSM.Variable.Attributes;
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;

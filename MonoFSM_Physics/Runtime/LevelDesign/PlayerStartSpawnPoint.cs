@@ -1,6 +1,6 @@
 using System;
 using MonoFSM.Core.Runtime.Action;
-using MonoFSM.Physics;
+using MonoFSM.PhysicsWrapper;
 using MonoFSM.Variable.Attributes;
 using MonoFSMCore.Runtime.LifeCycle;
 using MonoFSM.Core;

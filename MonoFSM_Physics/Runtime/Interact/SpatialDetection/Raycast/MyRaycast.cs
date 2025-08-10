@@ -1,7 +1,6 @@
-namespace MonoFSM.Physics
+using UnityEngine;
+namespace MonoFSM.PhysicsWrapper
 {
-    using UnityEngine;
-
     public class MyRaycast : MonoBehaviour
     {
         [Auto] private IRaycastProcessor _raycastProcessor;

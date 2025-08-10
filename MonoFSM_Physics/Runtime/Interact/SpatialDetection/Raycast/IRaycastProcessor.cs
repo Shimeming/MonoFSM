@@ -1,23 +1,11 @@
 using UnityEngine;
 using UnityEngine.Internal;
 
-namespace MonoFSM.Physics
+namespace MonoFSM.PhysicsWrapper
 {
     public interface IAllInOneRaycastProcessor : IRaycastProcessor, ISphereCastProcessor, ICapsuleRaycastProcessor,
-        IBoxCastProcessor, ICapsuleOverlapProcessor
+        IBoxCastProcessor
     {
-    }
-
-    public interface ICapsuleOverlapProcessor
-    {
-        public int OverlapCapsuleNonAlloc(
-            Vector3 point1,
-            Vector3 point2,
-            float radius,
-            Collider[] results,
-            [DefaultValue("DefaultRaycastLayers")] int layerMask,
-            [DefaultValue("QueryTriggerInteraction.UseGlobal")]
-            QueryTriggerInteraction queryTriggerInteraction);
     }
 
     public interface IRaycastProcessor
@@ -102,5 +90,32 @@ namespace MonoFSM.Physics
             [DefaultValue("DefaultRaycastLayers")] int layerMask,
             [DefaultValue("QueryTriggerInteraction.UseGlobal")]
             QueryTriggerInteraction queryTriggerInteraction);
+    }
+
+    public interface ISphereOverlapProcessor
+    {
+        public int OverlapSphereNonAlloc(
+            Vector3 position,
+            float radius,
+            Collider[] results,
+            [DefaultValue("DefaultRaycastLayers")] int layerMask,
+            [DefaultValue("QueryTriggerInteraction.UseGlobal")]
+            QueryTriggerInteraction queryTriggerInteraction);
+    }
+
+    public interface IBoxOverlapProcessor
+    {
+        public int OverlapBoxNonAlloc(
+            Vector3 center,
+            Vector3 halfExtents,
+            Collider[] results,
+            [DefaultValue("Quaternion.identity")] Quaternion orientation,
+            [DefaultValue("DefaultRaycastLayers")] int layerMask,
+            [DefaultValue("QueryTriggerInteraction.UseGlobal")]
+            QueryTriggerInteraction queryTriggerInteraction);
+    }
+
+    public interface IOverlapProcessor : ICapsuleOverlapProcessor, ISphereOverlapProcessor, IBoxOverlapProcessor
+    {
     }
 }
