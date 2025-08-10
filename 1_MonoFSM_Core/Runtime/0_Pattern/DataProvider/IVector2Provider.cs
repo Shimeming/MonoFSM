@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace MonoFSM.Core.DataProvider
 {
-    public interface IVector2Provider : IValueProvider<Vector2> { }
+    public interface IVector2Provider : IValueProvider<Vector2?> { }
 
     [InlineProperty]
     [Serializable]
@@ -18,7 +18,7 @@ namespace MonoFSM.Core.DataProvider
         [DropDownRef]
         public VarVector2 _monoVar;
 
-        public Vector2 Value => _monoVar?.FinalValue ?? Vector2.zero;
+        public Vector2? Value => _monoVar?.FinalValue;
 
         public string Description => _monoVar?._varTag?.name;
 

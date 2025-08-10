@@ -55,15 +55,15 @@ public class FlagFieldFloat : FlagField<float>
 
 
 [Serializable]
-public class FlagFieldVector2 : FlagField<Vector2>
+public class FlagFieldVector2 : FlagField<Vector2?>
 {
-    public static bool operator ==(FlagFieldVector2 j, Vector2 k) 
+    public static bool operator ==(FlagFieldVector2 j, Vector2? k) 
         => j.CurrentValue == k;
 
-    public static bool operator !=(FlagFieldVector2 j, Vector2 k) 
+    public static bool operator !=(FlagFieldVector2 j, Vector2? k) 
         => j.CurrentValue != k;
 
-    protected override bool IsCurrentValueEquals(Vector2 value) 
+    protected override bool IsCurrentValueEquals(Vector2? value) 
         => _currentValue == value;
 }
 
