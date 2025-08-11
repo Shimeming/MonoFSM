@@ -84,40 +84,34 @@ public static class EditorMonoNodeExtension
     public static List<Type> FilterSubClassOrImplementationFromDomain(this Type baseType)
     {
         var typeList = new List<Type>();
+        
+        //單獨判斷 baseType ?
         if (baseType.IsClass && !baseType.IsAbstract && !baseType.IsGenericType)
         {
             // We also want to include the given type if it's not an abstract or a generic type.
             typeList.Add(baseType);
         }
-
-        // if (baseType.IsInterface)
-        // {
-        //     var allMonoTypes = TypeCache.GetTypesDerivedFrom<MonoBehaviour>();
-        //     foreach (var type in allMonoTypes)
-        //         // 檢查是否有實作 ICompProvider<T>（T 任何型別）且可 assign 到 ICompProvider<Component>
-        //     foreach (var iface in type.GetInterfaces())
-        //         if (iface.IsGenericType)
-        //             if (baseType.IsAssignableFrom(iface))
-        //             {
-        //                 typeList.Add(type);
-        //                 break;
-        //             }
-        // }
         
         var types = TypeCache.GetTypesDerivedFrom(baseType);
+        
+        //interface型
         if (baseType.IsInterface)
         {
-            foreach (Type type in types)
+            foreach (var type in types)
             {
-                if (type.InheritsFrom<MonoBehaviour>())
+                if (type.InheritsFrom<MonoBehaviour>() && !type.IsAbstract && !type.IsGenericType)
                 {
+                    // 只要是實作了 baseType 的 MonoBehaviour 類型
                     typeList.Add(type);
                 }
+                // {
+                //     typeList.Add(type);
+                // }
             }
         }
         else // if baseType.IsClass
         {
-            foreach (Type type in types)
+            foreach (var type in types)
             {
                 if (type.IsClass && !type.IsAbstract && !type.IsGenericType)
                 {
