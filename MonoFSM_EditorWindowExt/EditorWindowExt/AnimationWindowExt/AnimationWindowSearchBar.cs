@@ -30,6 +30,7 @@ namespace MonoFSM.Editor.AnimationWindow
                 if (animator != null)
                     Selection.activeGameObject = animator.gameObject;
             }
+            
             //FIXME: iAnimatorPlayAction?
 
             // var iAnimatorPlayAction = Selection.activeGameObject.GetComponentInChildren<IAnimatorPlayAction>();

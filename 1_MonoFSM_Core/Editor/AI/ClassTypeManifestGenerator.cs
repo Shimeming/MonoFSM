@@ -77,7 +77,7 @@ namespace MonoFSM.Core.AI
         {
             var persistentDataPath = Application.persistentDataPath;
             if (Directory.Exists(persistentDataPath))
-                UnityEditor.EditorUtility.RevealInFinder(persistentDataPath);
+                EditorUtility.RevealInFinder(persistentDataPath);
             else
                 Debug.LogError($"Persistent data folder does not exist: {persistentDataPath}");
         }
