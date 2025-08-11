@@ -3,7 +3,7 @@ repos:
     hooks:
       - id: dotnet-tool-restore
         name: Install .NET tools
-        entry: dotnet tool restore
+        entry: bash -c 'export PATH="/usr/local/share/dotnet:$PATH" && dotnet tool restore'
         language: system
         always_run: true
         pass_filenames: false
@@ -15,7 +15,7 @@ repos:
         description: Install the .NET tools listed at .config/dotnet-tools.json.
       - id: csharpier
         name: Run CSharpier on C# files
-        entry: dotnet csharpier format
+        entry: bash -c 'export PATH="/usr/local/share/dotnet:$PATH" && dotnet dotnet-csharpier "$@"' --
         language: system
         types:
           - c#
