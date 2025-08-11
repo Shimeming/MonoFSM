@@ -268,10 +268,10 @@ namespace Example
         private static void ShowSettings()
         {
             var menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Project"), false,
+            menu.AddItem(new GUIContent("Project Settings"), false,
                 () => EditorApplication.ExecuteMenuItem("Edit/Project Settings..."));
-            menu.AddItem(new GUIContent("Preferences"), false,
-                () => EditorApplication.ExecuteMenuItem("Edit/Preferences..."));
+            menu.AddItem(new GUIContent("Preferences/Settings"), false,
+                () => SettingsService.OpenUserPreferences("Preferences/General"));//EditorApplication.ExecuteMenuItem("Edit/Preferences..."));
             menu.AddSeparator("");
             menu.AddItem(new GUIContent("Realtime Settings"), false,
                 () => EditorApplication.ExecuteMenuItem("Tools/Fusion/Realtime Settings"));
