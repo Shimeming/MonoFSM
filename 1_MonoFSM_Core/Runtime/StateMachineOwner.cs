@@ -1,35 +1,27 @@
 using System;
 using System.Collections.Generic;
 using Fusion.Addons.FSM;
+using MonoFSM.CustomAttributes;
 using MonoFSM.Variable;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-public class HideFromFSMExportAttribute : PropertyAttribute
-{
-}
+public class HideFromFSMExportAttribute : PropertyAttribute { }
 
 //如果有不能直接toString的結構，要客製化的serializable，就用這個...還是都用JSON會對？
-public class CustomSerializableAttribute : PropertyAttribute
-{
-}
+public class CustomSerializableAttribute : PropertyAttribute { }
 
 //FIXME: 需要這個嗎？
-public interface IMonoEntity:IDropdownRoot
+public interface IMonoEntity : IDropdownRoot
 {
     VariableFolder VariableFolder { get; }
     public AbstractMonoVariable GetVar(VariableTag varTag);
 }
 
-public interface IDropdownRoot
-{
-    public string name { get; }
-    GameObject gameObject { get; }
-}
-
 public static class StateMachineExtension
 {
-    public static T FindVariableOfBinder<T>(this MonoBehaviour monoBehaviour, VariableTag type) where T : class
+    public static T FindVariableOfBinder<T>(this MonoBehaviour monoBehaviour, VariableTag type)
+        where T : class
     {
         //FIXME: 效能
         if (monoBehaviour == null)
@@ -60,64 +52,22 @@ public static class StateMachineExtension
     {
         //FIXME: 效能不好?
         var binder = monoBehaviour.GetComponentInParent<TParent>() as MonoBehaviour;
-        if (binder != null) return binder.GetComponentInChildren<T>(true);
+        if (binder != null)
+            return binder.GetComponentInChildren<T>(true);
         Debug.LogError("IBinder not found", monoBehaviour);
         return default;
     }
 
     //FIXME: 效能不好？editor code沒差
-    public static Component[] GetComponentsOfSibling(this Component monoBehaviour, Type parentType, Type siblingType)
+    public static Component[] GetComponentsOfSibling(
+        this Component monoBehaviour,
+        Type parentType,
+        Type siblingType
+    )
     {
         var binder = monoBehaviour.GetComponentInParent(parentType) as MonoBehaviour;
-        if (binder != null) return binder.GetComponentsInChildren(siblingType);
-        Debug.LogError("IBinder not found", monoBehaviour);
-        return Array.Empty<Component>();
-    }
-
-    /// <summary>
-    /// 找到所有的parent下的sibling
-    /// </summary>
-    /// <param name="monoBehaviour"></param>
-    /// <param name="parentType"></param>
-    /// <param name="siblingType"></param>
-    /// <returns></returns>
-    public static Component[] GetComponentsOfSiblingAll(this Component monoBehaviour, Type parentType, Type siblingType)
-    {
-        //FIXME: 這個需要到multiple parent嗎？
-        var parents = monoBehaviour.GetComponentsInParent(parentType);
-        var list = new List<Component>();
-        if (parents == null || parents.Length == 0)
-        {
-            Debug.LogError("parent Type not found:" + parentType, monoBehaviour);
-            return Array.Empty<Component>();
-        }
-
-
-        foreach (var binder in parents)
-        {
-            var comps = binder.GetComponentsInChildren(siblingType, true);
-
-            list.AddRange(comps);
-        }
-        
-        return list.ToArray();
-        // if (binder != null) return binder.GetComponentsInChildren(siblingType);
-        Debug.LogError("IBinder not found", monoBehaviour);
-        return Array.Empty<Component>();
-    }
-
-    public static IList<T> GetComponentsOfSibling<TParent, T>(this MonoBehaviour monoBehaviour)
-    {
-        var binder = monoBehaviour.GetComponentInParent<TParent>() as MonoBehaviour;
-        if (binder != null) return binder.GetComponentsInChildren<T>(true);
-        Debug.LogError("IBinder not found", monoBehaviour);
-        return Array.Empty<T>();
-    }
-
-    public static IList<Component> GetComponentsOfSibling<TParent>(this MonoBehaviour monoBehaviour, Type type)
-    {
-        var binder = monoBehaviour.GetComponentInParent<TParent>() as MonoBehaviour;
-        if (binder != null) return binder.GetComponentsInChildren(type, true);
+        if (binder != null)
+            return binder.GetComponentsInChildren(siblingType);
         Debug.LogError("IBinder not found", monoBehaviour);
         return Array.Empty<Component>();
     }
@@ -125,7 +75,8 @@ public static class StateMachineExtension
     public static T GetComponentInBinder<T>(this MonoBehaviour monoBehaviour)
     {
         var binder = monoBehaviour.GetComponentInParent<IBinder>(true) as MonoBehaviour;
-        if (binder != null) return binder.GetComponentInChildren<T>(true);
+        if (binder != null)
+            return binder.GetComponentInChildren<T>(true);
         Debug.LogError("IBinder not found", monoBehaviour);
         return default;
     }
@@ -133,7 +84,8 @@ public static class StateMachineExtension
     public static T[] GetComponentsInBinder<T>(this Component monoBehaviour)
     {
         var binder = monoBehaviour.GetComponentInParent<IBinder>(true) as MonoBehaviour;
-        if (binder != null) return binder.GetComponentsInChildren<T>(true);
+        if (binder != null)
+            return binder.GetComponentsInChildren<T>(true);
         Debug.LogError("IBinder not found", monoBehaviour);
         return Array.Empty<T>();
     }
@@ -141,25 +93,24 @@ public static class StateMachineExtension
     public static Component[] GetComponentsInBinder(this Component monoBehaviour, Type type)
     {
         var binder = monoBehaviour.GetComponentInParent<IBinder>(true) as MonoBehaviour;
-        if (binder != null) return binder.GetComponentsInChildren(type, true);
+        if (binder != null)
+            return binder.GetComponentsInChildren(type, true);
         Debug.LogError("IBinder not found", monoBehaviour);
         return Array.Empty<Component>();
     }
 }
 
-public interface IBinder
-{
-}
+public interface IBinder { }
 
 //FIXME: 沒用了？
 [Obsolete]
-public class StateMachineOwner : MonoBehaviour, IAnimatorProvider, IDefaultSerializable,
-    IBinder
+public class StateMachineOwner : MonoBehaviour, IAnimatorProvider, IDefaultSerializable, IBinder
 {
     // [PreviewInInspector][AutoChildren] private GeneralFSMContext fsmContext;
     // [PreviewInInspector] [AutoChildren] private GeneralFSMContext[] fsmContexts;
 
-    [AutoChildren] public StateMachineLogic fsmLogic;
+    [AutoChildren]
+    public StateMachineLogic fsmLogic;
 
     // public GeneralFSMContext FsmContext =>
     //     fsmContext ? fsmContext : fsmContext = GetComponentInChildren<GeneralFSMContext>();
@@ -212,7 +163,7 @@ public class StateMachineOwner : MonoBehaviour, IAnimatorProvider, IDefaultSeria
     // void IResetStart.ResetStart() //Instaniate之後不會call這個...
     // {
     //     //不能有兩個進入點喔
-    //     ResetFSM(); //最新規, levelReset之後, 
+    //     ResetFSM(); //最新規, levelReset之後,
     //
     // }
 
@@ -224,9 +175,7 @@ public class StateMachineOwner : MonoBehaviour, IAnimatorProvider, IDefaultSeria
 
 
     [Button]
-    private void ExportSerializedData()
-    {
-    }
+    private void ExportSerializedData() { }
 
     // [PreviewInInspector]
     // [AutoChildren]

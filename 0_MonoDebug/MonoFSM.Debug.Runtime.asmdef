@@ -1,0 +1,20 @@
+{
+    "name": "MonoFSM.Debug.Runtime",
+    "rootNamespace": "",
+    "references": [
+        "GUID:686a2c6410255486d86fc87df5f50337",
+        "GUID:75469ad4d38634e559750d17036d5f7c",
+        "GUID:678282a48c1694e8eb9d6ffb51ff91a8",
+        "GUID:6f5b918c226e046dd9b3fe0907198fda",
+        "GUID:33661e06c33d31b4c9223810bf503247"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

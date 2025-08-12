@@ -1,0 +1,17 @@
+{
+    "name": "MonoFSM.Utility.Runtime",
+    "rootNamespace": "",
+    "references": [
+        "GUID:686a2c6410255486d86fc87df5f50337",
+        "GUID:33661e06c33d31b4c9223810bf503247"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

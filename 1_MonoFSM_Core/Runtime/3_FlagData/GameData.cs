@@ -1,9 +1,6 @@
 // using I2.Loc;
 // using mixpanel;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -19,7 +16,9 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
-
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 // [System.Serializable]
 // public class Descriptable
@@ -84,7 +83,7 @@ public interface IProperty
     ValueDropdownList<string> GetProperties<T>();
 }
 
-public interface IItemData:IDataFeature
+public interface IItemData : IDataFeature
 {
     public int MaxStackCount { get; }
     void Use();
@@ -100,25 +99,90 @@ public interface IDataFeature
     void SetOwner(GameData owner);
 }
 
+public static class GameDataUtility
+{
+    public static GameFlagBase CreateGameStateSO(
+        this Type type,
+        MonoBehaviour refObj,
+        string subFolderName = ""
+    )
+    {
+        //遊戲中不該建state
+        if (Application.isPlaying)
+            return null;
+        if (!refObj.TryGetComponent<AutoGenGameState>(out var autoGenGameState))
+        {
+            //不是自動生的
+            var gameStateSo =
+                AssetDatabaseUtility.CreateScriptableObject(
+                    type,
+                    GameStateAttribute.GetFullPath(refObj.gameObject, subFolderName)
+                ) as GameFlagBase;
+            if (gameStateSo == null)
+            {
+                Debug.LogError("Create Scriptable Object Failed", refObj);
+                return null;
+            }
 
+            return gameStateSo;
+        }
+        else
+        {
+            var folderRelativePath = GameStateAttribute.GetRelativePath(
+                refObj.gameObject,
+                subFolderName,
+                true
+            );
+            var fileName =
+                GameStateAttribute.GetFileName(refObj.gameObject)
+                + autoGenGameState.MyGuid
+                + ".asset";
+            var gameStateSo =
+                AssetDatabaseUtility.CreateScriptableObject(
+                    type,
+                    folderRelativePath + "/" + fileName
+                ) as GameFlagBase;
+
+            //自動生成的，SaveID另外做
+            if (gameStateSo != null)
+            {
+                gameStateSo.gameStateType = GameFlagBase.GameStateType.AutoUnique;
+                gameStateSo.SetSaveID(autoGenGameState.SaveID);
+                ;
+                Debug.Log("Assign SaveID for autoGen", refObj);
+
+                return gameStateSo;
+            }
+
+            Debug.LogError("Create gameStateSo Auto Object Failed", refObj);
+            return null;
+        }
+    }
+}
 
 [CreateAssetMenu(fileName = "Descriptable", menuName = "ScriptableObjects/Descriptable", order = 1)]
 [Searchable]
 [FormerlyNamedAs("DescriptableData")]
-public class
-    GameData : GameFlagBase, IDescriptableData, IMonoDescriptable,
-    ISceneSavingCallbackReceiver
+public class GameData
+    : GameFlagBase,
+        IDescriptableData,
+        IMonoDescriptable,
+        ISceneSavingCallbackReceiver
 {
     [FormerlySerializedAs("descriptableTag")]
     public MonoEntityTag _entityTag;
 
-    [SerializeReference] private AbstractDataFunction[] _dataFunctionsArray; //這個用hashSet會比較好？ 可是QQ
-    
-    [SerializeReference] private IDataFeature[] _dataFunctions; //這個用hashSet會比較好？ 可是QQ
+    [SerializeReference]
+    private AbstractDataFunction[] _dataFunctionsArray; //這個用hashSet會比較好？ 可是QQ
+
+    [SerializeReference]
+    private IDataFeature[] _dataFunctions; //這個用hashSet會比較好？ 可是QQ
     private readonly Dictionary<Type, IDataFeature> _dataFunctionSet = new();
+
     // private readonly HashSet<IDataFunction> _hashSet = new();
-    
-    public T GetDataFunction<T>() where T : class, IDataFeature
+
+    public T GetDataFunction<T>()
+        where T : class, IDataFeature
     {
         //沒有interface的對應實作...hmm好難
         if (_dataFunctionSet.TryGetValue(typeof(T), out var dataFunction))
@@ -137,7 +201,8 @@ public class
     private void Init()
     {
         _dataFunctionSet.Clear();
-        if (_dataFunctions == null) return;
+        if (_dataFunctions == null)
+            return;
         foreach (var dataFunction in _dataFunctions)
         {
             if (dataFunction == null)
@@ -151,9 +216,11 @@ public class
                 Debug.LogError($"Duplicate data function of type {type} found in {name}", this);
         }
     }
+
     public async void PreloadSprite()
     {
-        if (SpriteRef == null) return;
+        if (SpriteRef == null)
+            return;
         await SpriteRef.GetAssetAsync<Sprite>();
     }
 
@@ -167,12 +234,10 @@ public class
     //nested應該不行...
     public readonly Dictionary<string, Func<IDescriptableData, object>> _propertyCache = new();
 
-    public Func<IDescriptableData, object> GetPropertyCache(
-        string propertyName)
+    public Func<IDescriptableData, object> GetPropertyCache(string propertyName)
     {
         if (_propertyCache.TryGetValue(propertyName, out var info))
             return info;
-
 
         var propertyInfo = GetType()
             .GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance);
@@ -190,13 +255,11 @@ public class
         var getMethod = propertyInfo.GetGetMethod();
         if (getMethod == null)
         {
-            Debug.LogError($"Property {propertyName} does not have a getter in {GetType()}"
-            );
+            Debug.LogError($"Property {propertyName} does not have a getter in {GetType()}");
             return null;
         }
 
-        Func<IDescriptableData, object>
-            _getMyProperty = (source) => getMethod.Invoke(source, null);
+        Func<IDescriptableData, object> _getMyProperty = (source) => getMethod.Invoke(source, null);
         _propertyCache[propertyName] = _getMyProperty;
         return _getMyProperty;
     }
@@ -226,13 +289,19 @@ public class
             if (!typeof(T).IsAssignableFrom(property.PropertyType))
                 continue;
             // fields.Add(property.Name);
-            dropdownList.Add(property.Name + " (" + property.PropertyType.Name + ")", property.Name);
+            dropdownList.Add(
+                property.Name + " (" + property.PropertyType.Name + ")",
+                property.Name
+            );
         }
 
         return dropdownList;
     }
 
-    public static ValueDropdownList<string> GetProperties(List<Type> supportedTypes, GameData sampleData)
+    public static ValueDropdownList<string> GetProperties(
+        List<Type> supportedTypes,
+        GameData sampleData
+    )
     {
         // AppDomain.CurrentDomain.GetAssemblies().
         var type = sampleData.GetType();
@@ -245,14 +314,18 @@ public class
             if (!supportedTypes.Contains(property.PropertyType))
                 continue;
             fields.Add(property.Name);
-            dropdownList.Add(property.Name + " (" + property.PropertyType.Name + ")", property.Name);
+            dropdownList.Add(
+                property.Name + " (" + property.PropertyType.Name + ")",
+                property.Name
+            );
         }
 
         return dropdownList;
     }
 
 #if UNITY_EDITOR
-    [ShowInInspector] [BoxGroup("CopyFrom")]
+    [ShowInInspector]
+    [BoxGroup("CopyFrom")]
     private GameData toCopySource;
 
     [BoxGroup("CopyFrom")]
@@ -279,11 +352,14 @@ public class
             return null;
         }
     } //FIXME: 要弄這個？
+
     //bind MonoEntityTag?
-    
+
     public FlagFieldBool unlocked; //在介面中可以看到的狀態，但可能還沒取得
     public virtual bool IsRevealed => unlocked.CurrentValue;
-    [FormerlySerializedAs("aquired")] public FlagFieldBool acquired; //取得
+
+    [FormerlySerializedAs("aquired")]
+    public FlagFieldBool acquired; //取得
 
     public virtual bool IsAcquired
     {
@@ -312,10 +388,9 @@ public class
     //
     public bool IsImportantObject = false;
 
-
     // public bool isViewed => viewed.CurrentValue;
 
-// [HideInInspector]
+    // [HideInInspector]
     // public string RawTitle => title;
 
     // [SerializeField]
@@ -328,23 +403,25 @@ public class
     public LocalizedString typeStr;
     public LocalizedString summaryStr;
 
-    [SerializeField] [TextArea(2, 10)]
+    [SerializeField]
+    [TextArea(2, 10)]
     // [HideInInspector]
     private string description;
 
     private string summary;
 
-
     public virtual string ItemType => typeStr;
 
     //description attribute?
-    
-    [PreviewInInspector] public virtual string Title => titleStr.ToString();
+
+    [PreviewInInspector]
+    public virtual string Title => titleStr.ToString();
 
     public virtual string Description =>
         descriptionStr.ToString().Length > 0 ? descriptionStr.ToString() : description;
 
-    public virtual string Summary => summaryStr.ToString().Length > 0 ? summaryStr.ToString() : summary;
+    public virtual string Summary =>
+        summaryStr.ToString().Length > 0 ? summaryStr.ToString() : summary;
 
     // [DisableIf("@true")]
     // [SerializeField]
@@ -363,10 +440,16 @@ public class
 
 
     //ref到so就會load sprite
-    [Header("一開遊戲就會讀進來的")] public Sprite staticSprite;
-    [InlineField] [SerializeField] public RCGAssetReference spriteRef;
-    [InlineField] [SerializeField] public RCGAssetReference smallSpriteRef;
-    
+    [Header("一開遊戲就會讀進來的")]
+    public Sprite staticSprite;
+
+    [InlineField]
+    [SerializeField]
+    public RCGAssetReference spriteRef;
+
+    [InlineField]
+    [SerializeField]
+    public RCGAssetReference smallSpriteRef;
 
     public virtual void LoadAndSetIconForImage(Image image, Color loadedColor = default)
     {
@@ -386,14 +469,19 @@ public class
         AssignToUIImage(image, spriteRef, loadedColor);
     }
 
-//FIXME: 這個是不是太越權
-    protected async void AssignToUIImage(Image image, RCGAssetReference rcgAssetRef, Color loadedColor = default)
+    //FIXME: 這個是不是太越權
+    protected async void AssignToUIImage(
+        Image image,
+        RCGAssetReference rcgAssetRef,
+        Color loadedColor = default
+    )
     {
         if (image == null)
         {
             //沒有image, 單純load圖
             var result = await rcgAssetRef.GetAssetAsync<Sprite>();
-            if (result == null) Debug.LogError("AssignToUIImage: rcgAssetRef = null", this);
+            if (result == null)
+                Debug.LogError("AssignToUIImage: rcgAssetRef = null", this);
 
             return;
         }
@@ -447,6 +535,7 @@ public class
         spriteRef.CreateAssetReference();
         smallSpriteRef.CreateAssetReference();
     }
+
     // [Button]
     // public void UpgradeSpriteToAddressable()
     // {
@@ -523,9 +612,7 @@ public class
         AssetDatabase.RenameAsset(AssetDatabase.GetAssetPath(this), name);
         Debug.Log("Rename to " + name);
     }
-
 #endif
-
 
     public virtual void PlayerPicked()
     {
@@ -543,6 +630,7 @@ public class
         this.Track("GameFlagDescriptable Acquired", _trackValue);
 #endif
     }
+
 #if MIXPANEL
     private readonly Value _trackValue = new();
 #endif
@@ -567,6 +655,5 @@ public class
         //FIXME:
         //自動改名、validation之類的
         // name = name.Replace("[", "(").Replace("]", ")");
-        
     }
 }

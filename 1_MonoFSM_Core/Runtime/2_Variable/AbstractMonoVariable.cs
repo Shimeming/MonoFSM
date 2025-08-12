@@ -5,9 +5,10 @@ using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.DataProvider;
 using MonoFSM.Core.Runtime;
+using MonoFSM.CustomAttributes;
+using MonoFSM.EditorExtension;
 using MonoFSM.Variable.VariableBinder;
 using MonoFSM.VarRefOld;
-using MonoFSM.EditorExtension;
 using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEngine;
@@ -17,8 +18,15 @@ using Object = UnityEngine.Object;
 namespace MonoFSM.Variable
 {
     //FIXME: 應該要繼承AbstractSourceValueRef
-    public abstract class AbstractMonoVariable : MonoBehaviour, IGuidEntity, IName, IValueOfKey<VariableTag>,
-        IOverrideHierarchyIcon, IValueProvider, IBeforePrefabSaveCallbackReceiver
+    public abstract class AbstractMonoVariable
+        : MonoBehaviour,
+            IGuidEntity,
+            IName,
+            IValueOfKey<VariableTag>,
+            IOverrideHierarchyIcon,
+            IValueProvider,
+            IBeforePrefabSaveCallbackReceiver,
+            IConfigTypeProvider
     {
 #if UNITY_EDITOR
         public string IconName { get; }
@@ -33,6 +41,7 @@ namespace MonoFSM.Variable
         // private UnityAction OnValueChangedRaw; //任何數值改變就通知, UI有用到很重要 //override?
 
         private HashSet<IVarChangedListener> _dataChangedListeners; //有誰有用我，binder綁一下
+
         //fuck!?
 
         //倒著，事件鏈超難trace
@@ -58,7 +67,7 @@ namespace MonoFSM.Variable
         {
             _dataChangedListeners.Remove(target);
         }
-        
+
         [Button]
         private void UpdateTag()
         {
@@ -67,15 +76,14 @@ namespace MonoFSM.Variable
                 _varTag._variableType.SetType(GetType());
                 _varTag._valueFilterType.SetType(ValueType);
             }
-                
-            
+
             // Debug.Log("Tag Changed");
             //variable folder refresh
             var variableFolder = GetComponentInParent<VariableFolder>();
             if (variableFolder)
                 variableFolder.Refresh();
 #if UNITY_EDITOR
-            if(_varTag)
+            if (_varTag)
                 EditorUtility.SetDirty(_varTag);
 #endif
         }
@@ -92,14 +100,14 @@ namespace MonoFSM.Variable
 
             // 加入 ValueProvider 組件
             var valueProvider = gameObject.TryGetCompOrAdd<ValueProvider>();
-            
+
             valueProvider.DropDownVarTag = _varTag; //直接設定
 
             // 設定 ValueProvider 的 EntityProvider
             valueProvider._entityProvider = GetComponentInParent<ParentEntityProvider>();
             // 標記為 dirty 以確保儲存
             EditorUtility.SetDirty(valueProvider);
-            
+
 #else
             Debug.LogWarning("此功能僅在編輯器模式下可用");
 #endif
@@ -168,12 +176,18 @@ namespace MonoFSM.Variable
             }
 
             var type = sourceValueRef.ValueType;
-            if (type == typeof(int)) return Equals(sourceValueRef.GetValue<int>());
-            if (type == typeof(float)) return Equals(sourceValueRef.GetValue<float>());
-            if (type == typeof(bool)) return Equals(sourceValueRef.GetValue<bool>());
-            if (type == typeof(string)) return Equals(sourceValueRef.GetValue<string>());
-            if (type == typeof(Vector3)) return Equals(sourceValueRef.GetValue<Vector3>());
-            if (typeof(Object).IsAssignableFrom(type)) return Equals(sourceValueRef.GetValue<Object>());
+            if (type == typeof(int))
+                return Equals(sourceValueRef.GetValue<int>());
+            if (type == typeof(float))
+                return Equals(sourceValueRef.GetValue<float>());
+            if (type == typeof(bool))
+                return Equals(sourceValueRef.GetValue<bool>());
+            if (type == typeof(string))
+                return Equals(sourceValueRef.GetValue<string>());
+            if (type == typeof(Vector3))
+                return Equals(sourceValueRef.GetValue<Vector3>());
+            if (typeof(Object).IsAssignableFrom(type))
+                return Equals(sourceValueRef.GetValue<Object>());
             Debug.LogWarning($"Equals: Unsupported type {type}", this);
             return Equals(sourceValueRef.GetValue<object>());
         }
@@ -251,6 +265,7 @@ namespace MonoFSM.Variable
             Debug.LogError("SetValueByValueProvider: Unsupported type " + type, this);
             SetValue(provider.Get<object>(), byWho);
         }
+
         public void SetValueByRef(AbstractSourceValueRef sourceValueRef, Object byWho)
         {
             if (sourceValueRef == null)
@@ -327,12 +342,10 @@ namespace MonoFSM.Variable
         public Dictionary<string, Func<AbstractMonoVariable, object>> _propertyCache = new();
 
         //GameFlagDescriptable有一樣的東西喔
-        public Func<AbstractMonoVariable, object> GetPropertyCache(
-            string propertyName)
+        public Func<AbstractMonoVariable, object> GetPropertyCache(string propertyName)
         {
             if (_propertyCache.TryGetValue(propertyName, out var info))
                 return info;
-
 
             var propertyInfo = GetType()
                 .GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance);
@@ -350,19 +363,19 @@ namespace MonoFSM.Variable
             var getMethod = propertyInfo.GetGetMethod();
             if (getMethod == null)
             {
-                Debug.LogError($"Property {propertyName} does not have a getter in {GetType()}"
-                );
+                Debug.LogError($"Property {propertyName} does not have a getter in {GetType()}");
                 return null;
             }
 
-            Func<AbstractMonoVariable, object>
-                getMyProperty = (source) => getMethod.Invoke(source, null);
+            Func<AbstractMonoVariable, object> getMyProperty = (source) =>
+                getMethod.Invoke(source, null);
             _propertyCache[propertyName] = getMyProperty;
             return getMyProperty;
         }
 
 #if UNITY_EDITOR
-        [Header("GameState 功能說明")] [TextArea(1, 4)]
+        [Header("GameState 功能說明")]
+        [TextArea(1, 4)]
         public string description;
 
         public string Description
@@ -374,17 +387,15 @@ namespace MonoFSM.Variable
 
         // [HideInInlineEditors] [Header("Flag Setting")]
         // public FlagTypeScriptable typeScriptable;
-        protected virtual void Awake()
-        {
-        }
+        protected virtual void Awake() { }
 
         //FIXME: virtual variable?
         // [FormerlySerializedAs("VariableSource")]
-        // [ShowIf("VariableSource")] 
+        // [ShowIf("VariableSource")]
         // [InlineEditor] public AbstractMonoVariable VariableSource; //用別人的值 //FIXME: 什麼時候會用到這個？
 
-        [ReadOnly] public List<AbstractVariableConsumer> consumers; //有誰有用我，binder綁一下
-
+        [ReadOnly]
+        public List<AbstractVariableConsumer> consumers; //有誰有用我，binder綁一下
 
         //FIXME: 這個是錯的，要改成用scriptableData的 (flagFlied的？
         // public UnityEvent ValueChangedEvent => valueChangedEvent;
@@ -402,6 +413,11 @@ namespace MonoFSM.Variable
         public void OnBeforePrefabSave()
         {
             UpdateTag();
+        }
+
+        public Type GetRestrictType()
+        {
+            return _varTag.ValueFilterType;
         }
     }
 }

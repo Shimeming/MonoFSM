@@ -17,15 +17,13 @@ namespace MonoFSM.Variable
         VariableTag refVariableTag { get; }
     }
 
-   
-
     public interface IStringKey
     {
         public string GetStringKey { get; }
     }
 
     [CreateAssetMenu(menuName = "RCG/VariableTag")]
-    public class VariableTag : ScriptableObject, IStringKey //, IFloatValue , SceneSave?
+    public class VariableTag : ScriptableObject, IStringKey, IProxyType //, IFloatValue , SceneSave?
     {
         private void OnValidate()
         {
@@ -52,6 +50,7 @@ namespace MonoFSM.Variable
         [TypeRestrictFilter]
         // [FormerlySerializedAs("_valueTypeData")]
         public ValueTypeTag _valueTypeTag;
+
         //SystemTypeData
 
         [ShowInInspector]
@@ -59,17 +58,18 @@ namespace MonoFSM.Variable
         [PropertyOrder(-1)]
         [LabelText("變數數值型別")]
         public Type ValueType => _valueTypeTag?.Type ?? _valueFilterType.RestrictType;
+
         //FIXME: 限定型別？
         //FIXME: 下拉式巢狀分類:
         // sampleData? sampleDescriptableTag?
         GameFlagBase SampleData;
 
-
         [Button]
         public void SyncValueFilterTypeWithVariableType()
         {
             var variableType = _variableTypeTag?.Type ?? _variableType?.RestrictType;
-            if (variableType == null) return;
+            if (variableType == null)
+                return;
 
             Type tValueType = null;
             var currentType = variableType;
@@ -94,9 +94,10 @@ namespace MonoFSM.Variable
                 currentType = currentType.BaseType;
             }
 
-            if (tValueType != null) _valueFilterType.SetBaseType(tValueType);
+            if (tValueType != null)
+                _valueFilterType.SetBaseType(tValueType);
         }
-      
+
         [Button]
         void RefreshStringKey()
         {
@@ -105,7 +106,8 @@ namespace MonoFSM.Variable
         }
 
         //scriptable object會殘留？
-        [NonSerialized] string _cachedStringKey;
+        [NonSerialized]
+        string _cachedStringKey;
 
         [PreviewInInspector]
         public string GetStringKey
@@ -121,21 +123,23 @@ namespace MonoFSM.Variable
             }
         }
 
-
 #if UNITY_EDITOR
-        [HideInInlineEditors] [TextArea] public string Note;
+        [HideInInlineEditors]
+        [TextArea]
+        public string Note;
 #endif
 
         //可以DI標記variable類型，像是血量？要降低對方的血量之類的
         // [InlineProperty]
         [Obsolete("use _variableTypeTag")]
-        [HideInInlineEditors] public MySerializedType<AbstractMonoVariable> _variableType; //我這個variable是什麼型別
+        [HideInInlineEditors]
+        public MySerializedType<AbstractMonoVariable> _variableType; //我這個variable是什麼型別
 
-        [Obsolete] public MySerializedType<object> _valueFilterType; //自動化的部分要改成去動tag? 但好像不該動tag?
+        [Obsolete]
+        public MySerializedType<object> _valueFilterType; //自動化的部分要改成去動tag? 但好像不該動tag?
 
         public Type ValueFilterType => _valueTypeTag?.Type ?? _valueFilterType.RestrictType;
-        
-        
+
         [Button]
         void FetchFilterType()
         {
@@ -145,18 +149,30 @@ namespace MonoFSM.Variable
         //FIXME: Editor time 把雙向連結撈出來
 #if UNITY_EDITOR
 
-        [PreviewInInspector] AbstractMonoVariable[] bindedVariables;
+        [PreviewInInspector]
+        AbstractMonoVariable[] bindedVariables;
 
         // [OnInspectorGUI] //會lag?
         [Button]
         void GetBindedVariables()
         {
-            bindedVariables = FindObjectsByType<AbstractMonoVariable>(FindObjectsInactive.Include, FindObjectsSortMode.None).Where(v => v._varTag == this).ToArray();
-            bindedVariableSetters = FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.None).OfType<IVariableTagSetter>()
-                .Where(v => v.refVariableTag == this).ToArray();
+            bindedVariables = FindObjectsByType<AbstractMonoVariable>(
+                    FindObjectsInactive.Include,
+                    FindObjectsSortMode.None
+                )
+                .Where(v => v._varTag == this)
+                .ToArray();
+            bindedVariableSetters = FindObjectsByType<MonoBehaviour>(
+                    FindObjectsInactive.Include,
+                    FindObjectsSortMode.None
+                )
+                .OfType<IVariableTagSetter>()
+                .Where(v => v.refVariableTag == this)
+                .ToArray();
         }
 
-        [PreviewInInspector] IVariableTagSetter[] bindedVariableSetters;
+        [PreviewInInspector]
+        IVariableTagSetter[] bindedVariableSetters;
 
         /// <summary>
         /// 🆕 同步此 VariableTag 中的所有型別引用
@@ -176,6 +192,10 @@ namespace MonoFSM.Variable
             RefactorSafeHelper.CheckVariableTagTypesSync(this);
         }
 #endif
+
+        public Type GetProxyType()
+        {
+            return VariableMonoType;
+        }
     }
 }
-

@@ -11,13 +11,14 @@ namespace _1_MonoFSM_Core.Runtime.Action.TransformAction
     {
         // public Transform _target;
 
-        [ValueTypeValidate(typeof(MonoEntity))] [DropDownRef]
+        [ValueTypeValidate(typeof(MonoEntity))]
+        [DropDownRef]
         public ValueProvider _sourceValueProvider;
 
         // public VarCompProviderRef _targetVarRef; //拿到rigidbody的話，再拿transform
         [ValueTypeValidate(typeof(MonoEntity))] //FIXME: validation沒有辦法提示嗎
         [DropDownRef]
-        public ValueProvider _targetValueProvider; 
+        public ValueProvider _targetValueProvider;
 
         protected override void OnActionExecuteImplement()
         {
