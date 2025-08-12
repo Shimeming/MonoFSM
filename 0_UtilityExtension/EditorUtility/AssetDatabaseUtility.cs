@@ -1,8 +1,9 @@
 using System;
+using System.Diagnostics;
 using System.IO;
-using MonoFSM.Core.Attributes;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -112,7 +113,7 @@ namespace MonoFSM.Core
         }
 #endif
 
-        [EditorOnly]
+        [Conditional("UNITY_EDITOR")]
         public static void SetDirty(this Object obj)
         {
 #if UNITY_EDITOR
@@ -121,7 +122,7 @@ namespace MonoFSM.Core
         }
 
         //"Resources/Configs"
-        [EditorOnly]
+        [Conditional("UNITY_EDITOR")]
         public static void AssetInFolderValidate(
             this ScriptableObject asset,
             string[] folderNames,
@@ -254,7 +255,7 @@ namespace MonoFSM.Core
             return asset;
         }
 
-        [EditorOnly]
+        [Conditional("UNITY_EDITOR")]
         private static void CreateAssetFolderIfParentNotExist(string fileRelativePath)
         {
             // var folderRelativePath = fileRelativePath.FolderPath();
@@ -264,7 +265,7 @@ namespace MonoFSM.Core
         /// <summary>
         /// 在 Package 內建立資料夾（如果父資料夾不存在）
         /// </summary>
-        [EditorOnly]
+        [Conditional("UNITY_EDITOR")]
         private static void CreatePackageFolderIfParentNotExist(
             string packagePath,
             string fileRelativePath
@@ -277,7 +278,7 @@ namespace MonoFSM.Core
         /// <summary>
         /// 通用的資料夾創建方法，支援 Assets 和 Package 路徑
         /// </summary>
-        [EditorOnly]
+        [Conditional("UNITY_EDITOR")]
         private static void CreateFolderAtPathRecursive(string basePath, string folderPath)
         {
             // 如果 folderPath 為空，直接返回
@@ -307,7 +308,7 @@ namespace MonoFSM.Core
         /// <summary>
         /// [已棄用] 使用 CreateFolderAtPathRecursive 替代
         /// </summary>
-        [EditorOnly]
+        [Conditional("UNITY_EDITOR")]
         [Obsolete("Use CreateFolderAtPathRecursive instead")]
         private static void CreateAssetFolderAtPathRecursive(string folderPath)
         {
@@ -317,7 +318,7 @@ namespace MonoFSM.Core
         /// <summary>
         /// [已棄用] 使用 CreateFolderAtPathRecursive 替代
         /// </summary>
-        [EditorOnly]
+        [Conditional("UNITY_EDITOR")]
         [Obsolete("Use CreateFolderAtPathRecursive instead")]
         private static void CreatePackageFolderAtPathRecursive(
             string packagePath,

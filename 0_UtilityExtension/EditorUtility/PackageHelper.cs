@@ -187,7 +187,71 @@ namespace MonoFSM.Core
         public static void ClearCache()
         {
             s_cachedLocalPackages = null;
+            s_cachedAllPackages = null;
             s_cacheValid = false;
+            s_allPackagesCacheValid = false;
+        }
+
+        // 新增：所有 packages 的快取
+        private static List<UnityEditor.PackageManager.PackageInfo> s_cachedAllPackages;
+        private static bool s_allPackagesCacheValid = false;
+
+        /// <summary>
+        /// 取得所有已安裝的 packages（包含本地、git、registry 等）
+        /// </summary>
+        public static List<UnityEditor.PackageManager.PackageInfo> GetAllPackages()
+        {
+            if (!s_allPackagesCacheValid || s_cachedAllPackages == null)
+            {
+                RefreshAllPackageCache();
+            }
+            return s_cachedAllPackages ?? new List<UnityEditor.PackageManager.PackageInfo>();
+        }
+
+        /// <summary>
+        /// 重新整理所有套件快取
+        /// </summary>
+        public static void RefreshAllPackageCache()
+        {
+            s_cachedAllPackages = new List<UnityEditor.PackageManager.PackageInfo>();
+
+            try
+            {
+                var listRequest = Client.List(true, false);
+
+                // 等待請求完成
+                while (!listRequest.IsCompleted)
+                {
+                    System.Threading.Thread.Sleep(10);
+                }
+
+                if (listRequest.Status == StatusCode.Success)
+                {
+                    s_cachedAllPackages.AddRange(listRequest.Result);
+                    Debug.Log($"[PackageHelper] 快取了 {s_cachedAllPackages.Count} 個 packages");
+                }
+                else
+                {
+                    Debug.LogWarning(
+                        $"[PackageHelper] 無法取得所有套件清單: {listRequest.Error?.message}"
+                    );
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"[PackageHelper] 取得所有套件時發生錯誤: {ex.Message}");
+            }
+
+            s_allPackagesCacheValid = true;
+        }
+
+        /// <summary>
+        /// 根據 package 名稱取得 PackageInfo
+        /// </summary>
+        public static UnityEditor.PackageManager.PackageInfo GetPackageInfo(string packageName)
+        {
+            var allPackages = GetAllPackages();
+            return allPackages.FirstOrDefault(p => p.name == packageName);
         }
 
 #else
@@ -210,6 +274,18 @@ namespace MonoFSM.Core
         public static void RefreshLocalPackageCache() { }
 
         public static void ClearCache() { }
+
+        public static List<UnityEditor.PackageManager.PackageInfo> GetAllPackages()
+        {
+            return new List<UnityEditor.PackageManager.PackageInfo>();
+        }
+
+        public static void RefreshAllPackageCache() { }
+
+        public static UnityEditor.PackageManager.PackageInfo GetPackageInfo(string packageName)
+        {
+            return null;
+        }
 #endif
     }
 }

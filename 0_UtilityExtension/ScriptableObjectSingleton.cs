@@ -1,7 +1,4 @@
-using System.ComponentModel;
 using System.Linq;
-using MonoFSM.Core;
-using MonoFSM.Core.Attributes;
 using Sirenix.OdinInspector;
 using UnityEngine;
 #if UNITY_EDITOR
@@ -25,7 +22,7 @@ public abstract class ScriptableObjectSingleton<T> : ScriptableObject
 
     private static T s_Instance;
 
-    [PreviewInInspector]
+    [ShowInInspector]
     private T preview => Instance;
 
     public static T Instance

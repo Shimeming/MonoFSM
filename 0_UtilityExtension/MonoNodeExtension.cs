@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using Cysharp.Text;
 using UnityEditor;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
@@ -130,18 +128,18 @@ public static class MonoNodeExtension
     //     }
     // }
 
-    private static string CombineAllTransformParentName(this Component go, string message)
-    {
-        var result = message;
-        var parent = go.transform.parent;
-        while (parent != null)
-        {
-            result = ZString.Concat(result, ">", parent.name);
-            parent = parent.parent;
-        }
-
-        return result;
-    }
+    // private static string CombineAllTransformParentName(this Component go, string message)
+    // {
+    //     var result = message;
+    //     var parent = go.transform.parent;
+    //     while (parent != null)
+    //     {
+    //         result = ZString.Concat(result, ">", parent.name);
+    //         parent = parent.parent;
+    //     }
+    //
+    //     return result;
+    // }
 
     public static T GetComponentInChildrenOfDepthOne<T>(this Component go)
     {
