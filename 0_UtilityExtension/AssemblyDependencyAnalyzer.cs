@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+// using System.Diagnostics;
 #if UNITY_EDITOR
 using UnityEditor;
 using Newtonsoft.Json.Linq;
@@ -20,6 +21,21 @@ namespace MonoFSM.Core
         private static Dictionary<string, string> s_guidToPackageMap;
         private static Dictionary<string, string> s_guidToAsmdefNameMap;
         private static bool s_guidMappingCacheValid;
+
+        // Additional performance caches
+        private static Dictionary<string, string> s_manifestCache;
+        private static DateTime s_manifestCacheTime;
+        private static readonly TimeSpan CacheValidDuration = TimeSpan.FromMinutes(5); // Cache 有效期 5 分鐘
+
+        // Package path and local package caches
+        private static List<string> s_localPackagesCache;
+        private static DateTime s_localPackagesCacheTime;
+        private static Dictionary<string, string> s_packagePathCache =
+            new Dictionary<string, string>();
+        private static Dictionary<string, bool> s_isLocalPackageCache =
+            new Dictionary<string, bool>();
+        private static Dictionary<string, string> s_assemblyNameCache =
+            new Dictionary<string, string>();
 
         /// <summary>
         /// Assembly 依賴資訊
@@ -129,11 +145,12 @@ namespace MonoFSM.Core
         /// </summary>
         public static AnalysisResult AnalyzePackageDependencies(string packageJsonPath)
         {
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
             var result = new AnalysisResult(packageJsonPath);
 
             if (!File.Exists(packageJsonPath))
             {
-                Debug.LogError(
+                UnityEngine.Debug.LogError(
                     $"[AssemblyDependencyAnalyzer] package.json 不存在: {packageJsonPath}"
                 );
                 return result;
@@ -141,43 +158,57 @@ namespace MonoFSM.Core
 
             try
             {
-                // 讀取目標 package.json
+                // 計時：讀取 package.json
+                var jsonReadTime = System.Diagnostics.Stopwatch.StartNew();
                 var packageJson = JObject.Parse(File.ReadAllText(packageJsonPath));
                 result.targetPackageName = packageJson["name"]?.ToString() ?? "Unknown";
+                jsonReadTime.Stop();
 
-                // 取得 package 目錄
+                // 計時：尋找 asmdef 檔案
+                var findFilesTime = System.Diagnostics.Stopwatch.StartNew();
                 var packageDir = Path.GetDirectoryName(packageJsonPath);
-
-                // 尋找該 package 內的所有 asmdef 檔案
                 var asmdefFiles = Directory.GetFiles(
                     packageDir,
                     "*.asmdef",
                     SearchOption.AllDirectories
                 );
                 result.totalAssemblies = asmdefFiles.Length;
+                findFilesTime.Stop();
 
-                Debug.Log(
-                    $"[AssemblyDependencyAnalyzer] 分析 {result.targetPackageName}，找到 {asmdefFiles.Length} 個 asmdef 檔案"
+                // 計時：建立 GUID 映射
+                var mappingTime = System.Diagnostics.Stopwatch.StartNew();
+                BuildGuidToPackageMaps();
+                mappingTime.Stop();
+
+                // 計時：取得現有依賴
+                var dependenciesTime = System.Diagnostics.Stopwatch.StartNew();
+                var existingDependencies = GetExistingDependencies(packageJson);
+                dependenciesTime.Stop();
+
+                UnityEngine.Debug.Log(
+                    $"[AssemblyDependencyAnalyzer] 分析 {result.targetPackageName}，找到 {asmdefFiles.Length} 個 asmdef 檔案\n"
+                        + $"效能統計 - 讀取JSON: {jsonReadTime.ElapsedMilliseconds}ms, "
+                        + $"尋找檔案: {findFilesTime.ElapsedMilliseconds}ms, "
+                        + $"GUID映射: {mappingTime.ElapsedMilliseconds}ms, "
+                        + $"現有依賴: {dependenciesTime.ElapsedMilliseconds}ms"
                 );
 
-                // 建立 GUID 到 Package 的映射
-                BuildGuidToPackageMaps();
-                var existingDependencies = GetExistingDependencies(packageJson);
-
-                // 分析每個 asmdef
+                // 計時：分析所有 asmdef
+                var analysisTime = System.Diagnostics.Stopwatch.StartNew();
                 foreach (var asmdefPath in asmdefFiles)
                 {
-                    Debug.Log(
-                        $"[AssemblyDependencyAnalyzer] 分析 assembly: {Path.GetFileName(asmdefPath)}"
-                    );
+                    var singleAssemblyTime = System.Diagnostics.Stopwatch.StartNew();
                     var assemblyInfo = AnalyzeAssemblyDefinition(
                         asmdefPath,
                         result.targetPackageName
                     );
                     result.assemblies.Add(assemblyInfo);
+                    singleAssemblyTime.Stop();
 
-                    Debug.Log(
-                        $"[AssemblyDependencyAnalyzer] {assemblyInfo.assemblyName}: 引用數={assemblyInfo.referencedGUIDs.Count}, 外部引用={assemblyInfo.hasExternalReferences}, 外部package數={assemblyInfo.referencedPackages.Count}"
+                    UnityEngine.Debug.Log(
+                        $"[AssemblyDependencyAnalyzer] {assemblyInfo.assemblyName}: "
+                            + $"引用數={assemblyInfo.referencedGUIDs.Count}, 外部引用={assemblyInfo.hasExternalReferences}, "
+                            + $"外部package數={assemblyInfo.referencedPackages.Count}, 耗時={singleAssemblyTime.ElapsedMilliseconds}ms"
                     );
 
                     if (assemblyInfo.hasExternalReferences)
@@ -212,7 +243,16 @@ namespace MonoFSM.Core
                                 }
                                 else
                                 {
-                                    // 新的依賴
+                                    // 新的依賴 - 嘗試從主專案 manifest.json 取得 Git URL
+                                    var manifestGitUrl = TryGetGitUrlFromManifest(
+                                        refPackage.packageName
+                                    );
+                                    if (!string.IsNullOrEmpty(manifestGitUrl))
+                                    {
+                                        refPackage.gitUrl = manifestGitUrl;
+                                        refPackage.hasGitUrl = IsGitUrl(manifestGitUrl);
+                                    }
+
                                     if (
                                         !result.missingDependencies.Any(d =>
                                             d.packageName == refPackage.packageName
@@ -221,8 +261,11 @@ namespace MonoFSM.Core
                                     {
                                         result.missingDependencies.Add(refPackage);
 
-                                        // 如果是本地 package，需要提供 Git URL
-                                        if (refPackage.isLocalPackage)
+                                        // 所有缺失的 dependencies 都需要 Git URL（除非已從 manifest 找到）
+                                        if (
+                                            string.IsNullOrEmpty(refPackage.gitUrl)
+                                            || !refPackage.hasGitUrl
+                                        )
                                         {
                                             result.needGitUrlDependencies.Add(refPackage);
                                         }
@@ -232,14 +275,20 @@ namespace MonoFSM.Core
                         }
                     }
                 }
+                analysisTime.Stop();
 
-                Debug.Log(
-                    $"[AssemblyDependencyAnalyzer] 分析完成 - 缺失依賴: {result.missingDependencies.Count}, 需要 Git URL: {result.needGitUrlDependencies.Count}"
+                stopwatch.Stop();
+                UnityEngine.Debug.Log(
+                    $"[AssemblyDependencyAnalyzer] 分析完成 - 缺失依賴: {result.missingDependencies.Count}, 需要 Git URL: {result.needGitUrlDependencies.Count}\n"
+                        + $"總耗時: {stopwatch.ElapsedMilliseconds}ms (Assembly分析: {analysisTime.ElapsedMilliseconds}ms)"
                 );
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[AssemblyDependencyAnalyzer] 分析失敗: {ex.Message}");
+                stopwatch.Stop();
+                UnityEngine.Debug.LogError(
+                    $"[AssemblyDependencyAnalyzer] 分析失敗: {ex.Message} (總耗時: {stopwatch.ElapsedMilliseconds}ms)"
+                );
             }
 
             return result;
@@ -253,18 +302,34 @@ namespace MonoFSM.Core
             string targetPackageName
         )
         {
+            var totalStopwatch = System.Diagnostics.Stopwatch.StartNew();
             var asmdefName = Path.GetFileNameWithoutExtension(asmdefPath);
             var assemblyInfo = new AssemblyDependencyInfo(asmdefName, asmdefPath);
 
             try
             {
+                // 計時：檔案讀取和JSON解析
+                var fileReadStopwatch = System.Diagnostics.Stopwatch.StartNew();
                 var asmdefJson = JObject.Parse(File.ReadAllText(asmdefPath));
                 var references = asmdefJson["references"] as JArray;
+                fileReadStopwatch.Stop();
 
                 if (references != null)
                 {
+                    var referenceCount = references.Count;
+                    UnityEngine.Debug.Log(
+                        $"[AssemblyDependencyAnalyzer] {asmdefName} 有 {referenceCount} 個引用，檔案讀取耗時: {fileReadStopwatch.ElapsedMilliseconds}ms"
+                    );
+
+                    var guidProcessingTime = System.Diagnostics.Stopwatch.StartNew();
+                    var packagePathLookupTime = 0L;
+                    var isLocalPackageTime = 0L;
+                    var getAssemblyNameTime = 0L;
+
                     foreach (var reference in references)
                     {
+                        var singleGuidStopwatch = System.Diagnostics.Stopwatch.StartNew();
+
                         var rawGuid = reference.ToString();
                         // 移除 "GUID:" 前綴，只保留實際的 GUID
                         var guid = rawGuid.StartsWith("GUID:") ? rawGuid.Substring(5) : rawGuid;
@@ -273,19 +338,15 @@ namespace MonoFSM.Core
                             guid,
                             "Unknown"
                         );
-                        Debug.Log(
-                            $"[AssemblyDependencyAnalyzer] <color=blue>{asmdefName_fromGuid}</color> from {asmdefName} 檢查 GUID: {rawGuid} -> 清理後: {guid}, 在映射中: {s_guidToPackageMap?.GetValueOrDefault(guid)}"
-                        );
 
                         if (s_guidToPackageMap != null && s_guidToPackageMap.ContainsKey(guid))
                         {
                             var packageName = s_guidToPackageMap[guid];
 
+                            var packagePathStopwatch = System.Diagnostics.Stopwatch.StartNew();
                             var packagePath = GetPackagePathByName(packageName);
-
-                            Debug.Log(
-                                $"[AssemblyDependencyAnalyzer] {asmdefName} 引用 GUID {guid} -> package: {packageName} (目標package: {targetPackageName})"
-                            );
+                            packagePathStopwatch.Stop();
+                            packagePathLookupTime += packagePathStopwatch.ElapsedMilliseconds;
 
                             // 檢查是否為外部引用（不在目標 package 內）
                             if (
@@ -295,53 +356,84 @@ namespace MonoFSM.Core
                             {
                                 assemblyInfo.hasExternalReferences = true;
 
+                                var isLocalStopwatch = System.Diagnostics.Stopwatch.StartNew();
+                                var isLocalPackage = IsLocalPackage(packageName);
+                                isLocalStopwatch.Stop();
+                                isLocalPackageTime += isLocalStopwatch.ElapsedMilliseconds;
+
+                                var getNameStopwatch = System.Diagnostics.Stopwatch.StartNew();
+                                var assemblyName =
+                                    asmdefName_fromGuid ?? GetAssemblyNameByGuid(guid);
+                                getNameStopwatch.Stop();
+                                getAssemblyNameTime += getNameStopwatch.ElapsedMilliseconds;
+
                                 var refPackageInfo = new ReferencedPackageInfo(packageName)
                                 {
                                     packagePath = packagePath,
-                                    isLocalPackage = IsLocalPackage(packageName),
-                                    assemblyName =
-                                        asmdefName_fromGuid ?? GetAssemblyNameByGuid(guid),
+                                    isLocalPackage = isLocalPackage,
+                                    assemblyName = assemblyName,
                                 };
 
                                 assemblyInfo.referencedPackages.Add(refPackageInfo);
-                                Debug.Log(
-                                    $"[AssemblyDependencyAnalyzer] 添加外部引用: {packageName} (本地package: {refPackageInfo.isLocalPackage})"
-                                );
-                            }
-                            else if (packageName == targetPackageName)
-                            {
-                                Debug.Log(
-                                    $"[AssemblyDependencyAnalyzer] 跳過同package引用: {packageName}"
-                                );
                             }
                         }
-                        else
+
+                        singleGuidStopwatch.Stop();
+                        if (singleGuidStopwatch.ElapsedMilliseconds > 50) // 只記錄超過50ms的GUID處理
                         {
-                            Debug.LogWarning(
-                                $"[AssemblyDependencyAnalyzer] 無法解析 GUID: {guid} 在 {asmdefName}"
+                            UnityEngine.Debug.LogWarning(
+                                $"[AssemblyDependencyAnalyzer] GUID {guid} 處理耗時異常: {singleGuidStopwatch.ElapsedMilliseconds}ms"
                             );
                         }
                     }
+                    guidProcessingTime.Stop();
+
+                    UnityEngine.Debug.Log(
+                        $"[AssemblyDependencyAnalyzer] {asmdefName} GUID處理詳細耗時 - "
+                            + $"總計: {guidProcessingTime.ElapsedMilliseconds}ms, "
+                            + $"PackagePath查詢: {packagePathLookupTime}ms, "
+                            + $"IsLocalPackage: {isLocalPackageTime}ms, "
+                            + $"GetAssemblyName: {getAssemblyNameTime}ms"
+                    );
                 }
             }
             catch (Exception ex)
             {
-                Debug.LogError(
+                UnityEngine.Debug.LogError(
                     $"[AssemblyDependencyAnalyzer] 分析 {asmdefPath} 失敗: {ex.Message}"
                 );
             }
 
+            totalStopwatch.Stop();
+            UnityEngine.Debug.Log(
+                $"[AssemblyDependencyAnalyzer] {asmdefName} 總分析耗時: {totalStopwatch.ElapsedMilliseconds}ms"
+            );
             return assemblyInfo;
         }
 
         /// <summary>
-        /// 清除 GUID 映射快取
+        /// 清除所有快取
         /// </summary>
-        public static void ClearGuidMappingCache()
+        public static void ClearAllCaches()
         {
             s_guidToPackageMap = null;
             s_guidToAsmdefNameMap = null;
             s_guidMappingCacheValid = false;
+            s_manifestCache = null;
+            s_manifestCacheTime = DateTime.MinValue;
+            s_localPackagesCache = null;
+            s_localPackagesCacheTime = DateTime.MinValue;
+            s_packagePathCache.Clear();
+            s_isLocalPackageCache.Clear();
+            s_assemblyNameCache.Clear();
+        }
+
+        /// <summary>
+        /// 清除 GUID 映射快取（向後相容）
+        /// </summary>
+        public static void ClearGuidMappingCache()
+        {
+            ClearAllCaches();
         }
 
         /// <summary>
@@ -364,11 +456,13 @@ namespace MonoFSM.Core
             {
                 // 使用擴充的 PackageHelper 取得所有 packages
                 var allPackages = PackageHelper.GetAllPackages();
-                Debug.Log($"[AssemblyDependencyAnalyzer] 找到 {allPackages.Count} 個 packages");
+                UnityEngine.Debug.Log(
+                    $"[AssemblyDependencyAnalyzer] 找到 {allPackages.Count} 個 packages"
+                );
 
                 foreach (var package in allPackages)
                 {
-                    Debug.Log(
+                    UnityEngine.Debug.Log(
                         $"[AssemblyDependencyAnalyzer] 處理 package: {package.name} (source: {package.source})"
                     );
 
@@ -415,14 +509,14 @@ namespace MonoFSM.Core
                     }
                     else
                     {
-                        Debug.LogWarning(
+                        UnityEngine.Debug.LogWarning(
                             $"[AssemblyDependencyAnalyzer] 無法存取 package 路徑: {package.name} -> {packageFullPath}"
                         );
                     }
                 }
                 // 2. 處理 Asset的
                 var allAsmdefGuids = AssetDatabase.FindAssets("t:AssemblyDefinitionAsset");
-                Debug.Log(
+                UnityEngine.Debug.Log(
                     "[AssemblyDependencyAnalyzer] 找到Asset中 asmdef GUIDs: "
                         + allAsmdefGuids.Length
                 );
@@ -437,14 +531,16 @@ namespace MonoFSM.Core
                     s_guidToAsmdefNameMap[guid] = Path.GetFileNameWithoutExtension(asmdefPath);
                 }
 
-                Debug.Log(
+                UnityEngine.Debug.Log(
                     $"[AssemblyDependencyAnalyzer] 建立了 {s_guidToPackageMap.Count} 個 GUID 到 Package 的映射"
                 );
                 s_guidMappingCacheValid = true;
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[AssemblyDependencyAnalyzer] 建立 GUID 映射失敗: {ex.Message}");
+                UnityEngine.Debug.LogError(
+                    $"[AssemblyDependencyAnalyzer] 建立 GUID 映射失敗: {ex.Message}"
+                );
             }
         }
 
@@ -466,7 +562,7 @@ namespace MonoFSM.Core
             }
             catch (Exception ex)
             {
-                Debug.LogWarning(
+                UnityEngine.Debug.LogWarning(
                     $"[AssemblyDependencyAnalyzer] 無法讀取 meta 檔案 {metaFilePath}: {ex.Message}"
                 );
             }
@@ -515,29 +611,87 @@ namespace MonoFSM.Core
         }
 
         /// <summary>
-        /// 根據 package 名稱取得路徑
+        /// 取得或快取本地 packages 列表
         /// </summary>
-        private static string GetPackagePathByName(string packageName)
+        private static List<string> GetCachedLocalPackages()
         {
-            // 使用 PackageHelper 的功能
-            var localPackages = PackageHelper.GetLocalPackagePaths();
-            var targetPath = $"Packages/{packageName}";
+            var currentTime = DateTime.Now;
 
-            if (localPackages.Contains(targetPath))
+            // 檢查快取是否有效（5分鐘有效期）
+            if (
+                s_localPackagesCache != null
+                && s_localPackagesCacheTime != DateTime.MinValue
+                && (currentTime - s_localPackagesCacheTime) < CacheValidDuration
+            )
             {
-                return PackageHelper.GetPackageFullPath(targetPath);
+                return s_localPackagesCache;
             }
 
-            return "";
+            // 重新載入並快取
+            s_localPackagesCache = PackageHelper.GetLocalPackagePaths();
+            s_localPackagesCacheTime = currentTime;
+            UnityEngine.Debug.Log(
+                $"[AssemblyDependencyAnalyzer] 已快取 {s_localPackagesCache.Count} 個 local packages"
+            );
+
+            return s_localPackagesCache;
         }
 
         /// <summary>
-        /// 檢查是否為本地 package
+        /// 根據 package 名稱取得路徑（快取版本）
+        /// </summary>
+        private static string GetPackagePathByName(string packageName)
+        {
+            // 先檢查快取
+            if (s_packagePathCache.TryGetValue(packageName, out var cachedPath))
+            {
+                return cachedPath;
+            }
+
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+            // 使用快取的本地 packages
+            var localPackages = GetCachedLocalPackages();
+            var targetPath = $"Packages/{packageName}";
+            var result = "";
+
+            if (localPackages.Contains(targetPath))
+            {
+                result = PackageHelper.GetPackageFullPath(targetPath);
+            }
+
+            // 快取結果
+            s_packagePathCache[packageName] = result;
+
+            stopwatch.Stop();
+            if (stopwatch.ElapsedMilliseconds > 10) // 只記錄超過10ms的查詢
+            {
+                UnityEngine.Debug.Log(
+                    $"[AssemblyDependencyAnalyzer] GetPackagePathByName({packageName}) 耗時: {stopwatch.ElapsedMilliseconds}ms"
+                );
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// 檢查是否為本地 package（快取版本）
         /// </summary>
         private static bool IsLocalPackage(string packageName)
         {
-            var localPackages = PackageHelper.GetLocalPackagePaths();
-            return localPackages.Any(p => p.EndsWith(packageName));
+            // 先檢查快取
+            if (s_isLocalPackageCache.TryGetValue(packageName, out var cachedResult))
+            {
+                return cachedResult;
+            }
+
+            // 使用快取的本地 packages
+            var localPackages = GetCachedLocalPackages();
+            var result = localPackages.Any(p => p.EndsWith(packageName));
+
+            // 快取結果
+            s_isLocalPackageCache[packageName] = result;
+            return result;
         }
 
         /// <summary>
@@ -551,25 +705,36 @@ namespace MonoFSM.Core
         }
 
         /// <summary>
-        /// 根據 GUID 取得 Assembly 名稱
+        /// 根據 GUID 取得 Assembly 名稱（快取版本）
         /// </summary>
         private static string GetAssemblyNameByGuid(string guid)
         {
+            // 先檢查快取
+            if (s_assemblyNameCache.TryGetValue(guid, out var cachedName))
+            {
+                return cachedName;
+            }
+
+            var result = "Unknown";
             var assetPath = AssetDatabase.GUIDToAssetPath(guid);
             if (!string.IsNullOrEmpty(assetPath))
             {
                 try
                 {
                     var asmdefJson = JObject.Parse(File.ReadAllText(assetPath));
-                    return asmdefJson["name"]?.ToString()
+                    result =
+                        asmdefJson["name"]?.ToString()
                         ?? Path.GetFileNameWithoutExtension(assetPath);
                 }
                 catch
                 {
-                    return Path.GetFileNameWithoutExtension(assetPath);
+                    result = Path.GetFileNameWithoutExtension(assetPath);
                 }
             }
-            return "Unknown";
+
+            // 快取結果
+            s_assemblyNameCache[guid] = result;
+            return result;
         }
 
         /// <summary>
@@ -587,7 +752,98 @@ namespace MonoFSM.Core
         }
 
         /// <summary>
-        /// 自動更新 package.json dependencies
+        /// 取得或快取主專案 manifest.json 內容
+        /// </summary>
+        private static Dictionary<string, string> GetCachedManifestDependencies()
+        {
+            var manifestPath = Path.Combine(
+                UnityEngine.Application.dataPath,
+                "../Packages/manifest.json"
+            );
+            if (!File.Exists(manifestPath))
+                return new Dictionary<string, string>();
+
+            var manifestInfo = new FileInfo(manifestPath);
+            var currentTime = DateTime.Now;
+
+            // 檢查快取是否有效
+            if (
+                s_manifestCache != null
+                && s_manifestCacheTime != DateTime.MinValue
+                && (currentTime - s_manifestCacheTime) < CacheValidDuration
+                && manifestInfo.LastWriteTime <= s_manifestCacheTime
+            )
+            {
+                return s_manifestCache;
+            }
+
+            // 重新讀取並快取
+            try
+            {
+                var manifestText = File.ReadAllText(manifestPath);
+                var manifestJson = JObject.Parse(manifestText);
+                var dependencies = manifestJson["dependencies"] as JObject;
+
+                s_manifestCache = new Dictionary<string, string>();
+                if (dependencies != null)
+                {
+                    foreach (var dep in dependencies)
+                    {
+                        s_manifestCache[dep.Key] = dep.Value.ToString();
+                    }
+                }
+
+                s_manifestCacheTime = currentTime;
+                UnityEngine.Debug.Log(
+                    $"[AssemblyDependencyAnalyzer] 已快取 manifest.json，包含 {s_manifestCache.Count} 個 dependencies"
+                );
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning(
+                    $"[AssemblyDependencyAnalyzer] 讀取 manifest.json 時發生錯誤: {ex.Message}"
+                );
+                s_manifestCache = new Dictionary<string, string>();
+            }
+
+            return s_manifestCache;
+        }
+
+        /// <summary>
+        /// 嘗試從主專案 manifest.json 取得 Git URL（使用快取版本）
+        /// </summary>
+        private static string TryGetGitUrlFromManifest(string packageName)
+        {
+            var manifestDependencies = GetCachedManifestDependencies();
+
+            if (manifestDependencies.ContainsKey(packageName))
+            {
+                var url = manifestDependencies[packageName];
+
+                // 忽略 file: 開頭的 local package URLs
+                if (url.StartsWith("file:"))
+                {
+                    UnityEngine.Debug.Log(
+                        $"[AssemblyDependencyAnalyzer] 忽略 local package URL: {packageName} -> {url}"
+                    );
+                    return null;
+                }
+
+                // 只返回 Git URLs
+                if (IsGitUrl(url))
+                {
+                    UnityEngine.Debug.Log(
+                        $"[AssemblyDependencyAnalyzer] 從 manifest.json 找到 Git URL: {packageName} -> {url}"
+                    );
+                    return url;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// 自動更新 package.json dependencies（批量更新版本，保留向後相容）
         /// </summary>
         public static void UpdatePackageJsonDependencies(
             AnalysisResult analysisResult,
@@ -596,7 +852,9 @@ namespace MonoFSM.Core
         {
             if (analysisResult.missingDependencies.Count == 0)
             {
-                Debug.Log("[AssemblyDependencyAnalyzer] 沒有缺失的 dependencies 需要更新");
+                UnityEngine.Debug.Log(
+                    "[AssemblyDependencyAnalyzer] 沒有缺失的 dependencies 需要更新"
+                );
                 return;
             }
 
@@ -640,7 +898,7 @@ namespace MonoFSM.Core
 
                         dependencies[missingDep.packageName] = dependencyUrl;
                         addedCount++;
-                        Debug.Log(
+                        UnityEngine.Debug.Log(
                             $"[AssemblyDependencyAnalyzer] 已添加 dependency: {missingDep.packageName} -> {dependencyUrl}"
                         );
                     }
@@ -648,11 +906,8 @@ namespace MonoFSM.Core
 
                 if (addedCount > 0)
                 {
-                    File.WriteAllText(
-                        analysisResult.targetPackageJsonPath,
-                        packageJson.ToString(Newtonsoft.Json.Formatting.Indented)
-                    );
-                    Debug.Log(
+                    WritePackageJsonSafely(analysisResult.targetPackageJsonPath, packageJson);
+                    UnityEngine.Debug.Log(
                         $"[AssemblyDependencyAnalyzer] 已更新 package.json，添加了 {addedCount} 個 dependencies"
                     );
                     AssetDatabase.Refresh();
@@ -660,9 +915,90 @@ namespace MonoFSM.Core
             }
             catch (Exception ex)
             {
-                Debug.LogError(
+                UnityEngine.Debug.LogError(
                     $"[AssemblyDependencyAnalyzer] 更新 package.json 失敗: {ex.Message}"
                 );
+            }
+        }
+
+        /// <summary>
+        /// 更新單一 package 到 package.json dependencies
+        /// </summary>
+        public static void UpdateSinglePackageJsonDependency(
+            AnalysisResult analysisResult,
+            string packageName,
+            string gitUrl
+        )
+        {
+            if (string.IsNullOrEmpty(packageName) || string.IsNullOrEmpty(gitUrl))
+            {
+                UnityEngine.Debug.LogError(
+                    "[AssemblyDependencyAnalyzer] packageName 或 gitUrl 不能為空"
+                );
+                return;
+            }
+
+            try
+            {
+                var packageJson = JObject.Parse(
+                    File.ReadAllText(analysisResult.targetPackageJsonPath)
+                );
+                var dependencies = packageJson["dependencies"] as JObject;
+                if (dependencies == null)
+                {
+                    packageJson["dependencies"] = dependencies = new JObject();
+                }
+
+                // 只添加指定的單一 package
+                if (!dependencies.ContainsKey(packageName))
+                {
+                    dependencies[packageName] = gitUrl;
+                    WritePackageJsonSafely(analysisResult.targetPackageJsonPath, packageJson);
+                    UnityEngine.Debug.Log(
+                        $"[AssemblyDependencyAnalyzer] 已添加單一 dependency: {packageName} -> {gitUrl}"
+                    );
+                    AssetDatabase.Refresh();
+                }
+                else
+                {
+                    UnityEngine.Debug.LogWarning(
+                        $"[AssemblyDependencyAnalyzer] {packageName} 已存在於 dependencies 中"
+                    );
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError(
+                    $"[AssemblyDependencyAnalyzer] 更新單一 package.json dependency 失敗: {ex.Message}"
+                );
+            }
+        }
+
+        /// <summary>
+        /// 安全地寫入 package.json，確保格式正確且無多餘逗號
+        /// </summary>
+        private static void WritePackageJsonSafely(string filePath, JObject packageJson)
+        {
+            try
+            {
+                // 使用自定義格式化設定，確保不會產生多餘的逗號
+                var jsonString = packageJson.ToString(Newtonsoft.Json.Formatting.Indented);
+
+                // 額外檢查：移除可能的多餘逗號（在 } 或 ] 前的逗號）
+                jsonString = System.Text.RegularExpressions.Regex.Replace(
+                    jsonString,
+                    @",(\s*[}\]])",
+                    "$1"
+                );
+
+                File.WriteAllText(filePath, jsonString);
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError(
+                    $"[AssemblyDependencyAnalyzer] 寫入 package.json 時發生錯誤: {ex.Message}"
+                );
+                throw;
             }
         }
 
@@ -670,7 +1006,7 @@ namespace MonoFSM.Core
         // Runtime 版本 - 只提供基本功能
         public static AnalysisResult AnalyzePackageDependencies(string packageJsonPath)
         {
-            Debug.LogWarning(
+            UnityEngine.Debug.LogWarning(
                 "[AssemblyDependencyAnalyzer] Runtime 模式下無法分析 Assembly Dependencies"
             );
             return new AnalysisResult(packageJsonPath);
@@ -681,7 +1017,9 @@ namespace MonoFSM.Core
             Dictionary<string, string> gitUrlMappings = null
         )
         {
-            Debug.LogWarning("[AssemblyDependencyAnalyzer] Runtime 模式下無法更新 package.json");
+            UnityEngine.Debug.LogWarning(
+                "[AssemblyDependencyAnalyzer] Runtime 模式下無法更新 package.json"
+            );
         }
 #endif
     }

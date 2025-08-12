@@ -138,7 +138,7 @@ namespace MonoFSM.Core
         }
 
         /// <summary>
-        /// 取得套件的完整檔案系統路徑
+        /// 取得套件的完整檔案系統路徑（使用快取優化）
         /// </summary>
         public static string GetPackageFullPath(string packageRelativePath)
         {
@@ -151,27 +151,11 @@ namespace MonoFSM.Core
             {
                 var packageName = packageRelativePath.Substring("Packages/".Length);
 
-                // 嘗試從套件管理器取得完整路徑
-                try
+                // 使用快取的 package 資料，避免每次都發送請求
+                var packageInfo = GetPackageInfo(packageName);
+                if (packageInfo != null && !string.IsNullOrEmpty(packageInfo.resolvedPath))
                 {
-                    var listRequest = Client.List(true, false);
-                    while (!listRequest.IsCompleted)
-                    {
-                        System.Threading.Thread.Sleep(10);
-                    }
-
-                    if (listRequest.Status == StatusCode.Success)
-                    {
-                        var package = listRequest.Result.FirstOrDefault(p => p.name == packageName);
-                        if (package != null && !string.IsNullOrEmpty(package.resolvedPath))
-                        {
-                            return package.resolvedPath;
-                        }
-                    }
-                }
-                catch
-                {
-                    // Fallback: 組合路徑
+                    return packageInfo.resolvedPath;
                 }
 
                 // Fallback: 假設在專案根目錄

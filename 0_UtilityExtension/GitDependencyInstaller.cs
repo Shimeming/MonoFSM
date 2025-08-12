@@ -59,7 +59,19 @@ namespace MonoFSM.Core
         /// <summary>
         /// 檢查所有 git dependencies 狀態
         /// </summary>
+        /// <summary>
+        /// 檢查 Git Dependencies（主專案 manifest.json）
+        /// </summary>
         public static DependencyCheckResult CheckGitDependencies()
+        {
+            var manifestPath = Path.Combine(Application.dataPath, "../Packages/manifest.json");
+            return CheckGitDependencies(manifestPath);
+        }
+
+        /// <summary>
+        /// 檢查指定 package.json 的 Git Dependencies
+        /// </summary>
+        public static DependencyCheckResult CheckGitDependencies(string packageJsonPath)
         {
             if (s_isChecking)
             {
@@ -72,22 +84,23 @@ namespace MonoFSM.Core
 
             try
             {
-                // 讀取 manifest.json
-                var manifestPath = Path.Combine(Application.dataPath, "../Packages/manifest.json");
-                if (!File.Exists(manifestPath))
+                // 讀取指定的 package.json
+                if (!File.Exists(packageJsonPath))
                 {
-                    Debug.LogError("[GitDependencyInstaller] 找不到 manifest.json");
+                    Debug.LogError(
+                        $"[GitDependencyInstaller] 找不到 package.json: {packageJsonPath}"
+                    );
                     return result;
                 }
 
-                var manifestText = File.ReadAllText(manifestPath);
-                var manifestJson = JObject.Parse(manifestText);
-                var dependencies = manifestJson["dependencies"] as JObject;
+                var packageText = File.ReadAllText(packageJsonPath);
+                var packageJson = JObject.Parse(packageText);
+                var dependencies = packageJson["dependencies"] as JObject;
 
                 if (dependencies == null)
                 {
                     Debug.LogWarning(
-                        "[GitDependencyInstaller] manifest.json 中沒有找到 dependencies"
+                        $"[GitDependencyInstaller] {Path.GetFileName(packageJsonPath)} 中沒有找到 dependencies"
                     );
                     return result;
                 }
@@ -118,6 +131,10 @@ namespace MonoFSM.Core
                     // 檢查是否為 git URL
                     if (IsGitUrl(packageUrl))
                     {
+                        Debug.Log(
+                            $"[GitDependencyInstaller] 檢查Git依賴: {packageName} - URL: {packageUrl}"
+                        );
+
                         var gitInfo = new GitDependencyInfo(packageName, packageUrl);
 
                         // 檢查是否已安裝
@@ -162,14 +179,16 @@ namespace MonoFSM.Core
         /// <summary>
         /// 安裝所有缺失的 git dependencies
         /// </summary>
-        public static void InstallMissingGitDependencies()
+        public static void InstallMissingGitDependencies(DependencyCheckResult checkResult)
         {
-            var checkResult = CheckGitDependencies();
-            if (checkResult.missingDependencies.Count == 0)
-            {
-                Debug.Log("[GitDependencyInstaller] 所有 git dependencies 已安裝完成");
-                return;
-            }
+            // 清除快取以確保取得最新狀態
+            // ClearCache();
+            // var checkResult = CheckGitDependencies();
+            // if (checkResult.missingDependencies.Count == 0)
+            // {
+            //     Debug.Log("[GitDependencyInstaller] 所有 git dependencies 已安裝完成");
+            //     return;
+            // }
 
             Debug.Log(
                 $"[GitDependencyInstaller] 開始安裝 {checkResult.missingDependencies.Count} 個缺失的 git dependencies"
@@ -208,7 +227,8 @@ namespace MonoFSM.Core
                 $"[GitDependencyInstaller] 安裝完成 - 成功: {installCount}/{checkResult.missingDependencies.Count}"
             );
 
-            // 重新整理 AssetDatabase
+            // 清除快取並重新整理 AssetDatabase
+            ClearCache();
             AssetDatabase.Refresh();
         }
 

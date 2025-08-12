@@ -1,12 +1,9 @@
 {
   "name": "com.monofsm.core",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "displayName": "MonoFSM",
-  "description": "Core package for RCG MonoFSM",
-  "unity": "2021.3",
-  "keywords": [
-    "fsm"
-  ],
+  "description": "Core package for MonoFSM",
+  "unity": "6001.1",
   "dependencies": {
     "com.unity.addressables": "2.4.3",
     "com.unity.inputsystem": "1.14.0",
@@ -15,8 +12,13 @@
     "com.unity.modules.animation": "1.0.0",
     "com.unity.modules.physics": "1.0.0",
     "com.unity.modules.physics2d": "1.0.0",
-    "com.unity.nuget.newtonsoft-json": "3.2.1"
+    "com.unity.nuget.newtonsoft-json": "3.2.1",
+    "com.cysharp.zstring": "https://github.com/Cysharp/ZString.git?path=src/ZString.Unity/Assets/Scripts/ZString",
+    "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask"
   },
+  "keywords": [
+    "fsm"
+  ],
   "samples": [],
   "author": {
     "name": "Red Candle Games",

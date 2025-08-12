@@ -85,6 +85,7 @@ namespace MonoFSM.Utility.Editor
             InitializeStyles();
 
             DrawHeader();
+            DrawGlobalPackageSelector(); // 新增全域 package 選擇器
             DrawTabs();
 
             switch (currentTab)
@@ -98,6 +99,57 @@ namespace MonoFSM.Utility.Editor
             }
         }
 
+        /// <summary>
+        /// 繪製全域 package 選擇器
+        /// </summary>
+        private void DrawGlobalPackageSelector()
+        {
+            GUILayout.BeginVertical(EditorStyles.helpBox);
+            GUILayout.BeginHorizontal();
+
+            GUILayout.Label("選擇 Package:", GUILayout.Width(100));
+
+            // 重新整理按鈕
+            if (GUILayout.Button("🔄", GUILayout.Width(25)))
+            {
+                RefreshPackageOptions();
+                // 清除分析結果，因為 package 可能改變
+                assemblyAnalysisResult = null;
+                checkResult = null;
+            }
+
+            // 下拉選單
+            if (availablePackageOptions != null && availablePackageOptions.Length > 0)
+            {
+                var newIndex = EditorGUILayout.Popup(selectedPackageIndex, availablePackageOptions);
+                if (newIndex != selectedPackageIndex)
+                {
+                    selectedPackageIndex = newIndex;
+                    selectedPackageJsonPath = availablePackagePaths[selectedPackageIndex];
+                    // 清除舊結果
+                    assemblyAnalysisResult = null;
+                    checkResult = null;
+                    gitUrlInputs.Clear();
+                    RefreshDependencies();
+                }
+            }
+            else
+            {
+                GUILayout.Label("沒有可用的 packages", EditorStyles.centeredGreyMiniLabel);
+            }
+
+            GUILayout.EndHorizontal();
+
+            // 顯示選中的路徑
+            if (!string.IsNullOrEmpty(selectedPackageJsonPath))
+            {
+                GUILayout.Label($"路徑: {selectedPackageJsonPath}", EditorStyles.miniLabel);
+            }
+
+            GUILayout.EndVertical();
+            GUILayout.Space(10);
+        }
+
         private void DrawTabs()
         {
             currentTab = GUILayout.Toolbar(currentTab, tabNames);
@@ -106,16 +158,36 @@ namespace MonoFSM.Utility.Editor
 
         private void DrawGitDependenciesTab()
         {
+            DrawGitDependenciesHeader();
             DrawToolbar();
             DrawSearchFilter();
             DrawDependenciesList();
             DrawFooter();
         }
 
+        private void DrawGitDependenciesHeader()
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Git Dependencies 檢查", headerStyle);
+
+            GUILayout.FlexibleSpace();
+
+            // 檢查按鈕
+
+            // GUI.enabled = !string.IsNullOrEmpty(selectedPackageJsonPath) && !isChecking;
+            // if (GUILayout.Button("檢查", GUILayout.Width(60)))
+            // {
+            //     RefreshDependencies();
+            // }
+            // GUI.enabled = true;
+            //
+            GUILayout.EndHorizontal();
+            GUILayout.Space(5);
+        }
+
         private void DrawAssemblyAnalysisTab()
         {
             DrawAssemblyAnalysisHeader();
-            DrawPackageSelector();
             DrawAnalysisResults();
             DrawAssemblyAnalysisFooter();
         }
@@ -145,18 +217,54 @@ namespace MonoFSM.Utility.Editor
         private void DrawToolbar()
         {
             GUILayout.BeginHorizontal(EditorStyles.toolbar);
-
-            if (GUILayout.Button("重新檢查", EditorStyles.toolbarButton))
+            if (checkResult == null)
+            {
+                if (GUILayout.Button("🔍首次檢查", EditorStyles.toolbarButton))
+                {
+                    RefreshDependencies();
+                }
+            }
+            else if (GUILayout.Button("🔍重新檢查", EditorStyles.toolbarButton))
             {
                 RefreshDependencies();
             }
 
-            GUI.enabled = checkResult != null && !checkResult.allDependenciesInstalled;
-            if (GUILayout.Button("安裝所有缺失依賴", EditorStyles.toolbarButton))
+            GUILayout.FlexibleSpace();
+
+            // 顯眼的安裝按鈕
+            var hasUninstalledDeps = checkResult != null && !checkResult.allDependenciesInstalled;
+            GUI.enabled = hasUninstalledDeps;
+
+            var installButtonStyle = EditorStyles.toolbarButton;
+            if (hasUninstalledDeps)
             {
-                InstallMissingDependencies();
+                installButtonStyle.normal.textColor = Color.white;
+                var originalColor = GUI.backgroundColor;
+                GUI.backgroundColor = new Color(0.2f, 0.7f, 0.2f); // 綠色背景
+
+                if (
+                    GUILayout.Button(
+                        $"🔧 安裝所有缺失依賴 ({checkResult.missingDependencies.Count})",
+                        installButtonStyle,
+                        GUILayout.Height(25)
+                    )
+                )
+                {
+                    InstallMissingDependencies();
+                }
+
+                GUI.backgroundColor = originalColor;
+            }
+            else
+            {
+                if (GUILayout.Button("✅ 所有依賴已安裝", installButtonStyle, GUILayout.Height(25)))
+                {
+                    InstallMissingDependencies();
+                }
             }
             GUI.enabled = true;
+
+            GUILayout.Space(10);
 
             //FIXME: 這感覺不對
             // if (GUILayout.Button("更新本地 Packages", EditorStyles.toolbarButton))
@@ -168,8 +276,6 @@ namespace MonoFSM.Utility.Editor
             {
                 GitDependencyManager.GenerateDependencyReport();
             }
-
-            GUILayout.FlexibleSpace();
 
             if (isChecking)
             {
@@ -315,13 +421,19 @@ namespace MonoFSM.Utility.Editor
 
         private void RefreshDependencies()
         {
+            if (string.IsNullOrEmpty(selectedPackageJsonPath))
+            {
+                Debug.LogWarning("[GitDependencyWindow] 沒有選擇 package.json");
+                return;
+            }
+
             isChecking = true;
             Repaint();
 
             // 使用 EditorApplication.delayCall 避免在 OnGUI 中執行耗時操作
             EditorApplication.delayCall += () =>
             {
-                checkResult = GitDependencyInstaller.CheckGitDependencies();
+                checkResult = GitDependencyInstaller.CheckGitDependencies(selectedPackageJsonPath);
                 isChecking = false;
                 Repaint();
             };
@@ -337,13 +449,18 @@ namespace MonoFSM.Utility.Editor
 
                 if (EditorUtility.DisplayDialog("確認安裝", message, "確定", "取消"))
                 {
-                    GitDependencyInstaller.InstallMissingGitDependencies();
+                    GitDependencyInstaller.InstallMissingGitDependencies(checkResult);
+                    RefreshDependencies();
 
-                    // 安裝完成後重新檢查
-                    EditorApplication.delayCall += () =>
-                    {
-                        RefreshDependencies();
-                    };
+                    // 安裝完成後延遲重新檢查，確保 Package Manager 更新完成
+                    // EditorApplication.delayCall += () =>
+                    // {
+                    //     System.Threading.Tasks.Task.Delay(2000).ContinueWith(_ =>
+                    //     {
+                    //
+                    //     });
+                    // };
+                    // EditorApplication.delayCall += RefreshDependencies;
                 }
             }
         }
@@ -403,12 +520,36 @@ namespace MonoFSM.Utility.Editor
 
         private void DrawAssemblyAnalysisHeader()
         {
+            GUILayout.BeginHorizontal();
             GUILayout.Label("Assembly Dependency 分析器", headerStyle);
+
+            GUILayout.FlexibleSpace();
+
+            // 分析按鈕
+            GUI.enabled = !string.IsNullOrEmpty(selectedPackageJsonPath) && !isAnalyzing;
+            if (GUILayout.Button("分析", GUILayout.Width(60)))
+            {
+                AnalyzeSelectedPackage();
+            }
+            GUI.enabled = true;
+
+            GUILayout.EndHorizontal();
+            GUILayout.Space(5);
             GUILayout.Label(
                 "分析 package 內的 asmdef 引用，自動更新 dependencies",
                 EditorStyles.helpBox
             );
             GUILayout.Space(5);
+        }
+
+        /// <summary>
+        /// 檢查是否為 Unity 內建 package
+        /// </summary>
+        private bool IsUnityBuiltInPackage(string packageName)
+        {
+            return packageName.StartsWith("com.unity.modules.")
+                || packageName.StartsWith("com.unity.")
+                || packageName == "";
         }
 
         private void RefreshPackageOptions()
@@ -423,6 +564,10 @@ namespace MonoFSM.Utility.Editor
 
                 foreach (var package in allPackages)
                 {
+                    // 過濾 Unity 內部 packages
+                    if (IsUnityBuiltInPackage(package.name))
+                        continue;
+
                     string packageJsonPath = null;
 
                     if (package.source == UnityEditor.PackageManager.PackageSource.Local)
@@ -478,51 +623,51 @@ namespace MonoFSM.Utility.Editor
             }
         }
 
-        private void DrawPackageSelector()
-        {
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("選擇 package:", GUILayout.Width(100));
-
-            // 重新整理按鈕
-            if (GUILayout.Button("🔄", GUILayout.Width(25)))
-            {
-                RefreshPackageOptions();
-            }
-
-            // 下拉選單
-            if (availablePackageOptions != null && availablePackageOptions.Length > 0)
-            {
-                var newIndex = EditorGUILayout.Popup(selectedPackageIndex, availablePackageOptions);
-                if (newIndex != selectedPackageIndex)
-                {
-                    selectedPackageIndex = newIndex;
-                    selectedPackageJsonPath = availablePackagePaths[selectedPackageIndex];
-                    assemblyAnalysisResult = null; // 清除舊結果
-                }
-            }
-            else
-            {
-                GUILayout.Label("沒有可用的 packages", EditorStyles.helpBox);
-            }
-
-            // 分析按鈕
-            GUI.enabled = !string.IsNullOrEmpty(selectedPackageJsonPath) && !isAnalyzing;
-            if (GUILayout.Button("分析", GUILayout.Width(60)))
-            {
-                AnalyzeSelectedPackage();
-            }
-            GUI.enabled = true;
-
-            GUILayout.EndHorizontal();
-
-            // 顯示選中的路徑
-            if (!string.IsNullOrEmpty(selectedPackageJsonPath))
-            {
-                GUILayout.Label($"路徑: {selectedPackageJsonPath}", EditorStyles.miniLabel);
-            }
-
-            GUILayout.Space(10);
-        }
+        // private void DrawPackageSelector()
+        // {
+        //     GUILayout.BeginHorizontal();
+        //     GUILayout.Label("選擇 package:", GUILayout.Width(100));
+        //
+        //     // 重新整理按鈕
+        //     if (GUILayout.Button("🔄", GUILayout.Width(25)))
+        //     {
+        //         RefreshPackageOptions();
+        //     }
+        //
+        //     // 下拉選單
+        //     if (availablePackageOptions != null && availablePackageOptions.Length > 0)
+        //     {
+        //         var newIndex = EditorGUILayout.Popup(selectedPackageIndex, availablePackageOptions);
+        //         if (newIndex != selectedPackageIndex)
+        //         {
+        //             selectedPackageIndex = newIndex;
+        //             selectedPackageJsonPath = availablePackagePaths[selectedPackageIndex];
+        //             assemblyAnalysisResult = null; // 清除舊結果
+        //         }
+        //     }
+        //     else
+        //     {
+        //         GUILayout.Label("沒有可用的 packages", EditorStyles.helpBox);
+        //     }
+        //
+        //     // 分析按鈕
+        //     GUI.enabled = !string.IsNullOrEmpty(selectedPackageJsonPath) && !isAnalyzing;
+        //     if (GUILayout.Button("分析", GUILayout.Width(60)))
+        //     {
+        //         AnalyzeSelectedPackage();
+        //     }
+        //     GUI.enabled = true;
+        //
+        //     GUILayout.EndHorizontal();
+        //
+        //     // 顯示選中的路徑
+        //     if (!string.IsNullOrEmpty(selectedPackageJsonPath))
+        //     {
+        //         GUILayout.Label($"路徑: {selectedPackageJsonPath}", EditorStyles.miniLabel);
+        //     }
+        //
+        //     GUILayout.Space(10);
+        // }
 
         private void DrawAnalysisResults()
         {
@@ -553,10 +698,10 @@ namespace MonoFSM.Utility.Editor
             }
 
             // 需要 Git URL 的 Dependencies
-            if (assemblyAnalysisResult.needGitUrlDependencies.Count > 0)
-            {
-                DrawGitUrlInputs();
-            }
+            // if (assemblyAnalysisResult.needGitUrlDependencies.Count > 0)
+            // {
+            //     DrawGitUrlInputs();
+            // }
 
             // Assembly 詳細資訊
             DrawAssemblyDetails();
@@ -582,84 +727,128 @@ namespace MonoFSM.Utility.Editor
 
         private void DrawMissingDependencies()
         {
-            GUILayout.Label("缺失的 Dependencies:", EditorStyles.boldLabel);
+            GUILayout.Label("尚未加到Package.json的 Dependencies:", EditorStyles.boldLabel);
+
+            // 說明
+            GUILayout.BeginVertical(EditorStyles.helpBox);
+            GUILayout.Label("說明：", EditorStyles.boldLabel);
+            GUILayout.Label("• 🟢 綠色：已從主專案 manifest.json 找到 Git URL，可直接添加");
+            GUILayout.Label("• 🟡 黃色：本地 package，可選擇提供 Git URL 或保持為 local package");
+            GUILayout.Label("• 🔴 紅色：需要手動提供 Git URL");
+            GUILayout.EndVertical();
+
+            GUILayout.Space(5);
 
             GUILayout.BeginVertical(EditorStyles.helpBox);
             foreach (var missing in assemblyAnalysisResult.missingDependencies)
             {
                 GUILayout.BeginHorizontal();
 
-                var statusColor = missing.isLocalPackage ? Color.yellow : Color.red;
-                var originalColor = GUI.color;
-                GUI.color = statusColor;
-                GUILayout.Label(missing.isLocalPackage ? "○" : "✗", GUILayout.Width(20));
-                GUI.color = originalColor;
+                // 狀態標記（使用 emoji 代替顏色）
+                string statusIcon;
+                if (!string.IsNullOrEmpty(missing.gitUrl) && missing.hasGitUrl)
+                {
+                    statusIcon = "🟢";
+                }
+                else if (missing.isLocalPackage)
+                {
+                    statusIcon = "🟡";
+                }
+                else
+                {
+                    statusIcon = "🔴";
+                }
 
-                GUILayout.Label(missing.packageName);
+                GUILayout.Label(statusIcon, GUILayout.Width(30));
+                GUILayout.Label(missing.packageName, GUILayout.Width(180));
 
                 if (!string.IsNullOrEmpty(missing.assemblyName))
                 {
-                    GUILayout.Label($"({missing.assemblyName})", EditorStyles.miniLabel);
+                    GUILayout.Label(
+                        $"({missing.assemblyName})",
+                        EditorStyles.miniLabel,
+                        GUILayout.Width(120)
+                    );
                 }
 
-                GUILayout.FlexibleSpace();
-
-                if (missing.isLocalPackage)
+                // 顯示 Git URL 狀態或輸入框
+                if (!string.IsNullOrEmpty(missing.gitUrl) && missing.hasGitUrl)
                 {
-                    GUILayout.Label("需要 Git URL", EditorStyles.miniLabel);
+                    // 已有 Git URL，顯示為只讀
+                    GUI.enabled = false;
+                    GUILayout.TextField(missing.gitUrl, GUILayout.Width(300));
+                    GUI.enabled = true;
+
+                    // 添加按鈕
+                    if (GUILayout.Button("添加", GUILayout.Width(50)))
+                    {
+                        UpdateSinglePackageJson(missing);
+                    }
+                }
+                else
+                {
+                    // 需要輸入 Git URL
+                    if (!gitUrlInputs.ContainsKey(missing.packageName))
+                    {
+                        gitUrlInputs[missing.packageName] = "";
+                    }
+
+                    gitUrlInputs[missing.packageName] = GUILayout.TextField(
+                        gitUrlInputs[missing.packageName],
+                        GUILayout.Width(300)
+                    );
+
+                    // 添加按鈕，只有在有輸入時才啟用
+                    GUI.enabled = !string.IsNullOrWhiteSpace(gitUrlInputs[missing.packageName]);
+                    if (GUILayout.Button("添加", GUILayout.Width(50)))
+                    {
+                        missing.gitUrl = gitUrlInputs[missing.packageName];
+                        missing.hasGitUrl = IsGitUrl(gitUrlInputs[missing.packageName]);
+                        UpdateSinglePackageJson(missing);
+                    }
+                    GUI.enabled = true;
                 }
 
                 GUILayout.EndHorizontal();
+
+                // 如果是 local package，在下一行顯示提示
+                if (
+                    missing.isLocalPackage
+                    && (string.IsNullOrEmpty(missing.gitUrl) || !missing.hasGitUrl)
+                )
+                {
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Space(30); // 對齊 icon 欄
+                    GUILayout.Label(
+                        "💡 提示：如果不提供 Git URL，此 package 需要手動安裝為 local package",
+                        EditorStyles.miniLabel
+                    );
+                    GUILayout.EndHorizontal();
+                }
             }
             GUILayout.EndVertical();
-
-            GUILayout.BeginHorizontal();
-            GUI.enabled = assemblyAnalysisResult.missingDependencies.Count > 0;
-            if (GUILayout.Button("更新到 package.json"))
-            {
-                UpdatePackageJsonWithMissingDeps();
-            }
-            GUI.enabled = true;
-            GUILayout.EndHorizontal();
 
             GUILayout.Space(10);
         }
 
         private void DrawGitUrlInputs()
         {
-            GUILayout.Label("請為本地 packages 提供 Git URLs:", EditorStyles.boldLabel);
-
+            // 只提供清空輸入的功能和小提示
             GUILayout.BeginVertical(EditorStyles.helpBox);
+            GUILayout.Label("💡 小貼士：", EditorStyles.boldLabel);
+            GUILayout.Label("• 每個 package 都有獨立的「添加」按鈕，可以單獨處理");
+            GUILayout.Label("• 🟢 項目：已自動找到 Git URL，可直接添加");
+            GUILayout.Label("• 🟡 項目：可選擇提供 Git URL 或保持為 local package");
+            GUILayout.Label("• 🔴 項目：必須提供 Git URL 才能添加");
 
-            foreach (var needGitUrl in assemblyAnalysisResult.needGitUrlDependencies)
-            {
-                GUILayout.BeginHorizontal();
-                GUILayout.Label(needGitUrl.packageName, GUILayout.Width(200));
-
-                if (!gitUrlInputs.ContainsKey(needGitUrl.packageName))
-                {
-                    gitUrlInputs[needGitUrl.packageName] = "";
-                }
-
-                gitUrlInputs[needGitUrl.packageName] = GUILayout.TextField(
-                    gitUrlInputs[needGitUrl.packageName]
-                );
-
-                GUILayout.EndHorizontal();
-            }
-
+            GUILayout.Space(5);
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button("使用 Git URLs 更新"))
-            {
-                UpdatePackageJsonWithGitUrls();
-            }
-
-            if (GUILayout.Button("清空輸入"))
+            if (GUILayout.Button("清空所有輸入"))
             {
                 gitUrlInputs.Clear();
+                Repaint();
             }
             GUILayout.EndHorizontal();
-
             GUILayout.EndVertical();
             GUILayout.Space(10);
         }
@@ -777,32 +966,122 @@ namespace MonoFSM.Utility.Editor
 
         private void UpdatePackageJsonWithGitUrls()
         {
-            if (assemblyAnalysisResult == null || gitUrlInputs.Count == 0)
+            if (assemblyAnalysisResult == null)
                 return;
 
-            // 檢查是否有空的 Git URL
-            var emptyUrls = gitUrlInputs
-                .Where(kvp => string.IsNullOrWhiteSpace(kvp.Value))
-                .ToList();
-            if (emptyUrls.Count > 0)
+            // 組合所有的 Git URL 映射：已找到的 + 用戶輸入的
+            var allGitUrls = new Dictionary<string, string>();
+
+            // 加入已經找到 Git URL 的項目
+            foreach (var missing in assemblyAnalysisResult.missingDependencies)
             {
-                var emptyPackages = string.Join(", ", emptyUrls.Select(kvp => kvp.Key));
+                if (!string.IsNullOrEmpty(missing.gitUrl) && missing.hasGitUrl)
+                {
+                    allGitUrls[missing.packageName] = missing.gitUrl;
+                }
+            }
+
+            // 加入用戶輸入的 Git URLs
+            foreach (var input in gitUrlInputs)
+            {
+                if (!string.IsNullOrWhiteSpace(input.Value))
+                {
+                    allGitUrls[input.Key] = input.Value;
+                }
+            }
+
+            // 檢查是否還有需要 Git URL 但沒有提供的項目
+            var needUrls = assemblyAnalysisResult
+                .needGitUrlDependencies.Where(dep =>
+                    !allGitUrls.ContainsKey(dep.packageName)
+                    && (string.IsNullOrEmpty(dep.gitUrl) || !dep.hasGitUrl)
+                )
+                .ToList();
+
+            if (needUrls.Count > 0)
+            {
+                var emptyPackages = string.Join(", ", needUrls.Select(dep => dep.packageName));
                 EditorUtility.DisplayDialog(
                     "輸入不完整",
-                    $"以下 packages 缺少 Git URL:\n{emptyPackages}",
+                    $"以下 packages 還需要提供 Git URL:\n{emptyPackages}",
                     "確定"
                 );
                 return;
             }
 
+            if (allGitUrls.Count == 0)
+            {
+                EditorUtility.DisplayDialog("沒有更新", "沒有找到可用的 Git URLs", "確定");
+                return;
+            }
+
             AssemblyDependencyAnalyzer.UpdatePackageJsonDependencies(
                 assemblyAnalysisResult,
-                gitUrlInputs
+                allGitUrls
             );
-            EditorUtility.DisplayDialog("更新完成", "package.json 已使用 Git URLs 更新！", "確定");
+            EditorUtility.DisplayDialog(
+                "更新完成",
+                $"package.json 已更新 {allGitUrls.Count} 個 dependencies！",
+                "確定"
+            );
 
             // 重新分析以更新狀態
             AnalyzeSelectedPackage();
+        }
+
+        /// <summary>
+        /// 更新單一 package 到 package.json
+        /// </summary>
+        private void UpdateSinglePackageJson(
+            AssemblyDependencyAnalyzer.ReferencedPackageInfo package
+        )
+        {
+            if (assemblyAnalysisResult == null || string.IsNullOrEmpty(selectedPackageJsonPath))
+                return;
+
+            var gitUrl = !string.IsNullOrEmpty(package.gitUrl)
+                ? package.gitUrl
+                : (
+                    gitUrlInputs.ContainsKey(package.packageName)
+                        ? gitUrlInputs[package.packageName]
+                        : ""
+                );
+
+            if (string.IsNullOrWhiteSpace(gitUrl))
+            {
+                EditorUtility.DisplayDialog("錯誤", "沒有提供 Git URL", "確定");
+                return;
+            }
+
+            // 使用新的單一 package 更新方法
+            AssemblyDependencyAnalyzer.UpdateSinglePackageJsonDependency(
+                assemblyAnalysisResult,
+                package.packageName,
+                gitUrl
+            );
+
+            EditorUtility.DisplayDialog(
+                "添加完成",
+                $"已將 '{package.packageName}' 添加到 package.json！",
+                "確定"
+            );
+
+            // 重新分析以更新狀態
+            AnalyzeSelectedPackage();
+        }
+
+        /// <summary>
+        /// 檢查是否為 Git URL
+        /// </summary>
+        private bool IsGitUrl(string url)
+        {
+            if (string.IsNullOrEmpty(url))
+                return false;
+
+            return url.StartsWith("https://github.com/")
+                || url.StartsWith("git@github.com:")
+                || url.StartsWith("git://")
+                || url.Contains(".git");
         }
     }
 }

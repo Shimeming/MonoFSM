@@ -15,50 +15,50 @@ namespace MonoFSM.Utility.Editor
         // 依據 MonoFSM CLAUDE.md 的 MenuItem 統一規範
         private const string MENU_ROOT = "Tools/MonoFSM/Dependencies/";
 
-        [MenuItem(MENU_ROOT + "檢查 Git Dependencies", false, 101)]
-        private static void CheckGitDependencies()
-        {
-            Debug.Log("[GitDependencyMenuItems] 開始檢查 Git Dependencies...");
-            var result = GitDependencyInstaller.CheckGitDependencies();
+        // [MenuItem(MENU_ROOT + "檢查 Git Dependencies", false, 101)]
+        // private static void CheckGitDependencies()
+        // {
+        //     Debug.Log("[GitDependencyMenuItems] 開始檢查 Git Dependencies...");
+        //     var result = GitDependencyInstaller.CheckGitDependencies();
+        //
+        //     var message =
+        //         $"Git Dependencies 檢查完成：\n\n"
+        //         + $"總計: {result.gitDependencies.Count}\n"
+        //         + $"已安裝: {result.installedDependencies.Count}\n"
+        //         + $"缺失: {result.missingDependencies.Count}";
+        //
+        //     if (result.allDependenciesInstalled)
+        //     {
+        //         EditorUtility.DisplayDialog(
+        //             "檢查完成",
+        //             message + "\n\n✓ 所有依賴已正確安裝！",
+        //             "確定"
+        //         );
+        //     }
+        //     else
+        //     {
+        //         message += $"\n\n缺失的依賴:\n• {string.Join("\n• ", result.missingDependencies)}";
+        //
+        //         if (
+        //             EditorUtility.DisplayDialog(
+        //                 "檢查完成",
+        //                 message + "\n\n是否要現在安裝缺失的依賴？",
+        //                 "安裝",
+        //                 "稍後"
+        //             )
+        //         )
+        //         {
+        //             GitDependencyInstaller.InstallMissingGitDependencies(
+        //         }
+        //     }
+        // }
 
-            var message =
-                $"Git Dependencies 檢查完成：\n\n"
-                + $"總計: {result.gitDependencies.Count}\n"
-                + $"已安裝: {result.installedDependencies.Count}\n"
-                + $"缺失: {result.missingDependencies.Count}";
-
-            if (result.allDependenciesInstalled)
-            {
-                EditorUtility.DisplayDialog(
-                    "檢查完成",
-                    message + "\n\n✓ 所有依賴已正確安裝！",
-                    "確定"
-                );
-            }
-            else
-            {
-                message += $"\n\n缺失的依賴:\n• {string.Join("\n• ", result.missingDependencies)}";
-
-                if (
-                    EditorUtility.DisplayDialog(
-                        "檢查完成",
-                        message + "\n\n是否要現在安裝缺失的依賴？",
-                        "安裝",
-                        "稍後"
-                    )
-                )
-                {
-                    GitDependencyInstaller.InstallMissingGitDependencies();
-                }
-            }
-        }
-
-        [MenuItem(MENU_ROOT + "安裝所有缺失 Dependencies", false, 102)]
-        private static void InstallMissingDependencies()
-        {
-            Debug.Log("[GitDependencyMenuItems] 開始安裝缺失的 Git Dependencies...");
-            GitDependencyInstaller.InstallMissingGitDependencies();
-        }
+        // [MenuItem(MENU_ROOT + "安裝所有缺失 Dependencies", false, 102)]
+        // private static void InstallMissingDependencies()
+        // {
+        //     Debug.Log("[GitDependencyMenuItems] 開始安裝缺失的 Git Dependencies...");
+        //     GitDependencyInstaller.InstallMissingGitDependencies();
+        // }
 
         [MenuItem(MENU_ROOT + "安裝所有缺失 Dependencies", true)]
         private static bool ValidateInstallMissingDependencies()

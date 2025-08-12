@@ -18,24 +18,24 @@ namespace MonoFSM.Utility.Editor
         private const string AUTO_INSTALL_KEY = "MonoFSM_GitDependencies_AutoInstall";
 
         // 預設的關鍵 Git Dependencies（MonoFSM 相關）
-        public static readonly Dictionary<string, string> CriticalGitDependencies = new Dictionary<
-            string,
-            string
-        >
-        {
-            {
-                "com.cysharp.unitask",
-                "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask"
-            },
-            {
-                "com.cysharp.zstring",
-                "https://github.com/Cysharp/ZString.git?path=src/ZString.Unity/Assets/Scripts/ZString"
-            },
-            {
-                "com.github-glitchenzo.nugetforunity",
-                "https://github.com/GlitchEnzo/NuGetForUnity.git?path=/src/NuGetForUnity"
-            },
-        };
+        // public static readonly Dictionary<string, string> CriticalGitDependencies = new Dictionary<
+        //     string,
+        //     string
+        // >
+        // {
+        //     {
+        //         "com.cysharp.unitask",
+        //         "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask"
+        //     },
+        //     {
+        //         "com.cysharp.zstring",
+        //         "https://github.com/Cysharp/ZString.git?path=src/ZString.Unity/Assets/Scripts/ZString"
+        //     },
+        //     {
+        //         "com.github-glitchenzo.nugetforunity",
+        //         "https://github.com/GlitchEnzo/NuGetForUnity.git?path=/src/NuGetForUnity"
+        //     },
+        // };
 
         static GitDependencyManager()
         {
