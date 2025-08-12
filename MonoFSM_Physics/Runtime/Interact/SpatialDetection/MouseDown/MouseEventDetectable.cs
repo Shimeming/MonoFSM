@@ -1,17 +1,18 @@
 using System;
 using MonoFSM.Core.Attributes;
-using MonoFSM.Runtime.Interact.EffectHit;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace MonoFSM.Runtime.Interact.SpatialDetection
 {
+    //FIXME: 蛤？
     public class MouseEventDetectable : MonoBehaviour
     {
         //dispatch to children?
-        [AutoChildren] public MouseDownDetectable _mouseDownDetectable;
+        [AutoChildren]
+        public MouseDownDetectable _mouseDownDetectable;
 
-        [AutoChildren] public MouseOverDetectable _detectable;
+        [AutoChildren]
+        public MouseOverDetectable _detectable;
 
         private void OnMouseEnter()
         {
@@ -20,7 +21,7 @@ namespace MonoFSM.Runtime.Interact.SpatialDetection
                 Debug.Log("MouseDownDetectable Conditions not met", this);
                 return;
             }
-
+            //下個frame弄？
             _detectable.OnMouseEnter();
         }
 
@@ -41,11 +42,11 @@ namespace MonoFSM.Runtime.Interact.SpatialDetection
             var detector = MouseDetector.Instance;
             // if(detector.)
             // Debug.Log("OnMouseDown", this);
-            detector.OnDetectEnter(_mouseDownDetectable.gameObject);
+            detector._detector.OnDetectEnterCheck(_mouseDownDetectable.gameObject);
             //TODO: 馬上就Exit?
             //FIXME: 連點會有狀態問題耶...
             //FIXME: 要條件對才可以做這件事？
-            detector.OnDetectExit(_mouseDownDetectable.gameObject);
+            detector._detector.OnDetectExitCheck(_mouseDownDetectable.gameObject);
             _mouseDownDetectable.HandleMouseDown(detector);
             // foreach (var effectReceiver in EffectReceivers)
             // {
@@ -53,8 +54,11 @@ namespace MonoFSM.Runtime.Interact.SpatialDetection
             // }
         }
 
-        [Component] [AutoChildren(DepthOneOnly = true)] [PreviewInInspector]
+        [Component]
+        [AutoChildren(DepthOneOnly = true)]
+        [PreviewInInspector]
         //條件要下放嗎？
-        private AbstractConditionBehaviour[] _conditions = Array.Empty<AbstractConditionBehaviour>();
+        private AbstractConditionBehaviour[] _conditions =
+            Array.Empty<AbstractConditionBehaviour>();
     }
 }

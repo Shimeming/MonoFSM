@@ -1,31 +1,46 @@
 using System;
+using System.Collections.Generic;
 using MonoFSM.Core.Attributes;
+using MonoFSM.Core.Runtime.Interact.SpatialDetection;
+using MonoFSM.Variable.Attributes;
 using UnityEngine;
 
 namespace MonoFSM.Core.Detection
 {
-    public class TriggerSpatialDetector2D : AbstractDetector
+    public class TriggerSpatialDetector2D : BaseDetectProcessor, IDetectionSource
     {
-        [PreviewInInspector] [Auto] Collider2D _collider;
+        [CompRef]
+        [Auto]
+        Collider2D _collider;
 
         private void OnTriggerEnter2D(Collider2D other)
         {
-            OnDetectEnter(other.gameObject);
+            _detector.OnDetectEnterCheck(other.gameObject);
         }
 
         private void OnTriggerExit2D(Collider2D other)
         {
-            OnDetectExit(other.gameObject);
+            _detector.OnDetectExitCheck(other.gameObject);
         }
 
+        // protected override void OnDisableImplement()
+        // {
+        // }
+        //
+        // protected override void SetLayerOverride()
+        // {
+        //     _collider.includeLayers = HittingLayer;
+        // }
 
-        protected override void OnDisableImplement()
+        public override IEnumerable<DetectionResult> GetCurrentDetections()
         {
+            throw new NotImplementedException();
         }
 
-        protected override void SetLayerOverride()
+        //FIXME: 不一定需要？
+        public override void UpdateDetection()
         {
-            _collider.includeLayers = HittingLayer;
+            // throw new NotImplementedException();
         }
     }
 }

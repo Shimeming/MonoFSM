@@ -30,9 +30,8 @@ public class AutoAttribute : AutoFamilyAttribute
     private const string MonoBehaviourNameColor = "green"; //Changeme
 
     // Constructor calls the base constructor with the logMissingAsError parameter
-    public AutoAttribute(bool logMissingAsError = true) : base(logMissingAsError)
-    {
-    }
+    public AutoAttribute(bool logMissingAsError = true)
+        : base(logMissingAsError) { }
 
     // Implementation of abstract method required by AutoFamily
     public override object GetTheSingleComponent(MonoBehaviour mb, Type componentType)

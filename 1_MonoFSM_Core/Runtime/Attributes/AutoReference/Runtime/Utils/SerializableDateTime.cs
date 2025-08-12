@@ -7,10 +7,15 @@ namespace Auto.Utils
     [Serializable]
     public struct SerializableDateTime : IComparable<SerializableDateTime>
     {
-        [SerializeField] private long m_ticks;
-        [ShowInInspector] private bool initialized;
+        [SerializeField]
+        private long m_ticks;
+
+        [ShowInInspector]
+        private bool initialized;
         private DateTime m_dateTime;
-        [ShowInInspector] public string DateTimeString => DateTime.ToString("yyyy/MM/dd HH:mm:ss");
+
+        [ShowInInspector]
+        public string DateTimeString => DateTime.ToString("yyyy/MM/dd HH:mm:ss");
 
         public void UpdateTime()
         {

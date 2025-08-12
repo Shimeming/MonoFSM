@@ -1,17 +1,15 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using MonoFSM.Core.Attributes;
 using MonoDebugSetting;
 using Sirenix.OdinInspector;
 using UnityEditor;
+using UnityEngine;
+using Debug = UnityEngine.Debug;
+using Object = UnityEngine.Object;
 #if UNITY_EDITOR
 using MonoFSM.EditorExtension;
 using UnityEditorInternal;
 #endif
-using UnityEngine;
-using Debug = UnityEngine.Debug;
-using Object = UnityEngine.Object;
 
 public class DebugProvider : MonoBehaviour, IEditorOnly, IOverrideHierarchyIcon //往上找
 {
@@ -30,6 +28,7 @@ public class DebugProvider : MonoBehaviour, IEditorOnly, IOverrideHierarchyIcon 
         EditorApplication.RepaintHierarchyWindow();
     }
 #endif
+
     public void Awake()
     {
 #if UNITY_EDITOR
@@ -39,19 +38,22 @@ public class DebugProvider : MonoBehaviour, IEditorOnly, IOverrideHierarchyIcon 
         // SaveLog("Awake",this);
     }
 
-    [AutoChildren] StateMachineOwner _stateMachineOwner;
+    // [AutoChildren] StateMachineOwner _stateMachineOwner;
     // public GeneralState currentState => _stateMachineOwner?.FsmContext?.currentStateType;
 
     private bool IsNotDebugMode => !RuntimeDebugSetting.IsDebugMode && IsLogInChildren;
 
 #if UNITY_EDITOR
-    [InfoBox("Is Not DebugMode, Will Not Log", InfoMessageType.Warning, VisibleIf = "IsNotDebugMode")]
-    public bool IsLogInChildren = false;
+    [InfoBox(
+        "Is Not DebugMode, Will Not Log",
+        InfoMessageType.Warning,
+        VisibleIf = "IsNotDebugMode"
+    )]
+    public bool IsLogInChildren = true;
 #else
     [NonSerialized]
-     public bool IsLogInChildren = false;
+    public bool IsLogInChildren = false;
 #endif
-
 
     public bool IsBreak;
     public bool IsBreakWhenStateChange;
@@ -74,7 +76,7 @@ public class DebugProvider : MonoBehaviour, IEditorOnly, IOverrideHierarchyIcon 
     // public void Test()
     // {
     //    SaveLog("Test",this);
-    //    
+    //
     // }
     public void SaveLog(object message, Object context = null)
     {
@@ -94,11 +96,13 @@ public class DebugProvider : MonoBehaviour, IEditorOnly, IOverrideHierarchyIcon 
 [Serializable]
 public class LogEntry
 {
-    [ShowInInspector] public string messageStr => message != null ? message.ToString() : "";
+    [ShowInInspector]
+    public string messageStr => message != null ? message.ToString() : "";
     public object message;
     public Object context;
     public string fileName;
     public int lineNumber;
+
     public LogEntry(object message, Object context)
     {
         this.message = message;
@@ -112,10 +116,10 @@ public class LogEntry
         // Debug.Log("fileName:"+fileName+" lineNumber:"+lineNumber);
         // Application.OpenURL("jetbrains://idea/navigate/reference?project=Assets&path=Assets/3_Script/MonsterStates/AttackStateTrick/LinkMove/LinkNextMoveStateWeight.cs");
     }
+
 #if UNITY_EDITOR
     [Button]
     public void GotoFile()
-
     {
         //?fileName=LinkNextMoveStateWeight.cs&line=1
         // 1, not 0, to skip the current method

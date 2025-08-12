@@ -1,42 +1,60 @@
-using UnityEngine;
-using Sirenix.OdinInspector;
-using MonoFSM.Variable.Attributes;
+using System.Collections.Generic;
 using MonoFSM.Core.Attributes;
+using MonoFSM.Core.Runtime.Interact.SpatialDetection;
+using MonoFSM.Variable.Attributes;
+using Sirenix.OdinInspector;
+using UnityEngine;
 
 namespace MonoFSM.Core.Detection
 {
-    public class TriggerDetector : AbstractDetector
+    public class TriggerDetector : BaseDetectProcessor, IDetectionSource
     {
-        [PreviewInInspector]
-        public AbstractDetector virtualDetector;
-        [Required] [CompRef] [Auto] private Collider _collider;
+        [Required]
+        [CompRef]
+        [Auto]
+        private Collider _collider;
+
+        [ShowInInspector]
+        [AutoParent]
+        private Rigidbody _rigidbodyInParent;
+
+        [ShowIf("@_rigidbodyInParent == null")]
+        [CompRef]
+        [Auto]
+        Rigidbody _optionalRigidbody;
+
+        private HashSet<GameObject> _triggeredObjects = new();
+        public bool IsEnabled => enabled;
 
         private void OnTriggerEnter(Collider other)
         {
             this.Log("OnTriggerEnter", other);
-            // ReliableOnTriggerExit.NotifyTriggerEnter(other, gameObject, OnTriggerExit);
-            //FIXME: 先標記，再Update做
-            virtualDetector?.OnDetectEnter(other.gameObject);
-            OnDetectEnter(other.gameObject);
+            _triggeredObjects.Add(other.gameObject);
+            QueueEnterEvent(other.gameObject);
         }
-
 
         private void OnTriggerExit(Collider other)
         {
-            //FIXME: 先標記，再Update做
-            virtualDetector?.OnDetectExit(other.gameObject);
-            // ReliableOnTriggerExit.NotifyTriggerExit(other, gameObject);
-            OnDetectExit(other.gameObject);
+            this.Log("OnTriggerExit", other);
+            _triggeredObjects.Remove(other.gameObject);
+            QueueExitEvent(other.gameObject);
         }
 
-        protected override void OnDisableImplement()
+        public override IEnumerable<DetectionResult> GetCurrentDetections()
         {
+            foreach (var obj in _triggeredObjects)
+            {
+                if (obj != null)
+                    yield return new DetectionResult(obj);
+            }
         }
 
-        protected override void SetLayerOverride()
+        public override void UpdateDetection()
         {
-            //FIXME:
-            // _collider.includeLayers = HittingLayer;
+            _triggeredObjects.RemoveWhere(obj => obj == null); //這個會遇到嗎...?
+            ProcessEnterExitEvents();
         }
+
+        //FIXME: Gizmo?
     }
 }

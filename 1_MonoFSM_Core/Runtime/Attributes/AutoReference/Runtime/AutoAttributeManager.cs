@@ -24,12 +24,11 @@ using System.Linq;
 using System.Reflection;
 using Auto_Attribute.Runtime;
 using Auto.Utils;
+using Sirenix.OdinInspector;
 // using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Sirenix.OdinInspector;
 using Debug = UnityEngine.Debug;
-
 
 [ScriptTiming(-20000)]
 public class AutoAttributeManager : MonoBehaviour
@@ -46,7 +45,8 @@ public class AutoAttributeManager : MonoBehaviour
 
     public static void BuildFieldCache(MonoBehaviour[] monos)
     {
-        foreach (var mono in monos) GetFieldsWithAutoAndBuildCache(mono);
+        foreach (var mono in monos)
+            GetFieldsWithAutoAndBuildCache(mono);
     }
 
     // [PropertyOrder(-1)]
@@ -93,11 +93,11 @@ public class AutoAttributeManager : MonoBehaviour
     {
         //FIXME: build cache 要在Editor可以測
         SweepScene();
-// #if UNITY_EDITOR
-//         SweepScene();
-// #else
-//         monoReferenceCache.RestoreReferenceCacheToMonoFields();
-// #endif
+        // #if UNITY_EDITOR
+        //         SweepScene();
+        // #else
+        //         monoReferenceCache.RestoreReferenceCacheToMonoFields();
+        // #endif
     }
 
     private void OnDestroy()
@@ -107,32 +107,32 @@ public class AutoAttributeManager : MonoBehaviour
 
     //async版本的auto
     //FIXME: 真的會用到這個嗎？ async auto ref, 感覺bottle neck不在這
-//     public static async UniTask AsyncAutoReferenceAllChildren(GameObject targetGo)
-//     {
-//         var startFrame = Time.frameCount;
-//         var componentsInChildren = targetGo.GetComponentsInChildren<MonoBehaviour>(true);
-//         var stopwatch = new Stopwatch();
-//         stopwatch.Start();
-//
-//         foreach (var mono in componentsInChildren)
-//         {
-//             AutoReference(mono);
-//
-//             if (stopwatch.Elapsed.TotalSeconds >= 0.016f) // Maximum time per frame in seconds (60fps)
-//             {
-//                 await UniTask.Yield(targetGo.GetCancellationTokenOnDestroy());
-//
-//                 stopwatch.Reset();
-//                 stopwatch.Start();
-//             }
-//
-// #if UNITY_EDITOR
-//             Debug.Log("AsyncAutoReferenceAllChildren" + mono.name + ",frame:" + (Time.frameCount - startFrame));
-// #endif
-//         }
-//
-//         stopwatch.Stop();
-//     }
+    //     public static async UniTask AsyncAutoReferenceAllChildren(GameObject targetGo)
+    //     {
+    //         var startFrame = Time.frameCount;
+    //         var componentsInChildren = targetGo.GetComponentsInChildren<MonoBehaviour>(true);
+    //         var stopwatch = new Stopwatch();
+    //         stopwatch.Start();
+    //
+    //         foreach (var mono in componentsInChildren)
+    //         {
+    //             AutoReference(mono);
+    //
+    //             if (stopwatch.Elapsed.TotalSeconds >= 0.016f) // Maximum time per frame in seconds (60fps)
+    //             {
+    //                 await UniTask.Yield(targetGo.GetCancellationTokenOnDestroy());
+    //
+    //                 stopwatch.Reset();
+    //                 stopwatch.Start();
+    //             }
+    //
+    // #if UNITY_EDITOR
+    //             Debug.Log("AsyncAutoReferenceAllChildren" + mono.name + ",frame:" + (Time.frameCount - startFrame));
+    // #endif
+    //         }
+    //
+    //         stopwatch.Stop();
+    //     }
 
     public static void AutoReference(GameObject targetGo)
     {
@@ -151,10 +151,15 @@ public class AutoAttributeManager : MonoBehaviour
     public static void AutoReferenceAllChildren(GameObject targetGo) //把所有的children都綁看看
     {
         var monos = targetGo.GetComponentsInChildren<MonoBehaviour>(true);
-        foreach (var mono in monos) AutoReference(mono);
+        foreach (var mono in monos)
+            AutoReference(mono);
     }
 
-    public static void AutoReference(GameObject targetGo, out int successfulAssigments, out int failedAssignments)
+    public static void AutoReference(
+        GameObject targetGo,
+        out int successfulAssigments,
+        out int failedAssignments
+    )
     {
         successfulAssigments = 0;
         failedAssignments = 0;
@@ -171,12 +176,16 @@ public class AutoAttributeManager : MonoBehaviour
     // void setValue(MonoBehaviour mb, object val){
 
     // }
-    private static void AutoReference(MonoBehaviour targetMb, out int successfullyAssignments,
-        out int failedAssignments)
+    private static void AutoReference(
+        MonoBehaviour targetMb,
+        out int successfullyAssignments,
+        out int failedAssignments
+    )
     {
         successfullyAssignments = 0;
         failedAssignments = 0;
-        if (targetMb == null) return;
+        if (targetMb == null)
+            return;
         // var fieldCount = 0;
         // var propCount = 0;
         //Fields
@@ -202,7 +211,7 @@ public class AutoAttributeManager : MonoBehaviour
 
             var attributes = attributeDict[field];
             //TODO: 這個也可以cache with dict
-            // var attributes = 
+            // var attributes =
             foreach (IAutoAttribute autoAttribute in attributes)
             {
                 var result = autoAttribute.Execute(targetMb, field);
@@ -237,7 +246,8 @@ public class AutoAttributeManager : MonoBehaviour
         sw.Stop();
         var result_color = autoVariablesNotAssignedCount > 0 ? "red" : "green";
         Debug.LogFormat(
-            $"[Auto] Assigned <color={result_color}><b>{autoVariablesAssignedCount}/..</b></color> [Auto*] variables in <color=#cc3300><b>{sw.ElapsedMilliseconds} Milliseconds </b></color> - Analized {monoBehaviours.Count()} MonoBehaviours and .. variables");
+            $"[Auto] Assigned <color={result_color}><b>{autoVariablesAssignedCount}/..</b></color> [Auto*] variables in <color=#cc3300><b>{sw.ElapsedMilliseconds} Milliseconds </b></color> - Analized {monoBehaviours.Count()} MonoBehaviours and .. variables"
+        );
     }
 
     [Button("Bind")]
@@ -313,7 +323,9 @@ public class AutoAttributeManager : MonoBehaviour
         string result_color = (autoVarialbesNotAssigned_count > 0) ? "red" : "green";
         //autoVarialbesAssigned_count + autoVarialbesNotAssigned_count
         // UnityEngine.Debug.LogFormat($"[Auto] Assigned <color={result_color}><b>{autoVarialbesAssigned_count}/{variablesWithAuto}</b></color> [Auto*] variables in <color=#cc3300><b>{sw.ElapsedMilliseconds} Milliseconds </b></color> - Analized {monoBehaviours.Count()} MonoBehaviours and {variablesAnalized} variables");
-        UnityEngine.Debug.LogFormat($"[Auto] Assigned <color={result_color}><b>{autoVarialbesAssigned_count}/..</b></color> [Auto*] variables in <color=#cc3300><b>{sw.ElapsedMilliseconds} Milliseconds </b></color> - Analized {monoBehaviours.Count()} MonoBehaviours and .. variables");
+        UnityEngine.Debug.LogFormat(
+            $"[Auto] Assigned <color={result_color}><b>{autoVarialbesAssigned_count}/..</b></color> [Auto*] variables in <color=#cc3300><b>{sw.ElapsedMilliseconds} Milliseconds </b></color> - Analized {monoBehaviours.Count()} MonoBehaviours and .. variables"
+        );
 #endif
     }
 
@@ -342,7 +354,9 @@ public class AutoAttributeManager : MonoBehaviour
 
         //get all monobehaviours from root
         var roots = gameObject.scene.GetRootGameObjects();
-        var monoBehaviours = roots.SelectMany(go => go.GetComponentsInChildren<MonoBehaviour>(true));
+        var monoBehaviours = roots.SelectMany(go =>
+            go.GetComponentsInChildren<MonoBehaviour>(true)
+        );
 
         // var monoBehaviours = FindObjectsOfType<MonoBehaviour>(true)
         //     .Where(mb => mb != null && mb.gameObject != null && mb.gameObject.scene == gameObject.scene);
@@ -354,16 +368,21 @@ public class AutoAttributeManager : MonoBehaviour
         // monoBehaviours = monoBehaviours.Where(mb => GetFieldsWithAuto(mb).Count() + GetPropertiesWithAuto(mb).Count() > 0);
 
         //FIXME: 會有null嗎？
-        monoBehaviours = monoBehaviours.Where(mb => GetFieldsWithAutoAndBuildCache(mb)?.Count() > 0);
+        monoBehaviours = monoBehaviours.Where(mb =>
+            GetFieldsWithAutoAndBuildCache(mb)?.Count() > 0
+        );
 
 #if UNITY_EDITOR
         sw.Stop();
-        Debug.Log("[Auto]: Mono with Fields with auto time:" + sw.ElapsedMilliseconds + ",mb Count:" +
-                  monoBehaviours.Count());
+        Debug.Log(
+            "[Auto]: Mono with Fields with auto time:"
+                + sw.ElapsedMilliseconds
+                + ",mb Count:"
+                + monoBehaviours.Count()
+        );
 #endif
         return monoBehaviours;
     }
-
 
     public static IEnumerable<FieldInfo> GetFieldsWithAutoAndBuildCache(object mb)
     {
@@ -381,30 +400,37 @@ public class AutoAttributeManager : MonoBehaviour
         // var list = mb.GetType()
         //             .GetFields(BindingFlags.Instance | BindingFlags.Public).Where(prop => prop.FieldType.IsGenericType && prop.FieldType.GetGenericTypeDefinition() == typeof(List<>));
 
-        var fields =
-            t.GetFields(BindingFlags.Instance | BindingFlags.Public)
-                .Where(prop => prop.FieldType.IsPrimitive == false)
-                .Where(prop => Attribute.IsDefined(prop, typeof(PreventAutoCacheAttribute)) == false &&
-                               (Attribute.IsDefined(prop, typeof(AutoAttribute)) ||
-                                Attribute.IsDefined(prop, typeof(AutoChildrenAttribute)) ||
-                                Attribute.IsDefined(prop, typeof(AutoParentAttribute))))
-                .Concat(
-                    ReflectionHelperMethods.GetNonPublicFieldsInBaseClasses(t)
-                        // .Where(prop => prop.FieldType.IsPrimitive == false)
-                        .Where(prop => Attribute.IsDefined(prop, typeof(PreventAutoCacheAttribute)) == false &&
-                                       (Attribute.IsDefined(prop, typeof(AutoAttribute)) ||
-                                        Attribute.IsDefined(prop, typeof(AutoChildrenAttribute)) ||
-                                        Attribute.IsDefined(prop, typeof(AutoParentAttribute)))
+        var fields = t.GetFields(BindingFlags.Instance | BindingFlags.Public)
+            .Where(prop => prop.FieldType.IsPrimitive == false)
+            .Where(prop =>
+                Attribute.IsDefined(prop, typeof(PreventAutoCacheAttribute)) == false
+                && (
+                    Attribute.IsDefined(prop, typeof(AutoAttribute))
+                    || Attribute.IsDefined(prop, typeof(AutoChildrenAttribute))
+                    || Attribute.IsDefined(prop, typeof(AutoParentAttribute))
+                )
+            )
+            .Concat(
+                ReflectionHelperMethods
+                    .GetNonPublicFieldsInBaseClasses(t)
+                    // .Where(prop => prop.FieldType.IsPrimitive == false)
+                    .Where(prop =>
+                        Attribute.IsDefined(prop, typeof(PreventAutoCacheAttribute)) == false
+                        && (
+                            Attribute.IsDefined(prop, typeof(AutoAttribute))
+                            || Attribute.IsDefined(prop, typeof(AutoChildrenAttribute))
+                            || Attribute.IsDefined(prop, typeof(AutoParentAttribute))
                         )
-                );
+                    )
+            );
         var fieldsWithAuto = fields as FieldInfo[] ?? fields.ToArray();
         fieldDict.TryAdd(t, fieldsWithAuto.ToList());
         var fieldDictByName = FieldCache.fieldDictByName;
-        foreach (var field in fieldsWithAuto) fieldDictByName.TryAdd((t, field.Name), field);
+        foreach (var field in fieldsWithAuto)
+            fieldDictByName.TryAdd((t, field.Name), field);
         // Debug.Log("Add Field Tuple:" + t + field.Name);
         return fieldsWithAuto;
     }
-
 
     // private static IEnumerable<PropertyInfo> GetPropertiesWithAuto(MonoBehaviour mb)
     // {

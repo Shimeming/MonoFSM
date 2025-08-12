@@ -1,15 +1,13 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using MonoFSM;
-using Sirenix.OdinInspector.Editor;
-using UnityEditor;
-using UnityEngine;
 using MonoFSM.Core;
 using Sirenix.OdinInspector;
+using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities;
 using Sirenix.Utilities.Editor;
+using UnityEditor;
+using UnityEngine;
 
 /// <summary>
 /// 在Field上生成Button, 顯示Select來讓User添增Component
@@ -21,7 +19,8 @@ public class ComponentAttributeDrawer : OdinAttributeDrawer<ComponentAttribute>
 {
     private InspectorProperty baseMemberProperty;
     private MonoBehaviour bindComp;
-    private bool isArray => Property.ValueEntry != null ? Property.ValueEntry.TypeOfValue.IsArray : false;
+    private bool isArray =>
+        Property.ValueEntry != null ? Property.ValueEntry.TypeOfValue.IsArray : false;
 
     protected override bool CanDrawAttributeProperty(InspectorProperty property)
     {
@@ -39,8 +38,7 @@ public class ComponentAttributeDrawer : OdinAttributeDrawer<ComponentAttribute>
         // this.isElement = this.Property.Parent != null && this.Property.Parent.ChildResolver is IOrderedCollectionResolver;
         // Debug.Log("Property " + Property.Name + " is? " + isElement + " hasChildren?" + childrenCount + ",child Resolver:" + this.Property.ChildResolver);
         // var listProperty = isArray ?   Property.Parent:Property;
-        baseMemberProperty =
-            Property.Parent; //listProperty.FindParent(x => x.Info.PropertyType == PropertyType.Value, true);
+        baseMemberProperty = Property.Parent; //listProperty.FindParent(x => x.Info.PropertyType == PropertyType.Value, true);
         // this.globalSelectedProperty = this.baseMemberProperty.Context.GetGlobal("selectedIndex" + this.baseMemberProperty.GetHashCode(), (InspectorProperty)null);
         // parentGObj = baseMemberProperty.ParentValues[0] as GameObject;
 
@@ -66,6 +64,7 @@ public class ComponentAttributeDrawer : OdinAttributeDrawer<ComponentAttribute>
             // Debug.Log("isArray false" + parentComp);
         }
     }
+
     // public IEnumerable<Type> FindSubClassesOf<TBaseType>()
     // {
     //     var baseType = typeof(TBaseType);
@@ -91,7 +90,6 @@ public class ComponentAttributeDrawer : OdinAttributeDrawer<ComponentAttribute>
             return;
         }
 
-
         var type = Property.ValueEntry.TypeOfValue;
         if (type.IsArray)
         {
@@ -99,7 +97,13 @@ public class ComponentAttributeDrawer : OdinAttributeDrawer<ComponentAttribute>
         }
         //localization strings?
         // var style = new GUIStyle(EditorStyles.toolbarButton);
-        if (SirenixEditorGUI.SDFIconButton("Search：Add" + buttonStr + ":" + type.Name, 16, SdfIconType.Plus))
+        if (
+            SirenixEditorGUI.SDFIconButton(
+                "Search：Add" + buttonStr + ":" + type.Name,
+                16,
+                SdfIconType.Plus
+            )
+        )
         {
             // Debug.Log("Parent Value:" + baseMemberProperty.ParentValues[0]);
             var selector = new ComponentTypeSelector(type);
@@ -123,12 +127,14 @@ public class ComponentAttributeDrawer : OdinAttributeDrawer<ComponentAttribute>
                     newParent.transform.SetSiblingIndex(bindComp.transform.GetSiblingIndex());
                     newParent.transform.localScale = bindComp.transform.localScale;
                     newParent.transform.rotation = bindComp.transform.rotation;
-                    Undo.RegisterCreatedObjectUndo(newParent, "Add Parent Component" + firstOrDefault.Name);
+                    Undo.RegisterCreatedObjectUndo(
+                        newParent,
+                        "Add Parent Component" + firstOrDefault.Name
+                    );
                     newParent.transform.AddComp(firstOrDefault);
                     bindComp.transform.SetParent(newParent.transform);
                     Selection.activeGameObject = newParent;
                 }
-
                 else if (buttonStr == "Child")
                     AddChildComp(firstOrDefault);
                 else
@@ -218,14 +224,19 @@ public class ComponentAttributeDrawer : OdinAttributeDrawer<ComponentAttribute>
             CallNextDrawer(label);
         }
 
-        if (Property.ValueEntry != null && !isArray && (UnityEngine.Object)Property.ValueEntry.WeakSmartValue != null)
+        if (
+            Property.ValueEntry != null
+            && !isArray
+            && (UnityEngine.Object)Property.ValueEntry.WeakSmartValue != null
+        )
         {
             //單一Property有值，就不要顯示了
         }
         else
         {
             var lastEnabled = GUI.enabled;
-            if (lastEnabled == false) GUI.enabled = true;
+            if (lastEnabled == false)
+                GUI.enabled = true;
             ShowSelector(buttonStr);
             GUI.enabled = lastEnabled;
         }

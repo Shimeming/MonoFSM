@@ -7,8 +7,11 @@ namespace MonoFSM.Runtime.Interact.SpatialDetection
 {
     public class MouseOverDetectable : EffectDetectable
     {
-        [Component] [AutoChildren(DepthOneOnly = true)] [PreviewInInspector]
-        private AbstractConditionBehaviour[] _conditions = Array.Empty<AbstractConditionBehaviour>();
+        [Component]
+        [AutoChildren(DepthOneOnly = true)]
+        [PreviewInInspector]
+        private AbstractConditionBehaviour[] _conditions =
+            Array.Empty<AbstractConditionBehaviour>();
 
         public void OnMouseEnter()
         {
@@ -24,7 +27,7 @@ namespace MonoFSM.Runtime.Interact.SpatialDetection
             var detector = MouseDetector.Instance;
             // if(detector.)
             // Debug.Log("OnMouseDown", this);
-            detector.OnDetectEnter(gameObject);
+            detector.QueueEnterEvent(gameObject);
             //TODO: 馬上就Exit?
             //FIXME: 連點會有狀態問題耶...
             //FIXME: 要條件對才可以做這件事？
@@ -33,7 +36,7 @@ namespace MonoFSM.Runtime.Interact.SpatialDetection
         public void OnMouseExit()
         {
             var detector = MouseDetector.Instance;
-            detector.OnDetectExit(gameObject);
+            detector.QueueExitEvent(gameObject);
             // foreach (var effectReceiver in EffectReceivers)
             // {
             //     effectReceiver.OnEffectHit();

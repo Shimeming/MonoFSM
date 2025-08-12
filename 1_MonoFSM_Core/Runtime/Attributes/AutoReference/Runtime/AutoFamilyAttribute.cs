@@ -3,11 +3,11 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using UnityEngine;
 using Auto.Utils;
-using System.Collections.Generic;
+using UnityEngine;
 
 public static class Extension
 {
@@ -17,7 +17,6 @@ public static class Extension
     }
 }
 
-
 public abstract class AutoFamilyAttribute : AbstractAutoAttribute, IAutoAttribute
 {
     private const string MonoBehaviourNameColor = "green";
@@ -25,6 +24,7 @@ public abstract class AutoFamilyAttribute : AbstractAutoAttribute, IAutoAttribut
     private bool logErrorIfMissing = true;
 
     public Type LimitedType; //想要撈interface
+
     // private Component targetComponent;
 
     public AutoFamilyAttribute(bool getMadIfMissing = true)
@@ -41,10 +41,9 @@ public abstract class AutoFamilyAttribute : AbstractAutoAttribute, IAutoAttribut
         {
             return AssignArray(mb, go, field);
         }
-        else if (
-            Rhm.IsList(componentType))
+        else if (Rhm.IsList(componentType))
         {
-            // Can't handle lists without using dynamic keyword. 
+            // Can't handle lists without using dynamic keyword.
             // Arrays will have to be enough.
             // return false;
             Debug.LogError("List is not allowed! use Array" + mb + "." + field.Name, go);
@@ -85,6 +84,7 @@ public abstract class AutoFamilyAttribute : AbstractAutoAttribute, IAutoAttribut
 
         // return componentsToReference;
     }
+
     // private object[] GetComponentsToReferenceOld(MonoBehaviour mb, GameObject go, Type componentType)
     // {
     //     Type listElementType = AutoUtils.GetElementType(componentType);
@@ -123,8 +123,13 @@ public abstract class AutoFamilyAttribute : AbstractAutoAttribute, IAutoAttribut
             Debug.LogError(
                 string.Format(
                     "[Auto]: <color={3}><b>{1}</b></color> couldn't find any components <color=#cc3300><b>{0}</b></color> on <color=#e68a00>{2}.</color>",
-                    componentType.Name, mb.GetType().Name, go.name, MonoBehaviourNameColor)
-                , go);
+                    componentType.Name,
+                    mb.GetType().Name,
+                    go.name,
+                    MonoBehaviourNameColor
+                ),
+                go
+            );
             return false;
         }
 
@@ -147,8 +152,13 @@ public abstract class AutoFamilyAttribute : AbstractAutoAttribute, IAutoAttribut
             Debug.LogError(
                 string.Format(
                     "[Auto]: <color={3}><b>{1}</b></color> couldn't find any components <color=#cc3300><b>{0}</b></color> on <color=#e68a00>{2}.</color>",
-                    componentType.Name, mb.GetType().Name, go.name, MonoBehaviourNameColor)
-                , go);
+                    componentType.Name,
+                    mb.GetType().Name,
+                    go.name,
+                    MonoBehaviourNameColor
+                ),
+                go
+            );
             return false;
         }
 

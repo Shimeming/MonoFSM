@@ -4,8 +4,8 @@
  */
 
 using System;
-using UnityEngine;
 using Auto.Utils;
+using UnityEngine;
 
 [ScriptTiming(-20000)]
 [Obsolete] //MonoPoolObj 已經有類似功能了

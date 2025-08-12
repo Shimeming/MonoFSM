@@ -10,7 +10,7 @@
  * {
  *		[Auto] public BoxCollier myBoxCollier;	//This assigns the variable to the BoxColider attached on your object
  *		[Auto(true)] public Camera myCamera;	//since we passed true as an argument, if the camera is not found, Auto will log a warning as opposed to an error, and won't halt the build.
- *
+ *f
  *		//[...]
  * }
  *
@@ -18,11 +18,10 @@
 
 
 using System;
-using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Sirenix.OdinInspector;
+using UnityEngine;
 
 // [AttributeUsage(AttributeTargets.Field)]
 [IncludeMyAttributes]
@@ -38,9 +37,8 @@ public class AutoChildrenAttribute : AutoFamilyAttribute
     /// </summary>
     public bool includeInactive = true;
 
-    public AutoChildrenAttribute(bool logMissingAsError = false) : base(logMissingAsError)
-    {
-    }
+    public AutoChildrenAttribute(bool logMissingAsError = false)
+        : base(logMissingAsError) { }
 
     // protected override string GetMethodName()
     // {
@@ -56,7 +54,8 @@ public class AutoChildrenAttribute : AutoFamilyAttribute
             foreach (Transform t in mb.transform)
             {
                 var comp = t.GetComponent(LimitedType ?? componentType);
-                if (comp != null) return comp;
+                if (comp != null)
+                    return comp;
                 // all.AddRange(result);
             }
 
@@ -101,7 +100,6 @@ public class AutoChildrenAttribute : AutoFamilyAttribute
         var results = mb.GetComponentsInChildren(LimitedType ?? componentType, includeInactive);
         var destinationArray = Array.CreateInstance(componentType, results.Length);
         Array.Copy(results, destinationArray, results.Length);
-        return
-            destinationArray as object[]; //Array.ConvertAll(results, item => Convert.ChangeType(item, componentType));
+        return destinationArray as object[]; //Array.ConvertAll(results, item => Convert.ChangeType(item, componentType));
     }
 }

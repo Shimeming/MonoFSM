@@ -5,7 +5,7 @@ using UnityEngine;
 public interface IAutoAttribute
 {
     bool Execute(MonoBehaviour mb, FieldInfo field);
-//Action<MonoBehaviour, object> SetVariableType
+    //Action<MonoBehaviour, object> SetVariableType
 }
 
 public abstract class AbstractAutoAttribute : Attribute, IAutoAttribute
@@ -20,6 +20,4 @@ public abstract class AbstractAutoAttribute : Attribute, IAutoAttribute
     public abstract bool Execute(MonoBehaviour mb, FieldInfo field);
 }
 
-public interface IAutoAttributeClass
-{
-}
+public interface IAutoAttributeClass { }

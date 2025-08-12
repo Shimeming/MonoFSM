@@ -26,17 +26,15 @@ using UnityEngine;
 [AttributeUsage(AttributeTargets.All, AllowMultiple = false, Inherited = false)]
 public class AutoParentAttribute : AutoFamilyAttribute
 {
-    public AutoParentAttribute(bool getMadIfMissing = true) : base(getMadIfMissing)
-    {
-    }
+    public AutoParentAttribute(bool getMadIfMissing = true)
+        : base(getMadIfMissing) { }
 
     protected override object[] GetComponents(MonoBehaviour mb, GameObject go, Type componentType)
     {
         var results = mb.GetComponentsInParent(LimitedType ?? componentType, true) as object[];
         var destinationArray = Array.CreateInstance(componentType, results.Length);
         Array.Copy(results, destinationArray, results.Length);
-        return
-            destinationArray as object[]; //Array.ConvertAll(results, item => Convert.ChangeType(item, componentType));
+        return destinationArray as object[]; //Array.ConvertAll(results, item => Convert.ChangeType(item, componentType));
     }
 
     // public object[] GetComponents(MonoBehaviour mb, Type componentType)

@@ -1,10 +1,10 @@
-using Gizmo;
-using MonoDebugSetting;
-using Sirenix.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Gizmo;
+using MonoDebugSetting;
+using Sirenix.Utilities;
 using UnityEditor;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
@@ -26,7 +26,9 @@ public static class EditorMonoNodeExtension
     {
         var baseType = type;
         var assembly = baseType.Assembly;
-        return assembly.GetTypes().Where(t => t.IsSubclassOf(baseType) || (t == type && t.IsAbstract == false));
+        return assembly
+            .GetTypes()
+            .Where(t => t.IsSubclassOf(baseType) || (t == type && t.IsAbstract == false));
     }
 
     /// <summary>
@@ -36,8 +38,11 @@ public static class EditorMonoNodeExtension
     /// <param name="position">在哪裡噴</param>
     /// <param name="name"></param>
     [Conditional("UNITY_EDITOR")]
-    public static void
-        CreateGizmoDebugNode(this MonoBehaviour gobj, Vector3 position, GameObject name) //TODO: 設圖形?? rect, radius?
+    public static void CreateGizmoDebugNode(
+        this MonoBehaviour gobj,
+        Vector3 position,
+        GameObject name
+    ) //TODO: 設圖形?? rect, radius?
     {
         var (isLogging, provider) = MonoExtensionLogger.IsLoggingCheck(gobj);
         if (isLogging == false)
@@ -57,7 +62,13 @@ public static class EditorMonoNodeExtension
     }
 
     [Conditional("UNITY_EDITOR")]
-    public static void DrawLineGizmoNode(this MonoBehaviour mono, string name, Vector3 start, Vector3 end, Color color)
+    public static void DrawLineGizmoNode(
+        this MonoBehaviour mono,
+        string name,
+        Vector3 start,
+        Vector3 end,
+        Color color
+    )
     {
         var provider = mono.GetComponentInParent<DebugProvider>();
         if (provider == null || provider.IsLogInChildren == false)
@@ -73,6 +84,15 @@ public static class EditorMonoNodeExtension
         // Debug.DrawLine(start, end, color, 1f);
     }
 
+    static readonly HashSet<Type> engineAbstracts = new HashSet<Type>
+    {
+        typeof(Collider),
+        typeof(Renderer),
+        typeof(Joint),
+        typeof(Behaviour),
+        // 其他...
+    };
+
     /// <summary>
     /// Find all class types that derives from the given <see cref="baseType"/> and:
     /// 1. aren't generic or abstract if the <see cref="baseType"/> is a class.
@@ -84,16 +104,21 @@ public static class EditorMonoNodeExtension
     public static List<Type> FilterSubClassOrImplementationFromDomain(this Type baseType)
     {
         var typeList = new List<Type>();
-        
+
         //單獨判斷 baseType ?
         if (baseType.IsClass && !baseType.IsAbstract && !baseType.IsGenericType)
         {
+            if (!engineAbstracts.Contains(baseType)) //不加入Unity引擎的抽象類型
+            {
+                typeList.Add(baseType);
+            }
             // We also want to include the given type if it's not an abstract or a generic type.
-            typeList.Add(baseType);
+
+            Debug.Log("Add type " + baseType.Name + " from itself");
         }
-        
+
         var types = TypeCache.GetTypesDerivedFrom(baseType);
-        
+
         //interface型
         if (baseType.IsInterface)
         {
@@ -104,9 +129,6 @@ public static class EditorMonoNodeExtension
                     // 只要是實作了 baseType 的 MonoBehaviour 類型
                     typeList.Add(type);
                 }
-                // {
-                //     typeList.Add(type);
-                // }
             }
         }
         else // if baseType.IsClass
@@ -116,12 +138,13 @@ public static class EditorMonoNodeExtension
                 if (type.IsClass && !type.IsAbstract && !type.IsGenericType)
                 {
                     typeList.Add(type);
+                    Debug.Log("Add type " + type.Name + " from " + baseType.Name);
                 }
             }
         }
         return typeList;
     }
-    
+
     /// <summary>
     /// Find all subclasses of the <see cref="baseType"/> who have the given attribute.
     /// </summary>
@@ -134,7 +157,12 @@ public static class EditorMonoNodeExtension
         var types = TypeCache.GetTypesDerivedFrom(baseType);
         foreach (Type type in types)
         {
-            if (type.IsClass && !type.IsAbstract && !type.IsGenericType && type.GetCustomAttributes(attribute, true).Length > 0)
+            if (
+                type.IsClass
+                && !type.IsAbstract
+                && !type.IsGenericType
+                && type.GetCustomAttributes(attribute, true).Length > 0
+            )
             {
                 typeList.Add(type);
             }
@@ -146,10 +174,12 @@ public static class EditorMonoNodeExtension
     public static IEnumerable<Type> GetAllScriptableAssetType()
     {
         //[]: 好像不一定需要這個attribute 才能拿? 但這個是介面問題，不該拿到不能變成asset的SO，但不確定有需要動態產生SO嗎？
-        var types = typeof(ScriptableObject).FilterSubClassFromDomain(typeof(CreateAssetMenuAttribute));
+        var types = typeof(ScriptableObject).FilterSubClassFromDomain(
+            typeof(CreateAssetMenuAttribute)
+        );
         return types;
     }
-    
+
     [Conditional("UNITY_EDITOR")]
     public static void DebugLog(this Component owner, string result)
     {
