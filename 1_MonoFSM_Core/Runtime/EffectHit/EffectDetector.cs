@@ -223,9 +223,11 @@ namespace MonoFSM.Core.Detection
 
         public void OnDetectExitCheck(GameObject other)
         {
-            if (!other.TryGetComponent<EffectDetectable>(out var spatialDetectable))
+            if (!other.TryGetComponent<TriggerDetectableTarget>(out var triggerDetectableTarget))
                 // Debug.LogError(other.name + " is not a GeneralEffectCollider" + other.gameObject.layer);
                 return;
+
+            var spatialDetectable = triggerDetectableTarget.Detectable;
 
             _detectedObjects.Remove(spatialDetectable);
 #if UNITY_EDITOR
