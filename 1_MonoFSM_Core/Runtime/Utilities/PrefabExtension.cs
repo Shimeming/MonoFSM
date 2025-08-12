@@ -1,10 +1,8 @@
-using System.Linq;
 using Sirenix.OdinInspector;
 using UnityEngine;
 #if UNITY_EDITOR
 using Sirenix.OdinInspector.Editor;
 using UnityEditor;
-using UnityEditor.Animations;
 using UnityEditor.SceneManagement;
 #endif
 

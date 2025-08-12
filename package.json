@@ -2,7 +2,7 @@
   "name": "com.monofsm.core",
   "version": "0.1.0",
   "displayName": "MonoFSM",
-  "description": "Core package for MonoFSM",
+  "description": "MonoFSM 本體",
   "unity": "6001.1",
   "dependencies": {
     "com.unity.addressables": "2.4.3",
@@ -14,7 +14,8 @@
     "com.unity.modules.physics2d": "1.0.0",
     "com.unity.nuget.newtonsoft-json": "3.2.1",
     "com.cysharp.zstring": "https://github.com/Cysharp/ZString.git?path=src/ZString.Unity/Assets/Scripts/ZString",
-    "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask"
+    "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
+    "com.monofsm.utility": "https://github.com/RED-CANDLE-GAMES-CO-LTD/MonoFSM_Core_Utility"
   },
   "keywords": [
     "fsm"

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -11,6 +13,7 @@ using MonoFSM.Core.Attributes;
 using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 
 #if UNITY_2022_2_OR_NEWER
@@ -20,7 +23,8 @@ using Object = UnityEngine.Object;
 #else
 #endif
 
-public class AbstractScriptableData<TField, TType> : GameFlagBase where TField : FlagField<TType>
+public class AbstractScriptableData<TField, TType> : GameFlagBase
+    where TField : FlagField<TType>
 {
     public TField field;
 
@@ -37,11 +41,47 @@ public class AbstractScriptableData<TField, TType> : GameFlagBase where TField :
             field.CurrentValue = value;
     }
 
-    [TextArea] public string Note;
+    [TextArea]
+    public string Note;
 }
 
 public static class NativeDataHelper
 {
+    [Conditional("UNITY_EDITOR")]
+    public static void AssetInFolderValidate(
+        this ScriptableObject asset,
+        string[] folderNames,
+        SelfValidationResult result
+    )
+    {
+#if UNITY_EDITOR
+        //check if asset is in Resources/Config
+        var assetPath = AssetDatabase.GetAssetPath(asset);
+        var inValidFolder = false;
+        foreach (var folderName in folderNames)
+        {
+            if (assetPath.Contains(folderName))
+            {
+                return; //valid
+            }
+        }
+
+        result
+            .AddError($"ScriptableObject {asset} should be in " + folderNames[0])
+            .WithFix(() =>
+            {
+                //move asset to Resources/Config
+                var name = Path.GetFileName(assetPath);
+                var newPath = "Assets/" + folderNames[0] + "/" + name;
+                Debug.Log("Move SO To:" + newPath);
+                var moveResult = AssetDatabase.MoveAsset(assetPath, newPath);
+                if (moveResult != "")
+                    Debug.LogError("Move Result:" + moveResult);
+                // AssetDatabase.Refresh();
+            });
+#endif
+    }
+
     public static object GetProperty<T>(this INativeData data, string propertyName)
     {
         var t = data.GetType();
@@ -78,9 +118,7 @@ public interface INativeDataProvider
     public Type GetNativeDataType();
 }
 
-public interface INativeData
-{
-}
+public interface INativeData { }
 
 public interface INativeDataConsumer
 {
@@ -93,14 +131,17 @@ public abstract class GameFlagBase : MonoSOConfig, ISerializable, ISelfValidator
     public IEnumerable<string> GetAllFlagFieldNames<T>()
     {
         //get field which inherit from FlagField
-        var fields = GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
+        var fields = GetType()
+            .GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
             .Where(f => f.FieldType.IsSubclassOf(typeof(T)));
         return fields.Select(f => f.Name);
     }
 
     // public bool isAutoGenType = false; //非自動生成的不要被覆蓋掉
     // protected bool inited = false;
-    [Header("Asset GUID")] [DisableIf("@true")] [SerializeField]
+    [Header("Asset GUID")]
+    [DisableIf("@true")]
+    [SerializeField]
     // [ReadOnly]
     private string SaveID = "";
 
@@ -129,9 +170,11 @@ public abstract class GameFlagBase : MonoSOConfig, ISerializable, ISelfValidator
     {
         Manual, //手動串，可能多對一
         AutoUnique //一對一最單純的，自動生成，可以整包砍掉重建
+        ,
     }
 
-    [EnumToggleButtons] [DisableIf("@true")]
+    [EnumToggleButtons]
+    [DisableIf("@true")]
     public GameStateType gameStateType = GameStateType.Manual;
 
     [EditorOnly]
@@ -155,7 +198,8 @@ public abstract class GameFlagBase : MonoSOConfig, ISerializable, ISelfValidator
         {
             var guid = this.GetAssetGUID();
 
-            if (GetSaveID == guid) return;
+            if (GetSaveID == guid)
+                return;
             _finalSaveID = "";
             SetSaveID(guid);
 
@@ -165,7 +209,8 @@ public abstract class GameFlagBase : MonoSOConfig, ISerializable, ISelfValidator
     }
 
     // public Vector3 position;//該在這裡綁嗎?
-    private void InitField<TField, T>(FlagFieldBase field, TestMode mode) where TField : FlagField<T>
+    private void InitField<TField, T>(FlagFieldBase field, TestMode mode)
+        where TField : FlagField<T>
     {
         if (field == null)
         {
@@ -206,10 +251,10 @@ public abstract class GameFlagBase : MonoSOConfig, ISerializable, ISelfValidator
     // Define a delegate with the same signature as FieldInfo.GetValue
     private delegate FlagFieldBase GetValueDelegate(GameFlagBase obj);
 
-// Create a dictionary to store the delegates
+    // Create a dictionary to store the delegates
     // private Dictionary<string, GetValueDelegate> fieldDelegates = new();
 
-// Get all fields of the GameFlagBase instance
+    // Get all fields of the GameFlagBase instance
 
 
     private void FetchFields()
@@ -234,7 +279,6 @@ public abstract class GameFlagBase : MonoSOConfig, ISerializable, ISelfValidator
         }
     }
 
-
     //FIXME: 濫扣
     //Reset還會去用lastMode...這個狀態有點多餘
     public virtual void Reset() //抓default Value或currentValue
@@ -251,12 +295,10 @@ public abstract class GameFlagBase : MonoSOConfig, ISerializable, ISelfValidator
 
     public virtual void FlagInitStart() //特殊的flag要做一些initialize的話在這
     {
-//clear 
+        //clear
     }
 
-    public virtual void FlagEquipCheck()
-    {
-    }
+    public virtual void FlagEquipCheck() { }
 
     public virtual bool IsEquipping()
     {
@@ -276,9 +318,7 @@ public abstract class GameFlagBase : MonoSOConfig, ISerializable, ISelfValidator
     // {
 
     // }
-    public virtual void GenerateFlagPostProcess()
-    {
-    }
+    public virtual void GenerateFlagPostProcess() { }
 
     public void GetObjectData(SerializationInfo info, StreamingContext context)
     {
@@ -324,9 +364,7 @@ public abstract class GameFlagBase : MonoSOConfig, ISerializable, ISelfValidator
         }
     }
 
-
     public Dictionary<string, FlagFieldBase> fieldCaches = new();
-
 
     // public void OnBeforeSerialize()
     // {
@@ -365,23 +403,27 @@ public abstract class GameFlagBase : MonoSOConfig, ISerializable, ISelfValidator
                     return;
                 else
                 {
-                    result.AddError("Not in FlagCollection:" + flagCollection.name).WithFix(() =>
-                    {
-                        if (!flagCollection.Flags.Contains(this))
-                            flagCollection.Flags.Add(this);
-                        EditorUtility.SetDirty(flagCollection);
-                    });
+                    result
+                        .AddError("Not in FlagCollection:" + flagCollection.name)
+                        .WithFix(() =>
+                        {
+                            if (!flagCollection.Flags.Contains(this))
+                                flagCollection.Flags.Add(this);
+                            EditorUtility.SetDirty(flagCollection);
+                        });
                 }
             }
         }
 
         //FIXME: 沒有完全解決，放多個路徑和共用同個型別要限制資料夾還是蠻頭大的
-        this.AssetInFolderValidate(new string[] { GameStateAttribute.GameStateFolderPath, "17_PlayerPrefFlag" },
-            result);
+        this.AssetInFolderValidate(
+            new string[] { GameStateAttribute.GameStateFolderPath, "17_PlayerPrefFlag" },
+            result
+        );
 #endif
     }
 
-    // bool 
+    // bool
 
     [Button]
     private void MoveAssetToFolder()
@@ -389,8 +431,7 @@ public abstract class GameFlagBase : MonoSOConfig, ISerializable, ISelfValidator
 #if UNITY_EDITOR
         var targetPath = "Assets/" + GameStateAttribute.GameStateFolderPath + "/" + name + ".asset";
         Debug.Log("MoveAssetToFolder: targetPath:" + targetPath);
-        var result = AssetDatabase.MoveAsset(AssetDatabase.GetAssetPath(this),
-            targetPath);
+        var result = AssetDatabase.MoveAsset(AssetDatabase.GetAssetPath(this), targetPath);
 
         Debug.Log("MoveAssetToFolder: result:" + result);
 #endif
@@ -573,5 +614,5 @@ public abstract class GameFlagBase : MonoSOConfig, ISerializable, ISelfValidator
 //     }
 //
 //
-//     
+//
 // }
