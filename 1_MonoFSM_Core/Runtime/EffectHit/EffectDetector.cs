@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using MonoFSM.Core.Attributes;
+using MonoFSM.Core.Simulate;
 using MonoFSM.Runtime.Interact.EffectHit;
 using MonoFSM.Variable.Attributes;
 using Sirenix.OdinInspector;
@@ -44,7 +45,7 @@ namespace MonoFSM.Core.Detection
     }
 
     [DisallowMultipleComponent]
-    public class EffectDetector : MonoBehaviour, IDefaultSerializable
+    public class EffectDetector : MonoBehaviour, IDefaultSerializable, IUpdateSimulate
     {
         [CompRef]
         [AutoChildren(DepthOneOnly = true)]
@@ -59,45 +60,6 @@ namespace MonoFSM.Core.Detection
 
         private readonly List<EffectDetectable> _toRemove = new();
         private readonly Dictionary<GameObject, EffectDetectable> _currentDetections = new();
-
-        //FIXME: 亂寫？ 觸發點擊中在SimulateUpdate?
-        private void Update()
-        {
-            if (!IsValid || _detectionSource == null)
-                return;
-
-            var previousDetections = new Dictionary<GameObject, EffectDetectable>(
-                _currentDetections
-            );
-            _currentDetections.Clear();
-
-            if (!_detectionSource.IsEnabled)
-                return;
-            _detectionSource.UpdateDetection();
-            // foreach (var detection in source.GetCurrentDetections())
-            // {
-            //     if (!detection.isValidHit) continue;
-            //
-            //     var detectable = detection.targetObject.GetComponentInParent<EffectDetectable>();
-            //     if (detectable == null) continue;
-            //
-            //     _currentDetections[detection.targetObject] = detectable;
-            //
-            //     if (!previousDetections.ContainsKey(detection.targetObject))
-            //     {
-            //         OnDetectEnter(detection.targetObject, detection.hitPoint, detection.hitNormal);
-            //     }
-            // }
-
-
-            foreach (var kvp in previousDetections)
-            {
-                if (!_currentDetections.ContainsKey(kvp.Key))
-                {
-                    OnDetectExitCheck(kvp.Key);
-                }
-            }
-        }
 
         //FIXME: Receiver的部分要怎麼處理？ 也會有開關的問題？還是沒差遇到再說
         private void OnDisable()
@@ -256,5 +218,45 @@ namespace MonoFSM.Core.Detection
                     receiver.OnEffectHitExit(hitData);
                 }
         }
+
+        public void Simulate(float deltaTime)
+        {
+            if (!IsValid || _detectionSource == null)
+                return;
+
+            var previousDetections = new Dictionary<GameObject, EffectDetectable>(
+                _currentDetections
+            );
+            _currentDetections.Clear();
+
+            if (!_detectionSource.IsEnabled)
+                return;
+            _detectionSource.UpdateDetection();
+            // foreach (var detection in source.GetCurrentDetections())
+            // {
+            //     if (!detection.isValidHit) continue;
+            //
+            //     var detectable = detection.targetObject.GetComponentInParent<EffectDetectable>();
+            //     if (detectable == null) continue;
+            //
+            //     _currentDetections[detection.targetObject] = detectable;
+            //
+            //     if (!previousDetections.ContainsKey(detection.targetObject))
+            //     {
+            //         OnDetectEnter(detection.targetObject, detection.hitPoint, detection.hitNormal);
+            //     }
+            // }
+
+
+            foreach (var kvp in previousDetections)
+            {
+                if (!_currentDetections.ContainsKey(kvp.Key))
+                {
+                    OnDetectExitCheck(kvp.Key);
+                }
+            }
+        }
+
+        public void AfterUpdate() { }
     }
 }
