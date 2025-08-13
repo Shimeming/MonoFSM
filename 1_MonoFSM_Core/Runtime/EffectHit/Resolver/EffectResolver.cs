@@ -16,6 +16,8 @@ namespace MonoFSM.Runtime.Interact.EffectHit
     public abstract class EffectResolver : AbstractDescriptionBehaviour, IDefaultSerializable,
         IHierarchyValueInfo, IHitDataProvider
     {
+        [Required]
+        [PreviewInInspector]
         [AutoParent] private MonoEntity _parentEntity;
 
         public MonoEntity ParentEntity

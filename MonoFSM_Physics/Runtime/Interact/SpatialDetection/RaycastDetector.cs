@@ -123,6 +123,14 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
         public float _sphereRadius = 0.5f; //FIXME: spherecast的半徑要怎麼處理？ 這個是用來儲存spherecast的結果
         private Ray _cachedRay;
 
+        private void OnDisable()
+        {
+            //FIXME: 要讓 EffectDetector handle就好？
+            //TODO: Exit check?
+            _thisFrameColliders.Clear();
+            _lastFrameColliders.Clear();
+        }
+
         private void PhysicsUpdate() //network?
         {
             _thisFrameColliders.Clear();

@@ -79,6 +79,7 @@ namespace MonoFSM.Core.Detection
                 OnDetectExitCheck(detectable.gameObject);
 
             _toRemove.Clear();
+            _detectedObjects.Clear();
             // OnDisableImplement();
         }
 
