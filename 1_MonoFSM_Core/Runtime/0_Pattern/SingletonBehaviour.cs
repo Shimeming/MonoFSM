@@ -7,7 +7,8 @@ using UnityEditor;
 要定義Singleton時，繼承它就好
 ex: FooBehaviour:SingletonBehaviour<FooBehaviour>
 */
-public abstract class SingletonBehaviour<T> : MonoBehaviour where T : MonoBehaviour
+public abstract class SingletonBehaviour<T> : MonoBehaviour
+    where T : MonoBehaviour
 {
     private static object s_Lock = new();
     private static T _instance = null;
@@ -42,13 +43,14 @@ public abstract class SingletonBehaviour<T> : MonoBehaviour where T : MonoBehavi
     {
         get
         {
-            
             if (Application.isPlaying == false)
             {
                 var editorObjs = FindObjectsByType<T>(FindObjectsSortMode.None);
                 if (editorObjs.Length > 0)
                     return editorObjs[0];
-                Debug.LogError("No instance found of SingletonBehaviour in editor mode"+typeof(T).FullName);
+                Debug.LogError(
+                    "No instance found of SingletonBehaviour in editor mode" + typeof(T).FullName
+                );
                 return null;
             }
 
@@ -56,23 +58,28 @@ public abstract class SingletonBehaviour<T> : MonoBehaviour where T : MonoBehavi
                 //   Debug.Log("Quiting");
                 return null;
 
-            if (DestroyAllGameObjects.DestroyingAll == true) return null;
+            if (DestroyAllGameObjects.DestroyingAll == true)
+                return null;
 
             lock (s_Lock)
             {
                 if (_isInstanceCreated && _instance != null)
                 {
-                    Debug.Log("SingletonBehaviour Instance already created: " + typeof(T).FullName, _instance);
+                    Debug.Log(
+                        "SingletonBehaviour Instance already created: " + typeof(T).FullName,
+                        _instance
+                    );
                     return _instance;
                 }
-                    
-
 
                 _instance = (T)FindFirstObjectByType(typeof(T));
                 // TODO: Automatic creation
                 if (_instance == null && destroyed == false)
                     // Debug.Log("Auto Generate" + typeof(T).FullName);
-                    _instance = new GameObject(typeof(T).FullName + "(Singleton)", typeof(T)).GetComponent<T>();
+                    _instance = new GameObject(
+                        typeof(T).FullName + "(Singleton)",
+                        typeof(T)
+                    ).GetComponent<T>();
 
                 _isInstanceCreated = true;
 
@@ -87,7 +94,9 @@ public abstract class SingletonBehaviour<T> : MonoBehaviour where T : MonoBehavi
     {
         //FIXME: 不要在拿Instance的時候，initialize就好了
         // return true;
-        return ApplicationIsQuiting == false && DestroyAllGameObjects.DestroyingAll == false && _isInstanceCreated ;
+        return ApplicationIsQuiting == false
+            && DestroyAllGameObjects.DestroyingAll == false
+            && _isInstanceCreated;
     }
 
     public static bool IsGameStopped => !IsAvailable();
@@ -101,7 +110,7 @@ public abstract class SingletonBehaviour<T> : MonoBehaviour where T : MonoBehavi
 
     public virtual void OnDestroy()
     {
-        Debug.Log("Singleton ondestroy...");
+        Debug.Log("Singleton ondestroy..." + GetType());
         lock (s_Lock)
         {
             _instance = null;
@@ -117,7 +126,7 @@ public abstract class SingletonBehaviour<T> : MonoBehaviour where T : MonoBehavi
         set => PlayModeStateChangedExample.ApplicationIsQuiting = value;
     }
 #else
-   private static bool ApplicationIsQuiting = false;
+    private static bool ApplicationIsQuiting = false;
 #endif
 }
 
@@ -134,7 +143,6 @@ public static class PlayModeStateChangedExample
     {
         EditorApplication.playModeStateChanged += LogPlayModeState;
     }
-
 
     private static void LogPlayModeState(PlayModeStateChange state)
     {

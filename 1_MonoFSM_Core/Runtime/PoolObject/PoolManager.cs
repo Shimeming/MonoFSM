@@ -1,6 +1,3 @@
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -12,7 +9,9 @@ using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.SceneManagement;
 using Debug = UnityEngine.Debug;
-
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public delegate void BeforeActiveHandler(PoolObject obj);
 
@@ -57,12 +56,10 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
         SceneLifecycleManager.ResetReload(root);
     }
 
-
     public static void OnBeforeDestroyScene(Scene s)
     {
         SceneLifecycleManager.OnBeforeDestroyScene(s);
     }
-
 
     [Obsolete("Use SceneLifecycleManager.LevelResetChildrenReload instead")]
     public static void LevelResetChildrenReload(GameObject gObj)
@@ -124,16 +121,10 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
     }
 
     // public bool IsReady = false;
-    [Header("PrewarmData Logger")] 
+    [Header("PrewarmData Logger")]
     public Transform poolbjects;
     public PoolPrewarmData prewarmDataLogger;
     public PoolPrewarmData globalPrewarmDataLogger;
-
-    
-    
-
-   
-
 
     public void RegisterPoolPrewarmData(MonoBehaviour requester, PoolPrewarmData data)
     {
@@ -141,10 +132,10 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
             return;
 
         foreach (var entry in data.objectEntries)
-            records.Add(new PoolObjectRequestRecords(requester, entry.prefab,
-                entry.DefaultMaximumCount));
+            records.Add(
+                new PoolObjectRequestRecords(requester, entry.prefab, entry.DefaultMaximumCount)
+            );
     }
-
 
     private void ReCalculatePoolObjectEntries()
     {
@@ -203,9 +194,9 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
 
     private List<PoolObjectEntry> PoolObjectEntries;
 
-    [Header("Run Time Data")] public Dictionary<PoolObject, ObjectPool> PoolDictionary;
+    [Header("Run Time Data")]
+    public Dictionary<PoolObject, ObjectPool> PoolDictionary;
     public List<ObjectPool> allPools;
-    
 
     protected void Awake()
     {
@@ -217,11 +208,11 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
         poolbjects.parent = transform;
         poolbjects.localPosition = Vector3.zero;
         poolbjects.gameObject.SetActive(false);
-        
+
         // Register this instance with the service locator
         PoolServiceLocator.RegisterPoolManager(this);
     }
-    
+
     protected void OnDestroy()
     {
         // Clear services when manager is destroyed
@@ -239,32 +230,40 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
             Instance.globalPrewarmDataLogger.objectEntries.RemoveAll((a) => !a.prefab.IsGlobalPool);
             EditorUtility.SetDirty(Instance.globalPrewarmDataLogger);
 #endif
-            
-            this.globalPrewarmDataLogger.PrewarmObjects(this,this);
+
+            this.globalPrewarmDataLogger.PrewarmObjects(this, this);
         }
-        
-        
     }
 
-    public void SetPrewarmData(PoolPrewarmData prewarmData,PoolBank bank)
+    public void SetPrewarmData(PoolPrewarmData prewarmData, PoolBank bank)
     {
         this.prewarmDataLogger = prewarmData;
         prewarmData.PrewarmObjects(this, bank);
     }
-    
 
     //
     //private bool _poolCreated = false;
 
-    public GameObject BorrowOrInstantiate(GameObject obj, Vector3 position = default, Quaternion rotation = default,
-        Transform parent = null, Action<PoolObject> handler = null)
+    public GameObject BorrowOrInstantiate(
+        GameObject obj,
+        Vector3 position = default,
+        Quaternion rotation = default,
+        Transform parent = null,
+        Action<PoolObject> handler = null
+    )
     {
         var hasRequest = obj.TryGetComponent(out PoolRequest request);
         var hasPoolObj = obj.TryGetComponent<PoolObject>(out var poolObj);
 
         if (hasRequest)
         {
-            return Borrow(request.PoolObjectRequests.prefab, position, rotation, parent, handler).gameObject;
+            return Borrow(
+                request.PoolObjectRequests.prefab,
+                position,
+                rotation,
+                parent,
+                handler
+            ).gameObject;
         }
         else if (hasPoolObj)
         {
@@ -277,9 +276,13 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
         }
     }
 
-    public async UniTask<GameObject> BorrowOrInstantiateRcgAssetReference(RCGAssetReference obj,
-        Vector3 position = default, Quaternion rotation = default,
-        Transform parent = null, Action<PoolObject> handler = null)
+    public async UniTask<GameObject> BorrowOrInstantiateRcgAssetReference(
+        RCGAssetReference obj,
+        Vector3 position = default,
+        Quaternion rotation = default,
+        Transform parent = null,
+        Action<PoolObject> handler = null
+    )
     {
         GameObject poolObject = null;
         if (prewarmDataLogger != null)
@@ -289,7 +292,6 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
             if (poolObject != null)
                 return BorrowOrInstantiate(poolObject, position, rotation, parent, handler);
         }
-
 
         PoolLogger.LogWarning($"Please prewarm asset: {obj.AssetReference.AssetGUID}");
 #if UNITY_EDITOR
@@ -314,13 +316,20 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
 
     public List<RCGAssetReference> allLoadedRCGRefereces = new List<RCGAssetReference>();
 
-    public T BorrowOrInstantiate<T>(T obj, Transform parent) where T : MonoBehaviour
+    public T BorrowOrInstantiate<T>(T obj, Transform parent)
+        where T : MonoBehaviour
     {
         return BorrowOrInstantiate(obj, Vector3.zero, Quaternion.identity, parent);
     }
 
-    public T BorrowOrInstantiate<T>(T obj, Vector3 position = default, Quaternion rotation = default,
-        Transform parent = null, Action<PoolObject> handler = null) where T : MonoBehaviour
+    public T BorrowOrInstantiate<T>(
+        T obj,
+        Vector3 position = default,
+        Quaternion rotation = default,
+        Transform parent = null,
+        Action<PoolObject> handler = null
+    )
+        where T : MonoBehaviour
     {
         if (obj == null)
         {
@@ -343,8 +352,13 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
         }
     }
 
-    private PoolObject Borrow(PoolObject prefab, Vector3 position, Quaternion rotation, Transform parent = null,
-        Action<PoolObject> handler = null)
+    private PoolObject Borrow(
+        PoolObject prefab,
+        Vector3 position,
+        Quaternion rotation,
+        Transform parent = null,
+        Action<PoolObject> handler = null
+    )
     {
         // Prevent borrowing during pool recalculation to avoid inconsistent state
         if (_recalculating)
@@ -352,7 +366,6 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
             PoolLogger.LogError($"Cannot borrow during recalculation: {prefab.name}", prefab);
             return null;
         }
-
 
         //FIXME: 借用場上的，編輯參數蠻好用？看要不要砍掉？
         if (prefab.UseSceneAsPool)
@@ -386,7 +399,6 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
         return PoolDictionary[prefab].Borrow(position, rotation, parent, handler);
     }
 
-
     //從poolProvider的進入點
     public void ReturnToPool(PoolObject instance)
     {
@@ -402,18 +414,18 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
         // throw new NotImplementedException("ReturnToPool for MonoPoolObj is not implemented yet.");
         ReturnToPool(obj.GetComponent<PoolObject>());
     }
-    
+
     //
 
     private bool _recalculating = false;
-    
+
     /// <summary>
     /// 重新計算所有池的大小和狀態
     /// </summary>
     public void ReCalculatePools()
     {
         _recalculating = true;
-        
+
         Profiler.BeginSample("ReCalculatePools");
 
         //把null game level 清掉了
@@ -433,18 +445,20 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
                 if (currentPool.HasProtectedObjects())
                 {
                     var protectedCount = currentPool.GetProtectedObjectCount();
-                    PoolLogger.LogError($"Attempted to destroy pool with {protectedCount} protected objects: {currentPool._prefab.name}. Destruction prevented.");
-                    
+                    PoolLogger.LogError(
+                        $"Attempted to destroy pool with {protectedCount} protected objects: {currentPool._prefab.name}. Destruction prevented."
+                    );
+
                     // 創建緊急 Entry 以保護這些物件
                     var emergencyEntry = new PoolObjectEntry
                     {
                         prefab = currentPool._prefab,
-                        DefaultMaximumCount = protectedCount
+                        DefaultMaximumCount = protectedCount,
                     };
                     allPools[i]._bindingEntry = emergencyEntry;
                     continue;
                 }
-                
+
                 PoolLogger.LogInfo($"Destroying unused pool: {currentPool._prefab.name}");
                 PoolDictionary.Remove(currentPool._prefab);
                 allPools[i].DestroyPool();
@@ -485,7 +499,7 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
         // UnityEngine.Debug.LogFormat("[Auto] Assigned <color={5}><b>{4}/{2}</b></color> [Auto*] variables in <color=#cc3300><b>{3} Milliseconds </b></color> - Analized {0} MonoBehaviours and {1} variables",
         //    monoBehavioursInSceneWithAuto.Count(), variablesAnalized, variablesWithAuto, sw.ElapsedMilliseconds, autoVarialbesAssigned_count, autoVarialbesAssigned_count + autoVarialbesNotAssigned_count, result_color);
         Profiler.EndSample();
-        
+
         _recalculating = false;
     }
 
@@ -554,20 +568,26 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
             if (pool.HasProtectedObjects())
             {
                 int protectedCount = pool.GetProtectedObjectCount();
-                PoolLogger.LogInfo($"Keeping pool {prefab.name} alive due to {protectedCount} protected objects");
-                
+                PoolLogger.LogInfo(
+                    $"Keeping pool {prefab.name} alive due to {protectedCount} protected objects"
+                );
+
                 // 為受保護物件創建一個虛擬的 Entry
                 return new PoolObjectEntry
                 {
                     prefab = prefab,
-                    DefaultMaximumCount = Mathf.Max(1, protectedCount) // 至少保持足夠容納受保護物件的大小
+                    DefaultMaximumCount = Mathf.Max(
+                        1,
+                        protectedCount
+                    ) // 至少保持足夠容納受保護物件的大小
+                    ,
                 };
             }
         }
 
         return null;
     }
-    
+
     /// <summary>
     /// 舊方法名稱的向後兼容性（已過時）
     /// </summary>
@@ -576,7 +596,7 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
     {
         return ShouldKeepPoolAlive(prefab);
     }
-    
+
     /// <summary>
     /// 獲取整個池系統的受保護物件狀態報告
     /// </summary>
@@ -584,10 +604,10 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
     {
         var report = new StringBuilder();
         report.AppendLine("=== Pool System Protected Objects Report ===");
-        
+
         int totalProtected = 0;
         int poolsWithProtected = 0;
-        
+
         foreach (var pool in allPools)
         {
             if (pool != null && pool.HasProtectedObjects())
@@ -595,24 +615,28 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
                 poolsWithProtected++;
                 int protectedCount = pool.GetProtectedObjectCount();
                 totalProtected += protectedCount;
-                
-                report.AppendLine($"Pool '{pool._prefab.name}': {protectedCount} protected objects");
+
+                report.AppendLine(
+                    $"Pool '{pool._prefab.name}': {protectedCount} protected objects"
+                );
             }
         }
-        
-        report.AppendLine($"Summary: {totalProtected} protected objects across {poolsWithProtected} pools (total pools: {allPools.Count})");
+
+        report.AppendLine(
+            $"Summary: {totalProtected} protected objects across {poolsWithProtected} pools (total pools: {allPools.Count})"
+        );
         return report.ToString();
     }
-    
+
     /// <summary>
     /// 驗證整個池系統的完整性
     /// </summary>
     public bool ValidateSystemIntegrity()
     {
         bool allValid = true;
-        
+
         PoolLogger.LogInfo("Starting system integrity validation...");
-        
+
         foreach (var pool in allPools)
         {
             if (pool != null)
@@ -621,31 +645,37 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
                 if (pool.HasProtectedObjects())
                 {
                     int protectedCount = pool.GetProtectedObjectCount();
-                    PoolLogger.LogInfo($"Pool {pool._prefab.name} has {protectedCount} protected objects");
+                    PoolLogger.LogInfo(
+                        $"Pool {pool._prefab.name} has {protectedCount} protected objects"
+                    );
                 }
-                
+
                 // Validate basic object counts
                 int totalObjects = pool.AllObjs?.Count ?? 0;
                 int inUseObjects = pool.OnUseObjs?.Count ?? 0;
                 int availableObjects = pool.DisabledObjs?.Count ?? 0;
-                
+
                 if (totalObjects != inUseObjects + availableObjects)
                 {
-                    PoolLogger.LogError($"Pool {pool._prefab.name} has inconsistent object counts: Total={totalObjects}, InUse={inUseObjects}, Available={availableObjects}");
+                    PoolLogger.LogError(
+                        $"Pool {pool._prefab.name} has inconsistent object counts: Total={totalObjects}, InUse={inUseObjects}, Available={availableObjects}"
+                    );
                     allValid = false;
                 }
             }
         }
-        
+
         if (allValid)
         {
             PoolLogger.LogInfo("System integrity validation passed");
         }
         else
         {
-            PoolLogger.LogError("System integrity validation failed - check individual pool errors above");
+            PoolLogger.LogError(
+                "System integrity validation failed - check individual pool errors above"
+            );
         }
-        
+
         return allValid;
     }
 
@@ -665,7 +695,7 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
             Debug.LogWarning("PoolManager instance not found");
         }
     }
-    
+
     [MenuItem("Tools/Pool System/Validate System Integrity")]
     public static void ValidateSystem()
     {
@@ -679,5 +709,4 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
         }
     }
 #endif
-
 }
