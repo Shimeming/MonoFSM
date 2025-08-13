@@ -297,3 +297,169 @@ In the VarBoolRelay interface, bind:
 The button's `Pressed` state will trigger the door to open when activated.
 
 ![Button Result](0_MonoFSM_Example_Module/Document/DocumentAssets/buttonResult.gif)
+
+### Example 3: Simple Key and Lock System
+
+This tutorial demonstrates how to create an interactive key and lock system using MonoFSM's Effect Detection system, showcasing detector-detectable interactions and variable relay binding.
+
+#### Part A: Creating the Lock (LockedButton)
+
+##### Step 1: Copy FSM Folder
+Right-click on `Puzzles/Button` folder and select **MonoFSM > 複製FSM資料夾** (Copy FSM Folder)
+
+![Copy Folder](docs/images/key-and-lock-tutorial/copyFolder.png)
+
+##### Step 2: Create LockedButton Variant
+In the FSM Folder Copy Tool:
+- Set new base name to `LockedButton`
+- Use **Create Variant + Create Override Controller** mode
+- Click **開始複製** (Start Copy)
+
+![Rename to LockedButton](docs/images/key-and-lock-tutorial/renameLockedButton.png)
+
+##### Step 3: Place in Scene
+Drag the newly created `LockedButton.prefab` into your scene
+
+![LockedButton in Scene](docs/images/key-and-lock-tutorial/lockedButtonInScene.png)
+
+##### Step 4: Rename Variable
+Open `LockedButton.prefab` and rename the variable:
+- Change `[VarBool] Pressed` to `[VarBool] KeyInsert`
+
+![Rename Variable to KeyInsert](docs/images/key-and-lock-tutorial/renameVariableInsertKey.png)
+
+##### Step 5: Setup Physics Layers
+1. In **Tags & Layers** settings, add two new layers:
+   - `Detector`
+   - `Detectable`
+
+![Add Detector and Detectable Layers](docs/images/key-and-lock-tutorial/LayersDetectorAndDetectable.png)
+
+2. In **Physics Collision Matrix**, enable collision between Detector and Detectable layers
+
+![Collision Matrix Settings](docs/images/key-and-lock-tutorial/CollisionMatrix.png)
+
+##### Step 6: Create Detector GameObject
+Under `LogicRoot` node in `LockedButton.prefab`, add an empty GameObject named `Detector`
+
+![Add Detector Node](docs/images/key-and-lock-tutorial/AddDetectorNode.png)
+
+##### Step 7: Add Effect Detector Component
+Add `Effect Detector` component to the `Detector` GameObject
+
+##### Step 8: Configure Detection Source
+1. Select `Detector` GameObject
+2. In Inspector, notice the red warning
+3. Click **AddChildDetentionSource** → select **TriggerDetector**
+4. This automatically creates a TriggerDetector child node
+
+##### Step 9: Setup Trigger Collider
+On the `TriggerDetector` node:
+1. Add **BoxCollider** component:
+   - Enable `Is Trigger`
+   - Set appropriate visual size
+2. Add **Rigidbody** component:
+   - Enable `Is Kinematic`
+   - Disable `Use Gravity`
+
+![Add BoxCollider to Detector](docs/images/key-and-lock-tutorial/addBoxColliderToDetector.png)
+
+##### Step 10: Add Effect Dealer
+1. Select `Detector` GameObject
+2. In Inspector, click **AddChild:GeneralEffectDealer** → select **GeneralEffectDealer**
+3. This creates a GeneralEffectDealer child node
+
+![Detector Collider Settings](docs/images/key-and-lock-tutorial/DetectorColliderSetting.png)
+
+##### Step 11: Configure Effect Type
+On `GeneralEffectDealer`:
+1. Add new EffectType: `KeyAndLock`
+2. Select `KeyAndLock` as the effect type
+
+![Detector Event KeyAndLock](docs/images/key-and-lock-tutorial/detectorEventKeyAndLock.png)
+
+##### Step 12: Setup Enter/Exit Events
+1. Select `GeneralEffectDealer`
+2. In Inspector, click **AddEffectEnterNode** and **AddEffectExitNode**
+
+##### Step 13: Configure Enter Event
+1. Select `EffectEnterNode`
+2. Click **AddChild:IEventReceiver** → choose **SetVarBoolAction**
+3. Configure to set `[VarBool] KeyInsert` to **True**
+
+##### Step 14: Configure Exit Event
+1. Select `EffectExitNode`
+2. Click **AddChild:IEventReceiver** → choose **SetVarBoolAction**
+3. Configure to set `[VarBool] KeyInsert` to **False**
+
+![Key Enter and Exit Events](docs/images/key-and-lock-tutorial/KeyEnterAndExitEvents.png)
+
+##### Step 15: Set Layer for Detector
+Set all GameObjects under `Detector` node to use the `Detector` layer
+
+![Set Detector Layer](docs/images/key-and-lock-tutorial/DetectorToDetector.png)
+
+#### Part B: Creating the Key
+
+##### Step 1: Create Key GameObject
+1. Create empty GameObject in scene named `Key`
+2. Add `SpriteRenderer` component for visual representation
+
+##### Step 2: Add Detectable Node
+Under `Key` GameObject, create child GameObject named `Detectable`
+
+##### Step 3: Add Effect Detectable Component
+Add `EffectDetectable` component to the `Detectable` GameObject
+
+![Add Key Object](docs/images/key-and-lock-tutorial/AddKeyObjct.png)
+
+##### Step 4: Configure Detection Target
+1. Select `Detectable` GameObject
+2. In Inspector, click **AddChild:BaseEffectDetectTarget** → select **TriggerDetectableTarget**
+3. This creates a TriggerDetectableTarget child node
+
+![Add TriggerDetectableTarget](docs/images/key-and-lock-tutorial/AddTriggerDetectableTarget.png)
+
+##### Step 5: Setup Detection Collider
+On `TriggerDetectableTarget`:
+1. Add **BoxCollider** component
+2. Enable `Is Trigger`
+3. Set appropriate detection range
+
+![Add Collider](docs/images/key-and-lock-tutorial/AddCollider.png)
+
+##### Step 6: Add Effect Receiver
+1. Select `Detectable` GameObject
+2. In Inspector, click **AddChild:GeneralEffectReceiver** → select **GeneralEffectReceiver**
+3. This creates a GeneralEffectReceiver child node
+
+![Add GeneralEffectReceiver](docs/images/key-and-lock-tutorial/AddGeneralEffectReceiver.png)
+
+##### Step 7: Configure Receiver
+1. Select `GeneralEffectReceiver`
+2. In Inspector, click **AddChild:EffectEnterNode** → select **EffectEnterNode**
+
+##### Step 8: Set Effect Type
+On `GeneralEffectReceiver`, set EffectType to `KeyAndLock`
+
+##### Step 9: Set Layer for Detectable
+Set all GameObjects under `Detectable` node to use the `Detectable` layer
+
+![Set Detectable Layer](docs/images/key-and-lock-tutorial/DetectableToDetectable.png)
+
+#### Part C: Binding LockedButton to Door
+
+##### Variable Relay Configuration
+Under `[Variable Relay Binder]`:
+1. Add **VarBoolRelay** component
+2. Configure relay:
+   - Source: `[VarBool] KeyInsert`
+   - Target: `[VarBool] Should Open`
+
+This creates a connection where inserting the key into the lock triggers the door to open.
+
+#### Result
+
+The complete key and lock system allows the key to interact with the locked button, which in turn controls the door's open/close state through variable relay binding.
+
+![Key and Lock Demo](docs/images/key-and-lock-tutorial/keyandlock.gif)
