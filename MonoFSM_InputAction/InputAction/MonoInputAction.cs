@@ -18,27 +18,27 @@ namespace MonoFSM_InputAction
         protected internal Vector2 Vec2Value { get; }
         protected internal bool IsVec2 { get; }
     }
-    
+
     //抽象的input介面
     //多這層的好處是，reference拉好後，要切換實作就換上面的IMonoInputAction就好
     public class MonoInputAction : MonoBehaviour //不要綁定 InputSystem?
     {
         #region 不會被Override, local input result
-        
+
         public Vector2 LocalVec2 => _abstractInputActionImplementation.ReadLocalVec2; //不會被Override
         [PreviewInInspector] public bool IsLocalPressed => _abstractInputActionImplementation?.IsLocalPressed ?? false; //這個是local的
 
-        #endregion 
-     
+        #endregion
+
         //FIXME: 重命名, relay?
         [CompRef] [Auto] private IInputActionImplementation _abstractInputActionImplementation;
-        
-     
+
+
         //可能被network版的inputActionHandler override
         public Vector2 ReadValueVec2 => _abstractInputActionImplementation.Vec2Value; //可以被Override
-        
-        
-        
+
+
+
         //什麼時候需要用到？local直接接？
         [ShowInPlayMode] public bool IsPressed => _abstractInputActionImplementation.IsPressed; //如果外掛
 
@@ -46,18 +46,20 @@ namespace MonoFSM_InputAction
 
         // public abstract bool WasPressBuffered();
         [ShowInPlayMode] public bool WasReleased => _abstractInputActionImplementation.WasReleased;
- 
+
         //FIXME: read Vector2 input, 混用? 還是要再抽一層？
-        public int InputActionId => _abstractInputActionImplementation.InputActionId; //還是monobehaviour自己assign就好？
-        public bool ReadsVec2 => _abstractInputActionImplementation.IsVec2;
-        
-  
+        public int InputActionId => _abstractInputActionImplementation
+            .InputActionId; //還是monobehaviour自己assign就好？
+
+        public bool IsReadingVec2 => _abstractInputActionImplementation.IsVec2;
+
+
 
         //FIXME: Debug last press time?
-        
-        
+
+
         //FIXME: buffer queue坐在input還是action上？
-        
+
         // [PreviewInInspector] private float _lastPressTime = -1;
         // private const float InputBufferTime = 0.25f;
         // [PreviewInInspector] private List<float> _bufferedQueue = new(); //玩家過去按下的時間 ex: 連按兩下
@@ -94,6 +96,6 @@ namespace MonoFSM_InputAction
         //             i--;
         //         }
         // }
-        
+
     }
 }

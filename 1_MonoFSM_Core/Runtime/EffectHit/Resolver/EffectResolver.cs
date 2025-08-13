@@ -1,8 +1,9 @@
 using System;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Detection;
-using MonoFSM.Variable.Attributes;
 using MonoFSM.EditorExtension;
+using MonoFSM.Foundation;
+using MonoFSM.Variable.Attributes;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -12,7 +13,8 @@ using UnityEditor;
 
 namespace MonoFSM.Runtime.Interact.EffectHit
 {
-    public abstract class EffectResolver : MonoBehaviour, IDefaultSerializable, IHierarchyValueInfo, IHitDataProvider
+    public abstract class EffectResolver : AbstractDescriptionBehaviour, IDefaultSerializable,
+        IHierarchyValueInfo, IHitDataProvider
     {
         [AutoParent] private MonoEntity _parentEntity;
 
@@ -43,7 +45,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
             return _currentHitData;
         }
 
-        
+
 #if UNITY_EDITOR
         private GlobalObjectId _globalId;
         public GlobalObjectId GetGlobalId()
@@ -54,11 +56,13 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         }
 #endif
 
-        [Button]
-        private void Rename()
-        {
-            name = "[" + TypeTag + "]" + _effectType.name.Replace("[EffectType]", "");
-        }
+        // [Button]
+        // private void Rename()
+        // {
+        //     name = "[" + TypeTag + "]" + _effectType.name.Replace("[EffectType]", "");
+        // }
+
+        public override string Description => _effectType.name.Replace("[EffectType]", "");
 
         protected abstract string TypeTag { get; }
 
@@ -70,7 +74,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         [Required] [Component] [AutoChildren(DepthOneOnly = true)] [PreviewInInspector]
         protected EffectEnterNode _enterNode;
 
-        [CompRef] [AutoChildren(DepthOneOnly = true)] 
+        [CompRef] [AutoChildren(DepthOneOnly = true)]
         protected EffectHitFailNode _failNode;
 
         public void OnEffectHitConditionFail(IEffectHitData data)

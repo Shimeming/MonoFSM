@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Detection;
-using MonoFSM.Core.Simulate;
+using MonoFSM.Foundation;
 using MonoFSM.PhysicsWrapper;
 using MonoFSM.Variable.Attributes;
 using Sirenix.OdinInspector;
@@ -11,8 +11,10 @@ using UnityEngine.Serialization;
 
 namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
 {
-    public abstract class BaseDetectProcessor : MonoBehaviour, IDetectionSource
+    // [DisallowMultipleComponent]
+    public abstract class BaseDetectProcessor : AbstractDescriptionBehaviour, IDetectionSource
     {
+        protected override string DescriptionTag => "DetectionSource";
         [Required]
         [AutoParent]
         public EffectDetector _detector;
@@ -45,7 +47,7 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
             _toExit.Clear();
         }
 
-        public void QueueEnterEvent(GameObject obj)
+        public void QueueEnterEvent(GameObject obj) //fixme 現在沒有管 hit data那些耶
         {
             Debug.Log("QueueEnterEvent: " + obj.name, obj);
             _toEnter.Add(obj);
@@ -130,7 +132,8 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
             {
                 if (!_lastFrameColliders.Contains(hit.collider))
                 {
-                    // Debug.Log("enter" + col.name, col.gameObject);
+                    // QueueEnterEvent(hit.collider.gameObject);
+                    Debug.Log("Raycast enter", this);
                     Debug.Log("Spatial enter: hitPoint " + hit.collider, hit.collider);
 
                     //Note: Detectable必須在 rigidbody上面？
@@ -138,17 +141,11 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
                     // if (hit.rigidbody)
                     //     _detector.OnDetectEnterCheck(hit.rigidbody.gameObject, hit.point, hit.normal);
                     // else
-                    _detector.OnDetectEnterCheck(hit.collider.gameObject, hit.point, hit.normal);
+                    var result = _detector.OnDetectEnterCheck(hit.collider.gameObject, hit.point,
+                        hit.normal);
+                    Debug.Log("Detect:" + result, this);
                 }
             }
-            // foreach (var col in _thisFrameColliders)
-            //     if (!_lastFrameColliders.Contains(col))
-            //     {
-            //         // Debug.Log("enter" + col.name, col.gameObject);
-            //         OnSpatialEnter(col.gameObject);
-            //     }
-
-
 
             foreach (var col in _lastFrameColliders)
                 if (!_thisFrameColliders.Contains(col))
@@ -216,6 +213,7 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
             _characterTransform = transform;
             if (_isEffectByCameraRotation && _characterTransform != null)
             {
+                //FIXME:
                 var camera = Camera.main;
                 if (camera != null)
                 {
@@ -340,7 +338,7 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
                         // Debug.Log("hit" + hit.collider.name, hit.collider);
                     }
                 }
-                else if (UnityEngine.Physics.Raycast(ray, out var hit, _distance, _hittingLayer))
+                else if (Physics.Raycast(ray, out var hit, _distance, _hittingLayer))
                 {
                     _cachedHits.Add(hit);
                     _thisFrameColliders.Add(hit.collider);
@@ -377,6 +375,7 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
         // }
 
         public void AfterUpdate() { }
+
     }
 
     public interface IRayProvider

@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-// using MonoDebugSetting;
+using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities;
 using UnityEngine;
+// using MonoDebugSetting;
 
 namespace MonoFSM.Core.Attributes.Editor
 {
@@ -50,8 +51,8 @@ namespace MonoFSM.Core.Attributes.Editor
             // }
             // else
             // {
-            //     attributes.Remove(member.GetAttribute<DisableIfAttribute>());
-            //     attributes.Add(new ShowInInspectorAttribute());
+            attributes.Remove(member.GetAttribute<DisableIfAttribute>());
+            attributes.Add(new ShowInInspectorAttribute());
             // }
             // var autoChildrenAttribute = member.GetAttribute<AutoChildrenAttribute>();
         }

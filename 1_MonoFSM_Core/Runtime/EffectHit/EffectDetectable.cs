@@ -23,6 +23,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
     {
         [CompRef]
         [AutoChildren]
+        [Required]
         BaseEffectDetectTarget _effectDetectTarget;
 
         // [AutoParent] private StateMachineOwner owner;

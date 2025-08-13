@@ -1,4 +1,3 @@
-using MonoFSM.Core.Attributes;
 using MonoFSM.Runtime.Interact.EffectHit;
 using MonoFSM.Variable.Attributes;
 using Sirenix.OdinInspector;
@@ -14,8 +13,9 @@ namespace MonoFSM.Core.Detection
     {
         [Required]
         [CompRef]
-        [Auto]
+        [AutoParent]
         private Collider _collider;
+        //FIXME: 加的時候要同一層
 
         // [Component] [AutoChildren(DepthOneOnly = true)]
         // private GeneralEffectReceiver[] _effectReceivers;

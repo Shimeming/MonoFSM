@@ -6,7 +6,7 @@ using Sirenix.OdinInspector;
 namespace MonoFSM.Core.Attributes
 {
     /// <summary> 用在Runtime的property上，會在playmode時顯示
-    /// <seealso cref="T:RCGMaker.Core.Attributes.Editor.ShowInPlayModeAttributeProcessor" />
+    /// <seealso cref="T:MonoFSM.Core.Attributes.Editor.ShowInPlayModeAttributeProcessor" />
     /// </summary>
     [IncludeMyAttributes]
     [MeansImplicitUse]

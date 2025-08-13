@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Simulate;
+using MonoFSM.Foundation;
 using MonoFSM.Runtime.Interact.EffectHit;
 using MonoFSM.Variable.Attributes;
 using Sirenix.OdinInspector;
@@ -45,8 +46,12 @@ namespace MonoFSM.Core.Detection
     }
 
     [DisallowMultipleComponent]
-    public class EffectDetector : MonoBehaviour, IDefaultSerializable, IUpdateSimulate
+    public class EffectDetector : AbstractDescriptionBehaviour, IDefaultSerializable,
+        IUpdateSimulate
     {
+        [SerializeField] private string _designName;
+        public override string Description => _designName;
+
         [CompRef]
         [AutoChildren(DepthOneOnly = true)]
         private AbstractConditionBehaviour[] _conditions;
@@ -123,8 +128,9 @@ namespace MonoFSM.Core.Detection
             //理論上不該打到別的東西，layer就擋掉了才對 (有分layer的話)
             if (!other.TryGetComponent<BaseEffectDetectTarget>(out var spatialDetectable))
             {
-                // Debug.LogError(other.name + " is not a EffectDetectable" + other.gameObject.layer, other);
-                return "not a EffectDetectable";
+                Debug.LogError(other.name + " is not a EffectDetectable" + other.gameObject.layer,
+                    other);
+                return "not a BaseEffectDetectTarget";
             }
 
             // Debug.Log("OnSpatialEnter: " + spatialDetectable.name + " by " + gameObject.name, this);
@@ -258,5 +264,6 @@ namespace MonoFSM.Core.Detection
         }
 
         public void AfterUpdate() { }
+        protected override string DescriptionTag => "Detector";
     }
 }

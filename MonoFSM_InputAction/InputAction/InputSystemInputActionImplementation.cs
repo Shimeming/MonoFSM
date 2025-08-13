@@ -10,7 +10,7 @@ namespace MonoFSM_InputAction
     [RequireComponent(typeof(MonoInputAction))]
     public class InputSystemInputActionImplementation : AbstractDescriptionBehaviour, IInputActionImplementation
     {
-        
+
         [Required]
         [PreviewInInspector] [AutoParent] private PlayerInput _localPlayerInput;
         public int InputActionId => _inputActionData.actionID; //還是monobehaviour自己assign就好？
@@ -29,11 +29,14 @@ namespace MonoFSM_InputAction
         bool IInputActionImplementation.IsLocalPressed =>
             Application.isPlaying && (myAction.IsPressed() || myAction.WasPressedThisFrame());
 
+        [ShowInDebugMode]
         Vector2 IInputActionImplementation.ReadLocalVec2 => myAction.ReadValue<Vector2>();
         Vector2 IInputActionImplementation.Vec2Value => ((IInputActionImplementation)this).ReadLocalVec2;
         [ShowInInspector]
         bool IInputActionImplementation.IsVec2 => _inputActionData.inputAction.action.expectedControlType == "Vector2";
-        bool IInputActionImplementation.IsPressed => myAction.IsPressed(); //如果外掛
+
+        [ShowInDebugMode]
+        bool IInputActionImplementation.IsPressed => myAction?.IsPressed() ?? false; //如果外掛
         bool IInputActionImplementation.WasPressed => myAction.WasPressedThisFrame();
         bool IInputActionImplementation.WasReleased => myAction.WasReleasedThisFrame();
 

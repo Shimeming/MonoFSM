@@ -28,7 +28,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         // [ShowDrawerChain]
         private IVarMonoProvider _proxyProvider;
 
-        
+
         [PreviewInInspector]
         private GeneralEffectDealer proxyDealer =>
             _proxyProvider?.Value?.GetDealer(_effectType);
@@ -40,11 +40,11 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         // public FloatValueSource ValueSource;
 
         // [Auto]
-        // // [PreviewInInspector] 
+        // // [PreviewInInspector]
         // [Component]
         // [PropertyOrder(-1)]
         // private IFloatProvider _valueSource; //FIXME: 還是要把情境也寫死？
-        //FIXME: 可能還會涉及多個varfloat,不一定需要？ 用getFloat就好了 
+        //FIXME: 可能還會涉及多個varfloat,不一定需要？ 用getFloat就好了
         //通常就是 A 打 B
         //A有value
         //B有cost
@@ -98,7 +98,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
 
                 proxyDealer.CanHitReceiver(r); //繼續判囉？
             }
-            
+
             if(_effectConditions != null)
                 foreach (var condition in _effectConditions)
                 {
@@ -114,7 +114,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
                 }
 
 #if UNITY_EDITOR
-            this.Log("HitReceiver Success:"); //, r.GetGlobalId()); 
+            this.Log("HitReceiver Success:"); //, r.GetGlobalId());
 #endif
             SetFailReason("HitReceiver Success");
             return true;
@@ -135,7 +135,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
             _receivers.Add(data.Receiver);
             _lastReceiver = data.Receiver as GeneralEffectReceiver;
         }
-        
+
 
         public void OnHitExit(IEffectHitData data)
         {
@@ -147,5 +147,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         }
 
         protected override string TypeTag => "Dealer";
+        protected override string DescriptionTag => "Dealer";
+        
     }
 }

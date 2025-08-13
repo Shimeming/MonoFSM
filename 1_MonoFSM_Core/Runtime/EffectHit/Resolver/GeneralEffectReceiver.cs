@@ -26,7 +26,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
             data.Override(dealer, this);
             return data;
         }
-        
+
 
         public void ForceDirectEffectHit(GeneralEffectDealer dealer)
         {
@@ -81,5 +81,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
             else
                 return null; //或許可以拋出異常？
         }
+
+        protected override string DescriptionTag => "Receiver";
     }
 }

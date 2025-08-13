@@ -13,22 +13,23 @@ namespace _1_MonoFSM_Core.Runtime.Action.VariableAction
         // [HideIf(nameof(_targetVarProvider))]
         // [DropDownRef]
         // [SerializeField] AbstractMonoVariable _localVar; //2. local var
-        
+
         // [HideIf(nameof(_localVar))]
         [ValueTypeValidate(IsVariableNeeded = true)] [SerializeField] [DropDownRef]
-        private ValueProvider _targetVarProvider; //1. 遠方的var 
+        private ValueProvider _targetVarProvider; //1. 遠方的var
 
-        
+
         [InfoBox("$TypeValidationMessage", InfoMessageType.Warning, VisibleIf = "ShowTypeWarning")]
         [InfoBox("$TypeValidationMessage", InfoMessageType.None, VisibleIf = "ShowTypeInfo")]
         // [PropertyOrder(100)]
         [SerializeField] [DropDownRef] private ValueProvider _sourceValueProvider;
-        
+
 
         private string TypeValidationMessage
         {
             get
             {
+                //FIXME: 不一定拿得到var啊
                 var targetVar = GetTargetVariable();
                 if (targetVar == null || _sourceValueProvider == null)
                     return "請設定目標變數和來源值提供者";
@@ -47,8 +48,9 @@ namespace _1_MonoFSM_Core.Runtime.Action.VariableAction
         }
 
         private bool ShowTypeWarning => !ShowTypeInfo && GetTargetVariable() != null && _sourceValueProvider != null;
-        private bool ShowTypeInfo => GetTargetVariable() != null && _sourceValueProvider != null && 
-                                   ValidateValueType(GetTargetVariable(), _sourceValueProvider);
+
+        private bool ShowTypeInfo => GetTargetVariable() != null && _sourceValueProvider != null &&
+                                     ValidateValueType(GetTargetVariable(), _sourceValueProvider);
 
         private AbstractMonoVariable GetTargetVariable()
         {
@@ -85,7 +87,7 @@ namespace _1_MonoFSM_Core.Runtime.Action.VariableAction
         {
             var targetType = targetVar.ValueType;
             var sourceType = sourceProvider.ValueType;
-            
+
             if (targetType == null || sourceType == null)
                 return false;
 
