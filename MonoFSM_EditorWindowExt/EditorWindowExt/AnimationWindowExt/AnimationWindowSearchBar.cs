@@ -109,7 +109,14 @@ namespace MonoFSM.Editor.AnimationWindow
 
         private static void WrappedGUI(EditorWindow window)
         {
-            var navbarHeight = 26;
+            // 動態計算navbar高度
+            var baseHeight = 26;
+            var extraHeight = 0;
+            if (navbars_byWindow.ContainsKey(window) && navbars_byWindow[window].showObjectFields)
+            {
+                extraHeight = 28; // 第二層的高度
+            }
+            var navbarHeight = baseHeight + extraHeight;
 
             void navbarGui()
             {

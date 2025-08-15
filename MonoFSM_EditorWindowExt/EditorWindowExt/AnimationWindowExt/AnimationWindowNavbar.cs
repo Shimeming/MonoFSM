@@ -17,6 +17,9 @@
     private int searchFieldControlID = -1; // 固定的搜尋欄位ID
     public AnimationWindow window;
     public bool isSearchActive;
+    public bool showObjectFields = false; // 控制是否顯示Animator/Controller欄位
+    private float objectFieldsAnimationT = 0; // 動畫時間
+    private float objectFieldsAnimationDerivative = 0;
     private string searchText {
         get => _searchText;
         set
@@ -202,10 +205,29 @@
         {
             var backgroundColor = Greyscale(isDarkTheme ? .235f : .8f);
             var lineColor = Greyscale(isDarkTheme ? .13f : .58f);
-            EditorGUI.DrawRect(navbarRect, backgroundColor);
-            // navbarRect.Draw(backgroundColor);
+            
+            // 繪製第一層背景
+            var firstLayerRect = navbarRect.SetHeight(26);
+            EditorGUI.DrawRect(firstLayerRect, backgroundColor);
+            
+            // 如果顯示第二層，繪製第二層背景
+            if (objectFieldsAnimationT > 0)
+            {
+                var secondLayerRect = navbarRect.SetY(26).SetHeight(28 * objectFieldsAnimationT);
+                var secondLayerColor = isDarkTheme ? new Color(0.2f, 0.2f, 0.2f, objectFieldsAnimationT) : new Color(0.85f, 0.85f, 0.85f, objectFieldsAnimationT);
+                EditorGUI.DrawRect(secondLayerRect, secondLayerColor);
+            }
+            
+            // 繪製分隔線
             EditorGUI.DrawRect(navbarRect.SetHeightFromBottom(1).MoveY(1), lineColor);
-            // navbarRect.SetHeightFromBottom(1).MoveY(1).Draw(lineColor);
+            
+            // 如果顯示第二層，在兩層之間添加細分隔線
+            if (objectFieldsAnimationT > 0.1f)
+            {
+                var separatorRect = new Rect(navbarRect.x, 26, navbarRect.width, 1);
+                var separatorColor = new Color(lineColor.r, lineColor.g, lineColor.b, objectFieldsAnimationT * 0.5f);
+                EditorGUI.DrawRect(separatorRect, separatorColor);
+            }
         }
 
         // float AnimatorButton(float startX)
@@ -229,10 +251,8 @@
         //     return startX + width;
         // }
 
-        float AnimatorObjectField(float startX)
+        float AnimatorObjectField(float startX, float yPosition)
         {
-            if (searchAnimationT == 1) return startX;
-
             // 更新當前的 Animator
             var selectedAnimator = Selection.activeGameObject?.GetComponentInParent<Animator>(true);
             if (selectedAnimator != currentAnimator)
@@ -242,9 +262,24 @@
                 currentController = currentAnimator?.runtimeAnimatorController as UnityEditor.Animations.AnimatorController;
             }
 
-            var width = 120f;
-            var fieldRect = navbarRect.SetWidth(width).MoveX(startX);
-            var newAnimator = EditorGUI.ObjectField(fieldRect, currentAnimator, typeof(Animator), true) as Animator;
+            // 響應式寬度
+            var availableWidth = window.position.width;
+            var width = availableWidth > 450 ? 160f : Math.Min(150f, availableWidth * 0.35f);
+            
+            // 使用圖標和更緊湊的設計
+            var iconRect = new Rect(startX, yPosition + 5, 18, 18);
+            var icon = EditorGUIUtility.IconContent("d_UnityEditor.Graphs.AnimatorControllerTool");
+            GUI.DrawTexture(iconRect, icon.image, ScaleMode.ScaleToFit, true, 0, 
+                Greyscale(isDarkTheme ? 0.8f : 0.4f), 0, 0);
+            
+            // 繪製欄位，使用統一風格
+            var objectFieldRect = new Rect(startX + 22, yPosition + 4, width - 22, 20);
+            
+            // 自訂欄位背景
+            var fieldBgColor = isDarkTheme ? new Color(0.15f, 0.15f, 0.15f, 0.5f) : new Color(1f, 1f, 1f, 0.3f);
+            EditorGUI.DrawRect(objectFieldRect, fieldBgColor);
+            
+            var newAnimator = EditorGUI.ObjectField(objectFieldRect, currentAnimator, typeof(Animator), true) as Animator;
             
             if (newAnimator != currentAnimator)
             {
@@ -264,14 +299,26 @@
             return startX + width;
         }
 
-        float AnimatorControllerField(float startX)
+        float AnimatorControllerField(float startX, float yPosition)
         {
-            if (searchAnimationT == 1) return startX;
-
-            var width = 150f;
-            var fieldRect = navbarRect.SetWidth(width).MoveX(startX);
+            // 響應式寬度
+            var availableWidth = window.position.width;
+            var width = availableWidth > 450 ? 200f : Math.Min(180f, availableWidth * 0.4f);
             
-            var newController = EditorGUI.ObjectField(fieldRect, currentController, typeof(UnityEditor.Animations.AnimatorController), false) as UnityEditor.Animations.AnimatorController;
+            // 使用圖標
+            var iconRect = new Rect(startX, yPosition + 5, 18, 18);
+            var icon = EditorGUIUtility.IconContent("d_AnimatorController Icon");
+            GUI.DrawTexture(iconRect, icon.image, ScaleMode.ScaleToFit, true, 0,
+                Greyscale(isDarkTheme ? 0.8f : 0.4f), 0, 0);
+            
+            // 繪製欄位，使用統一風格
+            var objectFieldRect = new Rect(startX + 22, yPosition + 4, width - 22, 20);
+            
+            // 自訂欄位背景
+            var fieldBgColor = isDarkTheme ? new Color(0.15f, 0.15f, 0.15f, 0.5f) : new Color(1f, 1f, 1f, 0.3f);
+            EditorGUI.DrawRect(objectFieldRect, fieldBgColor);
+            
+            var newController = EditorGUI.ObjectField(objectFieldRect, currentController, typeof(UnityEditor.Animations.AnimatorController), false) as UnityEditor.Animations.AnimatorController;
             
             if (newController != currentController)
             {
@@ -295,7 +342,7 @@
             if (searchAnimationT == 1) return startX;
 
             var width = 28f;
-            var buttonRect = navbarRect.SetWidth(width).MoveX(startX);
+            var buttonRect = navbarRect.SetWidth(width).MoveX(startX).SetHeight(26);
             var iconName = "Search_";
             var iconSize = 16;
             var colorNormal = Greyscale(isDarkTheme ? .75f : .2f);
@@ -308,6 +355,32 @@
                 // shouldFocusOnNextRepaint = true;
             }
 
+            return startX + width;
+        }
+        
+        float settingsButton(float startX)
+        {
+            if (searchAnimationT == 1) return startX;
+            
+            var width = 24f;
+            var buttonRect = navbarRect.SetWidth(width).MoveX(startX).SetHeight(26);
+            
+            // 使用內建的dropdown圖標，根據狀態旋轉
+            var iconName = showObjectFields ? "d_IN_foldout_on" : "d_IN_foldout";
+            var iconSize = 12;
+            
+            var isHovered = buttonRect.Contains(Event.current.mousePosition);
+            var colorNormal = Greyscale(isDarkTheme ? .6f : .4f);
+            var colorHovered = Greyscale(isDarkTheme ? .9f : .1f);
+            var colorPressed = Greyscale(isDarkTheme ? .7f : .5f);
+            
+            var currentColor = isHovered ? colorHovered : colorNormal;
+            
+            if (IconButton(buttonRect, iconName, iconSize, currentColor, colorHovered, colorPressed))
+            {
+                showObjectFields = !showObjectFields;
+            }
+            
             return startX + width;
         }
         
@@ -326,8 +399,12 @@
         {
             if (searchAnimationT == 0) return new Rect();
 
-            var searchFieldRect = navbarRect.SetHeightFromMid(18).AddWidth(-60)
-                .SetWidth(Math.Min(300f, window.position.width - 120)).Move(5, 0);
+            // 調整搜尋欄位，使其在第一層居中
+            // 響應式寬度計算
+            var maxSearchWidth = Math.Max(150f, window.position.width - 100);
+            var searchWidth = Math.Min(300f, maxSearchWidth);
+            var searchFieldRect = navbarRect.SetHeight(26).SetHeightFromMid(18)
+                .SetWidth(searchWidth).Move(5, 0);
                 // .SetWidthFromRight(Math.Min(300f, window.position.width - 120)).Move(5, 0);
 
             // 使用固定的控制項ID來確保焦點穩定性
@@ -433,13 +510,15 @@
             var shadowRect = dropdownRect.Move(1, 1);
             EditorGUI.DrawRect(shadowRect, new Color(0, 0, 0, 0.15f));
 
-            // 使用Unity風格的背景和邊框
-            // var backgroundColor = isDarkTheme ? new Color(0.22f, 0.22f, 0.22f) : Color.white;
-            var backgroundColor = new Color(0.9f, 0.9f, 0.9f);
-                // EditorGUIUtility.LightenColor(
-                //     EditorGUIUtility.LightenColor(EditorGUIUtility.kViewBackgroundColor.value));
-            var borderColor = isDarkTheme ? new Color(0.13f, 0.13f, 0.13f) : new Color(0.2f, 0.2f, 0.2f);
-            EditorGUI.DrawRect(dropdownRect, backgroundColor);
+            // 使用Unity風格的背景和邊框 - 修復淺色主題
+            var backgroundColor = isDarkTheme ? new Color(0.22f, 0.22f, 0.22f) : new Color(0.94f, 0.94f, 0.94f);
+            var borderColor = isDarkTheme ? new Color(0.13f, 0.13f, 0.13f) : new Color(0.6f, 0.6f, 0.6f);
+            
+            // 先繪製邊框
+            EditorGUI.DrawRect(dropdownRect, borderColor);
+            // 再繪製內部背景（留出1px邊框）
+            var innerRect = new Rect(dropdownRect.x + 1, dropdownRect.y + 1, dropdownRect.width - 2, dropdownRect.height - 2);
+            EditorGUI.DrawRect(innerRect, backgroundColor);
 
             // 繪製選項
             var itemRect = new Rect(dropdownRect.x + 1, dropdownRect.y + 2, dropdownRect.width - 2, actualItemHeight);
@@ -456,20 +535,19 @@
                     // Unity風格的選中和懸停效果
                     if (isSelected)
                     {
-                        var selectedColor = new Color(0.24f, 0.49f, 0.89f); // Unity藍色，深淺主題都一樣
+                        var selectedColor = new Color(0.24f, 0.49f, 0.89f); // Unity藍色
                         EditorGUI.DrawRect(itemRect, selectedColor);
                     }
                     else if (isHovered)
                     {
-                        // var hoverColor = isDarkTheme ? new Color(0.3f, 0.3f, 0.3f) : new Color(0.9f, 0.9f, 0.9f);
-                        var hoverColor = new Color(0.24f, 0.49f, 0.89f); // Unity藍色，深淺主題都一樣;
+                        var hoverColor = isDarkTheme ? new Color(0.3f, 0.3f, 0.3f) : new Color(0.8f, 0.8f, 0.8f);
                         EditorGUI.DrawRect(itemRect, hoverColor);
                     }
 
                     // 繪製clip名稱，使用Unity風格
                     var labelStyle = new GUIStyle(EditorStyles.label);
-                    labelStyle.normal.textColor = isHovered ? Color.white : 
-                        (isDarkTheme ? new Color(0.85f, 0.85f, 0.85f) : new Color(0f, 0f, 0f));
+                    labelStyle.normal.textColor = (isSelected || isHovered) ? Color.white : 
+                        (isDarkTheme ? new Color(0.85f, 0.85f, 0.85f) : new Color(0.1f, 0.1f, 0.1f));
                     labelStyle.fontSize = 12;
                     labelStyle.padding.left = 8;
                     
@@ -504,8 +582,8 @@
         {
             if (searchAnimationT == 0) return;
 
-            // 位置在 searchField 的右邊
-            var buttonRect = new Rect(searchFieldRect.xMax + 2, navbarRect.y, 26, 26);
+            // 位置在 searchField 的右邊，確保在第一層
+            var buttonRect = new Rect(searchFieldRect.xMax + 2, searchFieldRect.y, 26, searchFieldRect.height);
             var iconName = "CrossIcon";
             var iconSize = 12;
             var colorNormal = Greyscale(isDarkTheme ? .7f : .4f);
@@ -524,12 +602,9 @@
             var lerpSpeed = 8f;
 
             if (isSearchActive)
-                // VUtils.MathUtil.SmoothDamp(ref searchAnimationT, 1, lerpSpeed, ref searchAnimationDerivative, editorDeltaTime);
                 searchAnimationT = 1;
             else
-                // VUtils.MathUtil.SmoothDamp(ref searchAnimationT, 0, lerpSpeed, ref searchAnimationDerivative, editorDeltaTime);
                 searchAnimationT = 0;
-            //TODO: animation
 
             if (isSearchActive && searchAnimationT > .99f)
                 searchAnimationT = 1;
@@ -539,6 +614,24 @@
 
             animatingSearch = searchAnimationT != 0 && searchAnimationT != 1;
         }
+        
+        void objectFieldsAnimation()
+        {
+            if (!curEvent.isLayout) return;
+            
+            var targetValue = showObjectFields ? 1f : 0f;
+            var delta = targetValue - objectFieldsAnimationT;
+            
+            if (Math.Abs(delta) > 0.01f)
+            {
+                objectFieldsAnimationT += delta * 0.15f; // 平滑動畫
+                window.Repaint();
+            }
+            else
+            {
+                objectFieldsAnimationT = targetValue;
+            }
+        }
 
         void buttonsGroup()
         {
@@ -546,16 +639,60 @@
        
             GUI.BeginGroup(window.position.SetPos(0, 0).MoveX(-searchAnimationDistance * searchAnimationT));
 
-            // selectorButton();
+            // 第一層：搜尋按鈕和設定按鈕
             var x = 5f; // 起始位置
-            // x = animatorButton(x);
             x = searchButton(x);
-            x = AnimatorObjectField(x);
-            x = AnimatorControllerField(x);
+            x = settingsButton(x + 2); // 加一點間距
             
             searchOnCtrlF();
 
             GUI.EndGroup();
+            ResetGUIColor();
+        }
+        
+        void objectFieldsGroup()
+        {
+            if (objectFieldsAnimationT <= 0) return;
+            
+            SetGUIColor(Greyscale(1, objectFieldsAnimationT));
+            
+            // 第二層：Animator和Controller欄位
+            var yPosition = 26;
+            var availableWidth = window.position.width;
+            
+            // 響應式佈局：根據視窗寬度調整
+            if (availableWidth > 450) // 寬螢幕模式
+            {
+                var x = 8f;
+                
+                // 添加分隔線
+                if (objectFieldsAnimationT > 0.5f)
+                {
+                    var separatorX = x + 165;
+                    var separatorRect = new Rect(separatorX, yPosition + 8, 1, 14);
+                    var separatorColor = new Color(0.5f, 0.5f, 0.5f, objectFieldsAnimationT * 0.3f);
+                    EditorGUI.DrawRect(separatorRect, separatorColor);
+                }
+                
+                x = AnimatorObjectField(x, yPosition);
+                x = AnimatorControllerField(x + 12, yPosition);
+            }
+            else // 窄螢幕模式 - 堆疊顯示
+            {
+                var fieldWidth = Math.Min(availableWidth - 20, 350);
+                var x = (availableWidth - fieldWidth) / 2; // 置中
+                
+                // 只顯示Animator欄位，Controller欄位隱藏或縮小
+                AnimatorObjectField(x, yPosition);
+                
+                // 如果空間夠，顯示縮小版的Controller
+                if (availableWidth > 300)
+                {
+                    var miniControllerRect = new Rect(x + 170, yPosition + 4, 100, 20);
+                    EditorGUI.ObjectField(miniControllerRect, currentController, typeof(UnityEditor.Animations.AnimatorController), false);
+                }
+            }
+            
             ResetGUIColor();
         }
 
@@ -576,13 +713,20 @@
         background();
         
         searchAnimation();
+        objectFieldsAnimation();
+        
         buttonsGroup();
+        objectFieldsGroup();
         searchButtonAndFieldSection();
 
         // 在最後繪製dropdown，確保它在所有內容之上
         if (showDropdown)
         {
-            DrawDropdownAtTop(pendingDropdownRect);
+            // 調整dropdown位置（如果有第二層）
+            var dropdownOffset = objectFieldsAnimationT * 28;
+            var adjustedRect = pendingDropdownRect;
+            adjustedRect.y += dropdownOffset;
+            DrawDropdownAtTop(adjustedRect);
         }
         
         void closeSearchOnEsc()
@@ -592,7 +736,7 @@
             CloseSearch();
         }
         
-        if (animatingSearch)
+        if (animatingSearch || objectFieldsAnimationT != (showObjectFields ? 1f : 0f))
             window.Repaint();
     }
 
@@ -617,35 +761,17 @@
         {
             var selectedColor = new Color(0.24f, 0.49f, 0.89f); // Unity藍色
             EditorGUI.DrawRect(itemRect, selectedColor);
-            // itemRect.Draw(selectedColor);
-            // Debug.Log($"Selected create option: {clipName}");
         }
         else if (isHovered)
         {
-            var hoverColor = isDarkTheme ? new Color(0.1f, 0.1f, 0.1f) : new Color(0.9f, 0.9f, 0.9f);
+            var hoverColor = isDarkTheme ? new Color(0.3f, 0.3f, 0.3f) : new Color(0.8f, 0.8f, 0.8f);
             EditorGUI.DrawRect(itemRect, hoverColor);
-            // itemRect.Draw(hoverColor);
-            // Debug.Log($"Hovered create option: {clipName}");
         }
-
-        // 處理點擊
-        // if (Event.current.type == EventType.MouseDown && itemRect.Contains(Event.current.mousePosition))
-        // {
-        //     CreateAnimationClipAndState(clipName);
-        //     Event.current.Use();
-        // }
-            
-        // 處理滑鼠懸停（更新選中狀態）
-        // if (isHovered && !isNavigatingDropdown)
-        // {
-        //     isCreateOptionSelected = true;
-        //     currentMatchIndex = -1; // 重置項目索引
-        // }
 
         // 繪製文字，使用特殊樣式表示這是創建選項
         var labelStyle = new GUIStyle(EditorStyles.label);
-        labelStyle.normal.textColor = isHovered ? Color.white : 
-            (isDarkTheme ? new Color(0.7f, 0.7f, 0.7f) : new Color(0.1f, 0.1f, 0.1f));
+        labelStyle.normal.textColor = (isSelected || isHovered) ? Color.white : 
+            (isDarkTheme ? new Color(0.7f, 0.7f, 0.7f) : new Color(0.2f, 0.2f, 0.2f));
         labelStyle.fontSize = 11;
         labelStyle.padding.left = 8;
         labelStyle.fontStyle = FontStyle.Italic;
