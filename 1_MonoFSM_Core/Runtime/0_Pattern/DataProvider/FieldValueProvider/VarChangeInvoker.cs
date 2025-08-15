@@ -1,7 +1,6 @@
 using MonoFSM.Variable;
 using MonoFSM.Variable.Attributes;
 using MonoFSMCore.Runtime.LifeCycle;
-using MonoFSM.Core.Attributes;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -32,9 +31,9 @@ namespace MonoFSM.Core.DataProvider
             else
             {
                 Debug.LogError("ListenToVariable is null", this);
-                if (isActiveAndEnabled)
-                    Debug.Break();
-                
+                // if (isActiveAndEnabled)
+                //     Debug.Break();
+
             }
         }
 

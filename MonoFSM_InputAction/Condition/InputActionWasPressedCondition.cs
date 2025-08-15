@@ -1,5 +1,4 @@
 using MonoFSM_InputAction;
-using Sirenix.OdinInspector;
 
 namespace Fusion.Addons.KCC.ECM2.Examples.Networking.Fusion_v2.Characters.Scripts.Input
 {
@@ -7,13 +6,36 @@ namespace Fusion.Addons.KCC.ECM2.Examples.Networking.Fusion_v2.Characters.Script
     //FIXME: move不能用這個
     public class InputActionWasPressedCondition : AbstractConditionBehaviour
     {
+        public enum InputActionType
+        {
+            WasPressed,
+            IsPressed,
+            WasReleased
+        }
+
+        public InputActionType _inputActionType = InputActionType.WasPressed;
         //valid的timing怎麼處理.. networkcondition, 太難了ㄅ 只看state?
         protected override bool IsValid
         {
             get
             {
-                this.Log("InputActionWasPressedCondition IsValid: " + _inputAction.WasPressed);
-                return _inputAction.WasPressed;
+                if (_inputActionType == InputActionType.WasPressed)
+                {
+                    this.Log("InputActionWasPressedCondition IsValid: " + _inputAction.WasPressed);
+                    return _inputAction.WasPressed;
+                }
+                else if (_inputActionType == InputActionType.IsPressed)
+                {
+                    this.Log("InputActionWasPressedCondition IsValid: " + _inputAction.IsPressed);
+                    return _inputAction.IsPressed;
+                }
+                else if (_inputActionType == InputActionType.WasReleased)
+                {
+                    this.Log("InputActionWasPressedCondition IsValid: " + _inputAction.WasReleased);
+                    return _inputAction.WasReleased;
+                }
+
+                return false;
             }
         }
         // _playerInputProvider.GetPlayerInput().WasPressed(actionData.actionID); //isvalid的timing也要小心

@@ -18,7 +18,7 @@ using Object = UnityEngine.Object;
 namespace MonoFSM.Variable
 {
     //FIXME: 應該要繼承AbstractSourceValueRef
-    public abstract class AbstractMonoVariable
+    public abstract class AbstractMonoVariable //Rename self?
         : MonoBehaviour,
             IGuidEntity,
             IName,
@@ -112,6 +112,35 @@ namespace MonoFSM.Variable
             Debug.LogWarning("此功能僅在編輯器模式下可用");
 #endif
         }
+
+        [Button("建立 ValueProvider Reference In Children")]
+        private void CreateValueProviderInChildren()
+        {
+#if UNITY_EDITOR
+            if (_varTag == null)
+            {
+                Debug.LogError("請先設定變數標籤 (VarTag) 才能建立 ValueProvider", this);
+                return;
+            }
+
+            // 加入 ValueProvider 組件
+            var valueProvider = gameObject.AddChildrenComponent<ValueProvider>("provider");
+
+            valueProvider.DropDownVarTag = _varTag; //直接設定
+
+            // 設定 ValueProvider 的 EntityProvider
+            valueProvider._entityProvider = GetComponentInParent<ParentEntityProvider>();
+            // 標記為 dirty 以確保儲存
+            EditorUtility.SetDirty(valueProvider);
+
+#else
+            Debug.LogWarning("此功能僅在編輯器模式下可用");
+#endif
+        }
+
+
+
+
 
         [FormerlySerializedAs("varTag")]
         // [MCPExtractable]

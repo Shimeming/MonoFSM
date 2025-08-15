@@ -1,10 +1,8 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using MonoFSM.Foundation;
-using MonoFSM.EditorExtension;
 using MonoFSM.Core.Attributes;
-using MonoFSM.Runtime.Interact.EffectHit;
+using MonoFSM.Foundation;
 using MonoFSM.Runtime.Vote;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -86,7 +84,9 @@ namespace MonoFSM.Core.Runtime.Action
 
         [AutoParent] private DelayActionModifier delayActionModifier;
 
-        private bool _delay = false; //FIXME: 
+        private bool _delay; //FIXME:
+
+        //FIXME: 不會走這了？
         public async void OnActionExecute()
         {
             if (!isActiveAndEnabled) return;
@@ -117,14 +117,10 @@ namespace MonoFSM.Core.Runtime.Action
             // this.AddTask(OnStateEnterImplement, delayActionModifier.delayTime);
             _lastEventReceivedTime = Time.time;
             OnActionExecuteImplement();
+            Debug.Log($"Action Executed: {name} {renamePostfix} at {_lastEventReceivedTime}", this);
         }
-        
-        protected abstract void OnActionExecuteImplement(); //FIXME: 沒參數的?
-        // public void OnActionSpriteUpdate() 
-        // {
-        //     if (IsValid)
-        //         OnSpriteUpdateImplement();
-        // }
+
+        protected abstract void OnActionExecuteImplement();
 
         [Obsolete]
         protected virtual void OnSpriteUpdateImplement()
@@ -147,7 +143,7 @@ namespace MonoFSM.Core.Runtime.Action
 
         protected CancellationTokenSource cancellationTokenSource => bindingState.GetStateExitCancellationTokenSource();
 
-  
+
 
         //FIXME: 不該全部都virtual
         // public virtual void ArgEventReceived(IEffectHitData arg)

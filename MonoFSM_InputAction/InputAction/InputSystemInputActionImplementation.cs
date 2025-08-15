@@ -23,17 +23,21 @@ namespace MonoFSM_InputAction
 
         // private InputActionMap _inputActionMap;
         public InputAction myAction =>
-            _inputActionData ? _localPlayerInput?.actions[_inputActionData?.inputAction?.name] : null;
+            _inputActionData && _inputActionData._inputAction != null
+                ? _localPlayerInput?.actions?[_inputActionData?._inputAction?.name]
+                : null;
         // public InputAction myAction => _localPlayerInput.currentActionMap.FindAction(_inputActionData.inputAction.name);
 
         bool IInputActionImplementation.IsLocalPressed =>
             Application.isPlaying && (myAction.IsPressed() || myAction.WasPressedThisFrame());
 
         [ShowInDebugMode]
-        Vector2 IInputActionImplementation.ReadLocalVec2 => myAction.ReadValue<Vector2>();
+        Vector2 IInputActionImplementation.ReadLocalVec2 =>
+            myAction?.ReadValue<Vector2>() ?? Vector2.zero;
         Vector2 IInputActionImplementation.Vec2Value => ((IInputActionImplementation)this).ReadLocalVec2;
         [ShowInInspector]
-        bool IInputActionImplementation.IsVec2 => _inputActionData.inputAction.action.expectedControlType == "Vector2";
+        bool IInputActionImplementation.IsVec2 =>
+            _inputActionData?._inputAction?.action?.expectedControlType == "Vector2";
 
         [ShowInDebugMode]
         bool IInputActionImplementation.IsPressed => myAction?.IsPressed() ?? false; //如果外掛
@@ -41,6 +45,6 @@ namespace MonoFSM_InputAction
         bool IInputActionImplementation.WasReleased => myAction.WasReleasedThisFrame();
 
         protected override string DescriptionTag => "Input";
-        public override string Description => _inputActionData.name;
+        public override string Description => _inputActionData?.name;
     }
 }

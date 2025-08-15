@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using MonoFSM.Core;
 using UnityEditor;
 using UnityEngine;
 using static MonoFSMEditor.RefectionUtility;
@@ -13,9 +14,11 @@ namespace MonoFSM.Editor.AnimationWindow
     /// </summary>
     public static class AnimationWindowSearchBar
     {
+        private static IAnimatorPlayAction _lastEditState;
         [MenuItem("MonoFSM/Edit Animation of State %_E")]
         static void OpenAnimationWindow()
         {
+
             EditorApplication.ExecuteMenuItem("Window/Animation/Animation");
             if (Application.isPlaying)
                 return;
@@ -30,16 +33,19 @@ namespace MonoFSM.Editor.AnimationWindow
                 if (animator != null)
                     Selection.activeGameObject = animator.gameObject;
             }
-            
+
             //FIXME: iAnimatorPlayAction?
 
-            // var iAnimatorPlayAction = Selection.activeGameObject.GetComponentInChildren<IAnimatorPlayAction>();
-            // if (iAnimatorPlayAction != null)
-            // {
-            //     Debug.Log("[ShortCut] Edit anim of state" + iAnimatorPlayAction);
-            //     _lastEditState = iAnimatorPlayAction;
-            //     AnimatorHelper.EditClip(_lastEditState.BindAnimator, _lastEditState.Clip);
-            // }
+            var iAnimatorPlayAction =
+                Selection.activeGameObject.GetComponentInChildren<IAnimatorPlayAction>();
+            if (iAnimatorPlayAction != null)
+            {
+                Debug.Log("[ShortCut] Edit anim of state" + iAnimatorPlayAction);
+                _lastEditState = iAnimatorPlayAction;
+                iAnimatorPlayAction.EditClip();
+                //FIXME:
+                // AnimatorHelper.EditClip(_lastEditState.BindAnimator, _lastEditState.Clip);
+            }
         }
 
         private static Dictionary<EditorWindow, AnimationWindowNavbar> navbars_byWindow = new();
@@ -186,7 +192,7 @@ namespace MonoFSM.Editor.AnimationWindow
             // 清除原有的OnGUI方法，避免重複調用
             var curOnGUIMethod = window
                 .GetMemberValue("m_Parent")
-                ?.GetMemberValue<System.Delegate>("m_OnGUI")
+                ?.GetMemberValue<Delegate>("m_OnGUI")
                 ?.Method;
             if (curOnGUIMethod == null)
                 return;

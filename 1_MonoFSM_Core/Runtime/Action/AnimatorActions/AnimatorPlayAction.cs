@@ -7,8 +7,8 @@ using MonoFSM.AnimatorUtility;
 using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Editor;
-using MonoFSM.Foundation;
 using MonoFSM.EditorExtension;
+using MonoFSM.Foundation;
 using Sirenix.OdinInspector;
 using UnityEngine;
 #if UNITY_EDITOR
@@ -35,14 +35,14 @@ namespace MonoFSM.Animation
         protected override void Awake()
         {
             base.Awake();
-            
+
             _stateNameHash = Animator.StringToHash(StateName);
         }
 
-        private bool IsStateNameProvider() 
+        private bool IsStateNameProvider()
             => GetComponent<AbstractStringProvider>() != null;
 
-        public void SimulationUpdate(float passedDuration) 
+        public void SimulationUpdate(float passedDuration)
             => animator.playbackTime = passedDuration;
 
         // FIXME: 不能直接往下找？要從IFSMOwner下面往下找之類的？
@@ -71,12 +71,11 @@ namespace MonoFSM.Animation
         public string stateName;
 
         [Auto(false)] private AbstractStringProvider stateNameProvider; //拿旁邊的，蓋掉要怎麼做...藏起來
-        public string StateName 
-            => stateNameProvider 
-                ? stateNameProvider.StringValue 
+
+        public string StateName            => stateNameProvider                ? stateNameProvider.StringValue
                 : stateName;
 
-        private int StateHash 
+        private int StateHash
             => stateNameProvider && stateNameProvider is AnimatorStateStringListProvider listProvider
                 ? listProvider.StateHashValue
                 : _stateNameHash;
@@ -145,7 +144,7 @@ namespace MonoFSM.Animation
 #endif
         // private GeneralState bindingState;
         bool IsAnimatorNoControl => animator == null || animator.runtimeAnimatorController == null;
-        
+
         private void OnValidate()
         {
 #if UNITY_EDITOR
@@ -411,7 +410,7 @@ namespace MonoFSM.Animation
                     _cachedClipLength = currentClip.length;
                 }
 #endif
-                return _cachedClipLength; 
+                return _cachedClipLength;
             }
         }
 
@@ -502,7 +501,7 @@ namespace MonoFSM.Animation
         [AutoParent] private MonoStateBehaviour _stateBehaviour; //這個是State的行為，還是要有個StateAction來做事情
         //FIXME: 錯了！抓到BUG 要cache? 切State後，StateTime就會重置了
         public bool IsDone => _stateBehaviour.StateTime >= ClipLength; // && IsPlayingCurrentClip();
-        
+
 
         // [SerializeField] private float clipDuration;
 
@@ -644,7 +643,7 @@ namespace MonoFSM.Animation
         private AnimationClip FetchClip()
         {
             var controller = animator.runtimeAnimatorController as AnimatorController;
-            //find the clip of the state 
+            //find the clip of the state
             if (controller == null)
             {
                 Debug.LogError("找不到AnimatorController");
@@ -665,7 +664,7 @@ namespace MonoFSM.Animation
             EditorApplication.ExecuteMenuItem("Window/General/Hierarchy");
             Selection.activeObject = animator.gameObject;
             var animationWindow = EditorWindow.GetWindow<AnimationWindow>(false);
-
+// AnimatorHelper.EditClip(_lastEditState.BindAnimator, _lastEditState.Clip);
             //TODO:選不到.. state和clip不會對上？
 
             // var clip = animator.GetCurrentAnimatorClipInfo(stateLayer)[0].clip;
@@ -752,7 +751,7 @@ namespace MonoFSM.Animation
         // {
         //     //想要留著動畫的狀態，這個是不是也來不及？
         //     animator.keepAnimatorStateOnDisable = true;
-        //     
+        //
         // }
         // public ITransitionCheckingTarget ValueChangedTarget => doneEventTransition;
         public void OnEnterRender() //transition更早就判定？導致done錯了？
@@ -835,7 +834,7 @@ namespace MonoFSM.Animation
             }
 
             //FIXME: 完全知道動畫多久，可以預判播完的時間然後去下一個state，就可以functional?
-            //包子 Cross Fade 不能一直跑 （議會小電梯）    
+            //包子 Cross Fade 不能一直跑 （議會小電梯）
             if (animator.isActiveAndEnabled && animatorEnterCrossFade <= 0)
                 animator.Play(StateHash, stateLayer);
 

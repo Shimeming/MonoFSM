@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c04251230671b427c952ae00fb192c5e, type: 3}
   m_Name: AttachToObj
   m_EditorClassIdentifier: 
-  _variableTypeTag: {fileID: 11400000, guid: 16dfe2a501ec14e6196d75bc89abf190, type: 2}
+  _variableTypeTag: {fileID: 0}
   _valueTypeTag: {fileID: 0}
   Note: 
   _variableType:

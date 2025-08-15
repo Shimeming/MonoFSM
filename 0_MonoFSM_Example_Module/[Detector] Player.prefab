@@ -102,7 +102,7 @@ GameObject:
   - component: {fileID: 1056858906320765754}
   - component: {fileID: 8406567234117672876}
   m_Layer: 0
-  m_Name: Player Detector
+  m_Name: '[Dealer] Player InRange Detect'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -137,7 +137,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 788128e4eeab4d919bfc3a6cec2e5567, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  EffectType: {fileID: 11400000, guid: 2795990079c9849ccb77b99d120be1db, type: 2}
+  _effectType: {fileID: 11400000, guid: 2795990079c9849ccb77b99d120be1db, type: 2}
 --- !u!1 &2642439091165249996
 GameObject:
   m_ObjectHideFlags: 0
@@ -183,6 +183,73 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa82abf85eb6445da5e22aebfe5e620e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &2720062987837104226
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4762705598296270053}
+  - component: {fileID: 2668181676604004651}
+  - component: {fileID: 2311110646634786696}
+  m_Layer: 0
+  m_Name: '[DetectionSource] TriggerDetector'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4762705598296270053
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2720062987837104226}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2897568678841292412}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2668181676604004651
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2720062987837104226}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7eb67c483d4c4d629abd2b71e070f59e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _detector: {fileID: 2799850579181456140}
+--- !u!65 &2311110646634786696
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2720062987837104226}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &3744698031215929389
 GameObject:
   m_ObjectHideFlags: 0
@@ -324,10 +391,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2897568678841292412}
-  - component: {fileID: 3492560789353915584}
-  - component: {fileID: 6897908958605213675}
+  - component: {fileID: 2799850579181456140}
   m_Layer: 0
-  m_Name: Player Detector Trigger
+  m_Name: '[Detector] Player'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -346,32 +412,12 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 4762705598296270053}
   - {fileID: 1056858906320765754}
   - {fileID: 5316252796146443645}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &3492560789353915584
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5807005196674357399}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &6897908958605213675
+--- !u!114 &2799850579181456140
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -380,10 +426,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5807005196674357399}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7eb67c483d4c4d629abd2b71e070f59e, type: 3}
+  m_Script: {fileID: 11500000, guid: e87349a89f8f4018ae67f58fda6a64dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  HittingLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  virtualDetector: {fileID: 0}
+  _designName: Player

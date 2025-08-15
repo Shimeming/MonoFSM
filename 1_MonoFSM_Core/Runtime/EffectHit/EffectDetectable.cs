@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Detection;
+using MonoFSM.Foundation;
 using MonoFSM.Variable.Attributes;
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;
@@ -19,7 +20,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
     [DisallowMultipleComponent]
     //空間中的物件，可以被偵測到, 基本上會有collider或是collider2D
     //從Detector過來
-    public class EffectDetectable : MonoBehaviour, IDefaultSerializable //關係
+    public class EffectDetectable : AbstractDescriptionBehaviour, IDefaultSerializable //關係
     {
         [CompRef]
         [AutoChildren]
@@ -79,5 +80,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
 
             toRemoves.Clear();
         }
+
+        protected override string DescriptionTag => "Detection Target";
     }
 }

@@ -9,6 +9,7 @@ namespace MonoFSM_Physics.Runtime
     //從某個VarMono拿到Prefab上的某個Component
 
 
+    [Obsolete("用ValueProvider")]
     public abstract class CompProviderFromVarMono<T> : MonoBehaviour, ICompProvider<T> where T : Component
     {
         [FormerlySerializedAs("_varBlackboard")] [FormerlySerializedAs("_varMono")]
@@ -32,6 +33,7 @@ namespace MonoFSM_Physics.Runtime
         public string Description => _varEntity != null ? "[VarMono]" + _varEntity.name : "No VarMono assigned";
     }
 
+    //FIXME: 對方自己應該要宣告Rigidbody variable?
     public class RigidBodyFromVarMono : CompProviderFromVarMono<Rigidbody>
     {
     }

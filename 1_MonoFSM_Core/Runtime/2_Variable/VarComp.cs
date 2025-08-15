@@ -1,5 +1,4 @@
 using System;
-
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -11,6 +10,7 @@ namespace MonoFSM.Variable
     //沒用的東西！
     public class VarComp : GenericUnityObjectVariable<Component>
     {
+        //FIXME: isConst時要Required? 怎麼在 AbstractDescriptionBehaviour 檢查？
         [FormerlySerializedAs("_siblingValue")]
         [Header("預設值")]
         [SerializeField]
@@ -30,6 +30,7 @@ namespace MonoFSM.Variable
         // [Header("預設值")] [HideIf(nameof(_siblingDefaultValue))] [SerializeField]
         // protected Component _defaultValue;
 
+        
 
         protected override Component DefaultValue =>
             _siblingDefaultValue != null ? _siblingDefaultValue : _defaultValue;

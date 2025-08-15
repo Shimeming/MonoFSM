@@ -127,9 +127,24 @@ namespace MonoFSM.Core.Detection
             if (IsValid == false) //條件不符合
                 return "Detector is not valid";
             //理論上不該打到別的東西，layer就擋掉了才對 (有分layer的話)
-            if (!other.TryGetComponent<BaseEffectDetectTarget>(out var spatialDetectable))
+
+            //FIXME: 往parent找？ gc問題？
+
+            if (other.TryGetComponent<BaseEffectDetectTarget>(out var spatialDetectable))
             {
-                Debug.LogError(other.name + " is not a EffectDetectable" + other.gameObject.layer,
+                // Debug.LogError(other.name + " is not a EffectDetectable" + other.gameObject.layer,
+                //     other);
+                // return "not a BaseEffectDetectTarget";
+            }
+            else
+            {
+                spatialDetectable = other.GetComponentInParent<BaseEffectDetectTarget>();
+            }
+
+            if (spatialDetectable == null)
+            {
+                Debug.LogError(
+                    other.name + " is not a BaseEffectDetectTarget" + other.gameObject.layer,
                     other);
                 return "not a BaseEffectDetectTarget";
             }

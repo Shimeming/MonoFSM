@@ -52,8 +52,11 @@ namespace _1_MonoFSM_Core.Runtime.Action.VariableAction
         private bool ShowTypeInfo => GetTargetVariable() != null && _sourceValueProvider != null &&
                                      ValidateValueType(GetTargetVariable(), _sourceValueProvider);
 
+        //FIXME:
         private AbstractMonoVariable GetTargetVariable()
         {
+            if (!Application.isPlaying)
+                return null;
             // if (_localVar != null)
             //     return _localVar;
             return _targetVarProvider?.GetVar<AbstractMonoVariable>();
@@ -98,9 +101,9 @@ namespace _1_MonoFSM_Core.Runtime.Action.VariableAction
         {
             get
             {
-                var targetVar = GetTargetVariable();
-                if (targetVar == null)
-                    return "SetVarAction: No Target Variable";
+                // var targetVar = GetTargetVariable();
+                // if (targetVar == null)
+                //     return "SetVarAction: No Target Variable";
                 if (_sourceValueProvider == null)
                     return "SetVarAction: No Source Value Provider";
 

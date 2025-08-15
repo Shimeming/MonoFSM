@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using _1_MonoFSM_Core.Runtime.FSMCore.Core.StateBehaviour;
 using Fusion.Addons.FSM;
+using MonoFSM_Core.Runtime.StateBehaviour;
+using MonoFSM.Editor;
 using MonoFSM.Variable.Attributes;
 using UnityEngine;
 #if UNITY_EDITOR
-using MonoFSM.Editor;
 #endif
 
 namespace MonoFSM.Core
@@ -22,6 +23,9 @@ namespace MonoFSM.Core
         public float StateTime => _localStateTime;
         private float _localStateTime;
         [AutoParent] protected StateMachineLogic _context;
+
+        [CompRef] [AutoChildren(DepthOneOnly = true)]
+        private CanEnterNode _canEnterNode;
         public float DeltaTime => _context.DeltaTime;
         //  PRIVATE MEMBERS
 
@@ -74,7 +78,9 @@ namespace MonoFSM.Core
 
         protected virtual bool CanEnterState()
         {
-            return true;
+            if (_canEnterNode == null)
+                return true;
+            return _canEnterNode.IsValid;
         }
 
         protected virtual bool CanExitState(TState nextState)
@@ -116,7 +122,7 @@ namespace MonoFSM.Core
         {
             // Traditional Handler approach
             _onStateUpdate?.EventHandle();
-            
+
             // New LifeCycleHandler approach
             if (_lifeCycleHandlers != null)
             {
@@ -126,7 +132,7 @@ namespace MonoFSM.Core
                         handler.TriggerStateUpdate();
                 }
             }
-            
+
             _localStateTime += DeltaTime;
             if (_transitions != null)
                 foreach (var t in _transitions)
@@ -136,8 +142,8 @@ namespace MonoFSM.Core
                     if (CanTransition(ref t._transitionData) == true)
                     {
                         // Debug.Log($"[{Name}] ForceActivateState to {transition.TargetState.Name}", this);
-                        Machine.ForceActivateState(t.TargetState);
-                        return;
+                        if (Machine.TryActivateState(t.TargetState))
+                            return;
                     }
                 }
 
@@ -173,10 +179,10 @@ namespace MonoFSM.Core
         {
             _localStateTime = 0f;
             OnEnterState();
-            
+
             // Traditional Handler approach
             _onStateEnter?.EventHandle();
-            
+
             // New LifeCycleHandler approach
             if (_lifeCycleHandlers != null)
             {
@@ -186,7 +192,7 @@ namespace MonoFSM.Core
                         handler.TriggerStateEnter();
                 }
             }
-            
+
 #if UNITY_EDITOR
             EditorFsmEventManager.NotifyStateChanged(Machine.Logic);
 #endif
@@ -195,10 +201,10 @@ namespace MonoFSM.Core
         void IState.OnExitState()
         {
             OnExitState();
-            
+
             // Traditional Handler approach
             _onStateExit?.EventHandle();
-            
+
             // New LifeCycleHandler approach
             if (_lifeCycleHandlers != null)
             {
@@ -218,7 +224,7 @@ namespace MonoFSM.Core
                 if (renderAction.isActiveAndEnabled)
                     renderAction.OnEnterRender();
             }
-                
+
         }
 
         void IState.OnRender()
@@ -260,6 +266,7 @@ namespace MonoFSM.Core
             // if (transition.IsForced == true)
             //     return true;
 
+            //FIXME: 這裡也判了？
             if (CanExitState(transition.TargetState) == false)
                 return false;
 

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Rigidbody
   m_EditorClassIdentifier: 
   _variableTypeTag: {fileID: 0}
-  _valueTypeTag: {fileID: 0}
+  _valueTypeTag: {fileID: 11400000, guid: 193bb5ec14f224b71a9439320fbb33ff, type: 2}
   Note: 
   _variableType:
     _bindObject: {fileID: 11400000}

@@ -1,10 +1,11 @@
 using System;
-using MonoFSMCore.Runtime.LifeCycle;
-using UnityEngine;
-using Object = UnityEngine.Object;
-using Sirenix.OdinInspector;
 using MonoFSM.Core.Attributes;
+using MonoFSMCore.Runtime.LifeCycle;
+using Sirenix.OdinInspector;
+using UnityEditor;
+using UnityEngine;
 using UnityEngine.Serialization;
+using Object = UnityEngine.Object;
 
 
 namespace MonoFSM.Variable
@@ -21,6 +22,12 @@ namespace MonoFSM.Variable
     public abstract class GenericUnityObjectVariable<TValueType> : AbstractObjectVariable, ISettable<TValueType>,
         IResetStateRestore where TValueType : Object
     {
+        protected override void Awake()
+        {
+            base.Awake();
+            _currentValue = DefaultValue;
+        }
+
         public override bool IsValueExist => _currentValue != null;
         // public UnityAction<TValueType> OnValueChanged;
         //
@@ -170,7 +177,7 @@ namespace MonoFSM.Variable
             {
                 _defaultValue = value as TValueType;
 #if UNITY_EDITOR
-                UnityEditor.EditorUtility.SetDirty(this);
+                EditorUtility.SetDirty(this);
 #endif
             }
         }
@@ -180,7 +187,7 @@ namespace MonoFSM.Variable
         public void ResetStateRestore()
         {
             //這裡才做會不會太晚？
-            if (_isConst)
+            if (_isConst) //FIXME: 怪怪的？
                 return;
             SetValueExecution(DefaultValue, this);
         }

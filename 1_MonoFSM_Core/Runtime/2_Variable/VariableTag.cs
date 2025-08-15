@@ -47,7 +47,6 @@ namespace MonoFSM.Variable
         public VarMonoTypeTag _variableTypeTag;
 
         [SOConfig("objectValueTypeTags")]
-        [TypeRestrictFilter]
         // [FormerlySerializedAs("_valueTypeData")]
         public ValueTypeTag _valueTypeTag;
 

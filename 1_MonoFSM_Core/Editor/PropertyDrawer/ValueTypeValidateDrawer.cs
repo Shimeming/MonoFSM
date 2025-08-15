@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using MonoFSM.Core.DataProvider;
 using MonoFSM.Runtime.Attributes;
@@ -37,8 +38,10 @@ namespace MonoFSM.Core.Editor
             }
 
             var provider = Property.ValueEntry?.WeakSmartValue as IValueProvider;
-            if (provider == null)
+            // Debug.Log("provider" + Property.Name + (provider == null) + provider.ValueType);
+            if (provider == null || provider.ValueType == null)
             {
+
                 DisplayErrorAndCallNextDrawer(GetProviderErrorMessage(), label);
                 return;
             }
@@ -68,9 +71,9 @@ namespace MonoFSM.Core.Editor
                     .GetType()
                     .GetMethod(
                         Attribute.ConditionalMethod,
-                        System.Reflection.BindingFlags.Instance
-                            | System.Reflection.BindingFlags.Public
-                            | System.Reflection.BindingFlags.NonPublic
+                        BindingFlags.Instance
+                        | BindingFlags.Public
+                        | BindingFlags.NonPublic
                     );
 
                 if (method == null)

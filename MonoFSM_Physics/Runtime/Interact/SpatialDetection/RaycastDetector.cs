@@ -42,7 +42,14 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
 
             foreach (var obj in _toExit)
             {
-                _detector.OnDetectExitCheck(obj);
+                if (_toExit == null)
+                {
+                    //FIXME: ?
+                }
+                else
+                {
+                    _detector.OnDetectExitCheck(obj);
+                }
             }
             _toExit.Clear();
         }

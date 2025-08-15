@@ -1,35 +1,45 @@
+using MonoFSM.Core;
 using MonoFSM.Core.DataProvider;
-using MonoFSM.Core.Runtime.Action;
-using MonoFSM.Runtime;
 using MonoFSM.Runtime.Attributes;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace _1_MonoFSM_Core.Runtime.Action.TransformAction
 {
-    //TODO: abstract化兩個Entity之間的作用
-    public class SetTransformParentAction : AbstractStateAction
+    //FIXME: state exit要收回 (對稱性)
+    public class SetTransformParentAction : AbstractStateLifeCycleHandler
     {
-        // public Transform _target;
+        private Transform _oriParent; //FIXME: 不對..
 
-        [ValueTypeValidate(typeof(MonoEntity))]
+        // public Transform _target;
+        public override string Description =>
+            $"Set {_sourceValueProvider?.Description} as child of {_targetValueProvider?.Description}";
+
+        [ValueTypeValidate(typeof(Transform))]
         [DropDownRef]
-        public ValueProvider _sourceValueProvider;
+        public ValueProvider _sourceValueProvider; //FIXME: missing的時候validate有問題捏
+
+
+        // public ValueProvider<Transform> Test; //FIXME: 感覺錯了
 
         // public VarCompProviderRef _targetVarRef; //拿到rigidbody的話，再拿transform
-        [ValueTypeValidate(typeof(MonoEntity))] //FIXME: validation沒有辦法提示嗎
+        [ValueTypeValidate(typeof(Transform))] //FIXME: validation沒有辦法提示嗎
         [DropDownRef]
         public ValueProvider _targetValueProvider;
 
-        protected override void OnActionExecuteImplement()
+
+        protected override void OnStateEnter()
         {
-            var targetEntity = _targetValueProvider.Get<MonoEntity>();
+            base.OnStateEnter();
+            var targetEntity = _targetValueProvider.Get<Transform>();
             // var comp = _targetVarRef.Value;
             // if (comp == null)
             // {
             //     Debug.LogError("Target component is null. Cannot set parent.", this);
             //     return;
             // }
-            var sourceTransform = _sourceValueProvider.Get<MonoEntity>().transform;
+            var sourceTransform = _sourceValueProvider.Get<Transform>().transform;
+            _oriParent = sourceTransform.parent; //記錄原本的parent
             var targetTransform = targetEntity?.transform;
             // _sourceValueProvider.Get<MonoEntity>().transform.SetParent(targetEntity.transform);
             if (targetTransform == null)
@@ -45,6 +55,26 @@ namespace _1_MonoFSM_Core.Runtime.Action.TransformAction
             }
 
             sourceTransform.SetParent(targetTransform);
+        }
+
+        protected override void OnStateExit()
+        {
+            base.OnStateExit();
+            var sourceTransform = _sourceValueProvider.Get<Transform>().transform;
+            sourceTransform.SetParent(_oriParent);
+        }
+
+        // protected override void OnActionExecuteImplement()
+        // {
+        //
+        // }
+
+        [Button]
+        public void SwitchSourceAndTarget()
+        {
+            //交換source和target
+            (_sourceValueProvider, _targetValueProvider) =
+                (_targetValueProvider, _sourceValueProvider);
         }
     }
 }

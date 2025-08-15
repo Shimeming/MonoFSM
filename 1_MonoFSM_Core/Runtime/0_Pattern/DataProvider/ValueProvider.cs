@@ -4,15 +4,24 @@ using Cysharp.Text;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Runtime;
 using MonoFSM.Core.Utilities;
+using MonoFSM.EditorExtension;
 using MonoFSM.Runtime;
 using MonoFSM.Variable;
-using MonoFSM.EditorExtension;
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;
 using UnityEngine;
 
 namespace MonoFSM.Core.DataProvider
 {
+    public class ValueProvider<T> : ValueProvider
+    {
+        public override Type ValueType => typeof(T);
+
+        public T Get()
+        {
+            return Get<T>();
+        }
+    }
     //用這顆就夠了，其他應該都不需要了？除了literal
     public class ValueProvider : AbstractVariableProviderRef, IOverrideHierarchyIcon, IHierarchyValueInfo
     {
@@ -20,7 +29,7 @@ namespace MonoFSM.Core.DataProvider
         // [SerializeField] ValueProvider _valueProviderRef;
         //Entity?
         // [DropDownRef] [SerializeField] private ValueProvider _valueProviderRef; //還是是entity想要Ref?
-        
+
         [PropertyOrder(-1)]
         [BoxGroup("varTag")]
         [ShowInInspector]
@@ -34,7 +43,7 @@ namespace MonoFSM.Core.DataProvider
                     Debug.LogError("VarRef: Cannot set varTag in play mode. Please set it in edit mode.", this);
                     return;
                 }
-                    
+
                 _varTag = value;
             }
             //only editor Set? 另外開？
@@ -51,7 +60,7 @@ namespace MonoFSM.Core.DataProvider
                     // Debug.LogError("EntityProvider has no entity tag, returning empty variable tags.", this);
                     return new List<ValueDropdownItem<VariableTag>>();
                 }
-                    
+
 
             return entityProvider?.entityTag?.GetVariableTagItems() ?? ParentEntity?.GetVarTagOptions();
         }
@@ -75,8 +84,8 @@ namespace MonoFSM.Core.DataProvider
         // }
 
         //代表這個ValueProvider可以拿到對應的AbstractMonoVariable
-      
-        
+
+
         [ShowInPlayMode]
         public override AbstractMonoVariable VarRaw //可以去拿MonoEntity的資料？而不是一定要透過Var?
         {
@@ -151,21 +160,17 @@ namespace MonoFSM.Core.DataProvider
                 {
                     // Debug.Log($"VarRef: Using declaration name: {DeclarationName}", this);
                     stringBuilder.Append(DeclarationName);
-                    stringBuilder.Append(".");
+                    // stringBuilder.Append(".");
                 }
-
-                // var text = PropertyPath;
-                // if (VarRaw != null)
-                //     return $"{VarRaw.name}.{text}";
-
-                // Debug.Log("VarRef: VarRaw is null, using entityProvider and varTag to build description.", this);
                 if (entityProvider != null && entityProvider.entityTag != null)
                 {
                     // stringBuilder.Append(entityProvider.GetType());
                     // Debug.Log($"VarRef: EntityProvider found: {entityProvider.entityTag}", this);
+                    stringBuilder.Append("(");
                     stringBuilder.Append(entityProvider.entityTag.name.Split("_")[^1]);
+                    stringBuilder.Append(")");
                 }
-                    
+
                 // stringBuilder.Append('.');
                 if (varTag != null)
                 {
@@ -183,7 +188,7 @@ namespace MonoFSM.Core.DataProvider
                 // final = final.Replace("_", " ");
                 return final;
             }
-            
+
         }
 
         // public override AbstractMonoVariable VarRaw => _monoVariable;
@@ -192,7 +197,7 @@ namespace MonoFSM.Core.DataProvider
         public override Type ValueType =>
             HasFieldPath
                 ? lastPathEntryType
-                : 
+                :
                 //GetTarget()?.ValueType ??
                   varTag?.ValueType ?? entityProvider?.entityTag?.RestrictType ?? typeof(MonoEntity);
 
@@ -212,7 +217,7 @@ namespace MonoFSM.Core.DataProvider
                 return "Unknown";
             }
         }
-        
+
         //FIXME: 型別有可能和實際不符合嗎？
         //選了VarRaw.Value後反而變成原本的type...這樣外面就沒有提示了
 
@@ -224,14 +229,15 @@ namespace MonoFSM.Core.DataProvider
                     return entityProvider.monoEntity;
                 return ParentEntity;
             }
+
             return VarRaw;
         }
 
 
-        // public override Type GetValueType => 
+        // public override Type GetValueType =>
         [PropertyOrder(-1)]
         [PreviewInInspector]
-        public override Type GetObjectType //FIXME: 
+        public override Type GetObjectType //FIXME:
         {
             get
             {
@@ -248,13 +254,18 @@ namespace MonoFSM.Core.DataProvider
                 return typeof(object); // 如果沒有找到目標，返回 object 類型
             }
         }
-        
+
         public override VariableTag varTag => _varTag;
 
         public override TVariable GetVar<TVariable>()
         {
             if (VarRaw is TVariable variable) return variable;
-            throw new InvalidCastException($"Cannot cast {VarRaw.GetType()} to {typeof(TVariable)}");
+            if (VarRaw == null)
+                throw new NullReferenceException("VarRaw is null, cannot cast to " +
+                                                 typeof(TVariable));
+            else
+                throw new InvalidCastException(
+                    $"Cannot cast {VarRaw.GetType()} to {typeof(TVariable)}");
         }
 
         public override T1 Get<T1>()
