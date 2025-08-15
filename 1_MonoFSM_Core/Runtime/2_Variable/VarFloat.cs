@@ -1,7 +1,8 @@
-using MonoFSM.EditorExtension;
-using UnityEngine;
 using MonoFSM.Core.Attributes;
+using MonoFSM.EditorExtension;
 using MonoFSM.Variable.FieldReference;
+using UnityEditor;
+using UnityEngine;
 
 //CountdownTimer...直接掛在這個下面？
 namespace MonoFSM.Variable
@@ -14,8 +15,9 @@ namespace MonoFSM.Variable
     public class VarFloat : GenericMonoVariable<GameDataFloat, FlagFieldFloat, float>, ISerializedFloatValue,
         IHierarchyValueInfo
     {
+
         public bool IsDirty => CurrentValue != LastValue; //這樣只會一個frame耶？完全不用resolve啊...?
-        //FIXME: 需要一個reset value source? 回到maxValue or minValue之類的...? 
+        //FIXME: 需要一個reset value source? 回到maxValue or minValue之類的...?
         // public override GameFlagBase FinalData => BindData;
 
         // public VariableTag Key => _varTag;
@@ -29,17 +31,18 @@ namespace MonoFSM.Variable
 
         [FormerlyNamedAs("MaxTest")] public float Max => _boundModifier ? _boundModifier.MaxValue : float.MaxValue;
 
-    
+
         public override void OnBeforePrefabSave()
         {
             base.OnBeforePrefabSave();
             if (_boundModifier != null)
             {
+                Field.ResetToDefault();
                 _boundModifier.EditorBoundCheck(ref Field.ProductionValue);
                 _boundModifier.EditorBoundCheck(ref Field.DevValue);
                 Debug.Log($"VarFloat OnBeforePrefabSave: Min={Min}, Max={Max}, CurrentValue={CurrentValue}", this);
 #if UNITY_EDITOR
-                UnityEditor.EditorUtility.SetDirty(this);
+                EditorUtility.SetDirty(this);
 #endif
             }
         }
@@ -62,7 +65,7 @@ namespace MonoFSM.Variable
             if (currentValue < lastValue) _lastDecreasingTime = Time.time; //FIXME: 還是要往上問？
         }
 
-        
+
         [ShowInDebugMode]
         public bool IsIncreasing => CurrentValue > LastValue;
 
@@ -79,7 +82,7 @@ namespace MonoFSM.Variable
         // }
         // public float Value => CurrentValue;
 
-        public string ValueInfo => CurrentValue.ToString();
+        public string ValueInfo => CurrentValue.ToString() ?? "";
         public bool IsDrawingValueInfo => true;
 
         public override bool IsValueExist => CurrentValue != 0f;

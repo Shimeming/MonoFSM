@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using _1_MonoFSM_Core.Runtime.Attributes;
-// using MonoFSM.Runtime.Mono;
-// using MonoFSM.Variable;
+using MonoFSM.Core.Editor.Utility;
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
 using UnityEditor;
 using UnityEngine;
+// using MonoFSM.Core.Editor.Utility;
 using Object = UnityEngine.Object;
 
 namespace MonoFSM.Core.Editor
@@ -196,32 +196,8 @@ namespace MonoFSM.Core.Editor
 
         private IEnumerable<ScriptableObject> GetFilteredOptions()
         {
-            var sw = System.Diagnostics.Stopwatch.StartNew();
             var searchFilter = _filterAttribute.GetAssetSearchFilter(_propertyType);
-
-            var guids = AssetDatabase.FindAssets(searchFilter);
-            var results = new List<ScriptableObject>(guids.Length);
-            Debug.Log(
-                "[TypeRestrictFilteredSelector] GetFilteredOptions: Found "
-                    + guids.Length
-                    + " assets matching filter: "
-                    + _filterAttribute.GetAssetSearchFilter(_propertyType)
-            );
-            for (int i = 0; i < guids.Length; i++)
-            {
-                var path = AssetDatabase.GUIDToAssetPath(guids[i]);
-                //FIXME: 不該load? 這樣有點貴
-                var asset = AssetDatabase.LoadAssetAtPath<ScriptableObject>(path);
-                if (asset != null && ValidateAsset(asset))
-                {
-                    results.Add(asset);
-                }
-            }
-            sw.Stop();
-            Debug.Log(
-                $"[TypeRestrictFilteredSelector] GetFilteredOptions: Found {results.Count} valid assets in {sw.ElapsedMilliseconds} ms."
-            );
-            return results;
+            return SOUtility.GetFilteredAssets<ScriptableObject>(searchFilter, ValidateAsset);
         }
 
         private bool ValidateAsset(ScriptableObject asset)

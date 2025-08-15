@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 785423ef48c144f7b03fd3b000a8bc85, type: 3}
-  m_Name: '[Type]_Rigidbody'
+  m_Name: '[Type] Rigidbody'
   m_EditorClassIdentifier: 
   _type:
     _bindObject: {fileID: 0}

@@ -72,12 +72,109 @@ public class VariableFolder : MonoDict<VariableTag, AbstractMonoVariable>
     // }
 #if UNITY_EDITOR
 
-
     // [Button]
     public VarBool CreateVariableBool()
     {
         var varBool = gameObject.AddChildrenComponent<VarBool>("[Variable] flag");
         return varBool;
+    }
+
+    /// <summary>
+    /// 創建指定類型的變數
+    /// </summary>
+    /// <typeparam name="TVariable">變數類型，必須繼承自 AbstractMonoVariable</typeparam>
+    /// <param name="tagName">變數的標籤名稱</param>
+    /// <returns>創建的變數實例</returns>
+    public TVariable CreateVariable<TVariable>(string tagName) where TVariable : AbstractMonoVariable
+    {
+        var variable = gameObject.AddChildrenComponent<TVariable>($"[Var] {tagName}");
+        
+        // 這裡可以進一步設定 VariableTag，如果有需要的話
+        // variable._varTag = FindOrCreateVariableTag(tagName);
+        
+        return variable;
+    }
+
+    /// <summary>
+    /// 創建變數的通用方法
+    /// </summary>
+    /// <param name="variableType">變數類型</param>
+    /// <param name="tagName">變數的標籤名稱</param>
+    /// <returns>創建的變數實例</returns>
+    public AbstractMonoVariable CreateVariable(System.Type variableType, string tagName)
+    {
+        if (!typeof(AbstractMonoVariable).IsAssignableFrom(variableType))
+        {
+            Debug.LogError($"類型 {variableType} 不是 AbstractMonoVariable 的子類別");
+            return null;
+        }
+        
+        var childGameObject = new GameObject($"[Var] {tagName}");
+        childGameObject.transform.SetParent(transform);
+        
+        var variable = childGameObject.AddComponent(variableType) as AbstractMonoVariable;
+        
+        // 這裡可以進一步設定 VariableTag，如果有需要的話
+        // variable._varTag = FindOrCreateVariableTag(tagName);
+        
+        return variable;
+    }
+
+    /// <summary>
+    /// 根據 VariableTag 創建變數
+    /// </summary>
+    /// <typeparam name="TVariable">變數類型，必須繼承自 AbstractMonoVariable</typeparam>
+    /// <param name="tag">要綁定的 VariableTag</param>
+    /// <returns>創建的變數實例</returns>
+    public TVariable CreateVariableWithTag<TVariable>(VariableTag tag) where TVariable : AbstractMonoVariable
+    {
+        if (tag == null)
+        {
+            Debug.LogError("VariableTag 不能為 null");
+            return null;
+        }
+
+        var variable = gameObject.AddChildrenComponent<TVariable>($"[Var] {tag.name}");
+        
+        // 設定變數的 tag
+        variable._varTag = tag;
+        
+        Debug.Log($"已創建變數 {typeof(TVariable).Name} 並綁定到 VariableTag: {tag.name}", variable);
+        
+        return variable;
+    }
+
+    /// <summary>
+    /// 根據 VariableTag 創建變數（非泛型版本）
+    /// </summary>
+    /// <param name="variableType">變數類型</param>
+    /// <param name="tag">要綁定的 VariableTag</param>
+    /// <returns>創建的變數實例</returns>
+    public AbstractMonoVariable CreateVariableWithTag(System.Type variableType, VariableTag tag)
+    {
+        if (!typeof(AbstractMonoVariable).IsAssignableFrom(variableType))
+        {
+            Debug.LogError($"類型 {variableType} 不是 AbstractMonoVariable 的子類別");
+            return null;
+        }
+        
+        if (tag == null)
+        {
+            Debug.LogError("VariableTag 不能為 null");
+            return null;
+        }
+        
+        var childGameObject = new GameObject($"[Var] {tag.name}");
+        childGameObject.transform.SetParent(transform);
+        
+        var variable = childGameObject.AddComponent(variableType) as AbstractMonoVariable;
+        
+        // 設定變數的 tag
+        variable._varTag = tag;
+        
+        Debug.Log($"已創建變數 {variableType.Name} 並綁定到 VariableTag: {tag.name}", variable);
+        
+        return variable;
     }
 #endif
     protected override void AddImplement(AbstractMonoVariable item)

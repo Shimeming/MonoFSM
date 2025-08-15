@@ -39,8 +39,8 @@ namespace MonoFSM.Core
         /// </summary>
         public virtual void EventHandle()
         {
-            if (!isActiveAndEnabled)
-                return;
+            // if (!isActiveAndEnabled) //FIXME: 打開的瞬間，我還沒打開？
+            //     return;
             _lastEventHandledTime = Time.time;
             foreach (var eventReceiver in _eventReceivers)
             {
@@ -74,7 +74,7 @@ namespace MonoFSM.Core
                     eventReceiver.EventReceived();
                 }
             }
-                
+
         }
     }
 }

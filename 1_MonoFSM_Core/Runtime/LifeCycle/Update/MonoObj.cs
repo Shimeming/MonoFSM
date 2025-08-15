@@ -14,7 +14,7 @@ namespace MonoFSMCore.Runtime.LifeCycle
     public interface IMonoObjectProvider : ICompProvider<MonoObj> //FIXME:這個不是很好...trace不到，最好還是都過一層？
     {
         //FIXME: 需要提供 EntityTag嗎？還是說MonoPoolObj就有EntityTag了？那從 bindPrefab就要有EntityTag
-        
+
         //這個是給MonoPoolObj用的
         // MonoPoolObj GetMonoObject();
     }
@@ -54,12 +54,13 @@ namespace MonoFSMCore.Runtime.LifeCycle
     [FormerlyNamedAs("MonoPoolObj")]
     public sealed class MonoObj : MonoBehaviour, IPrefabSerializeCacheOwner
     {
+        // public
         //寫一個show error的Attribute，然後在這裡用
         [InfoBox("WorldUpdateSimulator is required for MonoPoolObj to function properly",InfoMessageType.Error,nameof(RuntimeCheckNoWorldUpdateSimulator))]
         [ShowInDebugMode]
         public WorldUpdateSimulator WorldUpdateSimulator { get; set; }
         bool RuntimeCheckNoWorldUpdateSimulator => WorldUpdateSimulator == null && Application.isPlaying;
-        
+
         public void Despawn()
         {
             if (WorldUpdateSimulator == null)
@@ -77,7 +78,7 @@ namespace MonoFSMCore.Runtime.LifeCycle
             //play mode 被刪掉要怎麼處理？
         }
 
-        [PreviewInInspector] [AutoChildren] private ISceneAwake[] _sceneAwakes; 
+        [PreviewInInspector] [AutoChildren] private ISceneAwake[] _sceneAwakes;
         [PreviewInInspector][AutoChildren] private ISceneStart[] _sceneStarts;
         [PreviewInInspector] [AutoChildren] private ISceneDestroy[] _sceneDestroys;
         [PreviewInInspector][AutoChildren] private IResetStateRestore[] _resetStateRestores;
@@ -110,7 +111,7 @@ namespace MonoFSMCore.Runtime.LifeCycle
             ResetStateRestore();
             ResetStart();
         }
-        
+
         public void SceneAwake(WorldUpdateSimulator world) //可以自己sceneＡwake吧？
         {
             WorldUpdateSimulator = world;
@@ -119,7 +120,7 @@ namespace MonoFSMCore.Runtime.LifeCycle
             HandleIAwake();
             //這可以嗎？
             HandleIInstantiated(world); //和IAwake合併？
-            
+
         }
 
         //FIXME: 想把這個拿掉

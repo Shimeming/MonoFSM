@@ -11,17 +11,19 @@ using UnityEngine;
 
 namespace MonoFSM.Core.LifeCycle
 {
+    public interface IPreSpawnAction
+    {
+        public void PreSpawn(MonoObj obj, Vector3 position, Quaternion rotation);
+    }
     //重寫FXPlayer
     public class
         SpawnAction : AbstractStateAction<GeneralEffectHitData>, IMonoObjectProvider //ICompProvider<MonoPoolObj>
     {
-        //崩潰..Prefab和Runtime混在一起耶，所以拿Var比較好？但實際上不是啊...
-        // [CompRef] [AutoChildren(DepthOneOnly = true)]
-        // private ICompProvider<MonoPoolObj> _targetVarProvider; //使用VarPoolObj來存儲目標物件
-
+        //FIXME: 下面要有各種preProcess action?
         [Required] [CompRef] [AutoChildren(DepthOneOnly = true)] [ValueTypeValidate(typeof(MonoObj))]
         private ValueProvider _poolObjProvider; //使用VarPoolObj來存儲目標物件
 
+        [CompRef] [AutoChildren] private IPreSpawnAction[] _preSpawnActions;
         //檢查？SerializeClass的話？
 
         //型別篩選 vs attribute篩選？
@@ -41,7 +43,7 @@ namespace MonoFSM.Core.LifeCycle
             Spawn(Prefab, transform.position, transform.rotation);
 
             //on spawn要怎麼吃action?
-            
+
         }
 
         public bool _isUsingSpawnTransformScale;
@@ -78,6 +80,9 @@ namespace MonoFSM.Core.LifeCycle
             //Rotation呢？
             _lastSpawnedObj = newObj;
             _spawnEventHandler?.OnSpawn(newObj, position, rotation);
+
+            foreach (var preSpawnAction in _preSpawnActions)
+                preSpawnAction.PreSpawn(newObj, position, rotation);
         }
 
         // private void OnEnable()

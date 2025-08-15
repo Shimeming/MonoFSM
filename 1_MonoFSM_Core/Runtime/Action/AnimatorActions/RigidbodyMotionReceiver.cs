@@ -1,22 +1,19 @@
+using MonoFSM.Core.Simulate;
 using MonoFSM.EditorExtension;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
 // [RequireComponent(typeof(Rigidbody))]
-public class RigidbodyMotionReceiver : MonoBehaviour, IRootMotionReceiver, IOverrideHierarchyIcon, IDrawHierarchyBackGround, IHierarchyValueInfo
+public class RigidbodyMotionCustomReceiver : MonoBehaviour, IRootMotionReceiver,
+    IOverrideHierarchyIcon, IDrawHierarchyBackGround, IHierarchyValueInfo, IUpdateSimulate
 {
     [Required] [ShowInInspector] [SerializeField]
     private Rigidbody rb;
+
     private Vector3 pendingPosition;
     private Quaternion pendingRotation = Quaternion.identity;
 
-    [Auto]
-    private RootMotionRelay _relay;
-
-    private void Awake()
-    {
-        rb = GetComponent<Rigidbody>();
-    }
+    [Auto] private RootMotionRelay _relay;
 
     public void OnProcessRootMotion(Vector3 deltaPosition, Quaternion deltaRotation)
     {
@@ -26,7 +23,27 @@ public class RigidbodyMotionReceiver : MonoBehaviour, IRootMotionReceiver, IOver
     }
 
     //FIXME: 需要 IUpdateSimulate
-    private void FixedUpdate()
+    // private void FixedUpdate()
+    // {
+    //
+    // }
+
+#if UNITY_EDITOR
+    // IOverrideHierarchyIcon 實作
+    public string IconName => "Rigidbody Icon";
+    public bool IsDrawingIcon => _relay == null; // 只有獨立存在時顯示圖示
+    public Texture2D CustomIcon => null;
+    public bool IsPosAtHead => false; // 圖示在右邊
+
+    // IDrawHierarchyBackGround 實作
+    public Color BackgroundColor => new(0.8f, 0.7f, 0.2f, 0.15f); // 淡黃色
+    public bool IsDrawGUIHierarchyBackground => _relay == null; // 只有獨立存在時顯示背景
+
+    // IHierarchyValueInfo 實作 - 顯示接收狀態
+    public string ValueInfo => "Rigidbody ↰";
+    public bool IsDrawingValueInfo => _relay == null; // 只有獨立存在時顯示文字
+#endif
+    public void Simulate(float deltaTime)
     {
         if (pendingPosition != Vector3.zero || pendingRotation != Quaternion.identity)
         {
@@ -38,19 +55,7 @@ public class RigidbodyMotionReceiver : MonoBehaviour, IRootMotionReceiver, IOver
         }
     }
 
-#if UNITY_EDITOR
-    // IOverrideHierarchyIcon 實作
-    public string IconName => "Rigidbody Icon";
-    public bool IsDrawingIcon => _relay == null; // 只有獨立存在時顯示圖示
-    public Texture2D CustomIcon => null;
-    public bool IsPosAtHead => false; // 圖示在右邊
-
-    // IDrawHierarchyBackGround 實作
-    public Color BackgroundColor => new Color(0.8f, 0.7f, 0.2f, 0.15f); // 淡黃色
-    public bool IsDrawGUIHierarchyBackground => _relay == null; // 只有獨立存在時顯示背景
-
-    // IHierarchyValueInfo 實作 - 顯示接收狀態
-    public string ValueInfo => "Rigidbody ↰";
-    public bool IsDrawingValueInfo => _relay == null; // 只有獨立存在時顯示文字
-#endif
+    public void AfterUpdate()
+    {
+    }
 }
