@@ -1071,6 +1071,59 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa82abf85eb6445da5e22aebfe5e620e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &935353486
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 935353488}
+  - component: {fileID: 935353489}
+  m_Layer: 0
+  m_Name: Ground
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &935353488
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 935353486}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -48.6, y: -11.4, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &935353489
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 935353486}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 300, y: 1, z: 300}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &948632021 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1367788737545227430, guid: 46c1e968a52b24f4f915e407f2ee2622, type: 3}
@@ -2065,7 +2118,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   monoReferenceCache:
     lastUpdateTime:
-      m_ticks: 638906992572656840
+      m_ticks: 638908613822288550
     monoValueCaches:
     - fieldCaches:
       - targetName: (local) SinglePlayer World Simulator
@@ -2188,6 +2241,7 @@ MonoBehaviour:
         - {fileID: 669854965}
         - {fileID: 510033250}
         - {fileID: 408712540}
+        - {fileID: 1729563639}
         - {fileID: 1003567026}
         value: {fileID: 0}
       TargetMb: {fileID: 1598671409}
@@ -3631,6 +3685,7 @@ MonoBehaviour:
         fieldName: _updateSimulates
         valueArray:
         - {fileID: 408712540}
+        - {fileID: 1729563639}
         value: {fileID: 0}
       TargetMb: {fileID: 408712539}
       TargetMbName: General FSM Variant - LockedButton
@@ -4277,6 +4332,16 @@ MonoBehaviour:
         valueArray:
         - {fileID: 1896884998}
         value: {fileID: 0}
+      - targetName: Detector
+        typeName: EffectDetector
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 408712540}
+      - targetName: Detector
+        typeName: EffectDetector
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 408712540}
       TargetMb: {fileID: 1729563639}
       TargetMbName: Detector
     - fieldCaches:
@@ -4300,6 +4365,21 @@ MonoBehaviour:
         fieldName: _optionalRigidbody
         valueArray: []
         value: {fileID: 2085605227}
+      - targetName: TriggerDetector
+        typeName: TriggerDetector
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 408712540}
+      - targetName: TriggerDetector
+        typeName: TriggerDetector
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 408712540}
+      - targetName: TriggerDetector
+        typeName: TriggerDetector
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 408712540}
       TargetMb: {fileID: 2085605229}
       TargetMbName: TriggerDetector
     - fieldCaches:
@@ -4320,6 +4400,11 @@ MonoBehaviour:
         value: {fileID: 931076400}
       - targetName: GeneralEffectDealer
         typeName: GeneralEffectDealer
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 408712540}
+      - targetName: GeneralEffectDealer
+        typeName: GeneralEffectDealer
         fieldName: _parentEntity
         valueArray: []
         value: {fileID: 408712540}
@@ -4338,6 +4423,16 @@ MonoBehaviour:
         fieldName: _conditions
         valueArray: []
         value: {fileID: 0}
+      - targetName: GeneralEffectDealer
+        typeName: GeneralEffectDealer
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 408712540}
+      - targetName: GeneralEffectDealer
+        typeName: GeneralEffectDealer
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 408712540}
       TargetMb: {fileID: 1896884998}
       TargetMbName: GeneralEffectDealer
     - fieldCaches:
@@ -4789,3 +4884,4 @@ SceneRoots:
   - {fileID: 1598671408}
   - {fileID: 1461044687}
   - {fileID: 921403476}
+  - {fileID: 935353488}
