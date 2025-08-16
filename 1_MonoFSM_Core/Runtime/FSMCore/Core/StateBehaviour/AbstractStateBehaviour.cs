@@ -269,7 +269,6 @@ namespace MonoFSM.Core
             //FIXME: 這裡也判了？
             if (CanExitState(transition.TargetState) == false)
                 return false;
-
             if (transition.TargetState.CanEnterState() == false)
                 return false;
             // Debug.Log($"Can Transitioning from {Name} to {transition.TargetState.Name}", this);

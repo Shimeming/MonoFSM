@@ -2,6 +2,7 @@ using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Runtime.Action;
 using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
+using UnityEngine;
 
 namespace MonoFSM.Runtime.ObjectPool
 {
@@ -13,6 +14,7 @@ namespace MonoFSM.Runtime.ObjectPool
 
         protected override void OnActionExecuteImplement()
         {
+            Debug.Log("ReturnToPoolAction", this);
             _object.Despawn();
         }
     }

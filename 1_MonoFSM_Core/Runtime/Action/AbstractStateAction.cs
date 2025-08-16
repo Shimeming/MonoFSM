@@ -167,7 +167,15 @@ namespace MonoFSM.Core.Runtime.Action
         public void EventReceived()
         {
             _lastEventReceivedTime = Time.time;
-            OnActionExecuteImplement();
+            // if (!isActiveAndEnabled)
+            // if (enabled == false)
+            //     Debug.LogError("not enabled", this);
+            // if (gameObject.activeInHierarchy == false)
+            //     Debug.LogError("not activeInHierarchy", this);
+            if (gameObject.activeInHierarchy)
+                OnActionExecuteImplement();
+            // else
+            //     Debug.LogError("Not active self", this);
         }
 
         public virtual void SimulationUpdate(float passedDuration)

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Detection;
@@ -56,7 +57,7 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
 
         public void QueueEnterEvent(GameObject obj) //fixme 現在沒有管 hit data那些耶
         {
-            Debug.Log("QueueEnterEvent: " + obj.name, obj);
+            // Debug.Log("QueueEnterEvent: " + obj.name, obj);
             _toEnter.Add(obj);
         }
 
@@ -83,9 +84,11 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
 
         [FormerlySerializedAs("HittingLayer")]
         [CustomSerializable]
-        [ShowInInspector]
-        [Required]
+        // [ShowInInspector]
+        // [Required]
         public LayerMask _hittingLayer;
+
+        //FIXME: validate 不可以是nothing? 或是直接收斂掉？
 
         private RaycastHit[] _allocHits = new RaycastHit[10]; //FIXME: 這個大小要怎麼處理？會不會有問題？ 這個是用來儲存raycast的結果
 
@@ -122,13 +125,18 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
         //     PhysicsUpdate();
         // }
 
-        [Auto]
+        [Auto] [CompRef]
         private IRaycastProcessor _raycastProcessor;
 
-        [Auto]
-        private ISphereCastProcessor _sphereCastProcessor;
-        public float _sphereRadius = 0.5f; //FIXME: spherecast的半徑要怎麼處理？ 這個是用來儲存spherecast的結果
+        // [CompRef] //all in 1 就撞了？
+        // [Auto]
+        // private ISphereCastProcessor _sphereCastProcessor;
+        // public float _sphereRadius = 0.5f; //FIXME: spherecast的半徑要怎麼處理？ 這個是用來儲存spherecast的結果
         private Ray _cachedRay;
+
+#if UNITY_EDITOR
+        [ShowInDebugMode] private readonly List<Collider> _debugHistoryObjs = new();
+#endif
 
         private void OnDisable()
         {
@@ -148,8 +156,8 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
                 if (!_lastFrameColliders.Contains(hit.collider))
                 {
                     // QueueEnterEvent(hit.collider.gameObject);
-                    Debug.Log("Raycast enter", this);
-                    Debug.Log("Spatial enter: hitPoint " + hit.collider, hit.collider);
+                    Debug.Log("Raycast enter: Detector Hit" + hit.collider.gameObject, this);
+                    Debug.Log("Raycast enter: hitPoint " + hit.collider, hit.collider);
 
                     //Note: Detectable必須在 rigidbody上面？
                     //FIXME: 都遇hit.collider就好？
@@ -158,7 +166,7 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
                     // else
                     var result = _detector.OnDetectEnterCheck(hit.collider.gameObject, hit.point,
                         hit.normal);
-                    Debug.Log("Detect:" + result, this);
+                    Debug.Log("Detect:" + hit.collider + result, this);
                 }
             }
 
@@ -174,10 +182,10 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
                         rb = col.GetComponentInParent<Rigidbody>(true);
                         if (rb == null)
                         {
-                            Debug.LogError(
-                                "RaycastDetector: Collider has no attached Rigidbody or parent Rigidbody, cannot call OnSpatialExit.",
-                                col
-                            );
+                            // Debug.LogError(
+                            //     "RaycastDetector: Collider has no attached Rigidbody or parent Rigidbody, cannot call OnSpatialExit.",
+                            //     col
+                            // );
                             continue; //跳過這個 collider
                         }
                     }
@@ -192,19 +200,23 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.red;
-            if (_sphereCastProcessor != null)
-            {
-                Gizmos.DrawWireSphere(_cachedRay.origin, _sphereRadius);
-                Gizmos.DrawRay(_cachedRay.origin, _cachedRay.direction * _distance);
-                Gizmos.DrawWireSphere(
-                    _cachedRay.origin + _cachedRay.direction * _distance,
-                    _sphereRadius
-                );
-            }
-            else
-            {
-                Gizmos.DrawRay(_cachedRay.origin, _cachedRay.direction * _distance);
-            }
+            // if (_sphereCastProcessor != null)
+            // {
+            //     Gizmos.DrawWireSphere(_cachedRay.origin, _sphereRadius);
+            //     Gizmos.DrawRay(_cachedRay.origin, _cachedRay.direction * _distance);
+            //     Gizmos.DrawWireSphere(
+            //         _cachedRay.origin + _cachedRay.direction * _distance,
+            //         _sphereRadius
+            //     );
+            // }
+            // else
+
+            if (Application.isPlaying == false)
+                _cachedRay = _rayProvider.GetRay();
+
+            //FIXME: 要選mode? sphere cast, ray cast...
+            Gizmos.DrawRay(_cachedRay.origin, _cachedRay.direction * _distance);
+
             // if (_cacehdHit.collider != null)
             // {
             //     Gizmos.color = Color.green;
@@ -213,6 +225,7 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
         }
 
         // CameraRayProvider
+        //FIXME:
         public bool _isEffectByCameraRotation;
 
         [SerializeField]
@@ -220,91 +233,13 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
 
         [SerializeField]
         private float _maxVerticalAngle = 45f; // Maximum vertical angle limit
-        private Transform _characterTransform; // Reference to the character's transform
+        // private Transform _characterTransform; // Reference to the character's transform
 
         void TryCast()
         {
+            //FIXME: 把ray 外包？
             var ray = _rayProvider.GetRay();
-            _characterTransform = transform;
-            if (_isEffectByCameraRotation && _characterTransform != null)
-            {
-                //FIXME:
-                var camera = Camera.main;
-                if (camera != null)
-                {
-                    // Get camera's pitch (vertical rotation)
-                    var cameraPitch = camera.transform.eulerAngles.x;
-                    // Normalize angle to -180 to 180 range
-                    if (cameraPitch > 180f)
-                        cameraPitch -= 360f;
-
-                    // Clamp the pitch within our limits
-                    var clampedPitch = Mathf.Clamp(
-                        cameraPitch,
-                        _minVerticalAngle,
-                        _maxVerticalAngle
-                    );
-
-                    // Use the character's forward direction as the base
-                    var characterForward = _characterTransform.forward;
-                    var horizontalForward = new Vector3(
-                        characterForward.x,
-                        0,
-                        characterForward.z
-                    ).normalized;
-
-                    // Create rotation from the character's Y rotation (yaw)
-                    var characterYawRotation = Quaternion.Euler(
-                        0,
-                        _characterTransform.eulerAngles.y,
-                        0
-                    );
-
-                    // Apply pitch rotation around the local X axis
-                    var pitchRotation = Quaternion.Euler(clampedPitch, 0, 0);
-
-                    // First apply character's yaw, then apply the camera pitch
-                    var newDirection = characterYawRotation * (pitchRotation * Vector3.forward);
-
-                    // Create a new ray with the adjusted direction
-                    ray = new Ray(ray.origin, newDirection);
-                    transform.forward = newDirection;
-                }
-            }
-            else if (_isEffectByCameraRotation)
-            {
-                var camera = Camera.main;
-                if (camera != null)
-                {
-                    // Get camera's pitch (vertical rotation)
-                    var cameraPitch = camera.transform.eulerAngles.x;
-                    // Normalize angle to -180 to 180 range
-                    if (cameraPitch > 180f)
-                        cameraPitch -= 360f;
-
-                    // Clamp the pitch within our limits
-                    var clampedPitch = Mathf.Clamp(
-                        cameraPitch,
-                        _minVerticalAngle,
-                        _maxVerticalAngle
-                    );
-
-                    // Default implementation when character transform is not set
-                    // Create a new direction that preserves horizontal direction but applies vertical angle
-                    var horizontalDir = new Vector3(
-                        camera.transform.forward.x,
-                        0,
-                        camera.transform.forward.z
-                    ).normalized;
-
-                    // Apply pitch rotation to the horizontal direction
-                    var pitchRotation = Quaternion.Euler(clampedPitch, 0, 0);
-                    var newDirection = pitchRotation * Vector3.forward;
-
-                    // Create a new ray with the adjusted direction
-                    ray = new Ray(ray.origin, newDirection);
-                }
-            }
+            // _characterTransform = transform;
 
             _cachedHits.Clear();
             _thisFrameColliders.Clear();
@@ -312,30 +247,31 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
             _cachedRay = ray;
             if (_raycastMode == RaycastMode.Single)
             {
-                if (_sphereCastProcessor != null)
-                {
-                    if (
-                        _sphereCastProcessor.SphereCast(
-                            ray.origin,
-                            _sphereRadius,
-                            ray.direction,
-                            out var hitInfo,
-                            _distance,
-                            _hittingLayer,
-                            QueryTriggerInteraction.UseGlobal
-                        )
-                    )
-                    {
-                        if (hitInfo.distance == 0)
-                            Debug.LogError(
-                                "RaycastDetector: SphereCast hit distance is 0, this may indicate an issue with the ray or sphere radius.",
-                                this
-                            );
-                        _cachedHits.Add(hitInfo);
-                        _thisFrameColliders.Add(hitInfo.collider);
-                    }
-                }
-                else if (_raycastProcessor != null)
+                // if (_sphereCastProcessor != null)
+                // {
+                //     if (
+                //         _sphereCastProcessor.SphereCast(
+                //             ray.origin,
+                //             _sphereRadius,
+                //             ray.direction,
+                //             out var hitInfo,
+                //             _distance,
+                //             _hittingLayer,
+                //             QueryTriggerInteraction.UseGlobal
+                //         )
+                //     )
+                //     {
+                //         if (hitInfo.distance == 0)
+                //             Debug.LogError(
+                //                 "RaycastDetector: SphereCast hit distance is 0, this may indicate an issue with the ray or sphere radius.",
+                //                 this
+                //             );
+                //         _cachedHits.Add(hitInfo);
+                //         _thisFrameColliders.Add(hitInfo.collider);
+                //     }
+                // }
+                // else
+                if (_raycastProcessor != null)
                 {
                     if (
                         _raycastProcessor.Raycast(
@@ -350,6 +286,7 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
                         //FIXME: 操作 list好嗎？
                         _cachedHits.Add(hitInfo);
                         _thisFrameColliders.Add(hitInfo.collider);
+                        _debugHistoryObjs.Add(hitInfo.collider);
                         // Debug.Log("hit" + hit.collider.name, hit.collider);
                     }
                 }
@@ -357,8 +294,13 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
                 {
                     _cachedHits.Add(hit);
                     _thisFrameColliders.Add(hit.collider);
+                    _debugHistoryObjs.Add(hit.collider);
                     // Debug.Log("hit" + hit.collider.name, hit.collider);
                 }
+            }
+            else
+            {
+                throw new ArgumentNullException("No Multiple Raycast");
             }
             // else
             // {
@@ -371,6 +313,7 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
             //     }
             // }
         }
+
 
         [PreviewInInspector]
         private readonly HashSet<Collider> _thisFrameColliders = new();

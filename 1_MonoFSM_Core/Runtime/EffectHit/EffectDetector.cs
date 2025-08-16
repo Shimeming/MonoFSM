@@ -61,7 +61,7 @@ namespace MonoFSM.Core.Detection
         [Required]
         [CompRef]
         [AutoChildren(DepthOneOnly = true)]
-        private IDetectionSource _detectionSource;
+        private IDetectionSource _detectionSource; //想要手動拉？不好？還是裝下面嗎？
 
         private readonly List<EffectDetectable> _toRemove = new();
         private readonly Dictionary<GameObject, EffectDetectable> _currentDetections = new();
@@ -118,6 +118,7 @@ namespace MonoFSM.Core.Detection
         //FIXME: 這個是spatial Detector的特性，不是所有的Detector都有
 
         //fixme:可以有直接傳過來的版本？
+        //FIXME: return (bool & string)
         public string OnDetectEnterCheck(
             GameObject other,
             Vector3? point = null,
@@ -143,9 +144,9 @@ namespace MonoFSM.Core.Detection
 
             if (spatialDetectable == null)
             {
-                Debug.LogError(
-                    other.name + " is not a BaseEffectDetectTarget" + other.gameObject.layer,
-                    other);
+                // Debug.LogError(
+                //     other.name + " is not a BaseEffectDetectTarget" + other.gameObject.layer,
+                //     other);
                 return "not a BaseEffectDetectTarget";
             }
 

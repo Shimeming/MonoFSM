@@ -9,6 +9,7 @@ using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Editor;
 using MonoFSM.EditorExtension;
 using MonoFSM.Foundation;
+using MonoFSM.Variable.Attributes;
 using Sirenix.OdinInspector;
 using UnityEngine;
 #if UNITY_EDITOR
@@ -29,7 +30,9 @@ namespace MonoFSM.Animation
         ISceneSavingCallbackReceiver, ISelfValidator, ISerializableComponent, ITransitionCheckInvoker, IRenderAction,
         IOverrideHierarchyIcon
     {
-        public override string Description => animator ? " " + animator.gameObject.name + ": " + StateName : "NO ANIMATOR";
+        public override string Description => animator
+            ? " " + animator.gameObject.name + ": " + "_" + StateName + stateLayer
+            : "NO ANIMATOR";
         protected override string DescriptionTag => "Anim";
 
         protected override void Awake()
@@ -64,7 +67,8 @@ namespace MonoFSM.Animation
         [TabGroup("Animator")]
 #if UNITY_EDITOR
         [InfoBox("Not Valid State name", InfoMessageType.Error, nameof(IsStateNameNotInAnimator))]
-        [ValueDropdown(nameof(GetAnimatorStateNames), IsUniqueList = true, NumberOfItemsBeforeEnablingSearch = 3)]
+        [ValueDropdown(nameof(GetAnimatorStateNamesOfCurrentLayer), IsUniqueList = true,
+            NumberOfItemsBeforeEnablingSearch = 3)]
 #endif
         [HideIf("IsStateNameProvider")]
         //有provider就藏起來
@@ -86,10 +90,16 @@ namespace MonoFSM.Animation
         private void BuildStateHashToName()
         {
             _stateHashToName.Clear();
-            var names = GetAnimatorStateNames();
+            var names = GetAnimatorStateNamesOfCurrentLayer();
             if (names == null)
                 return;
-            foreach (var name in names) _stateHashToName.Add(Animator.StringToHash(name), name);
+            foreach (var n in names)
+            {
+                var hash = Animator.StringToHash(n);
+                Debug.Log("BuildStateHashToName: " + n + ", hash:" + hash, this);
+                _stateHashToName.Add(Animator.StringToHash(n), n);
+            }
+
         }
 #endif
 
@@ -109,8 +119,10 @@ namespace MonoFSM.Animation
         [OnValueChanged(nameof(BindStateLayer))]
         [ShowInInspector]
         [ValueDropdown(nameof(GetLayerNames))]
-#endif
+        [SerializeField]
         private string _stateLayerName;
+#endif
+
 
         private int stateRange => animator.layerCount;
 
@@ -150,14 +162,14 @@ namespace MonoFSM.Animation
 #if UNITY_EDITOR
             try
             {
-                if (animator == null)
-                {
-                    var owner = GetComponentInParent<StateMachineOwner>();
-                    if (owner)
-                        animator = owner.GetComponentInChildren<Animator>();
-                    if (animator == null)
-                        return;
-                }
+                // if (animator == null)
+                // {
+                //     var owner = GetComponentInParent<StateMachineOwner>();
+                //     if (owner)
+                //         animator = owner.GetComponentInChildren<Animator>();
+                //     if (animator == null)
+                //         return;
+                // }
 
                 if (animator.runtimeAnimatorController == null)
                     return;
@@ -167,11 +179,11 @@ namespace MonoFSM.Animation
                     return;
                 _stateLayerName = ac.layers[stateLayer].name;
 
-                var layer = GetDoneEventLayerIndex();
-                if (doneEventLayer == layer)
-                    return;
-
-                doneEventLayer = layer == -1 ? 0 : layer;
+                // var layer = GetDoneEventLayerIndex();
+                // if (doneEventLayer == layer)
+                //     return;
+                //
+                // doneEventLayer = layer == -1 ? 0 : layer;
             }
             catch (Exception e)
             {
@@ -199,7 +211,7 @@ namespace MonoFSM.Animation
             if (isActiveAndEnabled == false) //NOTE: 沒開的話不管
                 return false;
 
-            var names = GetAnimatorStateNames();
+            var names = GetAnimatorStateNamesOfCurrentLayer();
             if (names == null)
                 return true;
             foreach (var _name in names)
@@ -210,7 +222,7 @@ namespace MonoFSM.Animation
         }
         //拿動畫上的所有state name
 #if UNITY_EDITOR
-        public IEnumerable<string> GetAnimatorStateNames()
+        public IEnumerable<string> GetAnimatorStateNamesOfCurrentLayer()
         {
             return AnimatorHelpler.GetAnimatorStateNames(animator, stateLayer);
             // var ac = GetAnimatorController(animator);
@@ -389,8 +401,8 @@ namespace MonoFSM.Animation
 #endif
         public string doneEventLayerName; //getter? onvalidate的時候，選的時候選string，存int？
 
-        [HideIf(nameof(NoDoneEventTransition))] [TabGroup("Animator")] [ShowInInspector] [ReadOnly] [SerializeField]
-        private int doneEventLayer;
+        // [HideIf(nameof(NoDoneEventTransition))] [TabGroup("Animator")] [ShowInInspector] [ReadOnly] [SerializeField]
+        // private int doneEventLayer;
 
 
 
@@ -496,7 +508,7 @@ namespace MonoFSM.Animation
 
         [ShowInPlayMode]
         private float CurrentPlayingNormalizedTime =>
-            animator.GetCurrentAnimatorStateInfo(doneEventLayer).normalizedTime;
+            animator.GetCurrentAnimatorStateInfo(stateLayer).normalizedTime;
 
         [AutoParent] private MonoStateBehaviour _stateBehaviour; //這個是State的行為，還是要有個StateAction來做事情
         //FIXME: 錯了！抓到BUG 要cache? 切State後，StateTime就會重置了
@@ -529,7 +541,8 @@ namespace MonoFSM.Animation
 
         public bool IsPlayingCurrentClip()
         {
-            var layer = doneEventLayer;
+            // var layer = doneEventLayer; //FIXME: 搞屁啊？
+            var layer = stateLayer;
             if (animator.runtimeAnimatorController == null)
                 return false;
 
@@ -552,6 +565,9 @@ namespace MonoFSM.Animation
                     }
 
                     var shouldPlayStateName = _stateHashToName[StateHash];
+                    if (_stateHashToName.ContainsKey(stateInfo.shortNameHash))
+                    {
+                    }
                     var playingStateName = _stateHashToName[stateInfo.shortNameHash];
                     if (ClipLength == -1)
                     {
@@ -597,43 +613,47 @@ namespace MonoFSM.Animation
         //     OnRender();
         // }
 
-        public Action OnAnimationDone;
+        // public Action OnAnimationDone;
 
-        private void AnimationDone()
-        {
-            // TransitionTarget.OnTransitionCheck();
-            //FIXME: 還是應該用condition...hmm
-            doneEventTransition.IsTransitionCheckNeeded = true;
-            OnAnimationDone?.Invoke(); //事件驅動，不太好
-            // doneEventTransition.EventReceived("AnimationDone");
-        }
+        // [Obsolete]
+        // private void AnimationDone()
+        // {
+        //     // TransitionTarget.OnTransitionCheck();
+        //     //FIXME: 還是應該用condition...hmm
+        //     doneEventTransition.IsTransitionCheckNeeded = true;
+        //     OnAnimationDone?.Invoke(); //事件驅動，不太好
+        //     // doneEventTransition.EventReceived("AnimationDone");
+        // }
 
-        private void OnDestroy()
-        {
-            OnAnimationDone = null;
-        }
+        // private void OnDestroy()
+        // {
+        //     OnAnimationDone = null;
+        // }
 
         private bool NoDoneEventTransition()
         {
             return GetComponentsInChildren<StateTransition>() == null;
         }
 
-        [HideIf(nameof(NoDoneEventTransition))] [TabGroup("Animator")] [PreviewInInspector] [Component] [AutoChildren]
-        private StateTransition doneEventTransition; //寫成condition更好？
+        // [HideIf(nameof(NoDoneEventTransition))] [TabGroup("Animator")] [PreviewInInspector] [Component] [AutoChildren]
+        // private StateTransition doneEventTransition; //寫成condition更好？
 
         private IEventReceiver _ircgArgEventReceiverImplementation;
 
+        [CompRef] [AutoChildren(DepthOneOnly = true)]
+        private AbstractConditionBehaviour[] _conditions;
+
 #if UNITY_EDITOR
         //不一定有，optional...
-        [TabGroup("Animator")]
-        [Button("Add Done Event Transition")]
-        [ShowIf(nameof(NoDoneEventTransition))]
-        private void CreateEventReceiver()
-        {
-            // doneEventTransition = gameObject.AddChildrenComponent<AbstractStateTransition>("[Transition] Anim Done");
-            doneEventTransition = this.AddChildrenComponent<StateTransition>("[Transition] Anim Done");
-            // doneEventTransition = gameObject.AddComponent<AbstractStateTransition>();
-        }
+        // [TabGroup("Animator")]
+        // [Button("Add Done Event Transition")]
+        // [ShowIf(nameof(NoDoneEventTransition))]
+        // private void CreateEventReceiver()
+        // {
+        //     // doneEventTransition = gameObject.AddChildrenComponent<AbstractStateTransition>("[Transition] Anim Done");
+        //     doneEventTransition = this.AddChildrenComponent<StateTransition>("[Transition] Anim Done");
+        //     // doneEventTransition = gameObject.AddComponent<AbstractStateTransition>();
+        // }
 
 
         //TODO: animation clip  ...生成？
@@ -754,10 +774,12 @@ namespace MonoFSM.Animation
         //
         // }
         // public ITransitionCheckingTarget ValueChangedTarget => doneEventTransition;
+        private bool IsValid => _conditions.IsAllValid();
         public void OnEnterRender() //transition更早就判定？導致done錯了？
         {
             // Debug.Log("Play Animation State");
             HasAnimationPlaySuccess = false;
+            if (!IsValid) return;
             if (animator == null)
             {
                 Debug.LogError("animator is null" + _fsmOwner.name, this);
@@ -819,14 +841,10 @@ namespace MonoFSM.Animation
         public void OnRender()
         {
             // Debug.Log("time:" + animator.GetCurrentAnimatorStateInfo(0).normalizedTime);
+            if (!IsValid) return;
+            // if (doneEventTransition == null)
+            //     return;
 
-            if (doneEventTransition == null)
-                return;
-
-
-#if UNITY_EDITOR
-            if (animator == null) Debug.LogError("animator == null", this);
-#endif
             if (animator.runtimeAnimatorController == null)
             {
                 enabled = false;
@@ -839,7 +857,7 @@ namespace MonoFSM.Animation
                 animator.Play(StateHash, stateLayer);
 
 
-            var info = animator.GetCurrentAnimatorStateInfo(doneEventLayer);
+            // var info = animator.GetCurrentAnimatorStateInfo(doneEventLayer);
 
             // if (!IsPlayingCurrentClip())
             // {
@@ -851,19 +869,19 @@ namespace MonoFSM.Animation
             // UnityEngine.Debug.Log("Current Animator State length:" + info.length + ",normalizedTime:" +
             //                       info.normalizedTime + "," +
             //                       info.shortNameHash);
-            if (IsPlayingCurrentClip() && CurrentPlayingNormalizedTime >= 1)
-                //TODO: AnimationDone
-                //Done;
-                // GetComponentInParent<GeneralState>().TransitionCheck();
-                if (doneEventTransition)
-                {
-                    this.Log(
-                        "AnimatorPlayAction > 1:" + CurrentPlayingNormalizedTime + "state:" +
-                        StateName,
-                        gameObject);
-                    // Debug.Break();
-                    AnimationDone();
-                }
+            // if (IsPlayingCurrentClip() && CurrentPlayingNormalizedTime >= 1)
+            //     //TODO: AnimationDone
+            //     //Done;
+            //     // GetComponentInParent<GeneralState>().TransitionCheck();
+            //     if (doneEventTransition)
+            //     {
+            //         this.Log(
+            //             "AnimatorPlayAction > 1:" + CurrentPlayingNormalizedTime + "state:" +
+            //             StateName,
+            //             gameObject);
+            //         // Debug.Break();
+            //         AnimationDone();
+            //     }
             // if (TryGetComponent<EventReceiveTransition>(out var transition))
             // {
             //     Debug.Log("AnimatorPlayAction > 1" + animator.GetCurrentAnimatorStateInfo(0).normalizedTime + "state:", gameObject);

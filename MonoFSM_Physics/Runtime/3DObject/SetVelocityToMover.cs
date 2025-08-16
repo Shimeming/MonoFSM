@@ -1,9 +1,12 @@
+using System;
 using MonoFSM.Core.Runtime.Action;
 using MonoFSM.Variable;
 using MonoFSMCore.Runtime.LifeCycle;
 
 namespace MonoFSM.Core.Runtime.LevelDesign._3DObject
 {
+    //很蠢XD
+    [Obsolete]
     public class SetVelocityToMover : AbstractStateAction
     {
         public SpawnedObjectEntityProvider _providerInParent;

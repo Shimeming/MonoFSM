@@ -49,34 +49,40 @@ namespace MonoFSM.Core.LifeCycle
         public bool _isUsingSpawnTransformScale;
         [PreviewInInspector] private MonoObj _lastSpawnedObj;
 
-        private void Spawn(MonoObj obj, Vector3 position, Quaternion rotation)
+        private void Spawn(MonoObj prefab, Vector3 position, Quaternion rotation)
         {
             //FIXME: canspawn?
-            if (obj == null)
+            if (prefab == null)
             {
                 Debug.LogError("SpawnAction: Prefab is null", this);
                 return;
             }
 
-            var monoObj = GetComponentInParent<MonoObj>();
-            if (monoObj == null)
+            var parentObj = GetComponentInParent<MonoObj>();
+            if (parentObj == null)
             {
                 Debug.LogError("SpawnAction: No MonoPoolObj found in parent", this);
                 return;
             }
 
-            if (monoObj.WorldUpdateSimulator == null)
+            if (parentObj.WorldUpdateSimulator == null)
             {
-                Debug.LogError("SpawnAction: No WorldUpdateSimulator found in MonoPoolObj", monoObj);
+                Debug.LogError("SpawnAction: No WorldUpdateSimulator found in MonoPoolObj",
+                    parentObj);
                 return;
             }
-            var newObj = monoObj.WorldUpdateSimulator.Spawn(obj, position, rotation); //Runner.spawn?
+
+            var newObj =
+                parentObj.WorldUpdateSimulator.Spawn(prefab, position, rotation); //Runner.spawn?
             if (newObj == null)
                 return;
             //用目前這個action的transform的scale,fixme; 可能需要別種？物件本身的scale?還是應該避免
             //fixme: 為什麼要這樣？
             if (_isUsingSpawnTransformScale)
                 newObj.transform.localScale = transform.lossyScale;
+
+            newObj.gameObject.SetActive(true);
+
             //Rotation呢？
             _lastSpawnedObj = newObj;
             _spawnEventHandler?.OnSpawn(newObj, position, rotation);

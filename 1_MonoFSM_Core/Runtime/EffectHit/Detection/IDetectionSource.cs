@@ -25,7 +25,7 @@ namespace MonoFSM.Core.Detection
         public static DetectionResult Invalid => new DetectionResult { isValidHit = false };
     }
 
-    public interface IDetectionSource
+    public interface IDetectionSource //AbstractComponent
     {
         bool IsEnabled { get; }
 

@@ -20,7 +20,7 @@ namespace MonoFSM.AnimatorControl
         private void RandomAssignStateFromPosition()
         {
 #if UNITY_EDITOR
-            var names = _animatorPlayAction.GetAnimatorStateNames();
+            var names = _animatorPlayAction.GetAnimatorStateNamesOfCurrentLayer();
             if (names == null)
                 return;
 

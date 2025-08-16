@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -9,6 +10,8 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
 {
     public static class EditorWindowKeyboardNavigate
     {
+     
+
         public static void RepaintToolBar()
         {
             Toolbar.get.Repaint();
@@ -39,7 +42,7 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
         private static double _lastEscapeTime;
         private static int _escapeCount;
 
-#if UNITY_EDITOR_OSX 
+#if UNITY_EDITOR_OSX
         [MenuItem("Tools/MonoFSM/快速離開Prefab編輯模式 Exit Prefab Stage ^_c")] //Ctrl + E
 #endif
         private static void ExitPrefabStage()
@@ -89,7 +92,7 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
             {
                 var currentWindow = EditorWindow.focusedWindow;
                 if (currentWindow == null) return;
-                 
+
                 // Get the dock area (container that holds multiple tabs)
                 var dockArea = currentWindow.m_Parent as DockArea;
                 if (dockArea == null)
@@ -122,7 +125,7 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
                 // Get target tab (循環)
                 int targetIndex = (currentIndex + direction + panes.Count) % panes.Count;
                 var targetWindow = panes[targetIndex];
-                
+
                 if (targetWindow != null)
                 {
                     targetWindow.Focus();
@@ -130,7 +133,7 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
                     Debug.Log($"Switched from {currentWindow.GetType().Name} to {targetWindow.GetType().Name} ({directionText} tab)");
                 }
             }
-            catch (System.Exception e)
+            catch (Exception e)
             {
                 string directionText = direction > 0 ? "next" : "previous";
                 Debug.LogError($"Failed to switch to {directionText} tab: {e.Message}");
@@ -204,13 +207,13 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
                     Debug.Log($"Switched from {currentWindow.GetType().Name} to {targetWindow.GetType().Name} in {directionText} dock area");
                 }
             }
-            catch (System.Exception e)
+            catch (Exception e)
             {
                 string directionText = direction > 0 ? "right" : "left";
                 Debug.LogError($"Failed to switch to {directionText} dock area: {e.Message}");
             }
         }
-        
+
         private static void SwitchDockAreaVertical(int direction)
         {
             try
@@ -266,7 +269,7 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
                     Debug.Log($"Switched from {currentWindow.GetType().Name} to {targetWindow.GetType().Name} in {directionText} direction");
                 }
             }
-            catch (System.Exception e)
+            catch (Exception e)
             {
                 string directionText = direction > 0 ? "down" : "up";
                 Debug.LogError($"Failed to switch to {directionText} dock area: {e.Message}");
@@ -276,14 +279,14 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
         private static ContainerWindow GetContainerWindow(DockArea dockArea)
         {
             // Debug.Log($"Getting container window for dock area: {dockArea}");
-            
+
             // Navigate up the hierarchy to find the main container
             var current = dockArea.parent;
             int level = 0;
             while (current != null)
             {
                 // Debug.Log($"Level {level}: {current.GetType().Name}");
-                
+
                 // Check if we can find the container window through reflection
                 var containerWindowField = current.GetType().GetField("m_Window", BindingFlags.NonPublic | BindingFlags.Instance);
                 if (containerWindowField != null)
@@ -295,7 +298,7 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
                         return containerWindow;
                     }
                 }
-                
+
                 // Also check if current itself might be a container-related type
                 if (current.GetType().Name.Contains("ContainerWindow") || current.GetType().Name.Contains("MainView"))
                 {
@@ -308,7 +311,7 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
                         return window;
                     }
                 }
-                
+
                 current = current.parent;
                 level++;
             }
@@ -319,7 +322,7 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
         private static List<DockArea> GetAllDockAreasInContainer(ContainerWindow containerWindow)
         {
             var dockAreas = new List<DockArea>();
-            
+
             try
             {
                 // Debug.Log($"Collecting dock areas from container window: {containerWindow}");
@@ -336,18 +339,18 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
                     Debug.Log("Container window has no root view");
                 }
             }
-            catch (System.Exception e)
+            catch (Exception e)
             {
                 Debug.LogError($"Error collecting dock areas: {e.Message}");
             }
-            
+
             return dockAreas;
         }
 
         private static void CollectDockAreas(View view, List<DockArea> dockAreas, HashSet<View> visitedViews)
         {
             if (view == null) return;
-            
+
             // Prevent infinite recursion
             if (visitedViews.Contains(view))
             {
@@ -355,9 +358,9 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
                 return;
             }
             visitedViews.Add(view);
-            
+
             // Debug.Log($"Checking view: {view.GetType().Name}");
-            
+
             // If this is a DockArea, add it
             if (view is DockArea dockArea)
             {
@@ -365,7 +368,7 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
                 dockAreas.Add(dockArea);
                 return;
             }
-            
+
             // If this is a split view, recurse into children
             if (view is SplitView splitView)
             {
@@ -379,7 +382,7 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
             else if (view.GetType().Name == "MainView" || view.GetType().BaseType?.Name == "ContainerView")
             {
                 // Debug.Log($"Found MainView/ContainerView, using allChildren");
-                
+
                 if (view.allChildren != null && view.allChildren.Length > 0)
                 {
                     // Debug.Log($"MainView has {view.allChildren.Length} children via allChildren");
@@ -410,7 +413,7 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
         private static void HandleGlobalEscapeEvents()
         {
             if (Event.current == null) return;
-            
+
             // Handle Cmd+Shift+Arrow keys combinations on KeyDown
             // if (Event.current.type == EventType.KeyDown)
             // {
@@ -423,10 +426,10 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
             //     //     Selection.activeObject = null;
             //     //     return;
             //     // }
-            //     
+            //
             //     // Check for Cmd+Shift+Arrow combinations
-            //     if ((Event.current.keyCode == KeyCode.RightArrow || Event.current.keyCode == KeyCode.LeftArrow || 
-            //          Event.current.keyCode == KeyCode.UpArrow || Event.current.keyCode == KeyCode.DownArrow) 
+            //     if ((Event.current.keyCode == KeyCode.RightArrow || Event.current.keyCode == KeyCode.LeftArrow ||
+            //          Event.current.keyCode == KeyCode.UpArrow || Event.current.keyCode == KeyCode.DownArrow)
             //         && Event.current.alt && Event.current.command)
             //     {
             //         Debug.Log($"Custom navigation triggered with key: {Event.current.keyCode}");
@@ -444,7 +447,7 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
             //             case KeyCode.DownArrow:
             //                 SwitchDockAreaVertical(1); // Down
             //                 break;
-            //             
+            //
             //         }
             //
             //         _isCustomNavigated = true;
@@ -452,7 +455,7 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
             //         return;
             //     }
             // }
-            
+
             if (Event.current.type != EventType.KeyUp) return;
 
             // if (Event.current.keyCode == KeyCode.BackQuote)
@@ -464,7 +467,7 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
             //         _isCustomNavigated = false;
             //         return;
             //     }
-            //      
+            //
             // }
             // Fallback: Handle Tab key alone for switching between dock areas (only if no custom switch was triggered)
             // if (Event.current.keyCode == KeyCode.Tab && !Event.current.shift && !Event.current.control && !Event.current.command && !Event.current.alt)
@@ -483,7 +486,7 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
             //     Event.current.Use();
             //     return;
             // }
-            
+
             // if (Event.current.keyCode == KeyCode.Tab && Event.current.alt && !Event.current.control && !Event.current.command)
             // {
             //     // Debug.Log("Shift+Tab key pressed - Switching to left dock area...");
@@ -491,13 +494,13 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
             //     Event.current.Use();
             //     return;
             // }
-          
-            
+
+
             // Handle ESC key for exiting prefab stage
             if (Event.current.keyCode != KeyCode.Escape) return;
 
             // Debug.Log("Escape key pressed - Handling global escape events...");
-            
+
             // Debug.Log("Escape key pressed in Prefab Stage");
             // 只有在Prefab Stage中才檢查
             if (PrefabStageUtility.GetCurrentPrefabStage() == null)
@@ -516,7 +519,7 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
             // }
 
             double currentTime = EditorApplication.timeSinceStartup;
-            
+
             // 如果超過0.4秒，重置計數
             if (currentTime - _lastEscapeTime > 0.4)
             {
@@ -526,7 +529,7 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
             {
                 _escapeCount++;
             }
-            
+
             _lastEscapeTime = currentTime;
 
             // 連續按兩次ESC

@@ -35,7 +35,8 @@ namespace MonoFSM_InputAction
 
 
         //可能被network版的inputActionHandler override
-        public Vector2 ReadValueVec2 => _abstractInputActionImplementation.Vec2Value; //可以被Override
+        public Vector2 ReadValueVec2 =>
+            _abstractInputActionImplementation?.Vec2Value ?? Vector2.zero; //可以被Override
 
 
 
