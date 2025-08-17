@@ -17,19 +17,19 @@ namespace MonoFSM.Core.Variable
 
     public class VarList<T> : AbstractVarList, ISerializationCallbackReceiver, IResetStateRestore
     {
-        
+
         public enum CollectionStorageType
         {
             List,
             Queue,
             HashSet
         }
-        
+
         [SerializeField] [ShowInInspector] [Tooltip("Determines the underlying collection type used.")]
         private CollectionStorageType _storageType = CollectionStorageType.List;
 
         //FIXME: 好像也不需要這個？runtime用而已？ 不一定
-        
+
         [SerializeField] // This will be used by Unity for serialization
         protected List<T> _backingListForSerialization = new();
 
@@ -124,8 +124,8 @@ namespace MonoFSM.Core.Variable
             if (_activeCollection is Queue<T> queue) return queue;
             throw new InvalidOperationException("Active collection is not initialized or of an unknown type.");
         }
-        
-        
+
+
         private void EnsureActiveCollectionInitialized()
         {
             if (_activeCollection != null &&
@@ -192,6 +192,40 @@ namespace MonoFSM.Core.Variable
 
         //FIXME: 這裡有給ValueType耶
         //給list? queue的話我Provider根本吃不到？ realtime type還會變...乾
+        public override void ResetToDefaultValue()
+        {
+            EnsureActiveCollectionInitialized();
+
+            // 清空當前集合
+            Clear();
+
+            // 如果 backing list 有內容，恢復這些內容
+            if (_backingListForSerialization != null && _backingListForSerialization.Count > 0)
+                switch (_storageType)
+                {
+                    case CollectionStorageType.List:
+                        ((List<T>)_activeCollection).AddRange(_backingListForSerialization);
+                        break;
+                    case CollectionStorageType.Queue:
+                        var queue = (Queue<T>)_activeCollection;
+                        foreach (var item in _backingListForSerialization)
+                            queue.Enqueue(item);
+                        break;
+                    case CollectionStorageType.HashSet:
+                        var hashSet = (HashSet<T>)_activeCollection;
+                        foreach (var item in _backingListForSerialization)
+                            hashSet.Add(item);
+                        break;
+                }
+
+            // 重置索引到預設值
+            _currentIndex = _defaultIndex;
+
+            // 通知變更（Clear() 已經調用過，但如果有恢復內容需要再次通知）
+            if (_backingListForSerialization != null && _backingListForSerialization.Count > 0)
+                OnValueChanged();
+        }
+
         public override Type ValueType =>
             typeof(List<T>); //_activeCollection?.GetType() ?? DetermineRuntimeTypeFromStorage(_storageType);
         public override object objectValue => _activeCollection;
@@ -235,7 +269,7 @@ namespace MonoFSM.Core.Variable
 
         public void Remove(T item)
         {
-            
+
             EnsureActiveCollectionInitialized();
             var removed = false;
             if (_activeCollection is List<T> list) removed = list.Remove(item);
@@ -249,7 +283,7 @@ namespace MonoFSM.Core.Variable
 
         public override void Clear()
         {
-          
+
             EnsureActiveCollectionInitialized();
             if (_activeCollection is List<T> list) list.Clear();
             else if (_activeCollection is Queue<T> queue) queue.Clear();
@@ -289,9 +323,9 @@ namespace MonoFSM.Core.Variable
                 OnValueChanged();
                 return item;
             }
-            
+
             throw new InvalidOperationException("Dequeue is only available if the collection type is Queue.");
-            
+
         }
 
         public T Peek()
@@ -330,7 +364,7 @@ namespace MonoFSM.Core.Variable
             // _activeCollection will be (re)created from _backingListForSerialization and _storageType
             // This is best done in Awake or OnEnable, or an explicit Init method.
             // For editor-time changes to _storageType to take effect immediately, we can call it here.
-            
+
             EnsureActiveCollectionInitialized();
             // Debug.Log("[VarList] OnAfterDeserialize called. Initializing active collection." +
             //           _backingListForSerialization.Count);
@@ -342,36 +376,7 @@ namespace MonoFSM.Core.Variable
         // Methods also call EnsureActiveCollectionInitialized() as a safeguard.
         public void ResetStateRestore()
         {
-            EnsureActiveCollectionInitialized();
-
-            // 清空當前集合
-            Clear();
-
-            // 如果 backing list 有內容，恢復這些內容
-            if (_backingListForSerialization != null && _backingListForSerialization.Count > 0)
-                switch (_storageType)
-                {
-                    case CollectionStorageType.List:
-                        ((List<T>)_activeCollection).AddRange(_backingListForSerialization);
-                        break;
-                    case CollectionStorageType.Queue:
-                        var queue = (Queue<T>)_activeCollection;
-                        foreach (var item in _backingListForSerialization)
-                            queue.Enqueue(item);
-                        break;
-                    case CollectionStorageType.HashSet:
-                        var hashSet = (HashSet<T>)_activeCollection;
-                        foreach (var item in _backingListForSerialization)
-                            hashSet.Add(item);
-                        break;
-                }
-
-            // 重置索引到預設值
-            _currentIndex = _defaultIndex;
-
-            // 通知變更（Clear() 已經調用過，但如果有恢復內容需要再次通知）
-            if (_backingListForSerialization != null && _backingListForSerialization.Count > 0)
-                OnValueChanged();
+            ResetToDefaultValue();
         }
     }
 

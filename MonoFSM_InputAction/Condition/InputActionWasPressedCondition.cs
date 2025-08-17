@@ -19,23 +19,23 @@ namespace Fusion.Addons.KCC.ECM2.Examples.Networking.Fusion_v2.Characters.Script
         {
             get
             {
-                if (_inputActionType == InputActionType.WasPressed)
+                switch (_inputActionType)
                 {
-                    this.Log("InputActionWasPressedCondition IsValid: " + _inputAction.WasPressed);
-                    return _inputAction.WasPressed;
+                    case InputActionType.WasPressed:
+                        this.Log("InputActionWasPressedCondition IsValid: " +
+                                 _inputAction.WasPressed);
+                        return _inputAction.WasPressed;
+                    case InputActionType.IsPressed:
+                        this.Log(
+                            "InputActionWasPressedCondition IsValid: " + _inputAction.IsPressed);
+                        return _inputAction.IsPressed;
+                    case InputActionType.WasReleased:
+                        this.Log("InputActionWasPressedCondition IsValid: " +
+                                 _inputAction.WasReleased);
+                        return _inputAction.WasReleased;
+                    default:
+                        return false;
                 }
-                else if (_inputActionType == InputActionType.IsPressed)
-                {
-                    this.Log("InputActionWasPressedCondition IsValid: " + _inputAction.IsPressed);
-                    return _inputAction.IsPressed;
-                }
-                else if (_inputActionType == InputActionType.WasReleased)
-                {
-                    this.Log("InputActionWasPressedCondition IsValid: " + _inputAction.WasReleased);
-                    return _inputAction.WasReleased;
-                }
-
-                return false;
             }
         }
         // _playerInputProvider.GetPlayerInput().WasPressed(actionData.actionID); //isvalid的timing也要小心

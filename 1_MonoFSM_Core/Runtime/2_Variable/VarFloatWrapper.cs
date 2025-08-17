@@ -1,5 +1,6 @@
 using System;
 using MonoFSM.Core.Attributes;
+using Object = UnityEngine.Object;
 
 namespace MonoFSM.Variable
 {
@@ -13,6 +14,17 @@ namespace MonoFSM.Variable
     {
         [SOConfig("VariableType")] public VariableTag _bindTag;
         public TVar _var;
-        public TValue Value => _var.Get<TValue>();
+
+        public TValue Value
+        {
+            get => _var.Get<TValue>(); //無窮回全了...
+            set => _var.SetValue(value, null); //FIXME: 不好debug? wrapper要拿得到 parent object?
+        }
+
+        public void SetValue(TValue value, Object byWho)
+        {
+            _var.SetValue(value, byWho);
+        }
+
     }
 }

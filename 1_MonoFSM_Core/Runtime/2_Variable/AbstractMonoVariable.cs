@@ -88,6 +88,8 @@ namespace MonoFSM.Variable
 #endif
         }
 
+        public abstract void ResetToDefaultValue();
+
         [Button("建立 ValueProvider Reference")]
         private void CreateValueProvider()
         {

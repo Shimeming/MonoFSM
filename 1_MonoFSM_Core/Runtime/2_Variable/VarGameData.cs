@@ -1,9 +1,6 @@
-using System;
-using System.Runtime.CompilerServices;
-using Sirenix.OdinInspector;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Variable.FieldReference;
-using UnityEngine;
+using Sirenix.OdinInspector;
 
 namespace MonoFSM.Variable
 {
@@ -20,12 +17,12 @@ namespace MonoFSM.Variable
         // /// </summary>
         // private Type GetDynamicValueType()
         // {
-        //     if (_varTag?.ValueFilterType != null && 
+        //     if (_varTag?.ValueFilterType != null &&
         //         typeof(GameData).IsAssignableFrom(_varTag.ValueFilterType))
         //     {
         //         return _varTag.ValueFilterType; // 返回具體的子類別型別如FoodData
         //     }
-        //     
+        //
         //     return typeof(GameData); // 預設返回GameData
         // }
         //
@@ -51,15 +48,15 @@ namespace MonoFSM.Variable
         // {
         //     if (baseValue == null || _varTag == null)
         //         return baseValue;
-        //         
+        //
         //     var restrictType = _varTag.ValueFilterType;
-        //     if (restrictType != null && 
-        //         typeof(GameData).IsAssignableFrom(restrictType) && 
+        //     if (restrictType != null &&
+        //         typeof(GameData).IsAssignableFrom(restrictType) &&
         //         restrictType.IsInstanceOfType(baseValue))
         //     {
         //         return baseValue; // 已經是正確的子類別，直接返回
         //     }
-        //     
+        //
         //     return baseValue;
         // }
         //
@@ -71,10 +68,10 @@ namespace MonoFSM.Variable
         //     var value = Value;
         //     if (value == null)
         //         return null;
-        //         
+        //
         //     if (value is T typedValue)
         //         return typedValue;
-        //         
+        //
         //     return base.GetValue<T>();
         // }
         //
@@ -86,12 +83,12 @@ namespace MonoFSM.Variable
         //     var value = Value;
         //     if (value is T typedValue)
         //         return typedValue;
-        //         
+        //
         //     if (_varTag?.ValueFilterType == typeof(T))
         //     {
         //         return value as T;
         //     }
-        //     
+        //
         //     Debug.LogWarning($"無法將 {value?.GetType().Name} 轉型為 {typeof(T).Name}。請檢查VarTag設定。", this);
         //     return null;
         // }
@@ -111,13 +108,14 @@ namespace MonoFSM.Variable
         // {
         //     return _varTag?.ValueFilterType == typeof(T);
         // }
-        
+
         [ShowInInspector]
         [SOConfig("10_Flags/GameData", useVarTagRestrictType: true)] //已經有了
         private GameData CreateDefault
         {
             set => _defaultValue = value;
         }
+
     }
-    
+
 }

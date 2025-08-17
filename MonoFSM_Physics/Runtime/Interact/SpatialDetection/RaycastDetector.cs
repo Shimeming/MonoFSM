@@ -211,7 +211,8 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
             // }
             // else
 
-            if (Application.isPlaying == false)
+            //FIXME: 處理 editor mode的ray provider
+            if (Application.isPlaying == false && _rayProvider != null)
                 _cachedRay = _rayProvider.GetRay();
 
             //FIXME: 要選mode? sphere cast, ray cast...

@@ -1,8 +1,6 @@
 using System;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Variable;
-using UnityEngine;
-using UnityEngine.Events;
 using Object = UnityEngine.Object;
 
 namespace MonoFSM.Runtime.Vote
@@ -19,6 +17,11 @@ namespace MonoFSM.Runtime.Vote
         //     if (action == null) return;
         //     throw new NotImplementedException("MonoVariableVote does not support AddListener with UnityAction<T>.");
         // }
+
+        public override void ResetToDefaultValue()
+        {
+            _vote.Reset();
+        }
 
         public override Type ValueType => typeof(bool);
         public override object objectValue => _vote.Result;

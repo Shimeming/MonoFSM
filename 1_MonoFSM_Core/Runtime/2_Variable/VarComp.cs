@@ -30,7 +30,7 @@ namespace MonoFSM.Variable
         // [Header("預設值")] [HideIf(nameof(_siblingDefaultValue))] [SerializeField]
         // protected Component _defaultValue;
 
-        
+
 
         protected override Component DefaultValue =>
             _siblingDefaultValue != null ? _siblingDefaultValue : _defaultValue;
@@ -50,5 +50,9 @@ namespace MonoFSM.Variable
         // [TypeDrawerSettings(BaseType = typeof(Component)), ShowInInspector]
         // public Type type; //FIXME: 要用string 回推 type?
         // public override GameFlagBase FinalData => null;
+        // public override void ResetToDefaultValue()
+        // {
+        //     _currentValue = DefaultValue;
+        // }
     }
 }

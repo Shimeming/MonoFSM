@@ -1,8 +1,8 @@
+using System.Linq;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using System.Linq;
 
 //場景空降玩家位置
 public static class StartPointSelector
@@ -112,7 +112,7 @@ public static class StartPointSelector
 
     // 靜態索引來跟踪當前選中的SpawnPoint
     private static int _currentSpawnPointIndex;
-    
+
     // 靜態方法來獲取所有SpawnPoint並按名稱排序
     public static PlayerStartSpawnPoint[] GetAllSpawnPoints()
     {
@@ -120,28 +120,28 @@ public static class StartPointSelector
             .OrderBy(sp => sp.name)
             .ToArray();
     }
-    
+
     // 靜態方法來獲取當前選中的SpawnPoint
     public static PlayerStartSpawnPoint GetCurrentSpawnPoint()
     {
         var spawnPoints = GetAllSpawnPoints();
         if (spawnPoints.Length == 0) return null;
-        
+
         // 確保索引在有效範圍內
         _currentSpawnPointIndex = Mathf.Clamp(_currentSpawnPointIndex, 0, spawnPoints.Length - 1);
         return spawnPoints[_currentSpawnPointIndex];
     }
-    
+
     // 靜態方法來循環切換到下一個SpawnPoint
     public static PlayerStartSpawnPoint SwitchToNextSpawnPoint()
     {
         var spawnPoints = GetAllSpawnPoints();
         if (spawnPoints.Length == 0) return null;
-        
+
         _currentSpawnPointIndex = (_currentSpawnPointIndex + 1) % spawnPoints.Length;
         return spawnPoints[_currentSpawnPointIndex];
     }
-    
+
     // 靜態方法來重置到第一個SpawnPoint
     public static PlayerStartSpawnPoint ResetToFirstSpawnPoint()
     {
@@ -171,13 +171,13 @@ public static class StartPointSelector
             Selection.activeGameObject = GameObject.Find("SpawnPoint");
         }
     }
-    
+
     [MenuItem("RCGMaker/SpawnPoint/Switch to Next SpawnPoint  #_1", false, 1)]
     private static void DoSwitchToNextSpawnPoint()
     {
         FocusOnScene();
         var spawnPoint = SwitchToNextSpawnPoint();
-        
+
         if (spawnPoint)
         {
             Selection.activeGameObject = spawnPoint.gameObject;
@@ -188,13 +188,13 @@ public static class StartPointSelector
             Debug.Log("No SpawnPoints found in scene.");
         }
     }
-    
+
     [MenuItem("RCGMaker/SpawnPoint/Reset to First SpawnPoint  &_1", false, 2)]
     private static void DoResetToFirstSpawnPoint()
     {
         FocusOnScene();
         var spawnPoint = ResetToFirstSpawnPoint();
-        
+
         if (spawnPoint)
         {
             Selection.activeGameObject = spawnPoint.gameObject;
@@ -205,12 +205,12 @@ public static class StartPointSelector
             Debug.Log("No SpawnPoints found in scene.");
         }
     }
-    
+
     public static int GetCurrentSpawnPointIndex()
     {
         var allSpawnPoints = GetAllSpawnPoints();
         var currentSpawnPoint = GetCurrentSpawnPoint();
-        
+
         if (currentSpawnPoint != null)
         {
             for (int i = 0; i < allSpawnPoints.Length; i++)
@@ -287,8 +287,8 @@ public class PlayerStartSpawnPointEditor
                         _target = currentSpawnPoint;
                         Debug.Log($"Selected SpawnPoint: {currentSpawnPoint.name} (Current Index: {StartPointSelector.GetCurrentSpawnPointIndex()})");
                     }
-                    
-                    Debug.Log("OnSceneGUI keycode:" + Event.current.keyCode + " pos:" + Event.current.mousePosition);
+
+                    // Debug.Log("OnSceneGUI keycode:" + Event.current.keyCode + " pos:" + Event.current.mousePosition);
                     //FIXME: 2D遊戲用的...
                     if (obj.in2DMode)
                     {
@@ -308,7 +308,7 @@ public class PlayerStartSpawnPointEditor
                         }
                         else
                         {
-                            Debug.Log("3D mode no hit");
+                            Debug.LogError("3D mode no hit");
                         }
                     }
                 }

@@ -5,7 +5,8 @@ namespace MonoFSM.PhysicsWrapper
 {
     public class CameraRayProvider : MonoBehaviour, IRayProvider
     {
-        [SerializeField] private Camera _mainCamera;
+        // [SerializeField] private Camera _mainCamera;
+        //FIXME: 從provider拿？
         private Transform _characterTransform;
         [SerializeField] private float _minVerticalAngle = -45f; // Minimum vertical angle limit
 
@@ -23,8 +24,8 @@ namespace MonoFSM.PhysicsWrapper
             // if (_characterTransform != null)
             // {
             //FIXME:
-            _mainCamera ??= Camera.main;
-            var mainCamera = _mainCamera;
+            // _mainCamera ??= Camera.main;
+            var mainCamera = Camera.main;
             // Get camera's pitch (vertical rotation)
             var cameraPitch = mainCamera.transform.eulerAngles.x;
             // Normalize angle to -180 to 180 range

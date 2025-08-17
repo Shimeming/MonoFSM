@@ -22,10 +22,14 @@ namespace MonoFSM.Variable
     public abstract class GenericUnityObjectVariable<TValueType> : AbstractObjectVariable, ISettable<TValueType>,
         IResetStateRestore where TValueType : Object
     {
+        public override void ResetToDefaultValue()
+        {
+            _currentValue = DefaultValue;
+        }
         protected override void Awake()
         {
             base.Awake();
-            _currentValue = DefaultValue;
+            ResetToDefaultValue();
         }
 
         public override bool IsValueExist => _currentValue != null;
@@ -110,7 +114,7 @@ namespace MonoFSM.Variable
         //green
         [GUIColor(0.2f, 0.8f, 0.2f)] [PreviewInInspector]
         // [InlineEditor]
-        private TValueType _currentValue; //要用ObjectField? 這樣才統一？
+        protected TValueType _currentValue; //要用ObjectField? 這樣才統一？
 
         [PreviewInDebugMode] private TValueType _lastValue;
 

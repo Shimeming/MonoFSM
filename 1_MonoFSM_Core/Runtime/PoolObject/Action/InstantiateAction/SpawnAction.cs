@@ -39,11 +39,7 @@ namespace MonoFSM.Core.LifeCycle
         {
             Debug.Log("SpawnAction OnStateEnterImplement", this);
             //FIXME: 時機點？FixedUpdateNetwork?
-
             Spawn(Prefab, transform.position, transform.rotation);
-
-            //on spawn要怎麼吃action?
-
         }
 
         public bool _isUsingSpawnTransformScale;

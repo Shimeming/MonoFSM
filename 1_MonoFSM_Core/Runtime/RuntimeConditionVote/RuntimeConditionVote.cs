@@ -35,6 +35,12 @@ namespace MonoFSM.Runtime.Vote
     [Serializable]
     public class RuntimeConditionVote : IRuntimeConditionImplementation //這個只有Bool
     {
+        public void Reset()
+        {
+            voteDict.Clear();
+            _currentResult = GetDefaultValue();
+            OnValueChange(_currentResult);
+        }
         [ShowInPlayMode]
         private Object[] keys
         {
@@ -45,7 +51,7 @@ namespace MonoFSM.Runtime.Vote
                     Debug.Log("voteDict is null");
                     return Array.Empty<Object>();
                 }
-                    
+
                 return voteDict.Count > 0 ? voteDict.Keys.ToArray() : Array.Empty<Object>();
             }
         }
@@ -62,17 +68,17 @@ namespace MonoFSM.Runtime.Vote
         }
 
         public Dictionary<Object, VoteRecord> voteDict = new();
-        
+
         [Serializable]
         public struct VoteRecord
         {
-      
+
             private string _voterName;
             private bool _vote;
-            
+
             [ShowInPlayMode]
             public string Voter => _voterName;
-            
+
             [ShowInPlayMode]
             public bool Vote => _vote;
 
@@ -91,7 +97,7 @@ namespace MonoFSM.Runtime.Vote
         {
             return _getConditionTypeDelegate();
         }
-        
+
 
         public bool GetDefaultValue()
         {
@@ -110,7 +116,7 @@ namespace MonoFSM.Runtime.Vote
         private GetDefaultValueDelegate _getDefaultValueDelegate;
         private OnValueChangeDelegate _onValueChangeDelegate;
         private GetConditionTypeDelegate _getConditionTypeDelegate;
-        
+
         public delegate bool GetDefaultValueDelegate();
         public delegate void OnValueChangeDelegate(bool value);
         public delegate ConditionType GetConditionTypeDelegate ();
@@ -138,7 +144,7 @@ namespace MonoFSM.Runtime.Vote
             //不需樣Add?
             voteDict[m] = new VoteRecord(m,vote) ;
             Debug.Log($"Vote {m} bool:{vote}");
-            
+
             if(_changeChangeResultTiming == ChangeResultTiming.OnVote)
                 CheckResult();
             //ManualUpdate
@@ -151,7 +157,7 @@ namespace MonoFSM.Runtime.Vote
                 m = voteChild.VoteOwner;
             if (voteDict.ContainsKey(m))
                 voteDict.Remove(m);
-            
+
             if(_changeChangeResultTiming == ChangeResultTiming.OnVote)
                 CheckResult();
         }
@@ -208,7 +214,7 @@ namespace MonoFSM.Runtime.Vote
                 //     {
                 //         newResult = false;
                 //     }
-                // }  
+                // }
             }
             else if (GetConditionType() == ConditionType.OR)
             {
@@ -226,7 +232,7 @@ namespace MonoFSM.Runtime.Vote
                 //     if (vote != true) continue;
                 //     newResult = true;
                 //     break;
-                // }  
+                // }
             }
 
             if (_currentResult != newResult)

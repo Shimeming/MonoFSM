@@ -1,21 +1,21 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Profiling;
-using UnityEngine.Serialization;
-using Object = UnityEngine.Object;
-using Sirenix.OdinInspector;
-#if UNITY_EDITOR
-using Sirenix.OdinInspector.Editor;
-#endif
+using System.Linq;
 using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
 using MonoFSM.RCGMakerFSMCore.Tracking;
 using MonoFSM.Variable;
 using MonoFSM.Variable.Attributes;
 using MonoFSMCore.Runtime.LifeCycle;
-using UnityEngine.Events;
+using Sirenix.OdinInspector;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.Profiling;
+using UnityEngine.Serialization;
+using Object = UnityEngine.Object;
+#if UNITY_EDITOR
+using Sirenix.OdinInspector.Editor;
+#endif
 
 //FIXME: autoGen太複雜，可能需要再拆漂亮
 //FIXME: 改檔案名
@@ -36,6 +36,11 @@ public abstract class GenericMonoVariable<TScriptableData, TField, TType> : Abst
         ValueCommited(last, current);
     }
 
+    public override void ResetToDefaultValue()
+    {
+        Field.ResetToDefault();
+    }
+
     //可以用abstract比較好？但目前只用到VarFloat
     protected virtual void ValueCommited(TType lastValue, TType currentValue)
     {
@@ -50,7 +55,7 @@ public abstract class GenericMonoVariable<TScriptableData, TField, TType> : Abst
     {
         SetValueExecution(value, byWho);
     }
-    
+
     [CompRef]
     [Auto] private IVarValueSettingProcessor<TType> _beforeSetProcessor;
     private bool PrefabKindMatchTagCheck()
@@ -85,23 +90,24 @@ public abstract class GenericMonoVariable<TScriptableData, TField, TType> : Abst
     [TabGroup("GameState")]
     [LabelText("自動生成")]
     [ShowInInspector]
-    private bool IsAutoGen 
+    private bool IsAutoGen
         => GetComponent<AutoGenGameState>() != null; //TODO: IsAutoGen?
 
 #if UNITY_EDITOR
-    private bool IsAutoGenButNotYet() 
+    private bool IsAutoGenButNotYet()
         => IsAutoGen && _bindData == null;
 
-    private bool IsGameStateRequiredButMissing() 
+    private bool IsGameStateRequiredButMissing()
         //FIXME: default不需要存檔，標記需要存檔的流程是什麼？
         => PrefabKindMatchTagCheck() && _bindData == null;
 
-    private bool IsSuggestingAutoGen() 
+    private bool IsSuggestingAutoGen()
         => !IsAutoGen && _bindData == null;
 
-    private bool IsSuggestingDesignTag() 
-        => gameObject.IsInPrefab() || 
-           myPrefabKind == PrefabKind.NonPrefabInstance;
+    private bool IsSuggestingDesignTag()
+    {
+        return gameObject.IsInPrefab() ||               myPrefabKind == PrefabKind.NonPrefabInstance;
+    }
 #endif
 
     //TODO: 可以直接弄到drawer上？
@@ -110,14 +116,14 @@ public abstract class GenericMonoVariable<TScriptableData, TField, TType> : Abst
     [EnableIf("IsSuggestingDesignTag")]
     [HideIf("IsAutoGen")] //[]: 已經裝了的話要藏嗎？ 還是應該要透明
     [Button("[Prefab設計]Add AutoGen GameState")]
-    private void AddTag() 
+    private void AddTag()
         => this.TryGetCompOrAdd<AutoGenGameState>();
 
     [TabGroup("GameState")]
     [HideIf("IsCheckingPrefabKind")] //[]: 已經裝了的話要藏嗎？
     [EnableIf("IsSuggestingDesignTag")]
     [Button("[Prefab設計]Add GameState Require Tag")]
-    private void AddRequireInPrefab() 
+    private void AddRequireInPrefab()
         => this.TryGetCompOrAdd<GameStateRequireAtPrefabKind>();
 
     //  MustGenScriptableDataTag mustGenTag; //提醒一定要gen flag
@@ -161,9 +167,9 @@ public abstract class GenericMonoVariable<TScriptableData, TField, TType> : Abst
     {
         Field.AddListener((value) => { OnValueChanged(); }, this);
     }
-    
+
     [FormerlySerializedAs("scriptableData")]
-    
+
     //FIXME: 這個錯了...要有特定設計tag，才是在prefab上不要gen
     // [EnableIn(PrefabKind.InstanceInScene | PrefabKind.NonPrefabInstance)] //scriptable binding, 只想要在景裡編輯
     [TabGroup("GameState")]
@@ -250,7 +256,7 @@ public abstract class GenericMonoVariable<TScriptableData, TField, TType> : Abst
             _localField.DevValue = value;
             Debug.Log("Set EditorValue" + value, this);
 #if UNITY_EDITOR
-            UnityEditor.EditorUtility.SetDirty(this);
+            EditorUtility.SetDirty(this);
 #endif
         }
     }
@@ -291,7 +297,7 @@ public abstract class GenericMonoVariable<TScriptableData, TField, TType> : Abst
 //             if (_modifiers != null)
 //                 foreach (var modifier in _modifiers)
 //                     tempValue = modifier.BeforeSetValueModifyCheck(tempValue);
-//             // this.Log("[Variable] Set", value); 
+//             // this.Log("[Variable] Set", value);
 //             if (BindData == null)
 //             {
 //                 if (_localField.CurrentValue.Equals(tempValue)) return;
@@ -394,7 +400,7 @@ public abstract class GenericMonoVariable<TScriptableData, TField, TType> : Abst
 //             _ => _trackValue["value"]
 //         };
 //         this.Log("Set Value byWho", tempValue, "byWho", byWho);
-//      
+//
 //         this.Track("Variable Changed", _trackValue);
 // #endif
     }
@@ -477,7 +483,7 @@ public abstract class GenericMonoVariable<TScriptableData, TField, TType> : Abst
         return IsGameStateSaveIDNotMatch();
     }
 #endif
-    
+
     public override Type ValueType => typeof(TType);
     public override object objectValue => CurrentValue;
 

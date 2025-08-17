@@ -8,6 +8,6 @@ namespace MonoFSM.Core.DataProvider.Condition
         [DropDownRef] [SerializeField] private AbstractMonoVariable _targetVariable;
 
         protected override bool IsValid => _targetVariable.IsValueExist;
-        public override string Description => $"Var: {_targetVariable.name} Value Exist";
+        public override string Description => $"Var: {_targetVariable?.name} Value Exist";
     }
 }

@@ -1,13 +1,15 @@
+using System;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Runtime._0_Pattern.DataProvider.ComponentWrapper;
-using MonoFSM.Variable;
 using MonoFSM.VarRefOld;
 
 namespace MonoFSM.Core.DataProvider.Condition
 {
+    //有夠肥，難用XDD
+    [Obsolete]
     public class ValueEqualsCondition : AbstractConditionBehaviour //
     {
-        //可能想要比Value vs Vlue, 
+        //可能想要比Value vs Vlue,
         // [Component][PreviewInInspector] IVariableProvider _sourceVariableProvider;
         // [Component][PreviewInInspector] IVariableProvider _targetVariableProvider;
         [AutoChildren] [Component] [PreviewInInspector]
