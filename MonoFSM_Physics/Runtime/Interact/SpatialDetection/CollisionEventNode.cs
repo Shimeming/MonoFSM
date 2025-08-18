@@ -1,10 +1,9 @@
 using MonoFSM.Core.Attributes;
-using MonoFSM.Runtime.Interact.EffectHit;
 using UnityEngine;
 
 namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
 {
-    public class CollisionEventNode : AbstractEffectNode, ICollisionDataProvider
+    public class CollisionEventNode : AbstractEventHandler, ICollisionDataProvider
     {
         public void EventHandle(Collision collision)
         {

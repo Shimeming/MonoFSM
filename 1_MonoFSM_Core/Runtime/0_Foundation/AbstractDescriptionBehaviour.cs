@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Reflection;
 using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
+using MonoFSM.EditorExtension;
 using MonoFSM.Runtime;
 using MonoFSM.Runtime.Attributes;
-using MonoFSM.EditorExtension;
 using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -14,6 +14,7 @@ using Debug = UnityEngine.Debug;
 
 namespace MonoFSM.Foundation
 {
+    [InfoBox("$_errorMessage", InfoMessageType.Error, "$HasError")]
     public abstract class AbstractDescriptionBehaviour : MonoBehaviour, IBeforePrefabSaveCallbackReceiver,
         IAfterPrefabStageOpenCallbackReceiver, IDrawHierarchyBackGround
     {
@@ -112,7 +113,7 @@ namespace MonoFSM.Foundation
                         Debug.LogError($"Required field '{field.Name}' is null in {gameObject.name}", this);
                         EditorGUIUtility.PingObject(this);
                     }
-                        
+
                     return true;
                 }
             }
@@ -135,8 +136,8 @@ namespace MonoFSM.Foundation
             {
                 // 嘗試調用條件方法
                 var method = GetType().GetMethod(validateAttribute.ConditionalMethod,
-                    BindingFlags.Instance | 
-                    BindingFlags.Public | 
+                    BindingFlags.Instance |
+                    BindingFlags.Public |
                     BindingFlags.NonPublic);
 
                 if (method == null)
@@ -187,14 +188,14 @@ namespace MonoFSM.Foundation
                 //     $"Description of {GetType()}: Description:{Description} process:{DescriptionPreprocess(Description)}",
                 //     this);
                 gameObject.name = $"[{DescriptionTag}] {DescriptionPreprocess(Description)}";
-                EditorUtility.SetDirty(gameObject);    
+                EditorUtility.SetDirty(gameObject);
             }
             catch (Exception e)
 
             {
                 Debug.LogError($"Error renaming gameObject: {gameObject.name} to [{DescriptionTag}]", this);
             }
-            
+
 #endif
         }
 
@@ -240,14 +241,15 @@ namespace MonoFSM.Foundation
 #else
             return false;
 #endif
-            
+
         }
 
-        [PreviewInInspector] private string _errorMessage;
+        [PreviewInInspector] protected string _errorMessage;
 
         public Color BackgroundColor => new(1.0f, 0f, 0f, 0.3f);
 
-        [ShowInDebugMode] public bool IsDrawGUIHierarchyBackground => !Application.isPlaying && 
-                                                                      HasError(); //還是用icon? 
+        [ShowInDebugMode]
+        public bool IsDrawGUIHierarchyBackground => !Application.isPlaying &&
+                                                    HasError(); //還是用icon?
     }
 }

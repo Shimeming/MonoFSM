@@ -6,5 +6,6 @@ namespace MonoFSM.Core.LifeCycle
     public class ProjectileSchema : AbstractEntitySchema
     {
         public Rigidbody _rigidbody;
+
     }
 }
