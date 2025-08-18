@@ -1,11 +1,12 @@
-using UnityEngine;
+using System;
 using System.Collections.Generic;
 using _1_MonoFSM_Core.Runtime.FSMCore.Core.StateBehaviour;
+using UnityEngine;
 using UnityEngine.Profiling;
 
 namespace Fusion.Addons.FSM
 {
-    //FIXME: world simulation 就該做掉吧？
+    //Local版的？
     [DisallowMultipleComponent]
     [RequireComponent(typeof(StateMachineLogic))] // Ensure StateMachineLogic is present
     public class MonoStateMachineController : MonoBehaviour, IStateMachineController
@@ -17,7 +18,7 @@ namespace Fusion.Addons.FSM
         [Header("DEBUG")] [SerializeField] private bool _enableLogging; // Removed default initialization
 
         private StateMachineLogic _fsmLogic;
-        
+
         private bool _initialized; // Removed default initialization
 
         // UNITY MESSAGES
@@ -70,12 +71,12 @@ namespace Fusion.Addons.FSM
 
             _fsmLogic.InitializeLogic(); // This calls CollectStateMachines
 
-            for (var i = 0; i < _fsmLogic.StateMachines.Count; i++)
+            foreach (var machine in _fsmLogic.StateMachines)
             {
-                _fsmLogic.StateMachines[i].Reset();
+                machine.Reset();
                 // Initialize with null runner for non-networked context, or a mock/dummy runner if required by IStateMachine
-                //FIXME: 
-                _fsmLogic.StateMachines[i]
+                //FIXME:
+                machine
                     .Initialize(_fsmLogic,
                         new LocalTickProvider()); // Assuming ITickProvider is not needed or handled internally
             }
@@ -91,7 +92,7 @@ namespace Fusion.Addons.FSM
         public void ManualFixedUpdate()
         {
             if (!_fsmLogic._manualUpdateMode)
-                throw new System.InvalidOperationException("Manual update is not turned on");
+                throw new InvalidOperationException("Manual update is not turned on");
 
             FixedUpdateInternal();
         }
@@ -99,7 +100,7 @@ namespace Fusion.Addons.FSM
         public void ManualRender()
         {
             if (!_fsmLogic._manualUpdateMode)
-                throw new System.InvalidOperationException("Manual update is not turned on");
+                throw new InvalidOperationException("Manual update is not turned on");
 
             RenderInternal();
         }

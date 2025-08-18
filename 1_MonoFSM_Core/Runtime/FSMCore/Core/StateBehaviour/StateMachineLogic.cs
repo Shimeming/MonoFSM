@@ -90,6 +90,7 @@ namespace Fusion.Addons.FSM
             _manualUpdateMode = manualUpdate;
         }
 
+        //FIXME: 到處亂叫，不爽, InitializeLogic & CollectStateMachines
         public void CollectStateMachines()
         {
             _stateMachinesInternal.Clear();
@@ -148,11 +149,11 @@ namespace Fusion.Addons.FSM
         {
             if (states == null || states.Length == 0) return;
 
-            if (_statePool == null) _statePool = new List<IState>(128);
+            if (_statePool == null)
+                _statePool = new List<IState>(128);
 
-            for (var i = 0; i < states.Length; i++)
+            foreach (var state in states)
             {
-                var state = states[i];
                 if (state == null) continue;
 
                 if (_statePool.Contains(state) == true)
@@ -165,12 +166,13 @@ namespace Fusion.Addons.FSM
 
         public void ResetStart()
         {
-            if (_stateMachinesCollected)
-                foreach (var stateMachine in StateMachines)
-                    stateMachine.Reset();
+            InitializeLogic();
+            foreach (var stateMachine in StateMachines)
+                stateMachine.Reset();
 
-            else
-                Debug.LogWarning("State machines not collected yet, cannot reset.", this);
+
+            // else
+            //     Debug.LogError("State machines not collected yet, cannot reset.", this);
         }
     }
 }

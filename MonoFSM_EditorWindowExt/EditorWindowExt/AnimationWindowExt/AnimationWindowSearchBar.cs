@@ -14,6 +14,7 @@ namespace MonoFSM.Editor.AnimationWindow
     /// </summary>
     public static class AnimationWindowSearchBar
     {
+
         private static IAnimatorPlayAction _lastEditState;
         [MenuItem("MonoFSM/Edit Animation of State %_E")]
         static void OpenAnimationWindow()
@@ -118,10 +119,10 @@ namespace MonoFSM.Editor.AnimationWindow
             // 動態計算navbar高度
             var baseHeight = 26;
             var extraHeight = 0;
-            if (navbars_byWindow.ContainsKey(window) && navbars_byWindow[window].showObjectFields)
-            {
-                extraHeight = 28; // 第二層的高度
-            }
+            // if (navbars_byWindow.ContainsKey(window) && navbars_byWindow[window].showObjectFields)
+            // {
+            //     extraHeight = 28; // 第二層的高度
+            // }
             var navbarHeight = baseHeight + extraHeight;
 
             void navbarGui()

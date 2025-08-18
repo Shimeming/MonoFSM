@@ -276,23 +276,28 @@ namespace MonoFSM.Core.Simulate
         [MenuItem("MonoFSM/ResetLevel %R")]
         public static void TestResetLevel() //Cheat Reset?
         {
-            if (Application.isPlaying)
-            {
-                Debug.Log("ResetLevel CMD+Shift+R");
-                var simulators = FindObjectsByType<WorldUpdateSimulator>(FindObjectsSortMode.None);
-                //FIXME: 會拿到Temporary Runner Prefab所以才全拿
-                if (simulators.Length == 0)
-                    Debug.LogError(
-                        "No WorldUpdateSimulator found in the scene. Ensure it is present for proper reset.");
-                else
-                    foreach (var simulator in simulators)
-                        //這樣就可以reset了
-                        simulator.ResetLevelRestore();
-            }
-            else
+            if (!Application.isPlaying)
             {
                 CompilationPipeline.RequestScriptCompilation();
+                return;
             }
+
+            Debug.Log("ResetLevel CMD+Shift+R");
+            var simulators = FindObjectsByType<WorldUpdateSimulator>(FindObjectsSortMode.None);
+            //FIXME: 會拿到Temporary Runner Prefab所以才全拿
+            if (simulators.Length == 0)
+                Debug.LogError(
+                    "No WorldUpdateSimulator found in the scene. Ensure it is present for proper reset.");
+            else
+            {
+                foreach (var simulator in simulators)
+                    //這樣就可以reset了
+                    simulator.ResetLevelRestore();
+                foreach (var simulator in simulators)
+                    //這樣就可以reset了
+                    simulator.ResetLevelStart();
+            }
+
         }
 #endif
         public void Render(float runnerLocalRenderTime)

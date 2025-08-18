@@ -14,28 +14,28 @@ using Object = UnityEngine.Object;
 [Serializable]
 public class FlagFieldString : FlagField<string>
 {
-    protected override bool IsCurrentValueEquals(string value) 
+    protected override bool IsCurrentValueEquals(string value)
         => _currentValue == value;
 }
 
 [Serializable]
 public class FlagFieldEnum<T> : FlagField<T> where T : struct, IConvertible, IComparable
 {
-    protected override bool IsCurrentValueEquals(T value) 
+    protected override bool IsCurrentValueEquals(T value)
         => _currentValue.Equals(value);
 }
 
 [Serializable]
 public class FlagFieldInt : FlagField<int>
 {
-    protected override bool IsCurrentValueEquals(int value) 
+    protected override bool IsCurrentValueEquals(int value)
         => _currentValue == value;
 }
 
 [Serializable]
 public class FlagFieldLong : FlagField<long>
 {
-    protected override bool IsCurrentValueEquals(long value) 
+    protected override bool IsCurrentValueEquals(long value)
         => _currentValue == value;
 }
 
@@ -43,13 +43,13 @@ public class FlagFieldLong : FlagField<long>
 [Serializable]
 public class FlagFieldFloat : FlagField<float>
 {
-    public static bool operator ==(FlagFieldFloat j, float k) 
+    public static bool operator ==(FlagFieldFloat j, float k)
         => j.CurrentValue == k;
 
-    public static bool operator !=(FlagFieldFloat j, float k) 
+    public static bool operator !=(FlagFieldFloat j, float k)
         => j.CurrentValue != k;
 
-    protected override bool IsCurrentValueEquals(float value) 
+    protected override bool IsCurrentValueEquals(float value)
         => _currentValue == value;
 }
 
@@ -57,13 +57,13 @@ public class FlagFieldFloat : FlagField<float>
 [Serializable]
 public class FlagFieldVector2 : FlagField<Vector2>
 {
-    public static bool operator ==(FlagFieldVector2 j, Vector2 k) 
+    public static bool operator ==(FlagFieldVector2 j, Vector2 k)
         => j.CurrentValue == k;
 
-    public static bool operator !=(FlagFieldVector2 j, Vector2 k) 
+    public static bool operator !=(FlagFieldVector2 j, Vector2 k)
         => j.CurrentValue != k;
 
-    protected override bool IsCurrentValueEquals(Vector2 value) 
+    protected override bool IsCurrentValueEquals(Vector2 value)
         => _currentValue == value;
 }
 
@@ -81,7 +81,8 @@ public class ValueChangedListener<T>
     //FIXME: 也可以直接塞介面？就不是彈性的隨便塞Action監聽
     private Dictionary<int, Tuple<Object, UnityAction<T>>> onChangeActionDict;
 
-    [PreviewInInspector] private List<Object> ownersInDict 
+    [PreviewInInspector]
+    private List<Object> ownersInDict
         => onChangeActionDict?.Values.Select(x => x.Item1).ToList();
 
     [PreviewInInspector] private List<int> tempKeys = new();
@@ -219,13 +220,13 @@ public class FlagFieldBool : FlagField<bool>
         // PlayTestValue = defaultValue;
     }
 
-    // public static bool operator ==(FlagFieldBool j, bool k) 
+    // public static bool operator ==(FlagFieldBool j, bool k)
     //     => j.CurrentValue == k;
     //
-    // public static bool operator !=(FlagFieldBool j, bool k) 
+    // public static bool operator !=(FlagFieldBool j, bool k)
     //     => j.CurrentValue != k;
     //
-    // protected override bool IsCurrentValueEquals(bool value) 
+    // protected override bool IsCurrentValueEquals(bool value)
     //     => _currentValue == value;
 }
 
@@ -391,7 +392,7 @@ public class
 
     /// fixme: 有可能做non gc 版本嗎？ 上面的看起來失敗了..
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="action"></param>
     /// <param name="owner"></param>
@@ -460,7 +461,7 @@ public class
 
     //[]: debug mode才顯示？ conditional inspector property
 
-    // [ShowInPlayMode(DebugModeOnly = true)] 
+    // [ShowInPlayMode(DebugModeOnly = true)]
 
     // [ShowIf("@DebugSetting.IsDebugMode")] [ShowInInspector]
 
@@ -515,7 +516,7 @@ public class
         _onChangeAction?.Invoke();
         // listenerDict?.OnValueChange(value);
     }
-    
+
 #if UNITY_EDITOR
     [InfoBox("Init後才可以使用，否則會報錯", InfoMessageType.Warning,nameof(NotInit))]
     [ShowInInspector]
@@ -530,7 +531,7 @@ public class
 #endif
         owner = _owner;
         _modifiers.Clear();
-        
+
         // _currentValue = DebugSetting.IsDebugMode switch
         // {
         //     true => DevValue,
@@ -545,10 +546,10 @@ public class
         // Debug.Log("Listener Clear", owner);
         //FIXME: 綁定清掉，這樣listener也要重綁耶
         // listenerOnce.Clear();
-        
+
         if (_owner is Component comp)
             comp.Log("FlagField Init", comp);
-        
+
         ResetToDefault();
     }
 
@@ -557,7 +558,7 @@ public class
     //     listener?.Clear(); //綁定不清會怎麼樣嗎？
     //     _onChangeAction = null;
     // }
-    
+
     //TODO: 換scene清？也不對，有些不清
 
     [ShowInDebugMode]
@@ -585,7 +586,7 @@ public class
         if (owner == null)
             Debug.LogError("PLZ FIX ME, Assign Owner for function block!!" + owner);
 
-        
+
 
         //[]: 有singleton就不用lastMode了吧
         //FIXME: 這個整個都住解掉了？
@@ -593,11 +594,13 @@ public class
         // {
         //     // Debug.Log("FlagField: ResetToDefault" + lastMode);
         //     Init(lastMode, owner);
-        //     
+        //
         //     // Debug.Log("FlagField: CurrentValue" + CurrentValue);
         // }
         // else
-        _currentValue = RuntimeDebugSetting.IsDebugMode ? DevValue : ProductionValue;
+        //FIXME: 要這樣用嗎？hmmm先不要？
+        // _currentValue = RuntimeDebugSetting.IsDebugMode ? DevValue : ProductionValue;
+        _currentValue = ProductionValue;
         // Debug.Log("FlagField Init: " + _currentValue + " Mode: " + DebugSetting.IsDebugMode, owner);
         //沒有register耶？
     }
