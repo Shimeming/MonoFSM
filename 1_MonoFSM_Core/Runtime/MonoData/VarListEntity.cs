@@ -49,6 +49,15 @@ namespace MonoFSM.Core.Variable
             // Debug.Log("Setting current index to: " + index + " CurrentObj: " + CurrentObj);
         }
 
+        public T GetFirstOrDefault()
+        {
+            EnsureActiveCollectionInitialized();
+            if (_activeCollection is List<T> list && list.Count > 0) return list[0];
+            if (_activeCollection is Queue<T> queue && queue.Count > 0) return queue.Peek();
+            if (_activeCollection is HashSet<T> set && set.Count > 0) return set.FirstOrDefault();
+            return default;
+        }
+
         public T CurrentListItem //不是object... current ListItem
         {
             get
@@ -269,11 +278,9 @@ namespace MonoFSM.Core.Variable
 
         public void Remove(T item)
         {
-
             EnsureActiveCollectionInitialized();
-            var removed = false;
-            if (_activeCollection is List<T> list) removed = list.Remove(item);
-            else if (_activeCollection is HashSet<T> set) removed = set.Remove(item);
+            if (_activeCollection is List<T> list) list.Remove(item);
+            else if (_activeCollection is HashSet<T> set) set.Remove(item);
             else if (_activeCollection is Queue<T>)
                 throw new NotSupportedException(
                     "Remove(T item) is not supported for Queue. Use Dequeue() to remove the item from the front, or manage items by clearing and re-adding if specific item removal is needed.");

@@ -632,11 +632,11 @@ namespace MonoFSM.Animation
 
         private bool NoDoneEventTransition()
         {
-            return GetComponentsInChildren<StateTransition>() == null;
+            return GetComponentsInChildren<TransitionBehaviour>() == null;
         }
 
-        // [HideIf(nameof(NoDoneEventTransition))] [TabGroup("Animator")] [PreviewInInspector] [Component] [AutoChildren]
-        // private StateTransition doneEventTransition; //寫成condition更好？
+        // [HideIf(nameof(NoDoneEventTransition))] [TabGroup("Animator")] [PreviewInInspector] [Component]
+        [CompRef] [AutoChildren] private TransitionBehaviour doneEventTransition; //寫成condition更好？
 
         private IEventReceiver _ircgArgEventReceiverImplementation;
 

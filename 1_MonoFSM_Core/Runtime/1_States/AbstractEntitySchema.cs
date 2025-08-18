@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using MonoFSM.Core;
 using MonoFSM.Core.Editor.Utility;
 using MonoFSM.Runtime;
 using MonoFSM.Variable;
@@ -25,11 +26,15 @@ namespace _1_MonoFSM_Core.Runtime._1_States
     }
 
     // public class VarTagAttribute
-    public abstract class AbstractEntitySchema : MonoBehaviour
+    //一個entity應給要允許多個schema, 或是說多個variable folder?
+    [Searchable]
+    public abstract class AbstractEntitySchema : MonoBehaviour, IValueOfKey<Type>
     {
         // This class can be used to define a schema for MonoEntity,
         // which can be used to map variables and components automatically.
         // It can also be used to define a schema for a specific entity type.
+        [ShowInInspector] [AutoParent] private MonoEntity _parentEntity;
+        public MonoEntity BindEntity => _parentEntity;
 
         [Button]
         public void Mapping()
@@ -77,30 +82,53 @@ namespace _1_MonoFSM_Core.Runtime._1_States
 
         private void ProcessVarWrapperField(FieldInfo field)
         {
-            // 取得欄位名稱，移除前綴 '_' 如果有的話
-            var fieldName = field.Name.TrimStart('_');
-            Debug.Log($"處理 VarWrapper 欄位: {field.Name}, 搜尋 VariableTag: {fieldName}", this);
-
-#if UNITY_EDITOR
-            // 使用 ScriptableObjectUtility 搜尋對應的 VariableTag
-            var matchingTag = SOUtility.FindAssetByExactName<VariableTag>(fieldName);
-            if (matchingTag != null)
+            var wrapperInstance = field.GetValue(this);
+            if (wrapperInstance == null)
             {
-                Debug.Log($"找到匹配的 VariableTag: {matchingTag.name}", this);
-                // 設定 VarWrapper 的 _bindTag 欄位
-                SetVarWrapperBindTag(field, matchingTag);
+                Debug.LogWarning($"VarWrapper 欄位 {field.Name} 為 null", this);
+                return;
+            }
 
-                // 尋找並設定對應的變數
-                SetVarWrapperVariable(field, matchingTag);
+            // 優先檢查是否已經有設定 _bindTag
+            var bindTagField = wrapperInstance.GetType().GetField("_bindTag");
+            var existingTag = bindTagField?.GetValue(wrapperInstance) as VariableTag;
+
+            VariableTag targetTag;
+
+            if (existingTag != null)
+            {
+                // 如果已經有 _bindTag，直接使用
+                targetTag = existingTag;
+                Debug.Log($"VarWrapper 欄位 {field.Name} 已有 _bindTag: {existingTag.name}", this);
             }
             else
             {
-                Debug.LogWarning($"找不到名稱為 '{fieldName}' 的 VariableTag", this);
-            }
+                // 如果沒有 _bindTag，才使用字串比對搜尋
+                var fieldName = field.Name.TrimStart('_');
+                Debug.Log($"VarWrapper 欄位 {field.Name} 沒有 _bindTag，搜尋 VariableTag: {fieldName}",
+                    this);
+
+#if UNITY_EDITOR
+                targetTag = SOUtility.FindAssetByExactName<VariableTag>(fieldName);
+                if (targetTag != null)
+                {
+                    Debug.Log($"找到匹配的 VariableTag: {targetTag.name}，設定到 _bindTag", this);
+                    // 設定 VarWrapper 的 _bindTag 欄位
+                    SetVarWrapperBindTag(field, targetTag);
+                }
+                else
+                {
+                    Debug.LogWarning($"找不到名稱為 '{fieldName}' 的 VariableTag", this);
+                    return;
+                }
 #endif
+            }
+
+            // 使用 targetTag 尋找並設定對應的變數
+            if (targetTag != null) SetVarWrapperVariable(field, targetTag);
         }
 
-        private void SetVarWrapperBindTag(FieldInfo wrapperField, VariableTag tag)
+        private void SetVarWrapperBindTag(FieldInfo wrapperField, VariableTag variableTag)
         {
             var wrapperInstance = wrapperField.GetValue(this);
             if (wrapperInstance == null)
@@ -114,15 +142,15 @@ namespace _1_MonoFSM_Core.Runtime._1_States
             var bindTagField = wrapperField.FieldType.GetField("_bindTag");
             if (bindTagField != null)
             {
-                bindTagField.SetValue(wrapperInstance, tag);
-                Debug.Log($"已設定 {wrapperField.Name}._bindTag = {tag.name}", this);
+                bindTagField.SetValue(wrapperInstance, variableTag);
+                Debug.Log($"已設定 {wrapperField.Name}._bindTag = {variableTag.name}", this);
             }
         }
 
-        private void SetVarWrapperVariable(FieldInfo wrapperField, VariableTag tag)
+        private void SetVarWrapperVariable(FieldInfo wrapperField, VariableTag variableTag)
         {
             // 根據 tag 尋找對應的變數
-            var existingVar = _parentEntity.VariableFolder.GetVariable(tag);
+            var existingVar = _parentEntity.VariableFolder.GetVariable(variableTag);
 
             var wrapperInstance = wrapperField.GetValue(this);
             var varField = wrapperField.FieldType.GetField("_var");
@@ -147,7 +175,8 @@ namespace _1_MonoFSM_Core.Runtime._1_States
                 {
                     // 變數不存在，創建新的變數
                     var newVar =
-                        _parentEntity.VariableFolder.CreateVariableWithTag(varField.FieldType, tag);
+                        _parentEntity.VariableFolder.CreateVariableWithTag(varField.FieldType,
+                            variableTag);
                     if (newVar != null)
                     {
                         varField.SetValue(wrapperInstance, newVar);
@@ -214,6 +243,7 @@ namespace _1_MonoFSM_Core.Runtime._1_States
             return _parentEntity.VariableFolder.CreateVariable(field.FieldType, tagName);
         }
 
-        [ShowInInspector] [AutoParent] private MonoEntity _parentEntity;
+
+        public Type Key => GetType();
     }
 }

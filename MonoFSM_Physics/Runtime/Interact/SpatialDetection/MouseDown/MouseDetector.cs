@@ -1,12 +1,10 @@
-using System;
 using System.Collections.Generic;
 using MonoFSM.Core.Detection;
-using MonoFSM.Core.Runtime.Interact.SpatialDetection;
 using UnityEngine;
 
-namespace MonoFSM.Runtime.Interact.SpatialDetection
+namespace MonoFSM.Runtime.Interact
 {
-    public class MouseDetector : BaseDetectProcessor, IDetectionSource
+    public class MouseDetector : IDetectionSource
     {
         static MouseDetector _instance;
         private GameObject _clickedObject;

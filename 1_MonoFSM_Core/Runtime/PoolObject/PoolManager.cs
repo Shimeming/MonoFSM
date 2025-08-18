@@ -322,6 +322,7 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
         return BorrowOrInstantiate(obj, Vector3.zero, Quaternion.identity, parent);
     }
 
+    //FIXME: 進入點不開裸露？
     public T BorrowOrInstantiate<T>(
         T obj,
         Vector3 position = default,
@@ -371,6 +372,7 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
         if (prefab.UseSceneAsPool)
         {
             // 初始重置
+            //FIXME: 太深了？不好理解
             prefab.TransformReset();
             prefab.PoolObjectResetAndStart();
 

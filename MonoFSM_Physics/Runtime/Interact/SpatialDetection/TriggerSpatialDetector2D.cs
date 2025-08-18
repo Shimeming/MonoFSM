@@ -1,13 +1,11 @@
 using System;
 using System.Collections.Generic;
-using MonoFSM.Core.Attributes;
-using MonoFSM.Core.Runtime.Interact.SpatialDetection;
 using MonoFSM.Variable.Attributes;
 using UnityEngine;
 
 namespace MonoFSM.Core.Detection
 {
-    public class TriggerSpatialDetector2D : BaseDetectProcessor, IDetectionSource
+    public class TriggerSpatialDetector2D : IDetectionSource
     {
         [CompRef]
         [Auto]
@@ -15,12 +13,14 @@ namespace MonoFSM.Core.Detection
 
         private void OnTriggerEnter2D(Collider2D other)
         {
-            _detector.OnDetectEnterCheck(other.gameObject);
+            // _detector.OnDetectEnterCheck(other.gameObject);
+            QueueEnterEvent(other.gameObject);
         }
 
         private void OnTriggerExit2D(Collider2D other)
         {
-            _detector.OnDetectExitCheck(other.gameObject);
+            // _detector.OnDetectExitCheck(other.gameObject);
+            QueueExitEvent(other.gameObject);
         }
 
         // protected override void OnDisableImplement()
@@ -38,9 +38,9 @@ namespace MonoFSM.Core.Detection
         }
 
         //FIXME: 不一定需要？
-        public override void UpdateDetection()
-        {
-            // throw new NotImplementedException();
-        }
+        // public override void UpdateDetection()
+        // {
+        //     // throw new NotImplementedException();
+        // }
     }
 }

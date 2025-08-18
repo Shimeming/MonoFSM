@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace MonoFSM.PhysicsWrapper
 {
-    public class CameraRayProvider : MonoBehaviour, IRayProvider
+    public class CameraRayProvider : IRayProvider
     {
         // [SerializeField] private Camera _mainCamera;
         //FIXME: 從provider拿？
@@ -11,7 +11,8 @@ namespace MonoFSM.PhysicsWrapper
         [SerializeField] private float _minVerticalAngle = -45f; // Minimum vertical angle limit
 
         [SerializeField] private float _maxVerticalAngle = 45f;
-        public Ray GetRay()
+
+        public override Ray GetRay()
         {
             // var screenCenter = new Vector3(Screen.width * 0.5f, Screen.height * 0.5f, 0f);
             // if (_mainCamera == null) _mainCamera = Camera.main;
@@ -99,7 +100,7 @@ namespace MonoFSM.PhysicsWrapper
             //         ray = new Ray(ray.origin, newDirection);
             //     }
             // }
-            Debug.Log("camera ray" + ray.direction, this);
+            // Debug.Log("camera ray" + ray.direction, this);
             return ray;
         }
         //FIXME:

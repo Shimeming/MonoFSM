@@ -1,11 +1,25 @@
 using System;
+using System.Collections.Generic;
 using MonoFSM.Core.Attributes;
+using MonoFSM.Core.Variable;
+using MonoFSM.Runtime;
+using MonoFSM.Runtime.Variable;
 using Object = UnityEngine.Object;
 
 namespace MonoFSM.Variable
 {
     [Serializable]
     public class VarFloatWrapper : VarWrapper<VarFloat, float>
+    {
+    }
+
+    [Serializable]
+    public class VarEntityWrapper : VarWrapper<VarEntity, MonoEntity>
+    {
+    }
+
+    [Serializable]
+    public class VarListEntityWrapper : VarWrapper<VarListEntity, List<MonoEntity>>
     {
     }
 

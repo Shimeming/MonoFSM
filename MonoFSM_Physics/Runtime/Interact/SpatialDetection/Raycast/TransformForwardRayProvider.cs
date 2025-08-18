@@ -5,11 +5,11 @@ using UnityEngine;
 namespace MonoFSM.PhysicsWrapper
 {
     [Serializable]
-    public class TransformForwardRayProvider : MonoBehaviour, IRayProvider
+    public class TransformForwardRayProvider : IRayProvider
     {
         [SerializeField] private Transform _transform;
 
-        public Ray GetRay()
+        public override Ray GetRay()
         {
             // Create ray from camera through screen center
             if (_transform == null) _transform = transform; // Use the current GameObject's transform if not set

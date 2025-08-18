@@ -1,4 +1,5 @@
 using System;
+using JetBrains.Annotations;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.DataProvider;
 using MonoFSM.Core.Runtime.Action;
@@ -11,9 +12,10 @@ using UnityEngine;
 
 namespace MonoFSM.Core.LifeCycle
 {
-    public interface IPreSpawnAction
+    public interface IAfterSpawnAction
     {
-        public void PreSpawn(MonoObj obj, Vector3 position, Quaternion rotation);
+        public void AfterSpawn(MonoObj obj, Vector3 position, Quaternion rotation,
+            [CanBeNull] GeneralEffectHitData hitData); //對著某個東西spawn?
     }
     //重寫FXPlayer
     public class
@@ -23,7 +25,7 @@ namespace MonoFSM.Core.LifeCycle
         [Required] [CompRef] [AutoChildren(DepthOneOnly = true)] [ValueTypeValidate(typeof(MonoObj))]
         private ValueProvider _poolObjProvider; //使用VarPoolObj來存儲目標物件
 
-        [CompRef] [AutoChildren] private IPreSpawnAction[] _preSpawnActions;
+        [CompRef] [AutoChildren] private IAfterSpawnAction[] _preSpawnActions;
         //檢查？SerializeClass的話？
 
         //型別篩選 vs attribute篩選？
@@ -39,13 +41,14 @@ namespace MonoFSM.Core.LifeCycle
         {
             Debug.Log("SpawnAction OnStateEnterImplement", this);
             //FIXME: 時機點？FixedUpdateNetwork?
-            Spawn(Prefab, transform.position, transform.rotation);
+            Spawn(Prefab, transform.position, transform.rotation, null);
         }
 
         public bool _isUsingSpawnTransformScale;
         [PreviewInInspector] private MonoObj _lastSpawnedObj;
 
-        private void Spawn(MonoObj prefab, Vector3 position, Quaternion rotation)
+        private void Spawn(MonoObj prefab, Vector3 position, Quaternion rotation,
+            [CanBeNull] GeneralEffectHitData hitData)
         {
             //FIXME: canspawn?
             if (prefab == null)
@@ -84,7 +87,7 @@ namespace MonoFSM.Core.LifeCycle
             _spawnEventHandler?.OnSpawn(newObj, position, rotation);
 
             foreach (var preSpawnAction in _preSpawnActions)
-                preSpawnAction.PreSpawn(newObj, position, rotation);
+                preSpawnAction.AfterSpawn(newObj, position, rotation, hitData);
         }
 
         // private void OnEnable()
@@ -116,7 +119,7 @@ namespace MonoFSM.Core.LifeCycle
                 Debug.Log("hitNormal is not null, using it for rotation " + rotation, this);
             }
 
-            Spawn(Prefab, pos, rotation);
+            Spawn(Prefab, pos, rotation, arg);
             // var newObj = PoolManager.Instance.BorrowOrInstantiate(target, t.position, t.rotation);
         }
 

@@ -7,11 +7,12 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Serialization;
 
+[Obsolete] //FIXME: 不可信任XDD
 public class HitDataEntityProvider : AbstractEntityProvider, IEntityProvider //這個介面很怪？VariableOwner...那就直接I
 {
     //可是這裡
     [CompRef] [AutoParent] private IHitDataProvider _hitDataProvider;
-    
+
     public enum HitDataVariableOwner
     {
         Dealer, //rename?
@@ -19,7 +20,7 @@ public class HitDataEntityProvider : AbstractEntityProvider, IEntityProvider //�
     }
 
     //FIXME: Owner可以 自動判斷吧，parent有Dealer就表示要用Receiver的
-    string IEntityProvider.Description => $"{ownerType}'s Blackboard";
+    string IEntityProvider.Description => $"{ownerType}'s Entity";
 
     public HitDataVariableOwner ownerType;
 
@@ -59,9 +60,9 @@ public class HitDataEntityProvider : AbstractEntityProvider, IEntityProvider //�
 
 
     [ShowInDebugMode] private IEffectHitData currentHitData => _hitDataProvider?.GetHitData();
-    
 
-   
+
+
 }
 
 namespace MonoFSM.Core.Runtime

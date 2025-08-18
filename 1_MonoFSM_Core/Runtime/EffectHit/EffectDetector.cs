@@ -58,10 +58,11 @@ namespace MonoFSM.Core.Detection
 
         public bool IsValid => _conditions.IsAllValid();
 
+        //FIXME: 多個會無法分辨誰造成的
         [Required]
         [CompRef]
         [AutoChildren(DepthOneOnly = true)]
-        private IDetectionSource _detectionSource; //想要手動拉？不好？還是裝下面嗎？
+        private IDetectionSource[] _detectionSources; //想要手動拉？不好？還是裝下面嗎？
 
         private readonly List<EffectDetectable> _toRemove = new();
         private readonly Dictionary<GameObject, EffectDetectable> _currentDetections = new();
@@ -244,40 +245,29 @@ namespace MonoFSM.Core.Detection
 
         public void Simulate(float deltaTime)
         {
-            if (!IsValid || _detectionSource == null)
+            if (!IsValid || _detectionSources == null)
                 return;
 
-            var previousDetections = new Dictionary<GameObject, EffectDetectable>(
-                _currentDetections
-            );
-            _currentDetections.Clear();
+            // var previousDetections = new Dictionary<GameObject, EffectDetectable>(
+            //     _currentDetections
+            // );
+            // _currentDetections.Clear();
 
-            if (!_detectionSource.IsEnabled)
-                return;
-            _detectionSource.UpdateDetection();
-            // foreach (var detection in source.GetCurrentDetections())
+            foreach (var detectionSource in _detectionSources)
+            {
+                if (!detectionSource.IsEnabled)
+                    continue;
+                detectionSource.UpdateDetection();
+            }
+
+            //FIXME: 蛤？
+            // foreach (var kvp in previousDetections)
             // {
-            //     if (!detection.isValidHit) continue;
-            //
-            //     var detectable = detection.targetObject.GetComponentInParent<EffectDetectable>();
-            //     if (detectable == null) continue;
-            //
-            //     _currentDetections[detection.targetObject] = detectable;
-            //
-            //     if (!previousDetections.ContainsKey(detection.targetObject))
+            //     if (!_currentDetections.ContainsKey(kvp.Key))
             //     {
-            //         OnDetectEnter(detection.targetObject, detection.hitPoint, detection.hitNormal);
+            //         OnDetectExitCheck(kvp.Key);
             //     }
             // }
-
-
-            foreach (var kvp in previousDetections)
-            {
-                if (!_currentDetections.ContainsKey(kvp.Key))
-                {
-                    OnDetectExitCheck(kvp.Key);
-                }
-            }
         }
 
         public void AfterUpdate() { }

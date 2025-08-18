@@ -6,13 +6,13 @@ using UnityEngine;
 
 namespace MonoFSM.Core.Runtime
 {
-    [Obsolete]
-    public class EntityFromValueProvider : AbstractEntityProvider
-    {
-        public override string SuggestDeclarationName => "value:";
-        public override MonoEntity monoEntity => _monoEntityProvider?.Get<MonoEntity>();
-
-        [ValueTypeValidate(typeof(MonoEntity))] [SerializeField] [DropDownRef]
-        private ValueProvider _monoEntityProvider;
-    }
+    // [Obsolete]
+    // public class EntityFromValueProvider : AbstractEntityProvider
+    // {
+    //     public override string SuggestDeclarationName => "value:";
+    //     public override MonoEntity monoEntity => _monoEntityProvider?.Get<MonoEntity>();
+    //
+    //     [ValueTypeValidate(typeof(MonoEntity))] [SerializeField] [DropDownRef]
+    //     private ValueProvider _monoEntityProvider;
+    // }
 }

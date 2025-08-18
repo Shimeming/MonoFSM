@@ -1,3 +1,4 @@
+using System;
 using _1_MonoFSM_Core.Runtime.FSMCore.Core.StateBehaviour;
 using Sirenix.OdinInspector;
 
@@ -16,6 +17,7 @@ public interface ITransitionCheckInvoker
 } //interface沒有意義？
 
 //還是用IRCGEventReceiver?
+[Obsolete]
 [Searchable]
 public class StateTransition : TransitionBehaviour
 {
@@ -67,7 +69,7 @@ public class StateTransition : TransitionBehaviour
 //
 //     private bool TransitionValidationResult()
 //     {
-//         
+//
 //         return _target == _parentState as GeneralState;
 //     }
 //
@@ -241,6 +243,6 @@ public class StateTransition : TransitionBehaviour
 //
 //     public Color BackgroundColor => new(1.0f, 0f, 0f, 0.3f);
 //
-//     public bool IsDrawGUIHierarchyBackground => HasError(); //還是用icon? 
+//     public bool IsDrawGUIHierarchyBackground => HasError(); //還是用icon?
 //     //FIXME: highlight related component ex: target state, 偷改他狀態？ 怎麼做標記？ 我被選到的話
 // }

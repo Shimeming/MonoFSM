@@ -4,6 +4,7 @@ using UnityEngine;
 //第一次記住
 //看到dynamic rigidbody就應該要有這個
 //要寫一堆restore系列？
+//FIXME: 放在這，還是應該放在init state
 public class LocalTransformResetter : MonoBehaviour, IResetStateRestore
 {
     private Vector3 initPosition;
@@ -11,6 +12,8 @@ public class LocalTransformResetter : MonoBehaviour, IResetStateRestore
     private Transform initParent;
     private Vector3 initlocalScale;
     private bool isResetParametterInit = false;
+
+    private bool _isKinematic;
 
     [AutoParent] public Rigidbody _rigidbody;
     // [AutoChildren(false)] private Rigidbody2D rigidbody2D;
@@ -28,14 +31,20 @@ public class LocalTransformResetter : MonoBehaviour, IResetStateRestore
         if (isResetParametterInit)
             return true;
 
+        InitSnapshot();
+        isResetParametterInit = true;
+        return false;
+    }
+
+    private void InitSnapshot()
+    {
         initParent = transform.parent;
         initPosition = transform.localPosition;
         initRotation = transform.localRotation;
         initlocalScale = transform.localScale;
 
-        isResetParametterInit = true;
-
-        return false;
+        //--
+        _isKinematic = _rigidbody.isKinematic;
     }
 
     public void ResetStateRestore()
@@ -50,5 +59,7 @@ public class LocalTransformResetter : MonoBehaviour, IResetStateRestore
 
         _rigidbody.linearVelocity = Vector3.zero;
         _rigidbody.angularVelocity = Vector3.zero;
+        _rigidbody.isKinematic = _isKinematic;
+        _rigidbody.ResetInertiaTensor();
     }
 }

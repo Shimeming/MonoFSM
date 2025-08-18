@@ -16,7 +16,7 @@ namespace MonoFSM.Core.Simulate
     public interface ISimulateRunner
     {
     }
-    
+
     public static class WorldUpdateSimulatorExtensions
     {
         public static MonoObj Spawn(this GameObject gObj, MonoObj obj, Vector3 position, Quaternion rotation)
@@ -47,7 +47,7 @@ namespace MonoFSM.Core.Simulate
     public sealed class WorldUpdateSimulator : MonoBehaviour
     {
         //反綁？
-        //fsm reset?, simulate runner 
+        //fsm reset?, simulate runner
         [Required][CompRef][Auto] private ISimulateRunner _simulateRunner;
 
         //FIXME: Spawn要不要過我？
@@ -57,16 +57,16 @@ namespace MonoFSM.Core.Simulate
         {
             _spawnProcessor = GetComponent<ISpawnProcessor>();
             _simulateRunner = GetComponent<ISimulateRunner>();
-            
+
             // _simulators.AddRange(_localSimulators); //不需要了？
             _binder = GetComponent<MonoEntityBinder>();
-            
+
             _binder.EnterSceneAwake();
             Debug.Log("MonoEntityBinder Init");
         }
 
        [CompRef] [Auto]  private MonoEntityBinder _binder;
-        
+
         public static WorldUpdateSimulator GetWorldUpdateSimulator(GameObject me)
         {
             //這個是用來獲取當前的WorldUpdateSimulator
@@ -86,6 +86,8 @@ namespace MonoFSM.Core.Simulate
 
         //全世界都該透過這個spawn?
         //FIXME: 好像不對，photon應該用他原本的Spawn方法，這個處理要在之後觸發？
+        //1. 想收斂Spawn進入點
+        //2. 還是會出現Runner直接Spawn沒辦法避免？
         public MonoObj Spawn(MonoObj obj, Vector3 position, Quaternion rotation)
         {
             if (obj == null)
@@ -96,6 +98,9 @@ namespace MonoFSM.Core.Simulate
 
             //Spawn Strategy? 透過 Fusion的PoolObject 系統...那何不都用他的就好?
             var result = _spawnProcessor.Spawn(obj, position, rotation);
+            //FIXME: 在這裡做 Spawn後的初始化?
+            // AfterPoolSpawn(result);
+
             if (result == null)
                 return null;
 #if UNITY_EDITOR
@@ -105,7 +110,7 @@ namespace MonoFSM.Core.Simulate
 #endif
             //FIXME: spawner本來就該來call這個？順便call auto?
             RegisterMonoObject(result);
-            
+
             return result;
         }
 
@@ -120,8 +125,8 @@ namespace MonoFSM.Core.Simulate
             //FIXME: 要先做事？OnReturnPool? OnDespawn
             _spawnProcessor.Despawn(obj); //看實作
         }
-        
-        
+
+
 
         public void RegisterMonoObject(MonoObj target)
         {
@@ -134,11 +139,13 @@ namespace MonoFSM.Core.Simulate
                 // target.ResetStart();
             }
         }
+
+        //FIXME: local的沒有接到？
         public void AfterPoolSpawn(MonoObj target)
         {
             if (target == null) return;
             //FIXME: 在這auto?
-            
+
             //這個是用來做初始化的？
             RegisterMonoObject(target);
             target.SpawnFromPool();//ISceneAwake叫兩次？
@@ -161,8 +168,8 @@ namespace MonoFSM.Core.Simulate
         {
             foreach (var monoObject in _monoObjectSet) monoObject.HandleSceneStart();
         }
-        
-        
+
+
 
         //從player進入？
         public void ResetLevelRestore()
@@ -217,7 +224,7 @@ namespace MonoFSM.Core.Simulate
         {
             if (!IsReady)
                 return;
-         
+
             _currentUpdatingObjs.Clear();
 
         #if UNITY_EDITOR //FIXME: 亂call destroy可能導致這個
@@ -229,22 +236,22 @@ namespace MonoFSM.Core.Simulate
                 }
             }
         #endif
-            
+
             _currentUpdatingObjs.AddRange(_monoObjectSet);
-            
-            
+
+
 
             //FIXME: isProxy? 要ㄇ 跳過模擬，或是regiester要兩階段
             foreach (var monoObject in _currentUpdatingObjs)
             {
-       
-                
+
+
                 if (monoObject is { isActiveAndEnabled: true })
                     monoObject.Simulate(deltaTime);
             }
-                
-            
-                    
+
+
+
             // else
             //     Debug.LogWarning("A mono object is null or not active and enabled, skipping simulation.");
 

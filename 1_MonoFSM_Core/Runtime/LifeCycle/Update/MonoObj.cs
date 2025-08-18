@@ -221,17 +221,17 @@ namespace MonoFSMCore.Runtime.LifeCycle
             {
                 if (item == null || item.isActiveAndEnabled == false)
                     continue;
-                try
-                {
+                // try
+                // {
                     item.Simulate(deltaTime);
-                }
-                catch (Exception e)
-                {
-                    if (item is MonoBehaviour)
-                        Debug.LogError(e.Message + "\n" + e.StackTrace, item as MonoBehaviour);
-                    else
-                        Debug.LogError(e.Message + "\n" + e.StackTrace);
-                }
+                    // }
+                    // catch (Exception e)
+                    // {
+                    //     if (item is MonoBehaviour)
+                    //         Debug.LogError(e.Message + "\n" + e.StackTrace, item as MonoBehaviour);
+                    //     else
+                    //         Debug.LogError(e.Message + "\n" + e.StackTrace);
+                    // }
             }
         }
 

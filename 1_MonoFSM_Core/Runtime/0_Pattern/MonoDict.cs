@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using MonoFSM.Core.Attributes;
-using MonoFSM.Variable;
 using MonoFSM.Variable.Attributes;
 using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
-using Sirenix.Utilities;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
@@ -14,8 +13,9 @@ using Object = UnityEngine.Object;
 namespace MonoFSM.Core
 {
     //AutoDict?
-    public abstract class MonoDict<T, TU> : MonoBehaviour, ISceneAwake
-        where TU : IValueOfKey<T> where T : IStringKey
+    public abstract class
+        MonoDict<T, TU> : MonoBehaviour, ISceneAwake //FIXME: 原本T : IStringKey的，但Type就不行了
+        where TU : IValueOfKey<T>
     {
         protected virtual bool isLog => false;
 
@@ -38,7 +38,7 @@ namespace MonoFSM.Core
         {
             return _dict.ContainsKey(key);
         }
-        
+
         protected readonly Dictionary<T, TU> _dict = new();
         protected readonly Dictionary<string, TU> _stringDict = new(); //FIXME: 可能會過期喔？要檢查看看null了要清掉？
 
@@ -46,7 +46,7 @@ namespace MonoFSM.Core
         //GetAll, 和GetComponentsInChildren<TU> 有點像 GetComponentsInChildren<TU>就回傳第一個
         //用List還是HashSet好？
         protected readonly Dictionary<Type, HashSet<TU>> _typeDict = new(); //這個抽出去另外做？
-        
+
         protected readonly List<T> _tempRemoveList = new();
 
         public bool Contains(T key)
@@ -118,7 +118,7 @@ namespace MonoFSM.Core
 
             _dict.Add(key, value);
             if (IsStringDictEnable)
-                _stringDict.TryAdd(value.Key.GetStringKey, value);
+                _stringDict.TryAdd(value.Key.ToString(), value);
             AddImplement(value);
             // enabled = true;
         }
@@ -134,7 +134,13 @@ namespace MonoFSM.Core
             EditorPrepareCheck();
             //FIXME: 做得有點粗，要細再想一下
             var set = _typeDict.GetValueOrDefault(type);
-            return set != null ? System.Linq.Enumerable.FirstOrDefault(set) : default;
+            return set != null ? set.FirstOrDefault() : default;
+        }
+
+        public TT Get<TT>() where TT : class, TU
+        {
+            EditorPrepareCheck();
+            return Get(typeof(TT)) as TT;
         }
 
         public TU Get(string key)
@@ -150,7 +156,7 @@ namespace MonoFSM.Core
             EditorPrepareCheck();
             if (key == null)
                 return default;
-            //FIXME: 
+            //FIXME:
             if (_dict.TryGetValue(key, out var value))
                 return value;
 
@@ -273,7 +279,7 @@ namespace MonoFSM.Core
                         Debug.Log($"Can't add {item}", item as Object);
                     continue;
                 }
-                
+
                 Add(item.Key, item);
             }
         }

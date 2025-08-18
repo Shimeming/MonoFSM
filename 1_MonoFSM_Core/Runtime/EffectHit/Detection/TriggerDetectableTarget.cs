@@ -6,16 +6,20 @@ using UnityEngine;
 namespace MonoFSM.Core.Detection
 {
     [DisallowMultipleComponent]
-    public class TriggerDetectableTarget
+    public class TriggerDetectableTarget //很白痴耶，只有Trigger
         : BaseEffectDetectTarget,
             IDetectableTarget,
             IColliderProvider
     {
         [Required]
         [CompRef]
-        [AutoParent]
+        [Auto]
+        //FIXME: [AutoParent(AddAtSame = true)]
+        [SerializeField]
         private Collider _collider;
         //FIXME: 加的時候要同一層
+
+
 
         // [Component] [AutoChildren(DepthOneOnly = true)]
         // private GeneralEffectReceiver[] _effectReceivers;
@@ -55,5 +59,7 @@ namespace MonoFSM.Core.Detection
         {
             // AddColliderComponent();
         }
+
+        protected override string DescriptionTag => "Trigger空間";
     }
 }

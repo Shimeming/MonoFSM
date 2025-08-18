@@ -1,13 +1,14 @@
 using Fusion.Addons.FSM;
 using MonoFSM.Core;
+using MonoFSM.EditorExtension;
 using MonoFSM.Foundation;
 using MonoFSM.Variable.Attributes;
-using MonoFSM.EditorExtension;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace _1_MonoFSM_Core.Runtime.FSMCore.Core.StateBehaviour
 {
+    //只需要這個就好了嗎？但是
     public class TransitionBehaviour : TransitionBehaviour<MonoStateBehaviour>, IOverrideHierarchyIcon,
         IDrawHierarchyBackGround
     {
@@ -44,7 +45,7 @@ namespace _1_MonoFSM_Core.Runtime.FSMCore.Core.StateBehaviour
         // UnityEditor.EditorGUIUtility.ObjectContent(null, typeof(StateTransition)).image as Texture2D;
 
 #endif
-        // public bool IsDrawGUIHierarchyBackground => HasError(); //還是用icon? 
+        // public bool IsDrawGUIHierarchyBackground => HasError(); //還是用icon?
 
 
         // private bool HasError()

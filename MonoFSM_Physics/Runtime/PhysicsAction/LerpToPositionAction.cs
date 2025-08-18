@@ -1,18 +1,51 @@
+using MonoFSM.Core;
 using MonoFSM.Core.DataProvider;
-using MonoFSM.Core.Runtime.Action;
 using UnityEngine;
 
 namespace MonoFSM_Physics.Runtime.PhysicsAction
 {
-    public class LerpToPositionAction : AbstractStateAction
+    public interface ICustomRigidbody
+    {
+        public void AddForce(Vector3 force, ForceMode mode);
+        public Vector3 position { get; set; }
+        public bool isPaused { set; get; }
+    }
+
+    public class LerpToPositionAction : AbstractStateLifeCycleHandler
     {
         // [Required] [CompRef] [AutoChildren] private ICompProvider<Rigidbody> _rigidbodyProvider;
         [DropDownRef] public ValueProvider _rigidbodyValueProvider;
         public Vector3 _offsetPosition = Vector3.zero;
+        private Rigidbody _rb;
 
-        protected override void OnActionExecuteImplement()
+        protected override void OnStateEnter()
         {
+            base.OnStateEnter();
+            _rb = _rigidbodyValueProvider.Get<Rigidbody>();
+            var rb = _rb;
+            rb.isKinematic = true;
+            _targetPosition = rb.transform.position + _offsetPosition;
+            if (rb.TryGetComponent<ICustomRigidbody>(out var customRigidbody))
+                customRigidbody.isPaused = true;
+        }
+
+        private Vector3 _targetPosition;
+
+        protected override void OnStateUpdate()
+        {
+            base.OnStateUpdate();
             var rb = _rigidbodyValueProvider.Get<Rigidbody>();
+
+            //character要另外處理...
+            if (rb.TryGetComponent<ICustomRigidbody>(out var customRigidbody))
+            {
+                // customRigidbody.AddForce((_offsetPosition - rb.position) * 100,
+                //     ForceMode.VelocityChange);
+                customRigidbody.position = Vector3.Lerp(rb.position, _targetPosition,
+                    DeltaTime);
+                return;
+            }
+
             // var rb = _rigidbodyProvider.Get();
             if (rb == null)
             {
@@ -20,13 +53,21 @@ namespace MonoFSM_Physics.Runtime.PhysicsAction
                 return;
             }
 
-            Debug.Log($"LerpToPositionAction: {rb.name} to position {_offsetPosition}",
-                rb.gameObject);
-            rb.isKinematic = true;
-            var targetPosition = rb.transform.position + _offsetPosition;
+
+
             //FIXME: network卡住？
-            // rb.AddForce((targetPosition - rb.position) * 10, ForceMode.VelocityChange);
-            rb.MovePosition(Vector3.Lerp(rb.position, targetPosition, bindingState.DeltaTime));
+            // var forceDirection = (targetPosition - rb.position).normalized;
+            // Debug.Log($"Force direction: {forceDirection}", this);
+            // rb.AddForce(forceDirection * 1, ForceMode.VelocityChange);
+            rb.MovePosition(Vector3.Lerp(rb.position, _targetPosition, DeltaTime));
+        }
+
+        protected override void OnStateExit()
+        {
+            base.OnStateExit();
+            _rb.isKinematic = false;
+            if (_rb.TryGetComponent<ICustomRigidbody>(out var customRigidbody))
+                customRigidbody.isPaused = false;
         }
     }
 }

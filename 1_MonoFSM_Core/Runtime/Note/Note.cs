@@ -1,10 +1,11 @@
 ﻿using MonoFSM.Editor.DesignTool;
+using MonoFSM.EditorExtension;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
 
 //Just for remind
-public class Note : MonoBehaviour, IEditorOnly //IOverrideHierarchyIcon
+public class Note : MonoBehaviour, IEditorOnly, IHierarchyValueInfo //IOverrideHierarchyIcon
 {
     //FIXME: 用vHierarchyIcon來做?
     // [EnumToggleButtons]
@@ -36,7 +37,9 @@ public class Note : MonoBehaviour, IEditorOnly //IOverrideHierarchyIcon
     public string note;
 
     [ColorPalette] public Color bgColor = Color.yellow; //fixme:color 應該直接照著類型，和IDE這個註解一樣
-#endif  
+#endif
     public string IconName => "_Help";
     public bool IsDrawingIcon => false;
+    public string ValueInfo => note;
+    public bool IsDrawingValueInfo => true; 
 }

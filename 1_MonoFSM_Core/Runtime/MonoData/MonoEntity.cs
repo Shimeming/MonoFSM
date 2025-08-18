@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using _1_MonoFSM_Core.Runtime._1_States;
 using JetBrains.Annotations;
 using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
@@ -11,6 +12,7 @@ using MonoFSM.Runtime.Interact.EffectHit;
 using MonoFSM.Runtime.Mono;
 using MonoFSM.Runtime.Variable;
 using MonoFSM.Variable;
+using MonoFSM.Variable.Attributes;
 using MonoFSM.Variable.FieldReference;
 using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
@@ -24,17 +26,23 @@ namespace MonoFSM.Runtime
     {
         bool IsAddValid();
     }
-    
+
     //FIXME: 必定需要MonoObj?
-    [RequireComponent(typeof(MonoObj))] 
+    [RequireComponent(typeof(MonoObj))]
     [Searchable]
     [FormerlyNamedAs("MonoDescriptable")]
     public class MonoEntity : AbstractMonoDescriptable<GameData>, IInstantiated,
         IBeforePrefabSaveCallbackReceiver, IGameDataProvider, IValueProvider, IAnimatorProvider //這樣data也要一直繼承，好ㄇ...
     {
+        [CompRef] [Auto] [SerializeField] private AbstractEntitySchema _entitySchema;
+        public AbstractEntitySchema EntitySchema => _entitySchema; //不唯一？defaultSchema?
+
+        [AutoChildren(DepthOneOnly = true)] private SchemaFolder _schemaFolder;
+
+        // set => _entitySchema = value;
         //Utility? 開始要拿一些Rigidbody、Collider之類的東西了
         public Rigidbody DefaultRigidbody => GetComponent<Rigidbody>(); //FIXME: 位置對嗎？
-        
+
         //FIXME: nested? MonoEntity dictionary?
         public void OnInstantiated(WorldUpdateSimulator world)
         {
@@ -49,12 +57,12 @@ namespace MonoFSM.Runtime
                 Debug.Log("Registering MonoEntity to WorldBinder: " + name, this);
                 _worldBinder.Add(DefaultTag, this); //註冊法
             }
-                
+
             else
                 Debug.LogError("MonoDescriptableBinder not found in parent, cannot register to world binder", this);
             // GetComponent<MonoDescriptableBinder>().Add(DescriptableTag, this);
         }
-        
+
         [PreviewInInspector]
         MonoEntityBinder _worldBinder;
 
@@ -78,6 +86,20 @@ namespace MonoFSM.Runtime
         public Animator ChildAnimator => GetComponentInChildren<Animator>();
 
         public Animator[] ChildAnimators => GetComponentsInChildren<Animator>();
+
+        public TSchema GetSchema<TSchema>() where TSchema : AbstractEntitySchema
+        {
+            if (_schemaFolder != null)
+            {
+                var result = _schemaFolder.Get<TSchema>();
+                return result;
+            }
+
+            if (_entitySchema is TSchema schema) return schema;
+
+            Debug.LogError($"Schema {typeof(TSchema)} not found in {name}", this);
+            return null;
+        }
     }
 
     //描述物件的monoNode, Entity? MonoEntity?
@@ -88,8 +110,8 @@ namespace MonoFSM.Runtime
     public class AbstractMonoDescriptable<TMonoDescriptable> : MonoBlackboard, IMonoDescriptable, ISceneAwake
         where TMonoDescriptable : GameData //,IVariableOwner //VariableOwner?
     {
-        
-        
+
+
         //FIXME: 更複雜的描述組合？
         [UsedImplicitly] //從UI直接選
         public virtual string RuntimeDescription =>
@@ -181,7 +203,7 @@ namespace MonoFSM.Runtime
         }
 
         // [SerializeField] private MonoDescriptableTag[] DescriptableTags; //
-        
+
         public virtual void OnUIEventReceived() //FIXME; 這啥XD
         {
             Debug.Log("UI Event Received", this);
@@ -273,7 +295,7 @@ namespace MonoFSM.Runtime
                         Debug.Log("Receiver type already exists" + receiver._effectType, receiver);
                     }
                 }
-                    
+
 
             foreach (var dealer in _dealers)
                 if (_dealerTypeMap.TryAdd(dealer._effectType, dealer) == false)
@@ -296,8 +318,8 @@ namespace MonoFSM.Runtime
             foreach (var variable in VariableFolder.GetValues)
                 tagDropdownItems.Add(new ValueDropdownItem<VariableTag>(variable.name, variable._varTag));
             return tagDropdownItems;
-        }        
-    
+        }
+
         //繼承MonoDescriptable的class，可以透過這個方法來將所有的variable field mapping到VariableFolder
         private FieldInfo[] _variableFields;
 
@@ -309,22 +331,22 @@ namespace MonoFSM.Runtime
             if (DescriptableTags == null || DescriptableTagCount == 0)
                 return;
             var variables = VariableFolder.GetValues;
-            
+
             // 為所有 DescriptableTag 新增缺失的 variable tags
             foreach (var descriptableTag in DescriptableTags)
             {
                 if (descriptableTag == null) continue;
-                
+
                 foreach (var variable in variables)
                 {
                     if (!descriptableTag.containsVariableTypeTags.Contains(variable._varTag))
-                        descriptableTag.containsVariableTypeTags.Add(variable._varTag);    
+                        descriptableTag.containsVariableTypeTags.Add(variable._varTag);
                 }
 #if UNITY_EDITOR
                 EditorUtility.SetDirty(descriptableTag);
 #endif
             }
-            
+
         }
 
         //FIXME: 好像不需要了？要繼承 MonoEntity 才需要

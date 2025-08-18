@@ -1,12 +1,12 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Fusion.Addons.FSM;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Runtime.Action;
 using MonoFSM.Foundation;
 using MonoFSM.Runtime.Vote;
 using MonoFSM.Variable.Attributes;
-using MonoFSM.EditorExtension;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -24,7 +24,7 @@ namespace MonoFSM.Core
     /// - Action management through IEventReceiver pattern
     /// - Integration with AbstractStateAction functionality (conditions, delays, etc.)
     /// - Consistent interface for state behavior handling
-    /// 
+    ///
     /// Unlike AbstractEventHandler which handles generic events, this class is specifically
     /// designed for state machine lifecycle management.
     /// </remarks>
@@ -56,6 +56,8 @@ namespace MonoFSM.Core
         }
 
         [AutoParent] protected GeneralState _bindingState;
+        [AutoParent] protected StateMachineLogic _context;
+        protected float DeltaTime => _context.DeltaTime;
 
         [Required] [PreviewInInspector] [AutoParent]
         protected IActionParent _actionParent;

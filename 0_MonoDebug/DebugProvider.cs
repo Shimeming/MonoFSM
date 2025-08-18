@@ -50,7 +50,7 @@ public class DebugProvider : MonoBehaviour, IEditorOnly, IOverrideHierarchyIcon 
         InfoMessageType.Warning,
         VisibleIf = "IsNotDebugMode"
     )]
-    public bool IsLogInChildren = true;
+    public bool IsLogInChildren;
 #else
     [NonSerialized]
     public bool IsLogInChildren = false;

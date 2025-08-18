@@ -19,6 +19,7 @@ namespace MonoFSM.Runtime
         {
             //FIXME: 還要做updateSimulator的註冊？
             var newObj = PoolManager.Instance.BorrowOrInstantiate(obj, position, rotation);
+            _worldUpdateSimulator.AfterPoolSpawn(newObj);
             return newObj;
         }
 

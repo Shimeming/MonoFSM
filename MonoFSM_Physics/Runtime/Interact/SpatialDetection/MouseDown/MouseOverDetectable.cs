@@ -5,6 +5,9 @@ using UnityEngine;
 
 namespace MonoFSM.Runtime.Interact.SpatialDetection
 {
+    /// <summary>
+    ///     重新整
+    /// </summary>
     public class MouseOverDetectable : EffectDetectable
     {
         [Component]
@@ -25,22 +28,17 @@ namespace MonoFSM.Runtime.Interact.SpatialDetection
 
             //current mouse effectDealer?
             var detector = MouseDetector.Instance;
-            // if(detector.)
-            // Debug.Log("OnMouseDown", this);
-            detector.QueueEnterEvent(gameObject);
-            //TODO: 馬上就Exit?
-            //FIXME: 連點會有狀態問題耶...
-            //FIXME: 要條件對才可以做這件事？
+            // detector.QueueEnterEvent(gameObject);
+            throw new NotImplementedException(
+                "MouseOverDetectable OnMouseEnter not implemented yet.");
         }
 
         public void OnMouseExit()
         {
             var detector = MouseDetector.Instance;
-            detector.QueueExitEvent(gameObject);
-            // foreach (var effectReceiver in EffectReceivers)
-            // {
-            //     effectReceiver.OnEffectHit();
-            // }
+            throw new NotImplementedException(
+                "MouseOverDetectable OnMouseExit not implemented yet.");
+            // detector.QueueExitEvent(gameObject);
         }
     }
 }

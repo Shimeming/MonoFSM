@@ -1,11 +1,9 @@
-using System;
 using MonoFSM.Core.Attributes;
+using MonoFSM.EditorExtension;
 using MonoFSM.Runtime.Mono;
 using MonoFSM.Variable;
 using MonoFSM.Variable.FieldReference;
-using MonoFSM.EditorExtension;
 using Sirenix.OdinInspector;
-using UnityEngine;
 using UnityEngine.Serialization;
 
 namespace MonoFSM.Runtime.Variable
@@ -13,23 +11,26 @@ namespace MonoFSM.Runtime.Variable
     //指向外部
     //需要再定義更細的class嗎？還是MonoDescriptable就夠了
     //最常用的Variable? MonoDescriptable下也會有MonoDescriptable
-    //FIXME: 還是叫別的吧 VarMono?好像還是比較好？
+    //FIXME: 回到pool後，reference要清掉？還是是detector的責任？
+
     [FormerlyNamedAs("VarBlackboard")]
     public class VarEntity : GenericUnityObjectVariable<MonoEntity>, IHierarchyValueInfo
     {
+
         [FormerlySerializedAs("_MonoDescriptableTag")]
         [SOConfig("10_Flags/VarMono")]
         [BoxGroup("定義型別")]
-        [PropertyOrder(-1)]
+
+        //FIXME: 這用了感覺就...沒彈性了？，限定schema如何？感覺在做差不多的事？[PropertyOrder(-1)]
         public MonoEntityTag _monoEntityTag; //FIXME: Expected MonoEntityTag, but can be null?
 
         [BoxGroup("定義型別")]
         [PropertyOrder(-1)]
         [PreviewInInspector]
-        public GameData SampleData 
+        public GameData SampleData
 #if UNITY_EDITOR
             => _monoEntityTag
-                ? _monoEntityTag.SamepleData 
+                ? _monoEntityTag.SamepleData
                 : null;
 #else
             => null;
@@ -56,7 +57,7 @@ namespace MonoFSM.Runtime.Variable
 
 
         protected override MonoEntity DefaultValue =>_defaultValue;
-            // _siblingDefaultValue != null ? _siblingDefaultValue : 
+        // _siblingDefaultValue != null ? _siblingDefaultValue :
 
         //FIXME: 用Type更好嗎？
         // public override GameFlagBase FinalData => Value != null ? Value.Data : SampleData;

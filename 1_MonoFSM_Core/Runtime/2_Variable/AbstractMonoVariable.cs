@@ -448,7 +448,7 @@ namespace MonoFSM.Variable
 
         public Type GetRestrictType()
         {
-            return _varTag.ValueFilterType;
+            return _varTag?.ValueFilterType;
         }
     }
 }

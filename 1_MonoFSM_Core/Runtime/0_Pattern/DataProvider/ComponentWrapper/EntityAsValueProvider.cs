@@ -1,27 +1,28 @@
 using System;
 using MonoFSM.Core.DataProvider;
-using MonoFSM.Runtime.Variable;
+using MonoFSM.Runtime;
 using MonoFSM.Variable.Attributes;
 using UnityEngine;
 
 namespace MonoFSM.Core.Runtime
 {
     //把MonoBlackboard當成一個值提供者, 才可以被set到varMono上
-    public class EntityAsValueProvider : MonoBehaviour, IValueProvider<MonoBlackboard>
+    public class EntityAsValueProvider : MonoBehaviour, IValueProvider<MonoEntity>
     {
         [CompRef] [Auto] private IEntityProvider _entityProvider;
 
-        public MonoBlackboard Value => _entityProvider.monoEntity;
+        public MonoEntity Value => _entityProvider.monoEntity;
 
         public T GetValue<T>()
         {
-            if (typeof(T) != typeof(MonoBlackboard))
-                throw new InvalidOperationException("GetValue<T>() can only be used with MonoBlackboard type.");
+            if (typeof(T) != typeof(MonoEntity))
+                throw new InvalidOperationException(
+                    "GetValue<T>() can only be used with MonoEntity type.");
 
             return (T)(object)_entityProvider.monoEntity;
         }
 
-        public Type ValueType => typeof(MonoBlackboard);
+        public Type ValueType => typeof(MonoEntity);
         public string Description => ToString();
 
         public override string ToString()
@@ -32,6 +33,6 @@ namespace MonoFSM.Core.Runtime
 #endif
             return _entityProvider.Description + " as Value";
         }
-        //Assign A to B vs 
+        //Assign A to B vs
     }
 }

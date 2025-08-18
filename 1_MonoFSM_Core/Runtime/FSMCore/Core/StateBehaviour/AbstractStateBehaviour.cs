@@ -11,6 +11,7 @@ using UnityEngine;
 
 namespace MonoFSM.Core
 {
+    //FIXME: TState還有意義嗎？直接確定是 MonoBehaviourState就好？
     public abstract class AbstractStateBehaviour<TState> : MonoBehaviour, IState, IOwnedState<TState>
         where TState : AbstractStateBehaviour<TState>
     {
@@ -36,6 +37,7 @@ namespace MonoFSM.Core
 
         // [AutoChildren] private AbstractStateAction[] _actions;
 
+        // [CompRef] [AutoChildren] private TransitionBehaviour<TState>[] _transitions;
         [CompRef] [AutoChildren] private TransitionBehaviour<TState>[] _transitions;
 
         // public StateTransition[] Transitions => transitions;

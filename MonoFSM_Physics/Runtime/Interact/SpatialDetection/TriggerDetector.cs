@@ -1,13 +1,11 @@
 using System.Collections.Generic;
-using MonoFSM.Core.Attributes;
-using MonoFSM.Core.Runtime.Interact.SpatialDetection;
 using MonoFSM.Variable.Attributes;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace MonoFSM.Core.Detection
 {
-    public class TriggerDetector : BaseDetectProcessor, IDetectionSource
+    public class TriggerDetector : IDetectionSource
     {
         [Required]
         [CompRef]
@@ -23,36 +21,40 @@ namespace MonoFSM.Core.Detection
         [Auto]
         Rigidbody _optionalRigidbody;
 
-        private HashSet<GameObject> _triggeredObjects = new();
-        public bool IsEnabled => enabled;
-
-        private void OnTriggerEnter(Collider other)
+        private void OnTriggerStay(Collider other)
         {
-            this.Log("OnTriggerEnter", other);
-            _triggeredObjects.Add(other.gameObject);
-            QueueEnterEvent(other.gameObject);
-        }
-
-        private void OnTriggerExit(Collider other)
-        {
-            this.Log("OnTriggerExit", other);
-            _triggeredObjects.Remove(other.gameObject);
-            QueueExitEvent(other.gameObject);
-        }
-
-        public override IEnumerable<DetectionResult> GetCurrentDetections()
-        {
-            foreach (var obj in _triggeredObjects)
-            {
-                if (obj != null)
-                    yield return new DetectionResult(obj);
-            }
+            // 收集當前幀中仍在trigger內的collider
+            _thisFrameColliders.Add(other);
         }
 
         public override void UpdateDetection()
         {
-            _triggeredObjects.RemoveWhere(obj => obj == null); //這個會遇到嗎...?
-            ProcessEnterExitEvents();
+            // 找出新進入的collider (在thisFrame但不在lastFrame)
+            foreach (var col in _thisFrameColliders)
+                if (!_lastFrameColliders.Contains(col))
+                    QueueEnterEvent(col.gameObject);
+
+            // 找出離開的collider (在lastFrame但不在thisFrame)
+            foreach (var col in _lastFrameColliders)
+                if (!_thisFrameColliders.Contains(col))
+                    QueueExitEvent(col.gameObject);
+
+            // 更新lastFrame為thisFrame的資料
+            _lastFrameColliders.Clear();
+            _lastFrameColliders.UnionWith(_thisFrameColliders);
+
+            // 清空thisFrame準備下一幀
+            _thisFrameColliders.Clear();
+
+            // 處理排隊的進入/退出事件
+            base.UpdateDetection();
+        }
+
+        public override IEnumerable<DetectionResult> GetCurrentDetections()
+        {
+            foreach (var collider in _lastFrameColliders)
+                if (collider != null && collider.gameObject != null)
+                    yield return new DetectionResult(collider.gameObject);
         }
 
         //FIXME: Gizmo?

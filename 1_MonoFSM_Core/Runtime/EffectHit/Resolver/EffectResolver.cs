@@ -1,7 +1,7 @@
 using System;
+using _1_MonoFSM_Core.Runtime._1_States;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Detection;
-using MonoFSM.EditorExtension;
 using MonoFSM.Foundation;
 using MonoFSM.Variable.Attributes;
 using Sirenix.OdinInspector;
@@ -14,12 +14,16 @@ using UnityEditor;
 namespace MonoFSM.Runtime.Interact.EffectHit
 {
     public abstract class EffectResolver : AbstractDescriptionBehaviour, IDefaultSerializable,
-        IHierarchyValueInfo, IHitDataProvider
+        IHitDataProvider //, IHierarchyValueInfo,
     {
         [Required]
         [PreviewInInspector]
         [AutoParent] private MonoEntity _parentEntity;
 
+        public T GetSchema<T>() where T : AbstractEntitySchema
+        {
+            return _parentEntity.GetSchema<T>();
+        }
         public MonoEntity ParentEntity
         {
             get

@@ -164,6 +164,8 @@ namespace MonoFSM.Core.DataProvider
                 }
                 if (entityProvider != null && entityProvider.entityTag != null)
                 {
+                    //world Entity => world.player
+                    //parentEntity => this(Player)
                     // stringBuilder.Append(entityProvider.GetType());
                     // Debug.Log($"VarRef: EntityProvider found: {entityProvider.entityTag}", this);
                     stringBuilder.Append("(");

@@ -1,9 +1,7 @@
-using System;
-using UnityEngine;
-using Sirenix.OdinInspector;
 using System.Threading;
 using _1_MonoFSM_Core.Runtime.FSMCore.Core.StateBehaviour;
 using Fusion.Addons.FSM;
+using Sirenix.OdinInspector;
 
 //FIXME: 可以拿掉？
 public interface IGuidEntity
@@ -39,7 +37,7 @@ public class GeneralState : MonoStateBehaviour
         ForceGoToState();
     }
 
-    public virtual void OnStateEnter()
+    protected virtual void OnStateEnter()
     {
     }
 
@@ -80,7 +78,7 @@ public class GeneralState : MonoStateBehaviour
 // public class GeneralState : AbstractState<GeneralState>, INodeModel, IState<GeneralState>, IGuidEntity,
 //     IReferenceTarget, IDefaultSerializable, IDrawHierarchyBackGround, IDrawDetail, IActionParent
 // {
-//    
+//
 //     public string DrawCustomIcon => "";
 //
 //     //FIXME: 想要culling進來後，直接空降到某個State的時間點，什麼情境？以前是
@@ -157,7 +155,7 @@ public class GeneralState : MonoStateBehaviour
 //     public override void OnStateEnter()
 //     {
 //         base.OnStateEnter();
-//         
+//
 //         //FIXME:拔掉這個
 //         foreach (var e in _stateEnters) e.OnStateEnter();
 //
@@ -168,7 +166,7 @@ public class GeneralState : MonoStateBehaviour
 //             foreach (var action in actions)
 //                 // if (action.gameObject.activeSelf)
 //                 action.OnActionEnter();
-//         
+//
 //
 //         // foreach (var transition in transitions)
 //         // {
@@ -247,7 +245,7 @@ public class GeneralState : MonoStateBehaviour
 //     public override void OnStateExit()
 //     {
 //         base.OnStateExit();
-//         
+//
 //         _onStateExit?.EventHandle(); //新規？
 //         foreach (var e in _stateExits) e.OnStateExit();
 //
@@ -257,7 +255,7 @@ public class GeneralState : MonoStateBehaviour
 //             if (action.isActiveAndEnabled)
 //                 action.OnActionExit();
 //
-//         
+//
 //         StateExitCancellationTokenSource?.Cancel();
 //     }
 //
@@ -323,7 +321,7 @@ public class GeneralState : MonoStateBehaviour
 //     // [Component(typeof(AbstractStateAction))]
 //     // private void AddAction()
 //     // {
-//     //     
+//     //
 //     // }
 //
 //     [AutoChildren]
