@@ -12,7 +12,6 @@ using MonoFSM.Runtime.Interact.EffectHit;
 using MonoFSM.Runtime.Mono;
 using MonoFSM.Runtime.Variable;
 using MonoFSM.Variable;
-using MonoFSM.Variable.Attributes;
 using MonoFSM.Variable.FieldReference;
 using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
@@ -34,14 +33,15 @@ namespace MonoFSM.Runtime
     public class MonoEntity : AbstractMonoDescriptable<GameData>, IInstantiated,
         IBeforePrefabSaveCallbackReceiver, IGameDataProvider, IValueProvider, IAnimatorProvider //這樣data也要一直繼承，好ㄇ...
     {
-        [CompRef] [Auto] [SerializeField] private AbstractEntitySchema _entitySchema;
-        public AbstractEntitySchema EntitySchema => _entitySchema; //不唯一？defaultSchema?
+        // [CompRef] [Auto] [SerializeField] private AbstractEntitySchema _entitySchema;
+        // public AbstractEntitySchema EntitySchema => _entitySchema; //不唯一？defaultSchema?
 
+        [PreviewInInspector]
         [AutoChildren(DepthOneOnly = true)] private SchemaFolder _schemaFolder;
 
         // set => _entitySchema = value;
         //Utility? 開始要拿一些Rigidbody、Collider之類的東西了
-        public Rigidbody DefaultRigidbody => GetComponent<Rigidbody>(); //FIXME: 位置對嗎？
+        // public Rigidbody DefaultRigidbody => GetComponent<Rigidbody>(); //FIXME: 位置對嗎？
 
         //FIXME: nested? MonoEntity dictionary?
         public void OnInstantiated(WorldUpdateSimulator world)
@@ -95,7 +95,7 @@ namespace MonoFSM.Runtime
                 return result;
             }
 
-            if (_entitySchema is TSchema schema) return schema;
+            // if (_entitySchema is TSchema schema) return schema;
 
             Debug.LogError($"Schema {typeof(TSchema)} not found in {name}", this);
             return null;

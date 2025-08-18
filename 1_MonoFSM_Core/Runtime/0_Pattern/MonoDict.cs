@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using MonoFSM.Core.Attributes;
+using MonoFSM.Variable;
 using MonoFSM.Variable.Attributes;
 using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
@@ -15,7 +16,7 @@ namespace MonoFSM.Core
     //AutoDict?
     public abstract class
         MonoDict<T, TU> : MonoBehaviour, ISceneAwake //FIXME: 原本T : IStringKey的，但Type就不行了
-        where TU : IValueOfKey<T>
+        where TU : IValueOfKey<T> where T : IStringKey
     {
         protected virtual bool isLog => false;
 
@@ -118,7 +119,7 @@ namespace MonoFSM.Core
 
             _dict.Add(key, value);
             if (IsStringDictEnable)
-                _stringDict.TryAdd(value.Key.ToString(), value);
+                _stringDict.TryAdd(value.Key.GetStringKey, value);
             AddImplement(value);
             // enabled = true;
         }

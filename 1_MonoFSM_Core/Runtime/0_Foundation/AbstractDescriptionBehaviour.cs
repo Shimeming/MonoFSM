@@ -14,7 +14,7 @@ using Debug = UnityEngine.Debug;
 
 namespace MonoFSM.Foundation
 {
-    [InfoBox("$_errorMessage", InfoMessageType.Error, "$HasError")]
+    // [InfoBox("$_errorMessage", InfoMessageType.Error, "$HasError")]
     public abstract class AbstractDescriptionBehaviour : MonoBehaviour, IBeforePrefabSaveCallbackReceiver,
         IAfterPrefabStageOpenCallbackReceiver, IDrawHierarchyBackGround
     {
@@ -223,7 +223,7 @@ namespace MonoFSM.Foundation
             CheckNullOfRequiredFieldsForPrefabStage(true);
         }
 
-
+        // [InfoBox("$_errorMessage", InfoMessageType.Error, "$HasError")]
         protected virtual bool HasError()
         {
             // Use different checking logic based on environment
@@ -244,6 +244,7 @@ namespace MonoFSM.Foundation
 
         }
 
+        [InfoBox("$_errorMessage", InfoMessageType.Error, "$HasError")]
         [PreviewInInspector] protected string _errorMessage;
 
         public Color BackgroundColor => new(1.0f, 0f, 0f, 0.3f);
