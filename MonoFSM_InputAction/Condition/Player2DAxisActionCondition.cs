@@ -1,6 +1,6 @@
-using System.ComponentModel.DataAnnotations;
 using MonoFSM_InputAction;
 using MonoFSM.Core.Attributes;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace RCGInputAction

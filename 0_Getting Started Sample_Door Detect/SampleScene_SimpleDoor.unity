@@ -209,6 +209,78 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0c0febcd3eb0a243b407df35c92898b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!65 &139066545
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 679579155}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 16, z: 1}
+  m_Center: {x: 0, y: 8, z: 0}
+--- !u!114 &139066546
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 679579155}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a366e5a62574d410db8e4bd8267002c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!54 &139066547
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 679579155}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!114 &139066548
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 679579155}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6000f32cf90df4febae09d11080f2cfa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &146980888 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2941790816851524857, guid: c1dea0ce5883c4eb4a98551a3d2aded2, type: 3}
@@ -735,6 +807,214 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8fdaea9a50c9419b9e6f82ed28c91b37, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1001 &679579151
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 873855735939457434, guid: 311a698ff643e467390ea4159efc6054, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 23.500471
+      objectReference: {fileID: 0}
+    - target: {fileID: 873855735939457434, guid: 311a698ff643e467390ea4159efc6054, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.50001
+      objectReference: {fileID: 0}
+    - target: {fileID: 873855735939457434, guid: 311a698ff643e467390ea4159efc6054, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 873855735939457434, guid: 311a698ff643e467390ea4159efc6054, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 873855735939457434, guid: 311a698ff643e467390ea4159efc6054, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 873855735939457434, guid: 311a698ff643e467390ea4159efc6054, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 873855735939457434, guid: 311a698ff643e467390ea4159efc6054, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 873855735939457434, guid: 311a698ff643e467390ea4159efc6054, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 873855735939457434, guid: 311a698ff643e467390ea4159efc6054, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 873855735939457434, guid: 311a698ff643e467390ea4159efc6054, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4082089536309548135, guid: 311a698ff643e467390ea4159efc6054, type: 3}
+      propertyPath: m_Name
+      value: General FSM - Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 4855796471514997125, guid: 311a698ff643e467390ea4159efc6054, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4855796471514997125, guid: 311a698ff643e467390ea4159efc6054, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5103236229753245273, guid: 311a698ff643e467390ea4159efc6054, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 139066548}
+    - targetCorrespondingSourceObject: {fileID: 5103236229753245273, guid: 311a698ff643e467390ea4159efc6054, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 139066547}
+    - targetCorrespondingSourceObject: {fileID: 5103236229753245273, guid: 311a698ff643e467390ea4159efc6054, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 139066546}
+    - targetCorrespondingSourceObject: {fileID: 5103236229753245273, guid: 311a698ff643e467390ea4159efc6054, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 139066545}
+  m_SourcePrefab: {fileID: 100100000, guid: 311a698ff643e467390ea4159efc6054, type: 3}
+--- !u!114 &679579152 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7887281621756074557, guid: 311a698ff643e467390ea4159efc6054, type: 3}
+  m_PrefabInstance: {fileID: 679579151}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd0cf00434d64b7c933828af47dc6089, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &679579153 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4819980146996288446, guid: 311a698ff643e467390ea4159efc6054, type: 3}
+  m_PrefabInstance: {fileID: 679579151}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75a0d43424054f1abaf0be3b2bedd912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &679579154 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2870840079908465395, guid: 311a698ff643e467390ea4159efc6054, type: 3}
+  m_PrefabInstance: {fileID: 679579151}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8fdaea9a50c9419b9e6f82ed28c91b37, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1 &679579155 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5103236229753245273, guid: 311a698ff643e467390ea4159efc6054, type: 3}
+  m_PrefabInstance: {fileID: 679579151}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &679579156 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 4470819081602396570, guid: 311a698ff643e467390ea4159efc6054, type: 3}
+  m_PrefabInstance: {fileID: 679579151}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &679579157 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5010657810671805049, guid: 311a698ff643e467390ea4159efc6054, type: 3}
+  m_PrefabInstance: {fileID: 679579151}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a019087ac59a24dc1bd8aff64729c641, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &679579158 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4920970186908325163, guid: 311a698ff643e467390ea4159efc6054, type: 3}
+  m_PrefabInstance: {fileID: 679579151}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88d42bb89d3c54ee5bb15d2fd2014077, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &679579159 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3763308402822794965, guid: 311a698ff643e467390ea4159efc6054, type: 3}
+  m_PrefabInstance: {fileID: 679579151}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b799c9a280adf49b2bfa4a32f9ba7eae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &679579160 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4377014297404095105, guid: 311a698ff643e467390ea4159efc6054, type: 3}
+  m_PrefabInstance: {fileID: 679579151}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88d42bb89d3c54ee5bb15d2fd2014077, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &679579161 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6211675861463662160, guid: 311a698ff643e467390ea4159efc6054, type: 3}
+  m_PrefabInstance: {fileID: 679579151}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96444e826a7f14f559a95a5232b7d38b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &679579162 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1973556432026734445, guid: 311a698ff643e467390ea4159efc6054, type: 3}
+  m_PrefabInstance: {fileID: 679579151}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea38b0e4a8b84009afda99607ca9e769, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &679579163 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2054098507518886308, guid: 311a698ff643e467390ea4159efc6054, type: 3}
+  m_PrefabInstance: {fileID: 679579151}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5267f2df9256e49ff918c479e92d3518, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &679579164 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3416425071146600925, guid: 311a698ff643e467390ea4159efc6054, type: 3}
+  m_PrefabInstance: {fileID: 679579151}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d801bf8312e64aceb0942c2b6044bc9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &738678174 stripped
@@ -2118,7 +2398,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   monoReferenceCache:
     lastUpdateTime:
-      m_ticks: 638908613822288550
+      m_ticks: 638908679527655880
     monoValueCaches:
     - fieldCaches:
       - targetName: (local) SinglePlayer World Simulator
@@ -4591,6 +4871,251 @@ MonoBehaviour:
         value: {fileID: 0}
       TargetMb: {fileID: 1534024453}
       TargetMbName: GeneralEffectReceiver
+    - fieldCaches:
+      - targetName: General FSM - Player
+        typeName: MonoEntity
+        fieldName: _dealers
+        valueArray: []
+        value: {fileID: 0}
+      - targetName: General FSM - Player
+        typeName: MonoEntity
+        fieldName: _receivers
+        valueArray: []
+        value: {fileID: 0}
+      - targetName: General FSM - Player
+        typeName: MonoEntity
+        fieldName: _variableFolder
+        valueArray: []
+        value: {fileID: 679579164}
+      TargetMb: {fileID: 679579154}
+      TargetMbName: General FSM - Player
+    - fieldCaches:
+      - targetName: General FSM - Player
+        typeName: MonoObj
+        fieldName: _sceneAwakes
+        valueArray:
+        - {fileID: 679579154}
+        - {fileID: 679579164}
+        value: {fileID: 0}
+      - targetName: General FSM - Player
+        typeName: MonoObj
+        fieldName: _sceneStarts
+        valueArray: []
+        value: {fileID: 0}
+      - targetName: General FSM - Player
+        typeName: MonoObj
+        fieldName: _sceneDestroys
+        valueArray: []
+        value: {fileID: 0}
+      - targetName: General FSM - Player
+        typeName: MonoObj
+        fieldName: _resetStateRestores
+        valueArray: []
+        value: {fileID: 0}
+      - targetName: General FSM - Player
+        typeName: MonoObj
+        fieldName: _resetStarts
+        valueArray:
+        - {fileID: 679579163}
+        value: {fileID: 0}
+      - targetName: General FSM - Player
+        typeName: MonoObj
+        fieldName: _instantiateds
+        valueArray:
+        - {fileID: 679579154}
+        value: {fileID: 0}
+      - targetName: General FSM - Player
+        typeName: MonoObj
+        fieldName: _updateSimulates
+        valueArray:
+        - {fileID: 679579154}
+        value: {fileID: 0}
+      TargetMb: {fileID: 679579153}
+      TargetMbName: General FSM - Player
+    - fieldCaches:
+      - targetName: General FSM - Player
+        typeName: ParentEntityProvider
+        fieldName: _parentEntity
+        valueArray: []
+        value: {fileID: 679579154}
+      TargetMb: {fileID: 679579152}
+      TargetMbName: General FSM - Player
+    - fieldCaches:
+      - targetName: Variables
+        typeName: VariableFolder
+        fieldName: _collections
+        valueArray: []
+        value: {fileID: 0}
+      - targetName: Variables
+        typeName: VariableFolder
+        fieldName: _collections
+        valueArray: []
+        value: {fileID: 0}
+      TargetMb: {fileID: 679579164}
+      TargetMbName: Variables
+    - fieldCaches:
+      - targetName: States
+        typeName: StateMachineLogic
+        fieldName: _stateMachineController
+        valueArray: []
+        value: {fileID: 679579161}
+      TargetMb: {fileID: 679579163}
+      TargetMbName: States
+    - fieldCaches:
+      - targetName: States
+        typeName: MonoFSMOwner
+        fieldName: _states
+        valueArray:
+        - {fileID: 679579160}
+        - {fileID: 679579158}
+        value: {fileID: 0}
+      TargetMb: {fileID: 679579162}
+      TargetMbName: States
+    - fieldCaches:
+      - targetName: '[State] init '
+        typeName: GeneralState
+        fieldName: _context
+        valueArray: []
+        value: {fileID: 679579163}
+      - targetName: '[State] init '
+        typeName: GeneralState
+        fieldName: _context
+        valueArray: []
+        value: {fileID: 679579163}
+      - targetName: '[State] init '
+        typeName: GeneralState
+        fieldName: _context
+        valueArray: []
+        value: {fileID: 679579163}
+      - targetName: '[State] init '
+        typeName: GeneralState
+        fieldName: _transitions
+        valueArray:
+        - {fileID: 679579159}
+        value: {fileID: 0}
+      - targetName: '[State] init '
+        typeName: GeneralState
+        fieldName: _renderActions
+        valueArray: []
+        value: {fileID: 0}
+      - targetName: '[State] init '
+        typeName: GeneralState
+        fieldName: _lifeCycleHandlers
+        valueArray: []
+        value: {fileID: 0}
+      TargetMb: {fileID: 679579160}
+      TargetMbName: '[State] init '
+    - fieldCaches:
+      - targetName: '[Transition] => idle'
+        typeName: StateTransition
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: '[Transition] => idle'
+        typeName: StateTransition
+        fieldName: _conditions
+        valueArray: []
+        value: {fileID: 0}
+      - targetName: '[Transition] => idle'
+        typeName: StateTransition
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: '[Transition] => idle'
+        typeName: StateTransition
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: '[Transition] => idle'
+        typeName: StateTransition
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      TargetMb: {fileID: 679579159}
+      TargetMbName: '[Transition] => idle'
+    - fieldCaches:
+      - targetName: '[State] idle'
+        typeName: GeneralState
+        fieldName: _context
+        valueArray: []
+        value: {fileID: 679579163}
+      - targetName: '[State] idle'
+        typeName: GeneralState
+        fieldName: _context
+        valueArray: []
+        value: {fileID: 679579163}
+      - targetName: '[State] idle'
+        typeName: GeneralState
+        fieldName: _context
+        valueArray: []
+        value: {fileID: 679579163}
+      - targetName: '[State] idle'
+        typeName: GeneralState
+        fieldName: _transitions
+        valueArray: []
+        value: {fileID: 0}
+      - targetName: '[State] idle'
+        typeName: GeneralState
+        fieldName: _renderActions
+        valueArray:
+        - {fileID: 679579157}
+        value: {fileID: 0}
+      - targetName: '[State] idle'
+        typeName: GeneralState
+        fieldName: _lifeCycleHandlers
+        valueArray: []
+        value: {fileID: 0}
+      TargetMb: {fileID: 679579158}
+      TargetMbName: '[State] idle'
+    - fieldCaches:
+      - targetName: '[Anim]  Animator: Idle'
+        typeName: AnimatorPlayAction
+        fieldName: _stateBehaviour
+        valueArray: []
+        value: {fileID: 679579158}
+      - targetName: '[Anim]  Animator: Idle'
+        typeName: AnimatorPlayAction
+        fieldName: _animatorPlayActionModule
+        valueArray: []
+        value: {fileID: 0}
+      - targetName: '[Anim]  Animator: Idle'
+        typeName: AnimatorPlayAction
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: '[Anim]  Animator: Idle'
+        typeName: AnimatorPlayAction
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      TargetMb: {fileID: 679579157}
+      TargetMbName: '[Anim]  Animator: Idle'
+    - fieldCaches:
+      - targetName: Animator
+        typeName: RootMotionRelay
+        fieldName: _rootMotionReceiver
+        valueArray: []
+        value: {fileID: 139066546}
+      - targetName: Animator
+        typeName: RootMotionRelay
+        fieldName: _animator
+        valueArray: []
+        value: {fileID: 679579156}
+      TargetMb: {fileID: 139066548}
+      TargetMbName: Animator
+    - fieldCaches:
+      - targetName: Animator
+        typeName: RigidbodyMotionReceiver
+        fieldName: rb
+        valueArray: []
+        value: {fileID: 139066547}
+      - targetName: Animator
+        typeName: RigidbodyMotionReceiver
+        fieldName: _relay
+        valueArray: []
+        value: {fileID: 139066548}
+      TargetMb: {fileID: 139066546}
+      TargetMbName: Animator
     RootObj: {fileID: 0}
     CachedMonoBehaviours:
     - {fileID: 1704198388}
@@ -4693,6 +5218,18 @@ MonoBehaviour:
     - {fileID: 85938871}
     - {fileID: 1864152599}
     - {fileID: 1534024453}
+    - {fileID: 679579154}
+    - {fileID: 679579153}
+    - {fileID: 679579152}
+    - {fileID: 679579164}
+    - {fileID: 679579163}
+    - {fileID: 679579162}
+    - {fileID: 679579160}
+    - {fileID: 679579159}
+    - {fileID: 679579158}
+    - {fileID: 679579157}
+    - {fileID: 139066548}
+    - {fileID: 139066546}
 --- !u!4 &1865592797
 Transform:
   m_ObjectHideFlags: 0
@@ -4885,3 +5422,4 @@ SceneRoots:
   - {fileID: 1461044687}
   - {fileID: 921403476}
   - {fileID: 935353488}
+  - {fileID: 679579151}

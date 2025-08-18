@@ -1,5 +1,6 @@
 using MonoFSM_InputAction;
 using MonoFSM.Core.Attributes;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Fusion.Addons.KCC.ECM2.Examples.Networking.Fusion_v2.Characters.Scripts.Input

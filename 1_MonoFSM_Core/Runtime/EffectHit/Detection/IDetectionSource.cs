@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Foundation;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace MonoFSM.Core.Detection

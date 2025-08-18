@@ -1,5 +1,6 @@
-using System.ComponentModel.DataAnnotations;
+
 using Fusion.Addons.FSM;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace MonoFSM.Core
