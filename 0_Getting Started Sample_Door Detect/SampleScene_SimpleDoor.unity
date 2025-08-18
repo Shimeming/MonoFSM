@@ -152,6 +152,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0c0febcd3eb0a243b407df35c92898b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!4 &80110998 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 272668117762500635, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &85938869
 GameObject:
   m_ObjectHideFlags: 0
@@ -209,73 +214,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0c0febcd3eb0a243b407df35c92898b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!65 &139066545
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 679579155}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 16, z: 1}
-  m_Center: {x: 0, y: 8, z: 0}
---- !u!114 &139066546
+--- !u!114 &139066546 stripped
 MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 9148006255084214519, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 679579155}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a366e5a62574d410db8e4bd8267002c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!54 &139066547
+--- !u!54 &139066547 stripped
 Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 6499120390076720782, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 679579155}
-  serializedVersion: 4
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
---- !u!114 &139066548
+--- !u!114 &139066548 stripped
 MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 7340900965285400558, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 679579155}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6000f32cf90df4febae09d11080f2cfa, type: 3}
@@ -406,6 +366,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 030c08acca9c148b09523a3baade3587, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &273288521 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2688410139838847875, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26e7e83b1b2741b886d2ea9457d0f683, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &277728976 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2091810985861702420, guid: c1dea0ce5883c4eb4a98551a3d2aded2, type: 3}
@@ -448,6 +419,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 20652729ee734c8fb742043ee0610cab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &408060852 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 779051902997229155, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7bcdfa053a97421db34a1151e80f4d60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!4 &408712537 stripped
@@ -809,87 +791,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8fdaea9a50c9419b9e6f82ed28c91b37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1001 &679579151
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 873855735939457434, guid: 311a698ff643e467390ea4159efc6054, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 23.500471
-      objectReference: {fileID: 0}
-    - target: {fileID: 873855735939457434, guid: 311a698ff643e467390ea4159efc6054, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.50001
-      objectReference: {fileID: 0}
-    - target: {fileID: 873855735939457434, guid: 311a698ff643e467390ea4159efc6054, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 873855735939457434, guid: 311a698ff643e467390ea4159efc6054, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 873855735939457434, guid: 311a698ff643e467390ea4159efc6054, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 873855735939457434, guid: 311a698ff643e467390ea4159efc6054, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 873855735939457434, guid: 311a698ff643e467390ea4159efc6054, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 873855735939457434, guid: 311a698ff643e467390ea4159efc6054, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 873855735939457434, guid: 311a698ff643e467390ea4159efc6054, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 873855735939457434, guid: 311a698ff643e467390ea4159efc6054, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4082089536309548135, guid: 311a698ff643e467390ea4159efc6054, type: 3}
-      propertyPath: m_Name
-      value: General FSM - Player
-      objectReference: {fileID: 0}
-    - target: {fileID: 4855796471514997125, guid: 311a698ff643e467390ea4159efc6054, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4855796471514997125, guid: 311a698ff643e467390ea4159efc6054, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5103236229753245273, guid: 311a698ff643e467390ea4159efc6054, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 139066548}
-    - targetCorrespondingSourceObject: {fileID: 5103236229753245273, guid: 311a698ff643e467390ea4159efc6054, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 139066547}
-    - targetCorrespondingSourceObject: {fileID: 5103236229753245273, guid: 311a698ff643e467390ea4159efc6054, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 139066546}
-    - targetCorrespondingSourceObject: {fileID: 5103236229753245273, guid: 311a698ff643e467390ea4159efc6054, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 139066545}
-  m_SourcePrefab: {fileID: 100100000, guid: 311a698ff643e467390ea4159efc6054, type: 3}
 --- !u!114 &679579152 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7887281621756074557, guid: 311a698ff643e467390ea4159efc6054, type: 3}
-  m_PrefabInstance: {fileID: 679579151}
+  m_CorrespondingSourceObject: {fileID: 3305281229427643299, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
@@ -899,8 +804,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
 --- !u!114 &679579153 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4819980146996288446, guid: 311a698ff643e467390ea4159efc6054, type: 3}
-  m_PrefabInstance: {fileID: 679579151}
+  m_CorrespondingSourceObject: {fileID: 166621592767943200, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
@@ -910,8 +815,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
 --- !u!114 &679579154 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2870840079908465395, guid: 311a698ff643e467390ea4159efc6054, type: 3}
-  m_PrefabInstance: {fileID: 679579151}
+  m_CorrespondingSourceObject: {fileID: 7457031668353999725, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
@@ -919,20 +824,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8fdaea9a50c9419b9e6f82ed28c91b37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &679579155 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5103236229753245273, guid: 311a698ff643e467390ea4159efc6054, type: 3}
-  m_PrefabInstance: {fileID: 679579151}
-  m_PrefabAsset: {fileID: 0}
 --- !u!95 &679579156 stripped
 Animator:
-  m_CorrespondingSourceObject: {fileID: 4470819081602396570, guid: 311a698ff643e467390ea4159efc6054, type: 3}
-  m_PrefabInstance: {fileID: 679579151}
+  m_CorrespondingSourceObject: {fileID: 9124430665637640196, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
   m_PrefabAsset: {fileID: 0}
 --- !u!114 &679579157 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5010657810671805049, guid: 311a698ff643e467390ea4159efc6054, type: 3}
-  m_PrefabInstance: {fileID: 679579151}
+  m_CorrespondingSourceObject: {fileID: 370027064198228967, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
@@ -942,8 +842,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
 --- !u!114 &679579158 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4920970186908325163, guid: 311a698ff643e467390ea4159efc6054, type: 3}
-  m_PrefabInstance: {fileID: 679579151}
+  m_CorrespondingSourceObject: {fileID: 351627446501809333, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
@@ -953,8 +853,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
 --- !u!114 &679579159 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3763308402822794965, guid: 311a698ff643e467390ea4159efc6054, type: 3}
-  m_PrefabInstance: {fileID: 679579151}
+  m_CorrespondingSourceObject: {fileID: 8399778527113578315, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
@@ -964,8 +864,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
 --- !u!114 &679579160 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4377014297404095105, guid: 311a698ff643e467390ea4159efc6054, type: 3}
-  m_PrefabInstance: {fileID: 679579151}
+  m_CorrespondingSourceObject: {fileID: 8941246478150693663, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
@@ -975,8 +875,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
 --- !u!114 &679579161 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6211675861463662160, guid: 311a698ff643e467390ea4159efc6054, type: 3}
-  m_PrefabInstance: {fileID: 679579151}
+  m_CorrespondingSourceObject: {fileID: 1630225361777801166, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
@@ -986,8 +886,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
 --- !u!114 &679579162 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1973556432026734445, guid: 311a698ff643e467390ea4159efc6054, type: 3}
-  m_PrefabInstance: {fileID: 679579151}
+  m_CorrespondingSourceObject: {fileID: 6613689997001606899, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
@@ -997,8 +897,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
 --- !u!114 &679579163 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2054098507518886308, guid: 311a698ff643e467390ea4159efc6054, type: 3}
-  m_PrefabInstance: {fileID: 679579151}
+  m_CorrespondingSourceObject: {fileID: 6641235675916208186, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
@@ -1008,8 +908,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
 --- !u!114 &679579164 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3416425071146600925, guid: 311a698ff643e467390ea4159efc6054, type: 3}
-  m_PrefabInstance: {fileID: 679579151}
+  m_CorrespondingSourceObject: {fileID: 8053108609545879619, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
@@ -1402,7 +1302,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 300, y: 1, z: 300}
+  m_Size: {x: 300, y: 9.32, z: 300}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &948632021 stripped
 MonoBehaviour:
@@ -1462,6 +1362,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 20652729ee734c8fb742043ee0610cab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &998633598 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4188092265516571827, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7bcdfa053a97421db34a1151e80f4d60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1003567024
@@ -1565,6 +1476,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b799c9a280adf49b2bfa4a32f9ba7eae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1086885169 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5887336350865971776, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81d7683e5e3fc4af4a4541fc7b723867, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1086885170 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1220529696101520861, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8293cee164e48d08b5d55098f888ec6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1142612931
 GameObject:
   m_ObjectHideFlags: 0
@@ -1577,6 +1510,7 @@ GameObject:
   - component: {fileID: 1142612934}
   - component: {fileID: 1142612933}
   - component: {fileID: 1142612932}
+  - component: {fileID: 1142612936}
   m_Layer: 0
   m_Name: Camera
   m_TagString: Untagged
@@ -1696,12 +1630,32 @@ Transform:
   m_GameObject: {fileID: 1142612931}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.2969615, y: 0.01, z: -4.59}
+  m_LocalPosition: {x: 23.500471, y: 20.86001, z: -89.13}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1818360608 &1142612936
+PositionConstraint:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1142612931}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Weight: 1
+  m_TranslationAtRest: {x: 23.500471, y: 20.86001, z: -89.13}
+  m_TranslationOffset: {x: 0, y: 20.36, z: -89.13}
+  m_AffectTranslationX: 1
+  m_AffectTranslationY: 1
+  m_AffectTranslationZ: 1
+  m_Active: 1
+  m_IsLocked: 0
+  m_Sources:
+  - sourceTransform: {fileID: 80110998}
+    weight: 1
 --- !u!114 &1159319490 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3719047193023631802, guid: c1dea0ce5883c4eb4a98551a3d2aded2, type: 3}
@@ -1724,6 +1678,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b799c9a280adf49b2bfa4a32f9ba7eae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1211587429 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4593340177209661550, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01a7a778da7cd49baa336d75961668f5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1268016046 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8861359440233024907, guid: e1fbe6b3f9c74442ba549968ba534d31, type: 3}
@@ -1735,6 +1700,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26e7e83b1b2741b886d2ea9457d0f683, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1290045614 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 543989942066911863, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01a7a778da7cd49baa336d75961668f5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1356384646 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 9010252470697135676, guid: c1dea0ce5883c4eb4a98551a3d2aded2, type: 3}
@@ -1744,6 +1720,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 20652729ee734c8fb742043ee0610cab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1447175199 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1308393147901917266, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3758f11b99e44c68fa9af7c8981f4ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1461044685
@@ -2301,6 +2288,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a019087ac59a24dc1bd8aff64729c641, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1863946967 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 9167267971201147751, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d8297b47967488cbab7265fe1f1658d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1864152596
 GameObject:
   m_ObjectHideFlags: 0
@@ -2367,6 +2365,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 873d3879dffec467bad9b8605c5ad893, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _collider: {fileID: 1864152598}
 --- !u!1 &1865592795
 GameObject:
   m_ObjectHideFlags: 0
@@ -2398,7 +2397,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   monoReferenceCache:
     lastUpdateTime:
-      m_ticks: 638908679527655880
+      m_ticks: 638911352121536940
     monoValueCaches:
     - fieldCaches:
       - targetName: (local) SinglePlayer World Simulator
@@ -2818,6 +2817,11 @@ MonoBehaviour:
         value: {fileID: 596236092}
       - targetName: '[Anim]  Animator: Closed'
         typeName: AnimatorPlayAction
+        fieldName: _conditions
+        valueArray: []
+        value: {fileID: 0}
+      - targetName: '[Anim]  Animator: Closed'
+        typeName: AnimatorPlayAction
         fieldName: _animatorPlayActionModule
         valueArray: []
         value: {fileID: 0}
@@ -2926,6 +2930,11 @@ MonoBehaviour:
         fieldName: doneEventTransition
         valueArray: []
         value: {fileID: 775416110}
+      - targetName: '[Anim]  Animator: Opening'
+        typeName: AnimatorPlayAction
+        fieldName: _conditions
+        valueArray: []
+        value: {fileID: 0}
       - targetName: '[Anim]  Animator: Opening'
         typeName: AnimatorPlayAction
         fieldName: _animatorPlayActionModule
@@ -3038,6 +3047,11 @@ MonoBehaviour:
         value: {fileID: 594676378}
       - targetName: '[Anim]  Animator: Opened'
         typeName: AnimatorPlayAction
+        fieldName: _conditions
+        valueArray: []
+        value: {fileID: 0}
+      - targetName: '[Anim]  Animator: Opened'
+        typeName: AnimatorPlayAction
         fieldName: _animatorPlayActionModule
         valueArray: []
         value: {fileID: 0}
@@ -3146,6 +3160,11 @@ MonoBehaviour:
         fieldName: doneEventTransition
         valueArray: []
         value: {fileID: 1055290910}
+      - targetName: '[Anim]  Animator: Closing'
+        typeName: AnimatorPlayAction
+        fieldName: _conditions
+        valueArray: []
+        value: {fileID: 0}
       - targetName: '[Anim]  Animator: Closing'
         typeName: AnimatorPlayAction
         fieldName: _animatorPlayActionModule
@@ -3507,6 +3526,11 @@ MonoBehaviour:
         value: {fileID: 361254151}
       - targetName: '[Anim]  Animator: Released'
         typeName: AnimatorPlayAction
+        fieldName: _conditions
+        valueArray: []
+        value: {fileID: 0}
+      - targetName: '[Anim]  Animator: Released'
+        typeName: AnimatorPlayAction
         fieldName: _animatorPlayActionModule
         valueArray: []
         value: {fileID: 0}
@@ -3615,6 +3639,11 @@ MonoBehaviour:
         fieldName: doneEventTransition
         valueArray: []
         value: {fileID: 210808736}
+      - targetName: '[Anim]  Animator: Pressing'
+        typeName: AnimatorPlayAction
+        fieldName: _conditions
+        valueArray: []
+        value: {fileID: 0}
       - targetName: '[Anim]  Animator: Pressing'
         typeName: AnimatorPlayAction
         fieldName: _animatorPlayActionModule
@@ -3727,6 +3756,11 @@ MonoBehaviour:
         value: {fileID: 1517335873}
       - targetName: '[Anim]  Animator: Opened'
         typeName: AnimatorPlayAction
+        fieldName: _conditions
+        valueArray: []
+        value: {fileID: 0}
+      - targetName: '[Anim]  Animator: Opened'
+        typeName: AnimatorPlayAction
         fieldName: _animatorPlayActionModule
         valueArray: []
         value: {fileID: 0}
@@ -3835,6 +3869,11 @@ MonoBehaviour:
         fieldName: doneEventTransition
         valueArray: []
         value: {fileID: 1983131966}
+      - targetName: '[Anim]  Animator: Releasing'
+        typeName: AnimatorPlayAction
+        fieldName: _conditions
+        valueArray: []
+        value: {fileID: 0}
       - targetName: '[Anim]  Animator: Releasing'
         typeName: AnimatorPlayAction
         fieldName: _animatorPlayActionModule
@@ -4198,6 +4237,11 @@ MonoBehaviour:
         value: {fileID: 2057766310}
       - targetName: '[Anim]  Animator: Released'
         typeName: AnimatorPlayAction
+        fieldName: _conditions
+        valueArray: []
+        value: {fileID: 0}
+      - targetName: '[Anim]  Animator: Released'
+        typeName: AnimatorPlayAction
         fieldName: _animatorPlayActionModule
         valueArray: []
         value: {fileID: 0}
@@ -4306,6 +4350,11 @@ MonoBehaviour:
         fieldName: doneEventTransition
         valueArray: []
         value: {fileID: 1609007412}
+      - targetName: '[Anim]  Animator: Pressing'
+        typeName: AnimatorPlayAction
+        fieldName: _conditions
+        valueArray: []
+        value: {fileID: 0}
       - targetName: '[Anim]  Animator: Pressing'
         typeName: AnimatorPlayAction
         fieldName: _animatorPlayActionModule
@@ -4418,6 +4467,11 @@ MonoBehaviour:
         value: {fileID: 1492489389}
       - targetName: '[Anim]  Animator: Opened'
         typeName: AnimatorPlayAction
+        fieldName: _conditions
+        valueArray: []
+        value: {fileID: 0}
+      - targetName: '[Anim]  Animator: Opened'
+        typeName: AnimatorPlayAction
         fieldName: _animatorPlayActionModule
         valueArray: []
         value: {fileID: 0}
@@ -4528,6 +4582,11 @@ MonoBehaviour:
         value: {fileID: 1020706356}
       - targetName: '[Anim]  Animator: Releasing'
         typeName: AnimatorPlayAction
+        fieldName: _conditions
+        valueArray: []
+        value: {fileID: 0}
+      - targetName: '[Anim]  Animator: Releasing'
+        typeName: AnimatorPlayAction
         fieldName: _animatorPlayActionModule
         valueArray: []
         value: {fileID: 0}
@@ -4603,9 +4662,10 @@ MonoBehaviour:
         value: {fileID: 0}
       - targetName: Detector
         typeName: EffectDetector
-        fieldName: _detectionSource
-        valueArray: []
-        value: {fileID: 2085605229}
+        fieldName: _detectionSources
+        valueArray:
+        - {fileID: 2085605229}
+        value: {fileID: 0}
       - targetName: Detector
         typeName: EffectDetector
         fieldName: dealers
@@ -4968,6 +5028,8 @@ MonoBehaviour:
         valueArray:
         - {fileID: 679579160}
         - {fileID: 679579158}
+        - {fileID: 8123744336826303642}
+        - {fileID: 8123744336826303640}
         value: {fileID: 0}
       TargetMb: {fileID: 679579162}
       TargetMbName: States
@@ -5006,90 +5068,461 @@ MonoBehaviour:
       TargetMb: {fileID: 679579160}
       TargetMbName: '[State] init '
     - fieldCaches:
-      - targetName: '[Transition] => idle'
+      - targetName: '[Transition] => move'
         typeName: StateTransition
         fieldName: _self
         valueArray: []
         value: {fileID: 679579154}
-      - targetName: '[Transition] => idle'
+      - targetName: '[Transition] => move'
         typeName: StateTransition
         fieldName: _conditions
         valueArray: []
         value: {fileID: 0}
-      - targetName: '[Transition] => idle'
+      - targetName: '[Transition] => move'
         typeName: StateTransition
         fieldName: _self
         valueArray: []
         value: {fileID: 679579154}
-      - targetName: '[Transition] => idle'
+      - targetName: '[Transition] => move'
         typeName: StateTransition
         fieldName: _self
         valueArray: []
         value: {fileID: 679579154}
-      - targetName: '[Transition] => idle'
+      - targetName: '[Transition] => move'
         typeName: StateTransition
         fieldName: _self
         valueArray: []
         value: {fileID: 679579154}
       TargetMb: {fileID: 679579159}
-      TargetMbName: '[Transition] => idle'
+      TargetMbName: '[Transition] => move'
     - fieldCaches:
-      - targetName: '[State] idle'
+      - targetName: '[State] move'
         typeName: GeneralState
         fieldName: _context
         valueArray: []
         value: {fileID: 679579163}
-      - targetName: '[State] idle'
+      - targetName: '[State] move'
         typeName: GeneralState
         fieldName: _context
         valueArray: []
         value: {fileID: 679579163}
-      - targetName: '[State] idle'
+      - targetName: '[State] move'
         typeName: GeneralState
         fieldName: _context
         valueArray: []
         value: {fileID: 679579163}
-      - targetName: '[State] idle'
+      - targetName: '[State] move'
         typeName: GeneralState
         fieldName: _transitions
-        valueArray: []
+        valueArray:
+        - {fileID: 2111354438}
         value: {fileID: 0}
-      - targetName: '[State] idle'
+      - targetName: '[State] move'
         typeName: GeneralState
         fieldName: _renderActions
         valueArray:
         - {fileID: 679579157}
         value: {fileID: 0}
-      - targetName: '[State] idle'
+      - targetName: '[State] move'
+        typeName: GeneralState
+        fieldName: _onStateUpdate
+        valueArray: []
+        value: {fileID: 408060852}
+      - targetName: '[State] move'
         typeName: GeneralState
         fieldName: _lifeCycleHandlers
         valueArray: []
         value: {fileID: 0}
       TargetMb: {fileID: 679579158}
-      TargetMbName: '[State] idle'
+      TargetMbName: '[State] move'
     - fieldCaches:
-      - targetName: '[Anim]  Animator: Idle'
+      - targetName: '[Anim]  Animator: _move0'
         typeName: AnimatorPlayAction
         fieldName: _stateBehaviour
         valueArray: []
         value: {fileID: 679579158}
-      - targetName: '[Anim]  Animator: Idle'
+      - targetName: '[Anim]  Animator: _move0'
+        typeName: AnimatorPlayAction
+        fieldName: _conditions
+        valueArray: []
+        value: {fileID: 0}
+      - targetName: '[Anim]  Animator: _move0'
         typeName: AnimatorPlayAction
         fieldName: _animatorPlayActionModule
         valueArray: []
         value: {fileID: 0}
-      - targetName: '[Anim]  Animator: Idle'
+      - targetName: '[Anim]  Animator: _move0'
         typeName: AnimatorPlayAction
         fieldName: _self
         valueArray: []
         value: {fileID: 679579154}
-      - targetName: '[Anim]  Animator: Idle'
+      - targetName: '[Anim]  Animator: _move0'
         typeName: AnimatorPlayAction
         fieldName: _self
         valueArray: []
         value: {fileID: 679579154}
       TargetMb: {fileID: 679579157}
-      TargetMbName: '[Anim]  Animator: Idle'
+      TargetMbName: '[Anim]  Animator: _move0'
+    - fieldCaches:
+      - targetName: OnStateUpdateHandler
+        typeName: OnStateUpdateHandler
+        fieldName: _eventReceivers
+        valueArray:
+        - {fileID: 1211587429}
+        value: {fileID: 0}
+      - targetName: OnStateUpdateHandler
+        typeName: OnStateUpdateHandler
+        fieldName: _eventReceivers
+        valueArray:
+        - {fileID: 1211587429}
+        value: {fileID: 0}
+      - targetName: OnStateUpdateHandler
+        typeName: OnStateUpdateHandler
+        fieldName: _entityProviders
+        valueArray: []
+        value: {fileID: 0}
+      TargetMb: {fileID: 408060852}
+      TargetMbName: OnStateUpdateHandler
+    - fieldCaches:
+      - targetName: '[Action] PlayerMoveActionExample'
+        typeName: PlayerMoveActionExample
+        fieldName: bindingState
+        valueArray: []
+        value: {fileID: 679579158}
+      - targetName: '[Action] PlayerMoveActionExample'
+        typeName: PlayerMoveActionExample
+        fieldName: _actionParent
+        valueArray: []
+        value: {fileID: 408060852}
+      - targetName: '[Action] PlayerMoveActionExample'
+        typeName: PlayerMoveActionExample
+        fieldName: _conditions
+        valueArray: []
+        value: {fileID: 0}
+      - targetName: '[Action] PlayerMoveActionExample'
+        typeName: PlayerMoveActionExample
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: '[Action] PlayerMoveActionExample'
+        typeName: PlayerMoveActionExample
+        fieldName: bindingState
+        valueArray: []
+        value: {fileID: 679579158}
+      - targetName: '[Action] PlayerMoveActionExample'
+        typeName: PlayerMoveActionExample
+        fieldName: _actionParent
+        valueArray: []
+        value: {fileID: 408060852}
+      - targetName: '[Action] PlayerMoveActionExample'
+        typeName: PlayerMoveActionExample
+        fieldName: _conditions
+        valueArray: []
+        value: {fileID: 0}
+      - targetName: '[Action] PlayerMoveActionExample'
+        typeName: PlayerMoveActionExample
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: '[Action] PlayerMoveActionExample'
+        typeName: PlayerMoveActionExample
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      TargetMb: {fileID: 1211587429}
+      TargetMbName: '[Action] PlayerMoveActionExample'
+    - fieldCaches:
+      - targetName: '[Transition] => jump'
+        typeName: TransitionBehaviour
+        fieldName: _conditions
+        valueArray:
+        - {fileID: 1863946967}
+        value: {fileID: 0}
+      - targetName: '[Transition] => jump'
+        typeName: TransitionBehaviour
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: '[Transition] => jump'
+        typeName: TransitionBehaviour
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: '[Transition] => jump'
+        typeName: TransitionBehaviour
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      TargetMb: {fileID: 2111354438}
+      TargetMbName: '[Transition] => jump'
+    - fieldCaches:
+      - targetName: '[Condition] InputActionWasPressedCondition'
+        typeName: InputActionWasPressedCondition
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: '[Condition] InputActionWasPressedCondition'
+        typeName: InputActionWasPressedCondition
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: '[Condition] InputActionWasPressedCondition'
+        typeName: InputActionWasPressedCondition
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      TargetMb: {fileID: 1863946967}
+      TargetMbName: '[Condition] InputActionWasPressedCondition'
+    - fieldCaches:
+      - targetName: '[State] dash'
+        typeName: GeneralState
+        fieldName: _context
+        valueArray: []
+        value: {fileID: 679579163}
+      - targetName: '[State] dash'
+        typeName: GeneralState
+        fieldName: _context
+        valueArray: []
+        value: {fileID: 679579163}
+      - targetName: '[State] dash'
+        typeName: GeneralState
+        fieldName: _context
+        valueArray: []
+        value: {fileID: 679579163}
+      - targetName: '[State] dash'
+        typeName: GeneralState
+        fieldName: _transitions
+        valueArray: []
+        value: {fileID: 0}
+      - targetName: '[State] dash'
+        typeName: GeneralState
+        fieldName: _renderActions
+        valueArray:
+        - {fileID: 8123744336826303641}
+        value: {fileID: 0}
+      - targetName: '[State] dash'
+        typeName: GeneralState
+        fieldName: _lifeCycleHandlers
+        valueArray: []
+        value: {fileID: 0}
+      TargetMb: {fileID: 8123744336826303642}
+      TargetMbName: '[State] dash'
+    - fieldCaches:
+      - targetName: '[Anim]  Animator: _dash0'
+        typeName: AnimatorPlayAction
+        fieldName: _stateBehaviour
+        valueArray: []
+        value: {fileID: 8123744336826303642}
+      - targetName: '[Anim]  Animator: _dash0'
+        typeName: AnimatorPlayAction
+        fieldName: _conditions
+        valueArray: []
+        value: {fileID: 0}
+      - targetName: '[Anim]  Animator: _dash0'
+        typeName: AnimatorPlayAction
+        fieldName: _animatorPlayActionModule
+        valueArray: []
+        value: {fileID: 0}
+      - targetName: '[Anim]  Animator: _dash0'
+        typeName: AnimatorPlayAction
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: '[Anim]  Animator: _dash0'
+        typeName: AnimatorPlayAction
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      TargetMb: {fileID: 8123744336826303641}
+      TargetMbName: '[Anim]  Animator: _dash0'
+    - fieldCaches:
+      - targetName: '[State] jump'
+        typeName: GeneralState
+        fieldName: _context
+        valueArray: []
+        value: {fileID: 679579163}
+      - targetName: '[State] jump'
+        typeName: GeneralState
+        fieldName: _context
+        valueArray: []
+        value: {fileID: 679579163}
+      - targetName: '[State] jump'
+        typeName: GeneralState
+        fieldName: _context
+        valueArray: []
+        value: {fileID: 679579163}
+      - targetName: '[State] jump'
+        typeName: GeneralState
+        fieldName: _transitions
+        valueArray:
+        - {fileID: 1447175199}
+        value: {fileID: 0}
+      - targetName: '[State] jump'
+        typeName: GeneralState
+        fieldName: _renderActions
+        valueArray:
+        - {fileID: 8123744336826303639}
+        value: {fileID: 0}
+      - targetName: '[State] jump'
+        typeName: GeneralState
+        fieldName: _onStateUpdate
+        valueArray: []
+        value: {fileID: 998633598}
+      - targetName: '[State] jump'
+        typeName: GeneralState
+        fieldName: _lifeCycleHandlers
+        valueArray: []
+        value: {fileID: 0}
+      TargetMb: {fileID: 8123744336826303640}
+      TargetMbName: '[State] jump'
+    - fieldCaches:
+      - targetName: '[Anim]  Animator: _jump0'
+        typeName: AnimatorPlayAction
+        fieldName: _stateBehaviour
+        valueArray: []
+        value: {fileID: 8123744336826303640}
+      - targetName: '[Anim]  Animator: _jump0'
+        typeName: AnimatorPlayAction
+        fieldName: doneEventTransition
+        valueArray: []
+        value: {fileID: 1447175199}
+      - targetName: '[Anim]  Animator: _jump0'
+        typeName: AnimatorPlayAction
+        fieldName: _conditions
+        valueArray: []
+        value: {fileID: 0}
+      - targetName: '[Anim]  Animator: _jump0'
+        typeName: AnimatorPlayAction
+        fieldName: _animatorPlayActionModule
+        valueArray: []
+        value: {fileID: 0}
+      - targetName: '[Anim]  Animator: _jump0'
+        typeName: AnimatorPlayAction
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: '[Anim]  Animator: _jump0'
+        typeName: AnimatorPlayAction
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      TargetMb: {fileID: 8123744336826303639}
+      TargetMbName: '[Anim]  Animator: _jump0'
+    - fieldCaches:
+      - targetName: '[Transition] => move'
+        typeName: TransitionBehaviour
+        fieldName: _conditions
+        valueArray:
+        - {fileID: 273288521}
+        value: {fileID: 0}
+      - targetName: '[Transition] => move'
+        typeName: TransitionBehaviour
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: '[Transition] => move'
+        typeName: TransitionBehaviour
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: '[Transition] => move'
+        typeName: TransitionBehaviour
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      TargetMb: {fileID: 1447175199}
+      TargetMbName: '[Transition] => move'
+    - fieldCaches:
+      - targetName: '[Condition] AnimationDoneCondition'
+        typeName: AnimationDoneCondition
+        fieldName: _action
+        valueArray: []
+        value: {fileID: 8123744336826303639}
+      - targetName: '[Condition] AnimationDoneCondition'
+        typeName: AnimationDoneCondition
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: '[Condition] AnimationDoneCondition'
+        typeName: AnimationDoneCondition
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: '[Condition] AnimationDoneCondition'
+        typeName: AnimationDoneCondition
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      TargetMb: {fileID: 273288521}
+      TargetMbName: '[Condition] AnimationDoneCondition'
+    - fieldCaches:
+      - targetName: OnStateUpdateHandler
+        typeName: OnStateUpdateHandler
+        fieldName: _eventReceivers
+        valueArray:
+        - {fileID: 1290045614}
+        value: {fileID: 0}
+      - targetName: OnStateUpdateHandler
+        typeName: OnStateUpdateHandler
+        fieldName: _eventReceivers
+        valueArray:
+        - {fileID: 1290045614}
+        value: {fileID: 0}
+      - targetName: OnStateUpdateHandler
+        typeName: OnStateUpdateHandler
+        fieldName: _entityProviders
+        valueArray: []
+        value: {fileID: 0}
+      TargetMb: {fileID: 998633598}
+      TargetMbName: OnStateUpdateHandler
+    - fieldCaches:
+      - targetName: '[Action] PlayerMoveActionExample'
+        typeName: PlayerMoveActionExample
+        fieldName: bindingState
+        valueArray: []
+        value: {fileID: 8123744336826303640}
+      - targetName: '[Action] PlayerMoveActionExample'
+        typeName: PlayerMoveActionExample
+        fieldName: _actionParent
+        valueArray: []
+        value: {fileID: 998633598}
+      - targetName: '[Action] PlayerMoveActionExample'
+        typeName: PlayerMoveActionExample
+        fieldName: _conditions
+        valueArray: []
+        value: {fileID: 0}
+      - targetName: '[Action] PlayerMoveActionExample'
+        typeName: PlayerMoveActionExample
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: '[Action] PlayerMoveActionExample'
+        typeName: PlayerMoveActionExample
+        fieldName: bindingState
+        valueArray: []
+        value: {fileID: 8123744336826303640}
+      - targetName: '[Action] PlayerMoveActionExample'
+        typeName: PlayerMoveActionExample
+        fieldName: _actionParent
+        valueArray: []
+        value: {fileID: 998633598}
+      - targetName: '[Action] PlayerMoveActionExample'
+        typeName: PlayerMoveActionExample
+        fieldName: _conditions
+        valueArray: []
+        value: {fileID: 0}
+      - targetName: '[Action] PlayerMoveActionExample'
+        typeName: PlayerMoveActionExample
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: '[Action] PlayerMoveActionExample'
+        typeName: PlayerMoveActionExample
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      TargetMb: {fileID: 1290045614}
+      TargetMbName: '[Action] PlayerMoveActionExample'
     - fieldCaches:
       - targetName: Animator
         typeName: RootMotionRelay
@@ -5116,6 +5549,32 @@ MonoBehaviour:
         value: {fileID: 139066548}
       TargetMb: {fileID: 139066546}
       TargetMbName: Animator
+    - fieldCaches:
+      - targetName: '[Input] JumpData'
+        typeName: MonoInputAction
+        fieldName: _abstractInputActionImplementation
+        valueArray: []
+        value: {fileID: 1086885169}
+      TargetMb: {fileID: 1086885170}
+      TargetMbName: '[Input] JumpData'
+    - fieldCaches:
+      - targetName: '[Input] JumpData'
+        typeName: InputSystemInputActionImplementation
+        fieldName: _localPlayerInput
+        valueArray: []
+        value: {fileID: 8123744336826303643}
+      - targetName: '[Input] JumpData'
+        typeName: InputSystemInputActionImplementation
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: '[Input] JumpData'
+        typeName: InputSystemInputActionImplementation
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      TargetMb: {fileID: 1086885169}
+      TargetMbName: '[Input] JumpData'
     RootObj: {fileID: 0}
     CachedMonoBehaviours:
     - {fileID: 1704198388}
@@ -5228,8 +5687,22 @@ MonoBehaviour:
     - {fileID: 679579159}
     - {fileID: 679579158}
     - {fileID: 679579157}
+    - {fileID: 408060852}
+    - {fileID: 1211587429}
+    - {fileID: 2111354438}
+    - {fileID: 1863946967}
+    - {fileID: 8123744336826303642}
+    - {fileID: 8123744336826303641}
+    - {fileID: 8123744336826303640}
+    - {fileID: 8123744336826303639}
+    - {fileID: 1447175199}
+    - {fileID: 273288521}
+    - {fileID: 998633598}
+    - {fileID: 1290045614}
     - {fileID: 139066548}
     - {fileID: 139066546}
+    - {fileID: 1086885170}
+    - {fileID: 1086885169}
 --- !u!4 &1865592797
 Transform:
   m_ObjectHideFlags: 0
@@ -5398,6 +5871,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a019087ac59a24dc1bd8aff64729c641, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2111354438 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3070126228905605454, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3758f11b99e44c68fa9af7c8981f4ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &2131566582 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7087955623597022681, guid: 46c1e968a52b24f4f915e407f2ee2622, type: 3}
@@ -5407,6 +5891,122 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7d801bf8312e64aceb0942c2b6044bc9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1001 &8123744336826303638
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 5515634340952418308, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 23.500471
+      objectReference: {fileID: 0}
+    - target: {fileID: 5515634340952418308, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.50001
+      objectReference: {fileID: 0}
+    - target: {fileID: 5515634340952418308, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5515634340952418308, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5515634340952418308, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5515634340952418308, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5515634340952418308, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5515634340952418308, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5515634340952418308, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5515634340952418308, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8650721996564340217, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+      propertyPath: m_Name
+      value: General FSM - Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 9167267971201147751, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+      propertyPath: _inputActionType
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+--- !u!114 &8123744336826303639 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1616216919313982477, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a019087ac59a24dc1bd8aff64729c641, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &8123744336826303640 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5401187949384127421, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88d42bb89d3c54ee5bb15d2fd2014077, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &8123744336826303641 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8510879959168125807, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a019087ac59a24dc1bd8aff64729c641, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &8123744336826303642 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1699685908728858710, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88d42bb89d3c54ee5bb15d2fd2014077, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &8123744336826303643 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5108521152246438793, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1660057539 &9223372036854775807
@@ -5422,4 +6022,4 @@ SceneRoots:
   - {fileID: 1461044687}
   - {fileID: 921403476}
   - {fileID: 935353488}
-  - {fileID: 679579151}
+  - {fileID: 8123744336826303638}

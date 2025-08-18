@@ -5,7 +5,7 @@ using UnityEngine;
 // [RequireComponent(typeof(Rigidbody))]
 public class RigidbodyMotionReceiver : MonoBehaviour, IRootMotionReceiver, IOverrideHierarchyIcon, IDrawHierarchyBackGround, IHierarchyValueInfo
 {
-    [Required] [ShowInInspector] [SerializeField]
+    [Required] [ShowInInspector] [SerializeField][Auto]
     private Rigidbody rb;
     private Vector3 pendingPosition;
     private Quaternion pendingRotation = Quaternion.identity;
