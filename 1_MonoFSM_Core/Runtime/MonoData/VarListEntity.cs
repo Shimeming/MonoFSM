@@ -328,6 +328,8 @@ namespace MonoFSM.Core.Variable
             {
                 var item = queue.Dequeue();
                 OnValueChanged();
+                if (item == null)
+                    Debug.LogError("Dequeue returned null. This may indicate the queue was empty.");
                 return item;
             }
 

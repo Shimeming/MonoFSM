@@ -1,4 +1,8 @@
+using MonoFSM.Core;
+
 namespace MonoFSM.Runtime.Interact.EffectHit
 {
-    public sealed class EffectHitFailNode : AbstractEffectNode { }
+    public sealed class EffectHitFailNode : AbstractEventHandler
+    {
+    }
 }

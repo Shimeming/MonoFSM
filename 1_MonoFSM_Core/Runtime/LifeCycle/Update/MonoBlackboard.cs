@@ -14,7 +14,7 @@ namespace MonoFSM.Runtime.Variable
     [DisallowMultipleComponent]
     public class MonoBlackboard : MonoBehaviour, IMonoEntity, IUpdateSimulate //FIXME: 沒有必要用介面？
     {
-        
+
         private bool IsVariableMissing()
         {
             return !CheckAllVariableExists();
@@ -75,7 +75,7 @@ namespace MonoFSM.Runtime.Variable
 
         public List<MonoEntityTag> DescriptableTags => _descriptableTags;
 
-        //FIXME: 可以多個tag? runtime 
+        //FIXME: 可以多個tag? runtime
         public MonoEntityTag DefaultTag => DescriptableTags?.Count > 0 ? DescriptableTags[0] : null;
 
         //reflection 同名還會...
@@ -123,16 +123,6 @@ namespace MonoFSM.Runtime.Variable
             get
             {
                 this.EnsureComponentInChildren(ref _variableFolder);
-// #if UNITY_EDITOR
-//                 
-//                 if (Application.isPlaying == false && _variableFolder == null)
-//                     _variableFolder = GetComponentInChildren<VariableFolder>();
-//                 // Debug.Log("VariableFolder is null, try to find it in children", this);
-// #endif
-//                 if (Application.isPlaying && _variableFolder == null)
-//                     Debug.LogError(
-//                         "VariableFolder is null, please ensure it is assigned in the inspector or added as a child component.",
-//                         this);
                 return _variableFolder;
             }
         }

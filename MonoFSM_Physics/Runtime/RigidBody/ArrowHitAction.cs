@@ -26,8 +26,8 @@ namespace MonoFSM_Physics.Runtime
             //這樣共用實作？情境composite? 超廢
             // SetVelocityAction.SetVelocityToRigidbody(_rigidbody, Vector3.zero);
             _rigidbody.isKinematic = true;
-            _rigidbody.linearVelocity = Vector3.zero;
-            _rigidbody.angularVelocity = Vector3.zero;
+            // _rigidbody.linearVelocity = Vector3.zero;
+            // _rigidbody.angularVelocity = Vector3.zero;
             // _rigidbody.freezeRotation = true;
         }
     }

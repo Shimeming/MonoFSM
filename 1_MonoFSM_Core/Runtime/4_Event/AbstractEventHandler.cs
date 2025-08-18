@@ -1,6 +1,7 @@
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Runtime;
 using MonoFSM.Core.Runtime.Action;
+using MonoFSM.Foundation;
 using MonoFSM.Variable.Attributes;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -24,8 +25,13 @@ namespace MonoFSM.Core
     /// <seealso cref="IEventReceiver"/>
     /// <seealso cref="IEventReceiver{T}"/>
     /// <seealso cref="IActionParent"/>
-    public abstract class AbstractEventHandler : MonoBehaviour, IActionParent
+    public abstract class AbstractEventHandler : AbstractDescriptionBehaviour, IActionParent
     {
+        protected override string DescriptionTag => "Event";
+
+        public override string Description => GetType().Name.Replace("Handler", "");
+        // GetType().Name.Replace("Handler", ""); //要都叫做 OnXXX ?
+
         [CompRef] [AutoChildren(DepthOneOnly = true)]
         protected IEventReceiver[] _eventReceivers; //IActions
 

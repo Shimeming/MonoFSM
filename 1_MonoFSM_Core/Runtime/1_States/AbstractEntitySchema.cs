@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using MonoFSM.Core;
 using MonoFSM.Core.Editor.Utility;
+using MonoFSM.Foundation;
 using MonoFSM.Runtime;
 using MonoFSM.Variable;
 using Sirenix.OdinInspector;
@@ -28,8 +29,10 @@ namespace _1_MonoFSM_Core.Runtime._1_States
     // public class VarTagAttribute
     //一個entity應給要允許多個schema, 或是說多個variable folder?
     [Searchable]
-    public abstract class AbstractEntitySchema : MonoBehaviour, IValueOfKey<Type>
+    public abstract class AbstractEntitySchema : AbstractDescriptionBehaviour,
+        IStringKey, IValueOfKey<AbstractEntitySchema>
     {
+        protected override string DescriptionTag => "Schema";
         // This class can be used to define a schema for MonoEntity,
         // which can be used to map variables and components automatically.
         // It can also be used to define a schema for a specific entity type.
@@ -243,7 +246,8 @@ namespace _1_MonoFSM_Core.Runtime._1_States
             return _parentEntity.VariableFolder.CreateVariable(field.FieldType, tagName);
         }
 
+        public string GetStringKey => GetType().Name;
 
-        public Type Key => GetType();
+        public AbstractEntitySchema Key => this;
     }
 }
