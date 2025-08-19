@@ -48,6 +48,7 @@ namespace Fusion.Addons.FSM
             RenderInternal();
         }
 
+        //FIXME: 全部都從LocalSimulatorRunner打過來？
         private void FixedUpdate()
         {
             if (_fsmLogic._manualUpdateMode || !_initialized)

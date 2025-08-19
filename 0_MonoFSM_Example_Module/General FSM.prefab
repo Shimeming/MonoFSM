@@ -310,7 +310,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _descriptableTags: []
   data: {fileID: 0}
-  _entitySchema: {fileID: 0}
 --- !u!114 &4819980146996288446
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -596,7 +595,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2335869562734533029}
-  - component: {fileID: 3763308402822794965}
+  - component: {fileID: 1782521945292682692}
   m_Layer: 0
   m_Name: '[Transition] => idle'
   m_TagString: Untagged
@@ -619,7 +618,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2722481800610883426}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3763308402822794965
+--- !u!114 &1782521945292682692
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -628,9 +627,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 9020763545861940387}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b799c9a280adf49b2bfa4a32f9ba7eae, type: 3}
+  m_Script: {fileID: 11500000, guid: c3758f11b99e44c68fa9af7c8981f4ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _target: {fileID: 4920970186908325163}
   _conditions: []
-  IsTransitionCheckNeeded: 0

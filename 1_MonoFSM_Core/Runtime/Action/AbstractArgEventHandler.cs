@@ -16,7 +16,8 @@ namespace MonoFSM.Core.Runtime.Action
     {
     }
 
-    public abstract class AbstractStateAction<T> : AbstractStateAction, IArgEventReceiver<T>,
+    //FIXME: 這個其實沒有想要implement actionExecute?
+    public abstract class AbstractArgEventHandler<T> : AbstractStateAction, IArgEventReceiver<T>,
         IHierarchyValueInfo
     // where T : IEffectHitData
     {

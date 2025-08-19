@@ -267,6 +267,8 @@ namespace MonoFSM.Core
             }
             // if (transition.IsForced == true)
             //     return true;
+            if (transition.TargetState == null)
+                Debug.LogError($"Transition target state is null in {Name} to {transition}", this);
 
             //FIXME: 這裡也判了？
             if (CanExitState(transition.TargetState) == false)

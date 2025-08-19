@@ -37,6 +37,7 @@ namespace MonoFSM.Core
         IGuidEntity,
         IDefaultSerializable, IArgEventReceiver<IEffectHitData>
     {
+
         #region AbstractStateAction Integration
 
         protected override bool HasError()

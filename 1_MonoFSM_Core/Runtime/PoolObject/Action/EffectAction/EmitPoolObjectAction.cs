@@ -5,7 +5,7 @@ namespace MonoFSM.Runtime.Variable.Action.EffectAction
 {
     //FIXME: 重做FXPlayer
     //FIXME: 和InstantiateAction 重複了
-    public class EmitPoolObjectAction : AbstractStateAction<GeneralEffectHitData>
+    public class EmitPoolObjectAction : AbstractArgEventHandler<GeneralEffectHitData>
     {
         public PoolObject poolObject;
 
