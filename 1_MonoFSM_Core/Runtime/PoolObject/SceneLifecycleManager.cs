@@ -27,11 +27,11 @@ namespace MonoFSM.Runtime
                 AutoAttributeManager.AutoReferenceAllChildren(obj.gameObject);
             }
 
-            HandleGameLevelAwakeReverse(obj.gameObject);
+            // HandleGameLevelAwakeReverse(obj.gameObject);
             HandleGameLevelAwake(obj.gameObject);
-            HandleGameLevelStartReverse(obj.gameObject);
+            // HandleGameLevelStartReverse(obj.gameObject);
             HandleGameLevelStart(obj.gameObject);
-            LevelResetChildrenReload(obj.gameObject);
+            // LevelResetChildrenReload(obj.gameObject);
             obj.OnPrepare();
         }
 
@@ -73,11 +73,11 @@ namespace MonoFSM.Runtime
             var levelResets = new List<IResetStateRestore>();
             gObj.GetComponentsInChildren(true, levelResets);
             levelResets.Reverse();
-            
+
             foreach (var item in levelResets)
             {
                 if (item == null) continue;
-                
+
                 try
                 {
                     item.ResetStateRestore();
@@ -97,11 +97,11 @@ namespace MonoFSM.Runtime
             var levelResets = new List<IResetStart>();
             gObj.GetComponentsInChildren(true, levelResets);
             levelResets.Reverse();
-            
+
             foreach (var item in levelResets)
             {
                 if (item == null) continue;
-                
+
                 try
                 {
                     item.ResetStart();
@@ -119,11 +119,11 @@ namespace MonoFSM.Runtime
         public static void HandleGameLevelAwake(GameObject level)
         {
             var levelAwakes = new List<ISceneAwake>(level.GetComponentsInChildren<ISceneAwake>(true));
-            
+
             foreach (var item in levelAwakes)
             {
                 if (item == null) continue;
-                
+
                 Profiler.BeginSample($"SceneAwake_{item}");
                 try
                 {
@@ -144,11 +144,11 @@ namespace MonoFSM.Runtime
         {
             var levelAwakes = new List<ISceneAwakeReverse>(level.GetComponentsInChildren<ISceneAwakeReverse>(true));
             levelAwakes.Reverse();
-            
+
             foreach (var item in levelAwakes)
             {
                 if (item == null) continue;
-                
+
                 Profiler.BeginSample($"SceneAwakeReverse_{item}");
                 try
                 {
@@ -172,7 +172,7 @@ namespace MonoFSM.Runtime
             foreach (var item in levelStarts)
             {
                 if (item == null) continue;
-                
+
                 try
                 {
                     item.EnterSceneStart();
@@ -195,7 +195,7 @@ namespace MonoFSM.Runtime
             foreach (var item in levelStarts)
             {
                 if (item == null) continue;
-                
+
                 try
                 {
                     item.EnterSceneStartReverse();

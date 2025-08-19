@@ -42,15 +42,15 @@ namespace _1_MonoFSM_Core.Runtime.Action.TransformAction
             _oriParent = sourceTransform.parent; //記錄原本的parent
             var targetTransform = targetEntity?.transform;
             // _sourceValueProvider.Get<MonoEntity>().transform.SetParent(targetEntity.transform);
-            if (targetTransform == null)
-            {
-                Debug.LogError("Target transform is null. Cannot set parent.", this);
-                return;
-            }
-
             if (sourceTransform == null)
             {
                 Debug.LogError("Source transform is null. Cannot set parent.", this);
+                return;
+            }
+
+            if (targetTransform == null)
+            {
+                Debug.LogError("Target transform is null. Cannot set parent.", this);
                 return;
             }
 

@@ -55,11 +55,17 @@ namespace MonoFSM.Animation
         }
 
         [TitleGroup("Animator")]
+        [BoxGroup("Animator/Animator")]
         [Required]
         // [InlineEditor]
         // [ValueDropdown(nameof(GetAnimatorsInChildren), IsUniqueList = true, NumberOfItemsBeforeEnablingSearch = 3)]
         [DropDownRef]
         public Animator animator;
+
+        // bool IsAnimatorNoControl()
+        // {
+        //     return animator != null || animator.runtimeAnimatorController == null;
+        // }
 
         [InlineEditor] [PreviewInInspector] private Animator animatorComp => animator;
 
@@ -77,10 +83,16 @@ namespace MonoFSM.Animation
         //有provider就藏起來
         public string stateName;
 
+
+        private bool IsCurrentStateNameNotValid()
+        {
+            return IsStateNameNotInAnimator(StateName);
+        }
+
         [BoxGroup("Animator/StateName")]
         [TitleGroup("Animator")]
-        [Button("一鍵生成StateName的動畫Clip")]
-        [ShowIf("@IsStateNameNotInAnimator(StateName)")]
+        [Button("一鍵生成AC和State和Clip")]
+        [ShowIf("$IsCurrentStateNameNotValid")]
         // [HideIf("IsStateNameProvider")]
         private void CreateAnimatorControllerAndClipForState()
         {
@@ -167,7 +179,8 @@ namespace MonoFSM.Animation
 
 #endif
         // private GeneralState bindingState;
-        bool IsAnimatorNoControl => animator == null || animator.runtimeAnimatorController == null;
+        private bool IsAnimatorNoControl =>
+            animator != null || animator.runtimeAnimatorController == null;
 
         private void OnValidate()
         {
@@ -218,6 +231,7 @@ namespace MonoFSM.Animation
         // }
 
 #if UNITY_EDITOR
+
         private bool IsStateNameNotInAnimator(string name)
         {
             if (isActiveAndEnabled == false) //NOTE: 沒開的話不管
@@ -773,7 +787,7 @@ namespace MonoFSM.Animation
         public void Validate(SelfValidationResult result)
         {
 #if UNITY_EDITOR
-            if (IsStateNameNotInAnimator(stateName))
+            if (IsStateNameNotInAnimator(StateName))
                 // Debug.LogError("AnimatorPlayAction: 沒有這個state:" + StateName + ",hash:" + StateHash, gameObject);
                 result.AddError("AnimatorPlayAction: 沒有這個state:" + StateName + ",hash:" + StateHash);
 #endif
