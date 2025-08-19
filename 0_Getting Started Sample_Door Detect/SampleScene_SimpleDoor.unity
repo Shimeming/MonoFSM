@@ -2397,7 +2397,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   monoReferenceCache:
     lastUpdateTime:
-      m_ticks: 638911352121536940
+      m_ticks: 638911360105655310
     monoValueCaches:
     - fieldCaches:
       - targetName: (local) SinglePlayer World Simulator
@@ -4784,6 +4784,11 @@ MonoBehaviour:
         value: {fileID: 0}
       - targetName: EffectEnterNode
         typeName: EffectEnterNode
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 408712540}
+      - targetName: EffectEnterNode
+        typeName: EffectEnterNode
         fieldName: _eventReceivers
         valueArray:
         - {fileID: 626327801}
@@ -4793,6 +4798,16 @@ MonoBehaviour:
         fieldName: _entityProviders
         valueArray: []
         value: {fileID: 0}
+      - targetName: EffectEnterNode
+        typeName: EffectEnterNode
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 408712540}
+      - targetName: EffectEnterNode
+        typeName: EffectEnterNode
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 408712540}
       TargetMb: {fileID: 241519241}
       TargetMbName: EffectEnterNode
     - fieldCaches:
@@ -4842,6 +4857,11 @@ MonoBehaviour:
         value: {fileID: 0}
       - targetName: EffectExitNode
         typeName: EffectExitNode
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 408712540}
+      - targetName: EffectExitNode
+        typeName: EffectExitNode
         fieldName: _eventReceivers
         valueArray:
         - {fileID: 242296256}
@@ -4851,6 +4871,16 @@ MonoBehaviour:
         fieldName: _entityProviders
         valueArray: []
         value: {fileID: 0}
+      - targetName: EffectExitNode
+        typeName: EffectExitNode
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 408712540}
+      - targetName: EffectExitNode
+        typeName: EffectExitNode
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 408712540}
       TargetMb: {fileID: 931076400}
       TargetMbName: EffectExitNode
     - fieldCaches:
@@ -5172,6 +5202,11 @@ MonoBehaviour:
         value: {fileID: 0}
       - targetName: OnStateUpdateHandler
         typeName: OnStateUpdateHandler
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: OnStateUpdateHandler
+        typeName: OnStateUpdateHandler
         fieldName: _eventReceivers
         valueArray:
         - {fileID: 1211587429}
@@ -5181,6 +5216,16 @@ MonoBehaviour:
         fieldName: _entityProviders
         valueArray: []
         value: {fileID: 0}
+      - targetName: OnStateUpdateHandler
+        typeName: OnStateUpdateHandler
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: OnStateUpdateHandler
+        typeName: OnStateUpdateHandler
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
       TargetMb: {fileID: 408060852}
       TargetMbName: OnStateUpdateHandler
     - fieldCaches:
@@ -5464,6 +5509,11 @@ MonoBehaviour:
         value: {fileID: 0}
       - targetName: OnStateUpdateHandler
         typeName: OnStateUpdateHandler
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: OnStateUpdateHandler
+        typeName: OnStateUpdateHandler
         fieldName: _eventReceivers
         valueArray:
         - {fileID: 1290045614}
@@ -5473,6 +5523,16 @@ MonoBehaviour:
         fieldName: _entityProviders
         valueArray: []
         value: {fileID: 0}
+      - targetName: OnStateUpdateHandler
+        typeName: OnStateUpdateHandler
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: OnStateUpdateHandler
+        typeName: OnStateUpdateHandler
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
       TargetMb: {fileID: 998633598}
       TargetMbName: OnStateUpdateHandler
     - fieldCaches:
@@ -5901,6 +5961,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4593340177209661550, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+      propertyPath: moveInput
+      value: 
+      objectReference: {fileID: -1680190386980627800, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+    - target: {fileID: 4593340177209661550, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+      propertyPath: moveInput.m_Name
+      value: Move Input
+      objectReference: {fileID: 0}
     - target: {fileID: 5515634340952418308, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
       propertyPath: m_LocalPosition.x
       value: 23.500471
