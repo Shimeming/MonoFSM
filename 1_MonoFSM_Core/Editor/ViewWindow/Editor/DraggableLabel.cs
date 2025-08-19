@@ -26,14 +26,15 @@ public class DraggableLabel : Label
             // Get the text color for labels
 
             // label.style.color = currentSkin.label.normal.textColor;
-            
+
             label.style.backgroundColor = Color.clear;
             commentLabel.text = "";
             commentLabel.style.display = DisplayStyle.None;
             if (_bindGameObject.TryGetComponent<Note>(out var note))
             {
                 commentLabel.text = note.note;
-                var color = note.bgColor;
+                // var color = note.bgColor;
+                var color = Color.yellow;
                 color.a = 0.3f;
                 commentLabel.style.backgroundColor = color;
                 commentLabel.style.display = DisplayStyle.Flex;
@@ -41,7 +42,7 @@ public class DraggableLabel : Label
 
             label.text = labelText;
             label.SetEnabled(_bindGameObject.activeInHierarchy);
-            
+
             subIconImage.image = null;
             // var icon = AssetPreview.GetMiniThumbnail(_bindGameObject);
             // var texture = EditorGUIUtility.GetIconForObject(value);
@@ -51,7 +52,7 @@ public class DraggableLabel : Label
                 // label.style.color = prefabLabelStyle.normal.textColor;
                 icon = EditorGUIUtility.IconContent("Prefab Icon").image as Texture2D;
             }
-            
+
 
             if (PrefabUtility.IsAddedGameObjectOverride(_bindGameObject)) //有加號，新增的GameObject
             {
@@ -88,7 +89,7 @@ public class DraggableLabel : Label
             {
                 subIconImage.image = null;
             }
-            
+
             iconImage.image = icon;
             iconImage.SetEnabled(_bindGameObject.activeInHierarchy);
             subIconImage.SetEnabled(_bindGameObject.activeInHierarchy);
@@ -128,8 +129,8 @@ public class DraggableLabel : Label
             // text = t;
             var type = _comp.GetType();
             // label.text = t;
-            
-            
+
+
             label.text = t + ": " + type.Name;
             label.style.color = Color.black;
 
@@ -138,10 +139,10 @@ public class DraggableLabel : Label
                 label.style.color = Color.grey;
             else
                 label.style.color = Color.black;
-            
-            
+
+
             // style.backgroundColor = new StyleColor(Color.green);
-            //顏色，icon, 
+            //顏色，icon,
             //TODO: show Component Type Name toggle
             // var icon = EditorGUIUtility.GetIconForObject(_comp);
             // var icon = EditorIconUtility.GetIcon(_comp);
@@ -155,7 +156,7 @@ public class DraggableLabel : Label
 
     private Component _comp;
     // public static string s_DragDataType = "DraggableLabel";
- 
+
     private bool m_GotMouseDown;
     private Vector2 m_MouseOffset;
     public Action OnSelect;
@@ -165,8 +166,8 @@ public class DraggableLabel : Label
         // {
         //     if(evt.keyCode == KeyCode.UpArrow || evt.keyCode == KeyCode.DownArrow)
         //         OnSelect?.Invoke();
-        //    
-        //     
+        //
+        //
         //     // Debug.Log("KeyDownEvent"+bindComp);
         // });
         //
@@ -178,7 +179,7 @@ public class DraggableLabel : Label
         RegisterCallback<PointerUpEvent>(OnPointerUpEvent);
         // RegisterCallback<ClickEvent>(evt =>
         // {
-        //     // EditorGUIUtility.PingObject(bindComp.gameObject);    
+        //     // EditorGUIUtility.PingObject(bindComp.gameObject);
         //
         //
         //     Selection.activeGameObject = BindGo;
@@ -220,7 +221,7 @@ public class DraggableLabel : Label
         Add(subIconImage);
 
         label = new Label();
-        
+
         Add(label);
         label.focusable = false;
         label.pickingMode = PickingMode.Ignore;
@@ -235,7 +236,7 @@ public class DraggableLabel : Label
 
         commentLabel.style.marginLeft = StyleKeyword.Auto;
         commentLabel.style.unityTextAlign = TextAnchor.MiddleRight;
-        
+
         renameField = new TextField();
         renameField.style.flexGrow = 1;
         renameField.style.display = DisplayStyle.None;
@@ -267,12 +268,12 @@ public class DraggableLabel : Label
             Focus();
         });
         Add(renameField);
-        
+
         //flex
         style.flexDirection = FlexDirection.Row;
-        
-        
-        
+
+
+
     }
 
     public void Rename()
@@ -292,7 +293,7 @@ public class DraggableLabel : Label
     private Image subIconImage;
     private Label label;
     private Label commentLabel;
- 
+
     void OnPointerDownEvent(PointerDownEvent e)
     {
         if (e.target == this && e.isPrimary && e.button == 0)
@@ -327,9 +328,9 @@ public class DraggableLabel : Label
             StartDraggingBox();
             m_GotMouseDown = false;
         }
-       
+
     }
- 
+
     void OnPointerUpEvent(PointerUpEvent e)
     {
         if (m_GotMouseDown && e.isPrimary && e.button == 0)
@@ -339,13 +340,13 @@ public class DraggableLabel : Label
 
         OnSelect?.Invoke();
     }
- 
+
     public void StartDraggingBox()
     {
         // DragAndDrop.PrepareStartDrag();
         // DragAndDrop.SetGenericData(s_DragDataType, this);
         // DragAndDrop.StartDrag(text);
-        
+
         DragAndDrop.visualMode = DragAndDropVisualMode.Link;
         // Debug.Log("SetGenericData:"+comp.GetType().Name);
         DragAndDrop.PrepareStartDrag();
@@ -353,9 +354,9 @@ public class DraggableLabel : Label
         DragAndDrop.objectReferences = new Object[] { bindObj }; //拖拉的時候，帶什麼內容
         DragAndDrop.SetGenericData(bindObj.GetType().Name, bindObj);
         DragAndDrop.StartDrag(bindObj.name);
-        
+
     }
- 
+
     // public void StopDraggingBox(Vector2 mousePosition)
     // {
     //     style.top = -m_MouseOffset.y + mousePosition.y;

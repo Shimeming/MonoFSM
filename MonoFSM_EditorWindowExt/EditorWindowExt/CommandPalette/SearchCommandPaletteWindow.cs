@@ -513,16 +513,28 @@ namespace CommandPalette
             // 檢查記憶體快取是否有效
             if (isCacheValid)
             {
-                // 如果有待處理的變更，只需清除標誌並更新 UI，快取已經被 AddOrUpdateAssetInCache 更新
+                Debug.Log($"[CommandPalette] {assetTypeDefinition.DisplayName} 快取有效，直接使用記憶體快取");
+                // 如果有待處理的變更，表示 AssetPostprocessor 已經通過 AddOrUpdateAssetInCache/RemoveAssetFromCache 更新了快取並寫入檔案
                 if (hasPendingChanges)
                 {
-                    Debug.Log($"[CommandPalette] 檢測到待處理的 {assetTypeDefinition.DisplayName} 變更，使用已更新的記憶體快取");
+                    Debug.Log(
+                        $"[CommandPalette] 檢測到待處理的 {assetTypeDefinition.DisplayName} 變更，快取已通過增量更新保持最新狀態，檔案快取也已同步");
+
+                    // 快取已同步完成，清除待處理標誌
                     PendingChangesFlags[currentMode] = false;
+                }
+                else
+                {
+                    Debug.Log($"[CommandPalette] {assetTypeDefinition.DisplayName} 快取無待處理變更");
                 }
 
                 allAssets = new List<AssetEntry>(currentCache.Values);
                 filteredAssets = new List<AssetEntry>(allAssets);
                 return;
+            }
+            else
+            {
+                Debug.Log($"[CommandPalette] {assetTypeDefinition.DisplayName} 快取無效或過期，重新掃描資源");
             }
 
             // 嘗試從檔案快取載入
@@ -1015,7 +1027,7 @@ namespace CommandPalette
         private static void OnProjectChanged()
         {
             // 專案有變更，保守起見使快取失效
-            InvalidateAllCaches();
+            // InvalidateAllCaches();
         }
 
         /// <summary>
@@ -1047,7 +1059,23 @@ namespace CommandPalette
                 var entry = new AssetEntry(asset.name, assetPath, asset);
                 AssetCaches[matchingType.Mode][guid] = entry;
                 PendingChangesFlags[matchingType.Mode] = true;
-                Debug.Log($"[CommandPalette] 已添加/更新 {matchingType.DisplayName} 快取: {assetPath}");
+                
+                // 立即寫入檔案快取以防 domain reload 導致記憶體快取丟失
+                var writeStopwatch = System.Diagnostics.Stopwatch.StartNew();
+                try
+                {
+                    var cacheFilePath = GetCacheFilePath(matchingType.Mode);
+                    var cacheList = new List<AssetEntry>(AssetCaches[matchingType.Mode].Values);
+                    SearchCommandPaletteCacheHelper.SaveCacheToFile(cacheList, cacheFilePath);
+                    writeStopwatch.Stop();
+                    
+                    Debug.Log($"[CommandPalette] 已添加/更新 {matchingType.DisplayName} 快取: {assetPath} (寫入耗時: {writeStopwatch.ElapsedMilliseconds}ms)");
+                }
+                catch (System.Exception ex)
+                {
+                    writeStopwatch.Stop();
+                    Debug.LogError($"[CommandPalette] 寫入 {matchingType.DisplayName} 檔案快取失敗: {ex.Message} (嘗試耗時: {writeStopwatch.ElapsedMilliseconds}ms)");
+                }
 
                 // 只有在視窗開啟且當前模式匹配時才立即更新UI
                 if (instance != null && instance.currentMode == matchingType.Mode)
@@ -1078,7 +1106,23 @@ namespace CommandPalette
                     AssetCaches[assetType.Mode].Remove(guid);
                     removed = true;
                     PendingChangesFlags[assetType.Mode] = true;
-                    Debug.Log($"[CommandPalette] 已從 {assetType.DisplayName} 快取移除: {assetPath}");
+                    
+                    // 立即寫入檔案快取以防 domain reload 導致記憶體快取丟失
+                    var writeStopwatch = System.Diagnostics.Stopwatch.StartNew();
+                    try
+                    {
+                        var cacheFilePath = GetCacheFilePath(assetType.Mode);
+                        var cacheList = new List<AssetEntry>(AssetCaches[assetType.Mode].Values);
+                        SearchCommandPaletteCacheHelper.SaveCacheToFile(cacheList, cacheFilePath);
+                        writeStopwatch.Stop();
+                        
+                        Debug.Log($"[CommandPalette] 已從 {assetType.DisplayName} 快取移除: {assetPath} (寫入耗時: {writeStopwatch.ElapsedMilliseconds}ms)");
+                    }
+                    catch (System.Exception ex)
+                    {
+                        writeStopwatch.Stop();
+                        Debug.LogError($"[CommandPalette] 移除後寫入 {assetType.DisplayName} 檔案快取失敗: {ex.Message} (嘗試耗時: {writeStopwatch.ElapsedMilliseconds}ms)");
+                    }
 
                     // 只有在視窗開啟且當前模式匹配時才立即更新UI
                     if (instance != null && instance.currentMode == assetType.Mode)

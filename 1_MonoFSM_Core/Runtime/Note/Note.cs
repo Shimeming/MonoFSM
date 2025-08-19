@@ -36,10 +36,10 @@ public class Note : MonoBehaviour, IEditorOnly, IHierarchyValueInfo //IOverrideH
     [TextArea(5,100)] [Title("意圖、Prompt")]
     public string note;
 
-    [ColorPalette] public Color bgColor = Color.yellow; //fixme:color 應該直接照著類型，和IDE這個註解一樣
+    // [ColorPalette] public Color bgColor = Color.yellow; //fixme:color 應該直接照著類型，和IDE這個註解一樣
 #endif
     public string IconName => "_Help";
     public bool IsDrawingIcon => false;
     public string ValueInfo => note;
-    public bool IsDrawingValueInfo => true; 
+    public bool IsDrawingValueInfo => true;
 }

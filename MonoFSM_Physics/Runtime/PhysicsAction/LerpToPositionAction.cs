@@ -11,6 +11,7 @@ namespace MonoFSM_Physics.Runtime.PhysicsAction
         public bool isPaused { set; get; }
     }
 
+    //FIXME: 沒有rigidbody不給貼？或是沒有效果？ 自帶isvalid?
     public class LerpToPositionAction : AbstractStateLifeCycleHandler
     {
         // [Required] [CompRef] [AutoChildren] private ICompProvider<Rigidbody> _rigidbodyProvider;
@@ -18,9 +19,15 @@ namespace MonoFSM_Physics.Runtime.PhysicsAction
         public Vector3 _offsetPosition = Vector3.zero;
         private Rigidbody _rb;
 
+
         protected override void OnStateEnter()
         {
             base.OnStateEnter();
+            if (_rb == null)
+            {
+                Debug.LogError("Rigidbody is null. Cannot perform LerpToPositionAction.", this);
+                return;
+            }
             _rb = _rigidbodyValueProvider.Get<Rigidbody>();
             var rb = _rb;
             rb.isKinematic = true;
@@ -34,7 +41,11 @@ namespace MonoFSM_Physics.Runtime.PhysicsAction
         protected override void OnStateUpdate()
         {
             base.OnStateUpdate();
+
             var rb = _rigidbodyValueProvider.Get<Rigidbody>();
+            if (rb == null)
+                // Debug.LogError("Rigidbody is null. Cannot perform LerpToPositionAction.", this);
+                return;
 
             //character要另外處理...
             if (rb.TryGetComponent<ICustomRigidbody>(out var customRigidbody))

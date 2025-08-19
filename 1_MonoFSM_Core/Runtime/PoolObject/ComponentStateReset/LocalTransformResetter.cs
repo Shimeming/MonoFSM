@@ -15,6 +15,7 @@ public class LocalTransformResetter : MonoBehaviour, IResetStateRestore
 
     private bool _isKinematic;
 
+    //FIXME: 要拆開嗎？
     [AutoParent] public Rigidbody _rigidbody;
     // [AutoChildren(false)] private Rigidbody2D rigidbody2D;
 
