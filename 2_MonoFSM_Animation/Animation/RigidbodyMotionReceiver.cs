@@ -28,12 +28,17 @@ public class RigidbodyMotionReceiver : MonoBehaviour, IRootMotionReceiver, IOver
     //FIXME: 需要 IUpdateSimulate
     private void FixedUpdate()
     {
-        if (pendingPosition != Vector3.zero || pendingRotation != Quaternion.identity)
+        if (pendingPosition != Vector3.zero)
         {
-            rb.MovePosition(rb.position + pendingPosition);
-            rb.MoveRotation(rb.rotation * pendingRotation);
-
+            // 將累積的位移轉換為速度，讓物理系統自動處理碰撞
+            Vector3 targetVelocity = pendingPosition / Time.fixedDeltaTime;
+            rb.linearVelocity = targetVelocity;
             pendingPosition = Vector3.zero;
+        }
+        
+        if (pendingRotation != Quaternion.identity)
+        {
+            rb.MoveRotation(rb.rotation * pendingRotation);
             pendingRotation = Quaternion.identity;
         }
     }

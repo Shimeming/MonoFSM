@@ -388,6 +388,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a019087ac59a24dc1bd8aff64729c641, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &334948048 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5583348333769636441, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26e7e83b1b2741b886d2ea9457d0f683, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &361254151 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 684022428340338991, guid: 46c1e968a52b24f4f915e407f2ee2622, type: 3}
@@ -468,6 +479,39 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8fdaea9a50c9419b9e6f82ed28c91b37, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &424202275 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7099035751058399496, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d8297b47967488cbab7265fe1f1658d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &451331686 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8078745082757482187, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81d7683e5e3fc4af4a4541fc7b723867, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &451331687 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4215530492478193793, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8293cee164e48d08b5d55098f888ec6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &453374421
@@ -714,6 +758,17 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &580521515 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 41494130106913300, guid: 46c1e968a52b24f4f915e407f2ee2622, type: 3}
+  m_PrefabInstance: {fileID: 453374421}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d2d75b4941d444fbe41e62394ff27fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &590817893 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3260672960719741755, guid: c1dea0ce5883c4eb4a98551a3d2aded2, type: 3}
@@ -1141,6 +1196,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88d42bb89d3c54ee5bb15d2fd2014077, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &892465292 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7232897716761529382, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3758f11b99e44c68fa9af7c8981f4ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &916710335 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 897597828253189618, guid: e1fbe6b3f9c74442ba549968ba534d31, type: 3}
@@ -1277,7 +1343,7 @@ Transform:
   m_GameObject: {fileID: 935353486}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -48.6, y: -11.4, z: 0}
+  m_LocalPosition: {x: -48.6, y: -5.0001, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1452,6 +1518,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b799c9a280adf49b2bfa4a32f9ba7eae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1036586761 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1426220913950161820, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3758f11b99e44c68fa9af7c8981f4ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &1047200622 stripped
@@ -1656,6 +1733,17 @@ PositionConstraint:
   m_Sources:
   - sourceTransform: {fileID: 80110998}
     weight: 1
+--- !u!114 &1151411201 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 940253123563065230, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d2d75b4941d444fbe41e62394ff27fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1159319490 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3719047193023631802, guid: c1dea0ce5883c4eb4a98551a3d2aded2, type: 3}
@@ -1722,6 +1810,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20652729ee734c8fb742043ee0610cab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1424090391 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5961045095688790886, guid: c1dea0ce5883c4eb4a98551a3d2aded2, type: 3}
+  m_PrefabInstance: {fileID: 1527642459}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d2d75b4941d444fbe41e62394ff27fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1447175199 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1308393147901917266, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
@@ -1777,6 +1876,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1489850078 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8425165064052863158, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3758f11b99e44c68fa9af7c8981f4ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1492489389 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 639924353358303156, guid: c1dea0ce5883c4eb4a98551a3d2aded2, type: 3}
@@ -1920,6 +2030,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _effectType: {fileID: 11400000, guid: 4752ae1f42fb5468885b3f38fd605da4, type: 2}
+--- !u!114 &1556690001 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2755736780103739268, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
+  m_PrefabInstance: {fileID: 8123744336826303638}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d8297b47967488cbab7265fe1f1658d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1557131379 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6175743735875861155, guid: c1dea0ce5883c4eb4a98551a3d2aded2, type: 3}
@@ -2397,7 +2518,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   monoReferenceCache:
     lastUpdateTime:
-      m_ticks: 638911360105655310
+      m_ticks: 638912158648916430
     monoValueCaches:
     - fieldCaches:
       - targetName: (local) SinglePlayer World Simulator
@@ -2470,10 +2591,13 @@ MonoBehaviour:
         valueArray:
         - {fileID: 669854965}
         - {fileID: 200385705}
+        - {fileID: 1922575154}
         - {fileID: 510033250}
         - {fileID: 2131566582}
+        - {fileID: 580521515}
         - {fileID: 408712540}
         - {fileID: 973417843}
+        - {fileID: 1424090391}
         value: {fileID: 0}
       - targetName: '[Variable Relay Binder]'
         typeName: MonoObj
@@ -2495,6 +2619,9 @@ MonoBehaviour:
         - {fileID: 135820673}
         - {fileID: 953615033}
         - {fileID: 79945758}
+        - {fileID: 1896884998}
+        - {fileID: 626327801}
+        - {fileID: 242296256}
         value: {fileID: 0}
       - targetName: '[Variable Relay Binder]'
         typeName: MonoObj
@@ -2528,6 +2655,11 @@ MonoBehaviour:
     - fieldCaches:
       - targetName: General FSM Variant - Door
         typeName: MonoEntity
+        fieldName: _schemaFolder
+        valueArray: []
+        value: {fileID: 1922575154}
+      - targetName: General FSM Variant - Door
+        typeName: MonoEntity
         fieldName: _dealers
         valueArray: []
         value: {fileID: 0}
@@ -2550,6 +2682,7 @@ MonoBehaviour:
         valueArray:
         - {fileID: 669854965}
         - {fileID: 200385705}
+        - {fileID: 1922575154}
         value: {fileID: 0}
       - targetName: General FSM Variant - Door
         typeName: MonoObj
@@ -2624,6 +2757,19 @@ MonoBehaviour:
         value: {fileID: 0}
       TargetMb: {fileID: 135820673}
       TargetMbName: '[VarBool] Should Open'
+    - fieldCaches:
+      - targetName: Schemas
+        typeName: SchemaFolder
+        fieldName: _collections
+        valueArray: []
+        value: {fileID: 0}
+      - targetName: Schemas
+        typeName: SchemaFolder
+        fieldName: _collections
+        valueArray: []
+        value: {fileID: 0}
+      TargetMb: {fileID: 1922575154}
+      TargetMbName: Schemas
     - fieldCaches:
       - targetName: States
         typeName: StateMachineLogic
@@ -3237,6 +3383,11 @@ MonoBehaviour:
     - fieldCaches:
       - targetName: General FSM Variant - Button
         typeName: MonoEntity
+        fieldName: _schemaFolder
+        valueArray: []
+        value: {fileID: 580521515}
+      - targetName: General FSM Variant - Button
+        typeName: MonoEntity
         fieldName: _dealers
         valueArray: []
         value: {fileID: 0}
@@ -3259,6 +3410,7 @@ MonoBehaviour:
         valueArray:
         - {fileID: 510033250}
         - {fileID: 2131566582}
+        - {fileID: 580521515}
         value: {fileID: 0}
       - targetName: General FSM Variant - Button
         typeName: MonoObj
@@ -3333,6 +3485,19 @@ MonoBehaviour:
         value: {fileID: 0}
       TargetMb: {fileID: 953615033}
       TargetMbName: '[VarBool] Pressed'
+    - fieldCaches:
+      - targetName: Schemas
+        typeName: SchemaFolder
+        fieldName: _collections
+        valueArray: []
+        value: {fileID: 0}
+      - targetName: Schemas
+        typeName: SchemaFolder
+        fieldName: _collections
+        valueArray: []
+        value: {fileID: 0}
+      TargetMb: {fileID: 580521515}
+      TargetMbName: Schemas
     - fieldCaches:
       - targetName: States
         typeName: StateMachineLogic
@@ -3946,6 +4111,11 @@ MonoBehaviour:
     - fieldCaches:
       - targetName: General FSM Variant - LockedButton
         typeName: MonoEntity
+        fieldName: _schemaFolder
+        valueArray: []
+        value: {fileID: 1424090391}
+      - targetName: General FSM Variant - LockedButton
+        typeName: MonoEntity
         fieldName: _dealers
         valueArray:
         - {fileID: 1896884998}
@@ -3969,6 +4139,7 @@ MonoBehaviour:
         valueArray:
         - {fileID: 408712540}
         - {fileID: 973417843}
+        - {fileID: 1424090391}
         value: {fileID: 0}
       - targetName: General FSM Variant - LockedButton
         typeName: MonoObj
@@ -3986,6 +4157,9 @@ MonoBehaviour:
         fieldName: _resetStateRestores
         valueArray:
         - {fileID: 79945758}
+        - {fileID: 1896884998}
+        - {fileID: 626327801}
+        - {fileID: 242296256}
         value: {fileID: 0}
       - targetName: General FSM Variant - LockedButton
         typeName: MonoObj
@@ -4044,6 +4218,19 @@ MonoBehaviour:
         value: {fileID: 0}
       TargetMb: {fileID: 79945758}
       TargetMbName: '[VarBool] KeyInsert'
+    - fieldCaches:
+      - targetName: Schemas
+        typeName: SchemaFolder
+        fieldName: _collections
+        valueArray: []
+        value: {fileID: 0}
+      - targetName: Schemas
+        typeName: SchemaFolder
+        fieldName: _collections
+        valueArray: []
+        value: {fileID: 0}
+      TargetMb: {fileID: 1424090391}
+      TargetMbName: Schemas
     - fieldCaches:
       - targetName: States
         typeName: StateMachineLogic
@@ -4964,6 +5151,11 @@ MonoBehaviour:
     - fieldCaches:
       - targetName: General FSM - Player
         typeName: MonoEntity
+        fieldName: _schemaFolder
+        valueArray: []
+        value: {fileID: 1151411201}
+      - targetName: General FSM - Player
+        typeName: MonoEntity
         fieldName: _dealers
         valueArray: []
         value: {fileID: 0}
@@ -4986,6 +5178,7 @@ MonoBehaviour:
         valueArray:
         - {fileID: 679579154}
         - {fileID: 679579164}
+        - {fileID: 1151411201}
         value: {fileID: 0}
       - targetName: General FSM - Player
         typeName: MonoObj
@@ -5000,7 +5193,9 @@ MonoBehaviour:
       - targetName: General FSM - Player
         typeName: MonoObj
         fieldName: _resetStateRestores
-        valueArray: []
+        valueArray:
+        - {fileID: 1211587429}
+        - {fileID: 1290045614}
         value: {fileID: 0}
       - targetName: General FSM - Player
         typeName: MonoObj
@@ -5043,6 +5238,19 @@ MonoBehaviour:
         value: {fileID: 0}
       TargetMb: {fileID: 679579164}
       TargetMbName: Variables
+    - fieldCaches:
+      - targetName: Schemas
+        typeName: SchemaFolder
+        fieldName: _collections
+        valueArray: []
+        value: {fileID: 0}
+      - targetName: Schemas
+        typeName: SchemaFolder
+        fieldName: _collections
+        valueArray: []
+        value: {fileID: 0}
+      TargetMb: {fileID: 1151411201}
+      TargetMbName: Schemas
     - fieldCaches:
       - targetName: States
         typeName: StateMachineLogic
@@ -5146,6 +5354,7 @@ MonoBehaviour:
         fieldName: _transitions
         valueArray:
         - {fileID: 2111354438}
+        - {fileID: 892465292}
         value: {fileID: 0}
       - targetName: '[State] move'
         typeName: GeneralState
@@ -5194,40 +5403,40 @@ MonoBehaviour:
       TargetMb: {fileID: 679579157}
       TargetMbName: '[Anim]  Animator: _move0'
     - fieldCaches:
-      - targetName: OnStateUpdateHandler
+      - targetName: '[Event] OnStateUpdate'
         typeName: OnStateUpdateHandler
         fieldName: _eventReceivers
         valueArray:
         - {fileID: 1211587429}
         value: {fileID: 0}
-      - targetName: OnStateUpdateHandler
+      - targetName: '[Event] OnStateUpdate'
         typeName: OnStateUpdateHandler
         fieldName: _self
         valueArray: []
         value: {fileID: 679579154}
-      - targetName: OnStateUpdateHandler
+      - targetName: '[Event] OnStateUpdate'
         typeName: OnStateUpdateHandler
         fieldName: _eventReceivers
         valueArray:
         - {fileID: 1211587429}
         value: {fileID: 0}
-      - targetName: OnStateUpdateHandler
+      - targetName: '[Event] OnStateUpdate'
         typeName: OnStateUpdateHandler
         fieldName: _entityProviders
         valueArray: []
         value: {fileID: 0}
-      - targetName: OnStateUpdateHandler
+      - targetName: '[Event] OnStateUpdate'
         typeName: OnStateUpdateHandler
         fieldName: _self
         valueArray: []
         value: {fileID: 679579154}
-      - targetName: OnStateUpdateHandler
+      - targetName: '[Event] OnStateUpdate'
         typeName: OnStateUpdateHandler
         fieldName: _self
         valueArray: []
         value: {fileID: 679579154}
       TargetMb: {fileID: 408060852}
-      TargetMbName: OnStateUpdateHandler
+      TargetMbName: '[Event] OnStateUpdate'
     - fieldCaches:
       - targetName: '[Action] PlayerMoveActionExample'
         typeName: PlayerMoveActionExample
@@ -5319,6 +5528,48 @@ MonoBehaviour:
       TargetMb: {fileID: 1863946967}
       TargetMbName: '[Condition] InputActionWasPressedCondition'
     - fieldCaches:
+      - targetName: '[Transition] => dash'
+        typeName: TransitionBehaviour
+        fieldName: _conditions
+        valueArray:
+        - {fileID: 424202275}
+        value: {fileID: 0}
+      - targetName: '[Transition] => dash'
+        typeName: TransitionBehaviour
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: '[Transition] => dash'
+        typeName: TransitionBehaviour
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: '[Transition] => dash'
+        typeName: TransitionBehaviour
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      TargetMb: {fileID: 892465292}
+      TargetMbName: '[Transition] => dash'
+    - fieldCaches:
+      - targetName: '[Condition] InputActionWasPressedCondition'
+        typeName: InputActionWasPressedCondition
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: '[Condition] InputActionWasPressedCondition'
+        typeName: InputActionWasPressedCondition
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: '[Condition] InputActionWasPressedCondition'
+        typeName: InputActionWasPressedCondition
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      TargetMb: {fileID: 424202275}
+      TargetMbName: '[Condition] InputActionWasPressedCondition'
+    - fieldCaches:
       - targetName: '[State] dash'
         typeName: GeneralState
         fieldName: _context
@@ -5337,7 +5588,8 @@ MonoBehaviour:
       - targetName: '[State] dash'
         typeName: GeneralState
         fieldName: _transitions
-        valueArray: []
+        valueArray:
+        - {fileID: 1036586761}
         value: {fileID: 0}
       - targetName: '[State] dash'
         typeName: GeneralState
@@ -5358,6 +5610,11 @@ MonoBehaviour:
         fieldName: _stateBehaviour
         valueArray: []
         value: {fileID: 8123744336826303642}
+      - targetName: '[Anim]  Animator: _dash0'
+        typeName: AnimatorPlayAction
+        fieldName: doneEventTransition
+        valueArray: []
+        value: {fileID: 1036586761}
       - targetName: '[Anim]  Animator: _dash0'
         typeName: AnimatorPlayAction
         fieldName: _conditions
@@ -5381,6 +5638,53 @@ MonoBehaviour:
       TargetMb: {fileID: 8123744336826303641}
       TargetMbName: '[Anim]  Animator: _dash0'
     - fieldCaches:
+      - targetName: '[Transition] => move'
+        typeName: TransitionBehaviour
+        fieldName: _conditions
+        valueArray:
+        - {fileID: 334948048}
+        value: {fileID: 0}
+      - targetName: '[Transition] => move'
+        typeName: TransitionBehaviour
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: '[Transition] => move'
+        typeName: TransitionBehaviour
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: '[Transition] => move'
+        typeName: TransitionBehaviour
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      TargetMb: {fileID: 1036586761}
+      TargetMbName: '[Transition] => move'
+    - fieldCaches:
+      - targetName: '[Condition] AnimationDoneCondition'
+        typeName: AnimationDoneCondition
+        fieldName: _action
+        valueArray: []
+        value: {fileID: 8123744336826303641}
+      - targetName: '[Condition] AnimationDoneCondition'
+        typeName: AnimationDoneCondition
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: '[Condition] AnimationDoneCondition'
+        typeName: AnimationDoneCondition
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: '[Condition] AnimationDoneCondition'
+        typeName: AnimationDoneCondition
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      TargetMb: {fileID: 334948048}
+      TargetMbName: '[Condition] AnimationDoneCondition'
+    - fieldCaches:
       - targetName: '[State] jump'
         typeName: GeneralState
         fieldName: _context
@@ -5401,6 +5705,7 @@ MonoBehaviour:
         fieldName: _transitions
         valueArray:
         - {fileID: 1447175199}
+        - {fileID: 1489850078}
         value: {fileID: 0}
       - targetName: '[State] jump'
         typeName: GeneralState
@@ -5501,40 +5806,40 @@ MonoBehaviour:
       TargetMb: {fileID: 273288521}
       TargetMbName: '[Condition] AnimationDoneCondition'
     - fieldCaches:
-      - targetName: OnStateUpdateHandler
+      - targetName: '[Event] OnStateUpdate'
         typeName: OnStateUpdateHandler
         fieldName: _eventReceivers
         valueArray:
         - {fileID: 1290045614}
         value: {fileID: 0}
-      - targetName: OnStateUpdateHandler
+      - targetName: '[Event] OnStateUpdate'
         typeName: OnStateUpdateHandler
         fieldName: _self
         valueArray: []
         value: {fileID: 679579154}
-      - targetName: OnStateUpdateHandler
+      - targetName: '[Event] OnStateUpdate'
         typeName: OnStateUpdateHandler
         fieldName: _eventReceivers
         valueArray:
         - {fileID: 1290045614}
         value: {fileID: 0}
-      - targetName: OnStateUpdateHandler
+      - targetName: '[Event] OnStateUpdate'
         typeName: OnStateUpdateHandler
         fieldName: _entityProviders
         valueArray: []
         value: {fileID: 0}
-      - targetName: OnStateUpdateHandler
+      - targetName: '[Event] OnStateUpdate'
         typeName: OnStateUpdateHandler
         fieldName: _self
         valueArray: []
         value: {fileID: 679579154}
-      - targetName: OnStateUpdateHandler
+      - targetName: '[Event] OnStateUpdate'
         typeName: OnStateUpdateHandler
         fieldName: _self
         valueArray: []
         value: {fileID: 679579154}
       TargetMb: {fileID: 998633598}
-      TargetMbName: OnStateUpdateHandler
+      TargetMbName: '[Event] OnStateUpdate'
     - fieldCaches:
       - targetName: '[Action] PlayerMoveActionExample'
         typeName: PlayerMoveActionExample
@@ -5583,6 +5888,48 @@ MonoBehaviour:
         value: {fileID: 679579154}
       TargetMb: {fileID: 1290045614}
       TargetMbName: '[Action] PlayerMoveActionExample'
+    - fieldCaches:
+      - targetName: '[Transition] => dash'
+        typeName: TransitionBehaviour
+        fieldName: _conditions
+        valueArray:
+        - {fileID: 1556690001}
+        value: {fileID: 0}
+      - targetName: '[Transition] => dash'
+        typeName: TransitionBehaviour
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: '[Transition] => dash'
+        typeName: TransitionBehaviour
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: '[Transition] => dash'
+        typeName: TransitionBehaviour
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      TargetMb: {fileID: 1489850078}
+      TargetMbName: '[Transition] => dash'
+    - fieldCaches:
+      - targetName: '[Condition] InputActionWasPressedCondition'
+        typeName: InputActionWasPressedCondition
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: '[Condition] InputActionWasPressedCondition'
+        typeName: InputActionWasPressedCondition
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: '[Condition] InputActionWasPressedCondition'
+        typeName: InputActionWasPressedCondition
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      TargetMb: {fileID: 1556690001}
+      TargetMbName: '[Condition] InputActionWasPressedCondition'
     - fieldCaches:
       - targetName: Animator
         typeName: RootMotionRelay
@@ -5635,6 +5982,32 @@ MonoBehaviour:
         value: {fileID: 679579154}
       TargetMb: {fileID: 1086885169}
       TargetMbName: '[Input] JumpData'
+    - fieldCaches:
+      - targetName: '[Input] DashData'
+        typeName: MonoInputAction
+        fieldName: _abstractInputActionImplementation
+        valueArray: []
+        value: {fileID: 451331686}
+      TargetMb: {fileID: 451331687}
+      TargetMbName: '[Input] DashData'
+    - fieldCaches:
+      - targetName: '[Input] DashData'
+        typeName: InputSystemInputActionImplementation
+        fieldName: _localPlayerInput
+        valueArray: []
+        value: {fileID: 8123744336826303643}
+      - targetName: '[Input] DashData'
+        typeName: InputSystemInputActionImplementation
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      - targetName: '[Input] DashData'
+        typeName: InputSystemInputActionImplementation
+        fieldName: _self
+        valueArray: []
+        value: {fileID: 679579154}
+      TargetMb: {fileID: 451331686}
+      TargetMbName: '[Input] DashData'
     RootObj: {fileID: 0}
     CachedMonoBehaviours:
     - {fileID: 1704198388}
@@ -5648,6 +6021,7 @@ MonoBehaviour:
     - {fileID: 958630387}
     - {fileID: 200385705}
     - {fileID: 135820673}
+    - {fileID: 1922575154}
     - {fileID: 159139659}
     - {fileID: 159139658}
     - {fileID: 1782715334}
@@ -5676,6 +6050,7 @@ MonoBehaviour:
     - {fileID: 510033255}
     - {fileID: 2131566582}
     - {fileID: 953615033}
+    - {fileID: 580521515}
     - {fileID: 1587652168}
     - {fileID: 1587652167}
     - {fileID: 2030877647}
@@ -5704,6 +6079,7 @@ MonoBehaviour:
     - {fileID: 408712538}
     - {fileID: 973417843}
     - {fileID: 79945758}
+    - {fileID: 1424090391}
     - {fileID: 738678176}
     - {fileID: 738678175}
     - {fileID: 1802658265}
@@ -5741,6 +6117,7 @@ MonoBehaviour:
     - {fileID: 679579153}
     - {fileID: 679579152}
     - {fileID: 679579164}
+    - {fileID: 1151411201}
     - {fileID: 679579163}
     - {fileID: 679579162}
     - {fileID: 679579160}
@@ -5751,18 +6128,26 @@ MonoBehaviour:
     - {fileID: 1211587429}
     - {fileID: 2111354438}
     - {fileID: 1863946967}
+    - {fileID: 892465292}
+    - {fileID: 424202275}
     - {fileID: 8123744336826303642}
     - {fileID: 8123744336826303641}
+    - {fileID: 1036586761}
+    - {fileID: 334948048}
     - {fileID: 8123744336826303640}
     - {fileID: 8123744336826303639}
     - {fileID: 1447175199}
     - {fileID: 273288521}
     - {fileID: 998633598}
     - {fileID: 1290045614}
+    - {fileID: 1489850078}
+    - {fileID: 1556690001}
     - {fileID: 139066548}
     - {fileID: 139066546}
     - {fileID: 1086885170}
     - {fileID: 1086885169}
+    - {fileID: 451331687}
+    - {fileID: 451331686}
 --- !u!4 &1865592797
 Transform:
   m_ObjectHideFlags: 0
@@ -5820,6 +6205,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 788128e4eeab4d919bfc3a6cec2e5567, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1922575154 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 41494130106913300, guid: e1fbe6b3f9c74442ba549968ba534d31, type: 3}
+  m_PrefabInstance: {fileID: 775416108}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d2d75b4941d444fbe41e62394ff27fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &1926054402 stripped
@@ -5961,14 +6357,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 4593340177209661550, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
-      propertyPath: moveInput
-      value: 
-      objectReference: {fileID: -1680190386980627800, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-    - target: {fileID: 4593340177209661550, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
-      propertyPath: moveInput.m_Name
-      value: Move Input
-      objectReference: {fileID: 0}
     - target: {fileID: 5515634340952418308, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
       propertyPath: m_LocalPosition.x
       value: 23.500471
@@ -6012,10 +6400,6 @@ PrefabInstance:
     - target: {fileID: 8650721996564340217, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
       propertyPath: m_Name
       value: General FSM - Player
-      objectReference: {fileID: 0}
-    - target: {fileID: 9167267971201147751, guid: 11fde0c8d14094ab9978411066d220f7, type: 3}
-      propertyPath: _inputActionType
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
