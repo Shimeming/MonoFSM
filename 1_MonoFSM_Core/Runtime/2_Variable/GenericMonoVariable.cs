@@ -266,6 +266,9 @@ public abstract class GenericMonoVariable<TScriptableData, TField, TType> : Abst
     {
         get
         {
+            if (!Application.isPlaying) //FIXME: 先隨便寫一下..
+                return EditorValue;
+
             Profiler.BeginSample("Variable GetValue");
             var tempValue = _localField.CurrentValue;
 

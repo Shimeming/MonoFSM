@@ -505,7 +505,6 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
         _recalculating = false;
     }
 
-    //FIXME: 不可以直接call耶...要回去過world?
     public void ReturnAllObjects()
     {
         // Debug.Log("Return All PoolObj");

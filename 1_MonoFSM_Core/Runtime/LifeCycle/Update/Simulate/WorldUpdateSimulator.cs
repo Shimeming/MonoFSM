@@ -274,13 +274,15 @@ namespace MonoFSM.Core.Simulate
 
 #if UNITY_EDITOR
         [MenuItem("MonoFSM/ResetLevel %R")]
-        public static void TestResetLevel() //Cheat Reset?
+        public static void ManualResetLevel() //Cheat Reset?
         {
             if (!Application.isPlaying)
             {
                 CompilationPipeline.RequestScriptCompilation();
                 return;
             }
+
+            PoolManager.Instance.ReturnAllObjects();
 
             Debug.Log("ResetLevel CMD+Shift+R");
             var simulators = FindObjectsByType<WorldUpdateSimulator>(FindObjectsSortMode.None);
@@ -297,6 +299,8 @@ namespace MonoFSM.Core.Simulate
                     //這樣就可以reset了
                     simulator.ResetLevelStart();
             }
+
+
 
         }
 #endif

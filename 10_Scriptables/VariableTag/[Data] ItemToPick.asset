@@ -18,14 +18,13 @@ MonoBehaviour:
   _variableType:
     _bindObject: {fileID: 11400000}
     _baseFilterTypeName: 
-    _typeFullName: MonoFSM.Variable.VarDescriptableData
+    _typeFullName: MonoFSM.Variable.VarGameData
     _assemblyName: MonoFSM.Core.Runtime
-    typeName: MonoFSM.Variable.VarDescriptableData, MonoFSM.Core.Runtime, Version=0.0.0.0,
+    typeName: MonoFSM.Variable.VarGameData, MonoFSM.Core.Runtime, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   _valueFilterType:
     _bindObject: {fileID: 11400000}
     _baseFilterTypeName: 
-    _typeFullName: DescriptableData
+    _typeFullName: GameData
     _assemblyName: MonoFSM.Core.Runtime
-    typeName: DescriptableData, MonoFSM.Core.Runtime, Version=0.0.0.0, Culture=neutral,
-      PublicKeyToken=null
+    typeName: GameData, MonoFSM.Core.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null

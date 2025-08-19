@@ -62,7 +62,8 @@ namespace MonoFSM.Core.Detection
             foreach (var obj in _toEnter)
             {
                 var result = _detector.OnDetectEnterCheck(obj);
-                Debug.Log("OnDetectEnterCheck: " + obj.name + " result: " + result, obj);
+                // Debug.Log("OnDetectEnterCheck me: " + name + " result: " + result, this);
+                // Debug.Log("OnDetectEnterCheck other: " + obj.name + " result: " + result, obj);
             }
 
             _toEnter.Clear();

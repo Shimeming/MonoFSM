@@ -7,11 +7,11 @@ using UnityEngine;
 //FIXME: 放在這，還是應該放在init state
 public class LocalTransformResetter : MonoBehaviour, IResetStateRestore
 {
-    private Vector3 initPosition;
-    private Quaternion initRotation;
-    private Transform initParent;
-    private Vector3 initlocalScale;
-    private bool isResetParametterInit = false;
+    private Vector3 _initPosition;
+    private Quaternion _initRotation;
+    private Transform _initParent;
+    private Vector3 _initLocalScale;
+    private bool _isResetParameterInit;
 
     private bool _isKinematic;
 
@@ -28,38 +28,43 @@ public class LocalTransformResetter : MonoBehaviour, IResetStateRestore
 
     private bool ParameterInitCheck()
     {
-        if (isResetParametterInit)
+        if (_isResetParameterInit)
             return true;
 
-        InitSnapshot();
-        isResetParametterInit = true;
+        InitSaveSnapshot();
+        _isResetParameterInit = true;
         return false;
     }
 
-    private void InitSnapshot()
+    private void InitSaveSnapshot()
     {
-        initParent = transform.parent;
-        initPosition = transform.localPosition;
-        initRotation = transform.localRotation;
-        initlocalScale = transform.localScale;
+        _initParent = transform.parent;
+        _initPosition = transform.localPosition;
+        _initRotation = transform.localRotation;
+        _initLocalScale = transform.localScale;
 
         //--
-        _isKinematic = _rigidbody.isKinematic;
+        if (_rigidbody)
+            _isKinematic = _rigidbody.isKinematic;
     }
 
     public void ResetStateRestore()
     {
         if (ParameterInitCheck()) //第一次記下來？還是分開感覺比較好？
         {
-            transform.SetParent(initParent);
-            transform.localPosition = initPosition;
-            transform.localRotation = initRotation;
-            transform.localScale = initlocalScale;
+            transform.SetParent(_initParent);
+            transform.localPosition = _initPosition;
+            transform.localRotation = _initRotation;
+            transform.localScale = _initLocalScale;
         }
 
-        _rigidbody.linearVelocity = Vector3.zero;
-        _rigidbody.angularVelocity = Vector3.zero;
-        _rigidbody.isKinematic = _isKinematic;
-        _rigidbody.ResetInertiaTensor();
+        if (_rigidbody)
+        {
+            _rigidbody.linearVelocity = Vector3.zero;
+            _rigidbody.angularVelocity = Vector3.zero;
+            _rigidbody.isKinematic = _isKinematic;
+            _rigidbody.ResetInertiaTensor();
+        }
+
     }
 }

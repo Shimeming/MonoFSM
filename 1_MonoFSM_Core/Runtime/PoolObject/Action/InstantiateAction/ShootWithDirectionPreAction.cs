@@ -6,7 +6,7 @@ using UnityEngine;
 namespace MonoFSM.Core.LifeCycle
 {
     //FIXME: 會很怪嗎？
-    public class ShootWithDirectionAfterAction : MonoBehaviour, IAfterSpawnAction
+    public class ShootWithDirectionAfterProcess : MonoBehaviour, IAfterSpawnProcess
     {
         public Transform _directionTransform;
         public float _speed = 10f;
