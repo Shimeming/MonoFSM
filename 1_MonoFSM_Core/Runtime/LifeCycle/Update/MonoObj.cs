@@ -54,6 +54,8 @@ namespace MonoFSMCore.Runtime.LifeCycle
     [FormerlyNamedAs("MonoPoolObj")]
     public sealed class MonoObj : MonoBehaviour, IPrefabSerializeCacheOwner
     {
+        [field: Auto] public MonoEntity Entity { get; }
+
         // public
         //寫一個show error的Attribute，然後在這裡用
         [InfoBox("WorldUpdateSimulator is required for MonoPoolObj to function properly",InfoMessageType.Error,nameof(RuntimeCheckNoWorldUpdateSimulator))]
