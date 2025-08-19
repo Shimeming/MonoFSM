@@ -2,8 +2,10 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using MonoFSM.Core.Attributes;
+using MonoFSM.EditorExtension;
 using MonoFSM.Foundation;
 using MonoFSM.Runtime.Vote;
+using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -14,7 +16,8 @@ namespace MonoFSM.Core.Runtime.Action
     {
     }
 
-    public abstract class AbstractStateAction<T> : AbstractStateAction, IArgEventReceiver<T>
+    public abstract class AbstractStateAction<T> : AbstractStateAction, IArgEventReceiver<T>,
+        IHierarchyValueInfo
     // where T : IEffectHitData
     {
         void IArgEventReceiver<T>.ArgEventReceived(T arg)
@@ -24,6 +27,8 @@ namespace MonoFSM.Core.Runtime.Action
         }
 
         protected abstract void OnArgEventReceived(T arg);
+        public string ValueInfo => _lastEventReceivedTime.ToString("F2");
+        public bool IsDrawingValueInfo => _lastEventReceivedTime != -1f;
     }
 
     /// <summary>
@@ -34,7 +39,7 @@ namespace MonoFSM.Core.Runtime.Action
     ///FIXME:  好像可以架一層有吃參數的比較好？
     [Searchable]
     public abstract class AbstractStateAction : AbstractDescriptionBehaviour, IVoteChild, IGuidEntity,
-        IDefaultSerializable, IEventReceiver
+        IDefaultSerializable, IEventReceiver, IResetStateRestore
     // IArgEventReceiver<GeneralEffectHitData>
     {
         protected override bool HasError()
@@ -192,6 +197,12 @@ namespace MonoFSM.Core.Runtime.Action
 
         public virtual void Resume()
         {
+        }
+
+        public void ResetStateRestore()
+        {
+            _lastEventReceivedTime = -1f;
+            _delay = false;
         }
     }
 }

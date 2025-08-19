@@ -6,7 +6,6 @@ using MonoFSM.AnimatorControl;
 using MonoFSM.AnimatorUtility;
 using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
-using MonoFSM.Core.Editor;
 using MonoFSM.EditorExtension;
 using MonoFSM.Foundation;
 using MonoFSM.Variable.Attributes;
@@ -55,7 +54,7 @@ namespace MonoFSM.Animation
             return provider?.ChildAnimators;
         }
 
-        [TabGroup("Animator", false, 1)]
+        [TitleGroup("Animator")]
         [Required]
         // [InlineEditor]
         // [ValueDropdown(nameof(GetAnimatorsInChildren), IsUniqueList = true, NumberOfItemsBeforeEnablingSearch = 3)]
@@ -64,19 +63,50 @@ namespace MonoFSM.Animation
 
         [InlineEditor] [PreviewInInspector] private Animator animatorComp => animator;
 
-        [TabGroup("Animator")]
+        [TitleGroup("Animator")]
+        [BoxGroup("Animator/StateName")]
+        // [TitleGroup("StateName")]
+        [PropertyOrder(0)]
 #if UNITY_EDITOR
         [InfoBox("Not Valid State name", InfoMessageType.Error, nameof(IsStateNameNotInAnimator))]
-        [ValueDropdown(nameof(GetAnimatorStateNamesOfCurrentLayer), IsUniqueList = true,
+        [ValueDropdown(nameof(GetAnimatorStateNamesWithNone), IsUniqueList = true,
             NumberOfItemsBeforeEnablingSearch = 3)]
+        [OnValueChanged(nameof(OnStateNameChanged))]
 #endif
         [HideIf("IsStateNameProvider")]
         //有provider就藏起來
         public string stateName;
 
+        [BoxGroup("Animator/StateName")]
+        [TitleGroup("Animator")]
+        [Button("一鍵生成StateName的動畫Clip")]
+        [ShowIf("@IsStateNameNotInAnimator(StateName)")]
+        // [HideIf("IsStateNameProvider")]
+        private void CreateAnimatorControllerAndClipForState()
+        {
+            // var controller = animator.runtimeAnimatorController as AnimatorOverrideController;
+            var controller = animator.GetAnimatorController();
+            if (controller == null)
+            {
+                // Debug.LogError("animator.runtimeAnimatorController is not AnimatorOverrideController");
+                controller =
+                    AnimatorControllerUtility.CreateAnimatorControllerForAnimatorOfCurrentPrefab(
+                        animator);
+                Debug.Log("CreateAnimatorController" + controller, controller);
+            }
+
+            var bindingState = GetComponentInParent<GeneralState>();
+            //哭了...怎麼reference?
+            var newStateName = bindingState.name.Replace("[State]", "").Replace(" ", "");
+            AnimatorAssetUtility.AddStateAndCreateClipToLayerIndex(controller, stateLayer,
+                newStateName);
+            stateName = newStateName;
+        }
+
         [Auto(false)] private AbstractStringProvider stateNameProvider; //拿旁邊的，蓋掉要怎麼做...藏起來
 
-        public string StateName            => stateNameProvider                ? stateNameProvider.StringValue
+        public string StateName => stateNameProvider
+            ? stateNameProvider.StringValue
                 : stateName;
 
         private int StateHash
@@ -104,7 +134,7 @@ namespace MonoFSM.Animation
 #endif
 
         //
-        [TabGroup("Animator")] [DisableIf("@true")]
+        [BoxGroup("Animator/StateLayer")] [TitleGroup("Animator")] [DisableIf("@true")]
         public int stateLayer; //FIXME: 做什麼用的?還要再講清楚? playerLayer
 
         // [ValueDropdown()]
@@ -114,8 +144,8 @@ namespace MonoFSM.Animation
             stateLayer = AnimatorHelpler.GetLayerIndex(animator, _stateLayerName);
         }
 
-
-        [TabGroup("Animator")]
+        [BoxGroup("Animator/StateLayer")]
+        [TitleGroup("Animator")]
         [OnValueChanged(nameof(BindStateLayer))]
         [ShowInInspector]
         [ValueDropdown(nameof(GetLayerNames))]
@@ -126,33 +156,15 @@ namespace MonoFSM.Animation
 
         private int stateRange => animator.layerCount;
 
-        [TabGroup("Animator")] [Range(0, 1)] public float startNormalizedTimeOffset = 0;
+        [TitleGroup("Animator")] [Range(0, 1)] public float startNormalizedTimeOffset;
 
-        [TabGroup("Animator")] [Title("StateEnter 空降Normalized Time")] [ShowInPlayMode]
+        [TitleGroup("Animator")] [Title("StateEnter 空降Normalized Time")] [ShowInPlayMode]
         private float runtimeStartNormalizedTimeOffset = 0;
 
-        [TabGroup("Animator")] public float animatorEnterCrossFade = 0;
+        [TitleGroup("Animator")] public float animatorEnterCrossFade;
 
 #if UNITY_EDITOR
-        [TabGroup("Animator")]
-        [Button]
-        void CreateAnimatorControllerAndClipForState()
-        {
-            // var controller = animator.runtimeAnimatorController as AnimatorOverrideController;
-            var controller = animator.GetAnimatorController();
-            if (controller == null)
-            {
-                // Debug.LogError("animator.runtimeAnimatorController is not AnimatorOverrideController");
-                controller = AnimatorControllerGenerator.CreateAnimatorControllerForAnimatorOfCurrentPrefab(animator);
-                Debug.Log("CreateAnimatorController"+controller, controller);
-            }
 
-            var bindingState = GetComponentInParent<GeneralState>();
-            //哭了...怎麼reference?
-            var newStateName = bindingState.name.Replace("[State]","").Replace(" ", "");
-            AnimatorAssetUtility.AddStateAndCreateClipToLayerIndex(controller, stateLayer,newStateName);
-            stateName = newStateName;
-        }
 #endif
         // private GeneralState bindingState;
         bool IsAnimatorNoControl => animator == null || animator.runtimeAnimatorController == null;
@@ -236,6 +248,20 @@ namespace MonoFSM.Animation
             // }
             // return names;
         }
+
+        public IEnumerable<string> GetAnimatorStateNamesWithNone()
+        {
+            var stateNames = GetAnimatorStateNamesOfCurrentLayer();
+            var result = new List<string> { "None" };
+            if (stateNames != null)
+                result.AddRange(stateNames);
+            return result;
+        }
+
+        private void OnStateNameChanged()
+        {
+            if (stateName == "None") stateName = "";
+        }
 #endif
 
 #if UNITY_EDITOR
@@ -286,7 +312,7 @@ namespace MonoFSM.Animation
             Undo.CollapseUndoOperations(groupIndex);
         }
 
-        [TabGroup("Animator")]
+        [TitleGroup("Animator")]
         [PropertyOrder(-1)]
         [ShowInInspector]
         private AnimationClip BaseClip
@@ -342,7 +368,7 @@ namespace MonoFSM.Animation
         }
 
         [CustomContextMenu("Override Clip", nameof(OverrideClip))]
-        [TabGroup("Animator")]
+        [TitleGroup("Animator")]
         [PropertyOrder(-1)]
         [ShowInInspector]
         private AnimationClip OverridingClip
@@ -391,22 +417,21 @@ namespace MonoFSM.Animation
         public Action<AnimationClip> OnClipPlay;
         private Action<string> _onStateNameChange;
 
-        [TabGroup("Animator")] [ShowInPlayMode]
+        [TitleGroup("Animator")] [ShowInPlayMode]
         private int _stateNameHash;
 #if UNITY_EDITOR
         [HideIf(nameof(NoDoneEventTransition))]
         [Header("Done")]
-        [TabGroup("Animator")]
+        [TitleGroup("Animator")]
         [ValueDropdown("GetLayerNames", IsUniqueList = true)]
 #endif
         public string doneEventLayerName; //getter? onvalidate的時候，選的時候選string，存int？
 
-        // [HideIf(nameof(NoDoneEventTransition))] [TabGroup("Animator")] [ShowInInspector] [ReadOnly] [SerializeField]
+        // [HideIf(nameof(NoDoneEventTransition))] [TitleGroup("Animator")] [ShowInInspector] [ReadOnly] [SerializeField]
         // private int doneEventLayer;
 
 
-
-        [TabGroup("Animator")]
+        [TitleGroup("Animator")]
         // [HideIf(nameof(NoDoneEventTransition))]
         [PreviewInInspector]
         private float ClipLength
@@ -441,7 +466,8 @@ namespace MonoFSM.Animation
 
             _cachedClipLength = CurrentClip.length;
         }
-        [TabGroup("Animator")]
+
+        [TitleGroup("Animator")]
         // [HideIf(nameof(NoDoneEventTransition))]
         [PreviewInInspector]
         private bool IsClipLoop
@@ -635,7 +661,7 @@ namespace MonoFSM.Animation
             return GetComponentsInChildren<TransitionBehaviour>() == null;
         }
 
-        // [HideIf(nameof(NoDoneEventTransition))] [TabGroup("Animator")] [PreviewInInspector] [Component]
+        // [HideIf(nameof(NoDoneEventTransition))] [TitleGroup("Animator")] [PreviewInInspector] [Component]
         [CompRef] [AutoChildren] private TransitionBehaviour doneEventTransition; //寫成condition更好？
 
         private IEventReceiver _ircgArgEventReceiverImplementation;
@@ -645,7 +671,7 @@ namespace MonoFSM.Animation
 
 #if UNITY_EDITOR
         //不一定有，optional...
-        // [TabGroup("Animator")]
+        // [TitleGroup("Animator")]
         // [Button("Add Done Event Transition")]
         // [ShowIf(nameof(NoDoneEventTransition))]
         // private void CreateEventReceiver()
@@ -753,7 +779,10 @@ namespace MonoFSM.Animation
 #endif
         }
 
-        [TabGroup("擴充模組")] [AutoChildren] [Component(addAt = AddComponentAt.Same)] [PreviewInInspector]
+        [TitleGroup("擴充模組")]
+        [AutoChildren]
+        [Component(addAt = AddComponentAt.Same)]
+        [PreviewInInspector]
         private AnimatorPlayActionModule[] _animatorPlayActionModule;
 
         public string Serialize()

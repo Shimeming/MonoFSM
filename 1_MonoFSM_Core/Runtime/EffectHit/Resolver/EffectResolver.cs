@@ -4,6 +4,7 @@ using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Detection;
 using MonoFSM.Foundation;
 using MonoFSM.Variable.Attributes;
+using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -14,7 +15,7 @@ using UnityEditor;
 namespace MonoFSM.Runtime.Interact.EffectHit
 {
     public abstract class EffectResolver : AbstractDescriptionBehaviour, IDefaultSerializable,
-        IHitDataProvider //, IHierarchyValueInfo,
+        IHitDataProvider, IResetStateRestore //, IHierarchyValueInfo,
     {
         [Required]
         [PreviewInInspector]
@@ -33,7 +34,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
             }
         }
 
-        [ShowInDebugMode] protected IEffectHitData _currentHitData;
+        [ShowInDebugMode] protected IEffectHitData _currentHitData; //FIXME: 和last差在哪？
         [ShowInDebugMode] protected DetectData? _detectData;
 
 #if UNITY_EDITOR
@@ -101,5 +102,10 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         public IActor Owner => GetComponentInParent<IActor>();
         public string ValueInfo => IsValid ? "Valid" : "Invalid";
         public bool IsDrawingValueInfo => Application.isPlaying && isActiveAndEnabled;
+
+        public void ResetStateRestore()
+        {
+            _currentHitData = null;
+        }
     }
 }
