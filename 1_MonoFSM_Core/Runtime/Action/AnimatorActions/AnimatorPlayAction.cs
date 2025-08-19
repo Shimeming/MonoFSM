@@ -84,15 +84,16 @@ namespace MonoFSM.Animation
         public string stateName;
 
 
-        private bool IsCurrentStateNameNotValid()
+        private bool IsShowCreateAcAndClipButton()
         {
+            if (animator == null) return false;
             return IsStateNameNotInAnimator(StateName);
         }
 
         [BoxGroup("Animator/StateName")]
         [TitleGroup("Animator")]
         [Button("一鍵生成AC和State和Clip")]
-        [ShowIf("$IsCurrentStateNameNotValid")]
+        [ShowIf("$IsShowCreateAcAndClipButton")]
         // [HideIf("IsStateNameProvider")]
         private void CreateAnimatorControllerAndClipForState()
         {

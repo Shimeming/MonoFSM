@@ -22,16 +22,16 @@ namespace MonoFSM.Editor
         // }
 
 
-        [MenuItem("RCGs/ShortCut/Find Animator #_A")]
-        public static void FindAnimator()
-        {
-            if (Application.isPlaying) return;
-            if (Selection.activeGameObject == null) return;
-            var owner = Selection.activeGameObject.GetComponentInParent<StateMachineOwner>();
-            if(owner == null) return;
-            var anim = owner.GetComponentInChildren<Animator>();
-            Selection.activeGameObject = anim.gameObject;
-        }
+        // [MenuItem("RCGs/ShortCut/Find Animator #_A")]
+        // public static void FindAnimator()
+        // {
+        //     if (Application.isPlaying) return;
+        //     if (Selection.activeGameObject == null) return;
+        //     var owner = Selection.activeGameObject.GetComponentInParent<StateMachineOwner>();
+        //     if(owner == null) return;
+        //     var anim = owner.GetComponentInChildren<Animator>();
+        //     Selection.activeGameObject = anim.gameObject;
+        // }
 
         // [MenuItem("RCGs/ShortCut/Edit Animation of State  %_E")]
         // [Shortcut("NOT_Lonely/Edit Animation of Monster", typeof(SceneView), KeyCode.E, ShortcutModifiers.Shift)]
