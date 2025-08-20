@@ -13,12 +13,13 @@ namespace MonoFSM.Core.Runtime.Action
 {
     //IEventInvoker?
     public interface IActionParent //給GameObject結構Validate用的
-    {
-    }
+    { }
 
-    //FIXME: 這個其實沒有想要implement actionExecute?
-    public abstract class AbstractArgEventHandler<T> : AbstractStateAction, IArgEventReceiver<T>,
-        IHierarchyValueInfo
+    //FIXME: 這個其實沒有想要implement actionExecute? 要把Implement override蓋掉？
+    public abstract class AbstractArgEventHandler<T>
+        : AbstractStateAction,
+            IArgEventReceiver<T>,
+            IHierarchyValueInfo
     // where T : IEffectHitData
     {
         void IArgEventReceiver<T>.ArgEventReceived(T arg)
@@ -39,8 +40,13 @@ namespace MonoFSM.Core.Runtime.Action
     /// </summary>
     ///FIXME:  好像可以架一層有吃參數的比較好？
     [Searchable]
-    public abstract class AbstractStateAction : AbstractDescriptionBehaviour, IVoteChild, IGuidEntity,
-        IDefaultSerializable, IEventReceiver, IResetStateRestore
+    public abstract class AbstractStateAction
+        : AbstractDescriptionBehaviour,
+            IVoteChild,
+            IGuidEntity,
+            IDefaultSerializable,
+            IEventReceiver,
+            IResetStateRestore
     // IArgEventReceiver<GeneralEffectHitData>
     {
         protected override bool HasError()
@@ -55,21 +61,21 @@ namespace MonoFSM.Core.Runtime.Action
         {
             get
             {
-                if (_delay) return false;
+                if (_delay)
+                    return false;
                 return isActiveAndEnabled && _conditions.IsAllValid();
             }
         }
 
-
         // [PreviewInInspector]
         //FIXME: 不一定會有bindingState? 還是乾脆拿logic的就好了？
-        [AutoParent] protected GeneralState bindingState; // => this.GetComponentInParent<GeneralState>(true)// ;
+        [AutoParent]
+        protected GeneralState bindingState; // => this.GetComponentInParent<GeneralState>(true)// ;
 
         [Required]
         [PreviewInInspector]
         [AutoParent]
         protected IActionParent _actionParent;
-
 
         [HideInInlineEditors]
         // #if UNITY_EDITOR
@@ -81,27 +87,30 @@ namespace MonoFSM.Core.Runtime.Action
         // #endif
         [AutoChildren(DepthOneOnly = true)]
         protected AbstractConditionBehaviour[] _conditions; //condition 成立，才能做事
-
 #if UNITY_EDITOR
-        [PreviewInInspector] private bool IsAllValid => _conditions.IsAllValid();
+        [PreviewInInspector]
+        private bool IsAllValid => _conditions.IsAllValid();
 #endif
 
         protected virtual string renamePostfix => "";
 
-        [AutoParent] private DelayActionModifier delayActionModifier;
+        [AutoParent]
+        private DelayActionModifier delayActionModifier;
 
         private bool _delay; //FIXME:
 
         //FIXME: 不會走這了？
         public async void OnActionExecute()
         {
-            if (!isActiveAndEnabled) return;
+            if (!isActiveAndEnabled)
+                return;
             if (_delay)
                 Debug.LogError("Delay 還沒結束又DELAY 死罪", this);
 
             // _delay = false;
             //TODO: conditions
-            if (!IsValid) return; //not valid也要用字串？
+            if (!IsValid)
+                return; //not valid也要用字串？
 
             _delay = true;
             if (delayActionModifier != null)
@@ -109,8 +118,12 @@ namespace MonoFSM.Core.Runtime.Action
                 {
                     //FIXME: 這個delay用unitask不好，時間軸和fsm錯開了
                     //有點像sequence? 如果另外包好像還行？
-                    await UniTask.Delay(TimeSpan.FromSeconds(delayActionModifier.delayTime), DelayType.DeltaTime,
-                        PlayerLoopTiming.Update, cancellationTokenSource.Token);
+                    await UniTask.Delay(
+                        TimeSpan.FromSeconds(delayActionModifier.delayTime),
+                        DelayType.DeltaTime,
+                        PlayerLoopTiming.Update,
+                        cancellationTokenSource.Token
+                    );
                 }
                 catch (OperationCanceledException)
                 {
@@ -129,9 +142,7 @@ namespace MonoFSM.Core.Runtime.Action
         protected abstract void OnActionExecuteImplement();
 
         [Obsolete]
-        protected virtual void OnSpriteUpdateImplement()
-        {
-        }
+        protected virtual void OnSpriteUpdateImplement() { }
 
         // public async void OnActionExit()
         // {
@@ -145,11 +156,12 @@ namespace MonoFSM.Core.Runtime.Action
         // }
 
         public virtual MonoBehaviour VoteOwner => nearestBinder as MonoBehaviour;
-        [AutoParent] private IBinder nearestBinder;
 
-        protected CancellationTokenSource cancellationTokenSource => bindingState.GetStateExitCancellationTokenSource();
+        [AutoParent]
+        private IBinder nearestBinder;
 
-
+        protected CancellationTokenSource cancellationTokenSource =>
+            bindingState.GetStateExitCancellationTokenSource();
 
         //FIXME: 不該全部都virtual
         // public virtual void ArgEventReceived(IEffectHitData arg)
@@ -167,7 +179,8 @@ namespace MonoFSM.Core.Runtime.Action
         //     OnActionExecuteImplement();
         // }
 #if UNITY_EDITOR
-        [PreviewInInspector] protected float _lastEventReceivedTime = -1f;
+        [PreviewInInspector]
+        protected float _lastEventReceivedTime = -1f;
 #endif
 
         public void EventReceived()
@@ -184,21 +197,13 @@ namespace MonoFSM.Core.Runtime.Action
             //     Debug.LogError("Not active self", this);
         }
 
-        public virtual void SimulationUpdate(float passedDuration)
-        {
-        }
+        public virtual void SimulationUpdate(float passedDuration) { }
 
-        public virtual void SetPlaybackTime(float time)
-        {
-        }
+        public virtual void SetPlaybackTime(float time) { }
 
-        public virtual void Pause()
-        {
-        }
+        public virtual void Pause() { }
 
-        public virtual void Resume()
-        {
-        }
+        public virtual void Resume() { }
 
         public void ResetStateRestore()
         {

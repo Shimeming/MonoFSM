@@ -3,7 +3,7 @@ using UnityEngine;
 
 public static class EditorCloseWindowTab //Vhierarchy已經有 %W了？
 {
-    // [MenuItem("RCGs/ShortCut/Close Window Tab %_W")]
+    [MenuItem("MonoFSM/ShortCut/Close Window Tab %_W")]
     static void CloseTab()
     {
         EditorWindow focusedWindow = EditorWindow.focusedWindow;

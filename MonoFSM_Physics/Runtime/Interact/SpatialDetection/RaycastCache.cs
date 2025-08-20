@@ -24,6 +24,7 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
         {
             Single, //FIXME: 應該都要用all 然後再sort, 然後會需要filter掉一部分
             All //會需要all嗎？這樣對象要全部分開？
+            ,
         }
 
         [SerializeField]
@@ -47,13 +48,14 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
         [PreviewInInspector]
         private Collider firstHitCollider => CachedHits.Count > 0 ? CachedHits[0].collider : null;
 
-        [PreviewInInspector] public List<RaycastHit> CachedHits { get; } = new();
+        [PreviewInInspector]
+        public List<RaycastHit> CachedHits { get; } = new();
 
         public RaycastHit CachedHit => CachedHits.Count > 0 ? CachedHits[0] : default;
         public Ray CachedRay => _cachedRay;
 
-
-        [Auto] [CompRef]
+        [Auto]
+        [CompRef]
         private IRaycastProcessor _raycastProcessor;
 
         // [CompRef] //all in 1 就撞了？
@@ -63,11 +65,9 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
         private Ray _cachedRay;
 
 #if UNITY_EDITOR
-        [ShowInDebugMode] private readonly List<Collider> _debugHistoryObjs = new();
+        [ShowInDebugMode]
+        private readonly List<Collider> _debugHistoryObjs = new();
 #endif
-
-
-
 
         private void OnDrawGizmos()
         {
@@ -106,11 +106,11 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
         //FIXME:
         // public bool _isEffectByCameraRotation;
 
-        [SerializeField]
-        private float _minVerticalAngle = -45f; // Minimum vertical angle limit
-
-        [SerializeField]
-        private float _maxVerticalAngle = 45f; // Maximum vertical angle limit
+        // [SerializeField]
+        // private float _minVerticalAngle = -45f; // Minimum vertical angle limit
+        //
+        // [SerializeField]
+        // private float _maxVerticalAngle = 45f; // Maximum vertical angle limit
         // private Transform _characterTransform; // Reference to the character's transform
 
         void TryCast()
@@ -121,8 +121,8 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
 
             CachedHits.Clear();
             // _thisFrameColliders.Clear();
-
             _cachedRay = ray;
+            transform.rotation = Quaternion.LookRotation(_cachedRay.direction);
             if (_raycastMode == RaycastMode.Single)
             {
                 // if (_sphereCastProcessor != null)
@@ -191,9 +191,6 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
             //     }
             // }
         }
-
-
-
 
         [Required]
         [Auto]

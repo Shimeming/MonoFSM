@@ -164,16 +164,15 @@ namespace MonoFSM.Variable
         public override void ResetStateRestore()
         {
             //這裡才做會不會太晚？
-            // if (_isConst) //FIXME: 怪怪的？
-            //     return;
+            if (_isConst) //FIXME: 怪怪的, 但現在 playerTransform有在用, set過後不想被reset, 可能要另外處理這個情境？
+                return;
             SetValueInternal(DefaultValue, this);
         }
 
-        // [FormerlySerializedAs("_isPreventReset")]
-        // [PropertyOrder(-1)]
-        // [Header("避免關卡重置時清除資料")]
-        // [SerializeField]
-        // public bool _isConst = false;
+        [PropertyOrder(-1)]
+        [Header("避免關卡重置時清除資料")]
+        [SerializeField]
+        public bool _isConst; //
         //避免reset restore?
     }
 }

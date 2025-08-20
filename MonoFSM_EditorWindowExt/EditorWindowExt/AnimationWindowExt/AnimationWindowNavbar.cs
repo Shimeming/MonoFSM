@@ -3,25 +3,23 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using MonoFSMEditor;
 using MonoFSM.Core;
+using MonoFSMEditor;
 using UnityEditor;
 using UnityEditor.Animations;
-using UnityEditor.SceneManagement;
 using UnityEngine;
-using static MonoFSM.GUIExtensions.EventExtensions;
 using static MonoFSM.Editor.MonoAnimationWindow.GUIExtension;
-
+using static MonoFSM.GUIExtensions.EventExtensions;
 
 public class AnimationWindowNavbar
 {
-
     bool isLastFocused = false;
     private static Dictionary<int, string> controlIdToName = new Dictionary<int, string>(); // 追踪控制項ID對應名稱
     private int searchFieldControlID = -1; // 固定的搜尋欄位ID
     public AnimationWindow window;
     public bool isSearchActive;
-    private string searchText {
+    private string searchText
+    {
         get => _searchText;
         set
         {
@@ -45,6 +43,7 @@ public class AnimationWindowNavbar
     private bool isNavigatingDropdown = false;
     private const int maxDropdownItems = 8;
     private const float dropdownItemHeight = 20f;
+
     // private bool shouldFocusOnNextRepaint = false;
     private Rect pendingDropdownRect;
     private bool shouldDrawDropdown = false;
@@ -61,19 +60,24 @@ public class AnimationWindowNavbar
         }
     } // 追蹤是否選中了創建選項
     bool _isCreateOptionSelected = false; // 默認為未選中創建選項
+
     public AnimationWindowNavbar(EditorWindow window)
     {
-        var animationWindow = window as AnimationWindow;; //EditorWindow.GetWindow<AnimationWindow>(false);
+        var animationWindow = window as AnimationWindow;
+        ; //EditorWindow.GetWindow<AnimationWindow>(false);
         this.window = animationWindow;
     }
 
     public void HandleDropdownEventsFirst()
     {
-
         // 如果有dropdown顯示，在原始AnimationWindow處理事件之前先檢查dropdown事件
-        if (!showDropdown) return;
+        if (!showDropdown)
+            return;
 
-        var dropdownHeight = Math.Min(currentMatches.Count * dropdownItemHeight, maxDropdownItems * dropdownItemHeight);
+        var dropdownHeight = Math.Min(
+            currentMatches.Count * dropdownItemHeight,
+            maxDropdownItems * dropdownItemHeight
+        );
         var dropdownRect = new Rect(
             pendingDropdownRect.x,
             pendingDropdownRect.y,
@@ -140,7 +144,10 @@ public class AnimationWindowNavbar
         }
 
         // 如果滑鼠在dropdown區域內且是點擊事件，先處理dropdown點擊
-        if (dropdownRect.Contains(Event.current.mousePosition) && Event.current.type == EventType.MouseDown)
+        if (
+            dropdownRect.Contains(Event.current.mousePosition)
+            && Event.current.type == EventType.MouseDown
+        )
         {
             Debug.Log("Mouse down on dropdown area");
             // 用座標回推計算點擊的項目索引
@@ -148,10 +155,15 @@ public class AnimationWindowNavbar
             var clickedIndex = Mathf.FloorToInt(relativeY / dropdownItemHeight);
             Debug.Log("Clicked index: " + clickedIndex);
             // 確保索引在有效範圍內
-            if (clickedIndex >= 0 && clickedIndex < Math.Min(currentMatches.Count, maxDropdownItems))
+            if (
+                clickedIndex >= 0
+                && clickedIndex < Math.Min(currentMatches.Count, maxDropdownItems)
+            )
             {
                 var clip = currentMatches[clickedIndex];
-                Debug.Log($"Early selected: {clip.name} ({clickedIndex + 1}/{currentMatches.Count})");
+                Debug.Log(
+                    $"Early selected: {clip.name} ({clickedIndex + 1}/{currentMatches.Count})"
+                );
                 currentMatchIndex = clickedIndex;
                 SetAnimationWindowClip(currentMatches[currentMatchIndex]);
 
@@ -172,6 +184,7 @@ public class AnimationWindowNavbar
             Event.current.Use();
         }
     }
+
     void CloseSearch()
     {
         searchText = "";
@@ -184,14 +197,16 @@ public class AnimationWindowNavbar
         // GUIUtility.keyboardControl = 0;
         isSearchActive = false;
     }
+
     public void OnGUI(Rect navbarRect)
     {
-        currentController =
-            currentAnimator?.runtimeAnimatorController as AnimatorController;
+        // currentController =
+        //     currentAnimator?.runtimeAnimatorController as AnimatorController;
 
         void UpdateState()
         {
-            if (!curEvent.isLayout) return;
+            if (!curEvent.isLayout)
+                return;
 
             // 檢查焦點狀態
             var isWindowFocused = window == EditorWindow.focusedWindow;
@@ -208,7 +223,6 @@ public class AnimationWindowNavbar
                 EditorGUI.FocusTextInControl("AnimationSearchFilter");
                 // isSearchActive = false;
             }
-
         }
 
         void background()
@@ -244,7 +258,8 @@ public class AnimationWindowNavbar
 
         float AnimatorObjectField(float startX)
         {
-            if (searchAnimationT == 1) return startX;
+            if (searchAnimationT == 1)
+                return startX;
 
             // 更新當前的 Animator
             var selectedAnimator = Selection.activeGameObject?.GetComponentInParent<Animator>(true);
@@ -266,8 +281,16 @@ public class AnimationWindowNavbar
             // 使用圖標和更緊湊的設計
             var iconRect = new Rect(startX, 5, 18, 18);
             var icon = EditorGUIUtility.IconContent("d_UnityEditor.Graphs.AnimatorControllerTool");
-            GUI.DrawTexture(iconRect, icon.image, ScaleMode.ScaleToFit, true, 0,
-                Greyscale(isDarkTheme ? 0.8f : 0.4f), 0, 0);
+            GUI.DrawTexture(
+                iconRect,
+                icon.image,
+                ScaleMode.ScaleToFit,
+                true,
+                0,
+                Greyscale(isDarkTheme ? 0.8f : 0.4f),
+                0,
+                0
+            );
 
             // 繪製欄位，使用統一風格
             var objectFieldRect = new Rect(startX + 22, 4, width - 22, 20);
@@ -275,35 +298,37 @@ public class AnimationWindowNavbar
             // 自訂欄位背景
             var fieldBgColor = isDarkTheme
                 ? new Color(0.15f, 0.15f, 0.15f, 0.5f)
-                : new Color(1f, 1f, 1f,
-                    0.3f);
+                : new Color(1f, 1f, 1f, 0.3f);
             EditorGUI.DrawRect(objectFieldRect, fieldBgColor);
 
-            var newAnimator = EditorGUI.ObjectField(objectFieldRect, currentAnimator, typeof(Animator), true) as Animator;
+            //FIXME: readonly
+            var newAnimator =
+                EditorGUI.ObjectField(objectFieldRect, currentAnimator, typeof(Animator), true)
+                as Animator;
 
-
-            if (newAnimator != currentAnimator)
-            {
-                currentAnimator = newAnimator;
-                currentController =
-                    currentAnimator?.runtimeAnimatorController as AnimatorController;
-
-                if (newAnimator != null)
-                {
-                    // 選擇對應的 GameObject
-                    Selection.activeGameObject = newAnimator.gameObject;
-
-                    // 重新執行搜尋以更新匹配項目
-                    PerformSearch();
-                }
-            }
+            // if (newAnimator != currentAnimator)
+            // {
+            //     currentAnimator = newAnimator;
+            //     currentController =
+            //         currentAnimator?.runtimeAnimatorController as AnimatorController;
+            //
+            //     if (newAnimator != null)
+            //     {
+            //         // 選擇對應的 GameObject
+            //         Selection.activeGameObject = newAnimator.gameObject;
+            //
+            //         // 重新執行搜尋以更新匹配項目
+            //         PerformSearch();
+            //     }
+            // }
 
             return startX + width;
         }
 
         float AnimatorControllerField(float startX)
         {
-            if (searchAnimationT == 1) return startX;
+            if (searchAnimationT == 1)
+                return startX;
 
             // 響應式寬度
             var availableWidth = window.position.width;
@@ -317,8 +342,16 @@ public class AnimationWindowNavbar
             // 繪製圖標
             var iconRect = new Rect(startX, 5, 18, 18);
             var icon = EditorGUIUtility.IconContent("d_AnimatorController Icon");
-            GUI.DrawTexture(iconRect, icon.image, ScaleMode.ScaleToFit, true, 0,
-                Greyscale(isDarkTheme ? 0.8f : 0.4f), 0, 0);
+            GUI.DrawTexture(
+                iconRect,
+                icon.image,
+                ScaleMode.ScaleToFit,
+                true,
+                0,
+                Greyscale(isDarkTheme ? 0.8f : 0.4f),
+                0,
+                0
+            );
 
             // 計算ObjectField的寬度（如果有建立按鈕，需要預留空間）
             var objectFieldWidth = shouldShowCreateButton
@@ -333,8 +366,13 @@ public class AnimationWindowNavbar
             EditorGUI.DrawRect(objectFieldRect, fieldBgColor);
 
             // 繪製ObjectField
-            var newController = EditorGUI.ObjectField(objectFieldRect, currentController,
-                typeof(AnimatorController), false) as AnimatorController;
+            var newController =
+                EditorGUI.ObjectField(
+                    objectFieldRect,
+                    currentController,
+                    typeof(AnimatorController),
+                    false
+                ) as AnimatorController;
 
             // 繪製建立按鈕（當controller為null但animator存在時）
             if (shouldShowCreateButton)
@@ -351,8 +389,16 @@ public class AnimationWindowNavbar
                 var colorHovered = Greyscale(isDarkTheme ? 1f : .2f);
                 var colorPressed = Greyscale(isDarkTheme ? .75f : .5f);
 
-                if (IconButton(buttonRect, iconName, iconSize, colorNormal, colorHovered,
-                        colorPressed))
+                if (
+                    IconButton(
+                        buttonRect,
+                        iconName,
+                        iconSize,
+                        colorNormal,
+                        colorHovered,
+                        colorPressed
+                    )
+                )
                 {
                     Debug.Log("Create button clicked!"); // 加入調試信息
                     CreateAnimatorControllerForCurrentAnimator();
@@ -378,7 +424,8 @@ public class AnimationWindowNavbar
 
         float AnimationClipField(float startX)
         {
-            if (searchAnimationT == 1) return startX;
+            if (searchAnimationT == 1)
+                return startX;
 
             // 響應式寬度
             var availableWidth = window.position.width;
@@ -390,8 +437,16 @@ public class AnimationWindowNavbar
             // 繪製圖標
             var iconRect = new Rect(startX, 5, 18, 18);
             var icon = EditorGUIUtility.IconContent("d_AnimationClip Icon");
-            GUI.DrawTexture(iconRect, icon.image, ScaleMode.ScaleToFit, true, 0,
-                Greyscale(isDarkTheme ? 0.8f : 0.4f), 0, 0);
+            GUI.DrawTexture(
+                iconRect,
+                icon.image,
+                ScaleMode.ScaleToFit,
+                true,
+                0,
+                Greyscale(isDarkTheme ? 0.8f : 0.4f),
+                0,
+                0
+            );
 
             // 繪製欄位
             var objectFieldRect = new Rect(startX + 22, 4, width - 22, 20);
@@ -403,8 +458,8 @@ public class AnimationWindowNavbar
             EditorGUI.DrawRect(objectFieldRect, fieldBgColor);
 
             var newClip =
-                EditorGUI.ObjectField(objectFieldRect, currentClip, typeof(AnimationClip), false) as
-                    AnimationClip;
+                EditorGUI.ObjectField(objectFieldRect, currentClip, typeof(AnimationClip), false)
+                as AnimationClip;
 
             // 處理 clip 變更
             if (newClip != currentClip)
@@ -427,7 +482,8 @@ public class AnimationWindowNavbar
 
         float searchButton(float startX)
         {
-            if (searchAnimationT == 1) return startX;
+            if (searchAnimationT == 1)
+                return startX;
 
             var width = 28f;
             var buttonRect = navbarRect.SetWidth(width).MoveX(startX).SetHeight(26);
@@ -449,9 +505,12 @@ public class AnimationWindowNavbar
 
         void searchOnCtrlF()
         {
-            if (!curEvent.isKeyDown) return;
-            if (!curEvent.holdingCmd && !curEvent.holdingCtrl) return;
-            if (curEvent.keyCode != KeyCode.F) return;
+            if (!curEvent.isKeyDown)
+                return;
+            if (!curEvent.holdingCmd && !curEvent.holdingCtrl)
+                return;
+            if (curEvent.keyCode != KeyCode.F)
+                return;
 
             isSearchActive = true;
             // shouldFocusOnNextRepaint = true;
@@ -460,11 +519,15 @@ public class AnimationWindowNavbar
 
         Rect searchField()
         {
-            if (searchAnimationT == 0) return new Rect();
+            if (searchAnimationT == 0)
+                return new Rect();
 
-            var searchFieldRect = navbarRect.SetHeightFromMid(18).AddWidth(-60)
-                .SetWidth(Math.Min(300f, window.position.width - 120)).Move(5, 0);
-                // .SetWidthFromRight(Math.Min(300f, window.position.width - 120)).Move(5, 0);
+            var searchFieldRect = navbarRect
+                .SetHeightFromMid(18)
+                .AddWidth(-60)
+                .SetWidth(Math.Min(300f, window.position.width - 120))
+                .Move(5, 0);
+            // .SetWidthFromRight(Math.Min(300f, window.position.width - 120)).Move(5, 0);
 
             // 使用固定的控制項ID來確保焦點穩定性
             // if (searchFieldControlID == -1)
@@ -474,7 +537,11 @@ public class AnimationWindowNavbar
             // }
 
             GUI.SetNextControlName("AnimationSearchFilter");
-            var newSearchText = GUI.TextField(searchFieldRect, searchText, "ToolbarSearchTextField");
+            var newSearchText = GUI.TextField(
+                searchFieldRect,
+                searchText,
+                "ToolbarSearchTextField"
+            );
 
             // 記錄和保護我們的TextField焦點
             var currentControlID = GUIUtility.keyboardControl;
@@ -488,7 +555,7 @@ public class AnimationWindowNavbar
 
             if (newSearchText != searchText)
             {
-                Debug.Log("searchText: "+searchText + " -> " + newSearchText);
+                Debug.Log("searchText: " + searchText + " -> " + newSearchText);
                 searchText = newSearchText;
                 isNavigatingDropdown = false;
                 PerformSearch();
@@ -506,8 +573,9 @@ public class AnimationWindowNavbar
                 // Debug.Log($"Focus change: {isLastFocused} -> {isFocused} (control: '{currentFocus}', keyboardControlId: {keyboardControlId}, controlInfo: {controlInfo})");
                 isLastFocused = isFocused;
             }
-                // 顯示dropdown如果有匹配項目，或者有搜尋文字（用於顯示創建選項），或者正在導航
-                showDropdown = (currentMatches.Any() || isFocused || isNavigatingDropdown) && isSearchActive;
+            // 顯示dropdown如果有匹配項目，或者有搜尋文字（用於顯示創建選項），或者正在導航
+            showDropdown =
+                (currentMatches.Any() || isFocused || isNavigatingDropdown) && isSearchActive;
             // 處理鍵盤事件
             // KeyNavigate();
 
@@ -520,8 +588,6 @@ public class AnimationWindowNavbar
 
             return searchFieldRect;
         }
-
-
 
         void DrawDropdownAtTop(Rect searchFieldRect)
         {
@@ -564,18 +630,31 @@ public class AnimationWindowNavbar
             EditorGUI.DrawRect(shadowRect, new Color(0, 0, 0, 0.15f));
 
             // 使用Unity風格的背景和邊框 - 修復淺色主題
-            var backgroundColor =
-                isDarkTheme ? new Color(0.22f, 0.22f, 0.22f) : new Color(0.8f, 0.8f, 0.8f);
-            var borderColor = isDarkTheme ? new Color(0.13f, 0.13f, 0.13f) : new Color(0.6f, 0.6f, 0.6f);
+            var backgroundColor = isDarkTheme
+                ? new Color(0.22f, 0.22f, 0.22f)
+                : new Color(0.8f, 0.8f, 0.8f);
+            var borderColor = isDarkTheme
+                ? new Color(0.13f, 0.13f, 0.13f)
+                : new Color(0.6f, 0.6f, 0.6f);
 
             // 先繪製邊框
             EditorGUI.DrawRect(dropdownRect, borderColor);
             // 再繪製內部背景（留出1px邊框）
-            var innerRect = new Rect(dropdownRect.x + 1, dropdownRect.y + 1, dropdownRect.width - 2, dropdownRect.height - 2);
+            var innerRect = new Rect(
+                dropdownRect.x + 1,
+                dropdownRect.y + 1,
+                dropdownRect.width - 2,
+                dropdownRect.height - 2
+            );
             EditorGUI.DrawRect(innerRect, backgroundColor);
 
             // 繪製選項
-            var itemRect = new Rect(dropdownRect.x + 1, dropdownRect.y + 2, dropdownRect.width - 2, actualItemHeight);
+            var itemRect = new Rect(
+                dropdownRect.x + 1,
+                dropdownRect.y + 2,
+                dropdownRect.width - 2,
+                actualItemHeight
+            );
 
             // 如果有匹配項目，繪製它們
             if (currentMatches.Any())
@@ -584,8 +663,8 @@ public class AnimationWindowNavbar
                 {
                     var clip = currentMatches[i];
                     var isSelected = i == currentMatchIndex && !isCreateOptionSelected;
-                    var isHovered = itemRect.Contains(Event.current.mousePosition) &&
-                                    !isNavigatingDropdown;
+                    var isHovered =
+                        itemRect.Contains(Event.current.mousePosition) && !isNavigatingDropdown;
 
                     // Unity風格的選中和懸停效果
                     if (isSelected)
@@ -602,8 +681,10 @@ public class AnimationWindowNavbar
 
                     // 繪製clip名稱，使用Unity風格
                     var labelStyle = new GUIStyle(EditorStyles.label);
-                    labelStyle.normal.textColor = isHovered ? Color.white :
-                        isDarkTheme ? new Color(0.85f, 0.85f, 0.85f) : new Color(0f, 0f, 0f);
+                    labelStyle.normal.textColor =
+                        isHovered ? Color.white
+                        : isDarkTheme ? new Color(0.85f, 0.85f, 0.85f)
+                        : new Color(0f, 0f, 0f);
                     labelStyle.fontSize = 12;
                     labelStyle.padding.left = 8;
 
@@ -615,7 +696,12 @@ public class AnimationWindowNavbar
                 if (hasCreateOption)
                 {
                     // 繪製分隔線
-                    var separatorRect = new Rect(dropdownRect.x + 1, itemRect.y, dropdownRect.width - 2, 1);
+                    var separatorRect = new Rect(
+                        dropdownRect.x + 1,
+                        itemRect.y,
+                        dropdownRect.width - 2,
+                        1
+                    );
                     // separatorRect.Draw(borderColor);
                     EditorGUI.DrawRect(separatorRect, borderColor);
                     itemRect.y += 1;
@@ -636,7 +722,8 @@ public class AnimationWindowNavbar
 
         void closeSearchButton(Rect searchFieldRect)
         {
-            if (searchAnimationT == 0) return;
+            if (searchAnimationT == 0)
+                return;
 
             // 位置在 searchField 的右邊
             var buttonRect = new Rect(searchFieldRect.xMax + 2, navbarRect.y, 26, 26);
@@ -653,7 +740,8 @@ public class AnimationWindowNavbar
         }
         void searchAnimation()
         {
-            if (!curEvent.isLayout) return;
+            if (!curEvent.isLayout)
+                return;
 
             var lerpSpeed = 8f;
 
@@ -678,7 +766,9 @@ public class AnimationWindowNavbar
         {
             SetGUIColor(Greyscale(1, (1 - searchAnimationT).Pow(2)));
 
-            GUI.BeginGroup(window.position.SetPos(0, 0).MoveX(-searchAnimationDistance * searchAnimationT));
+            GUI.BeginGroup(
+                window.position.SetPos(0, 0).MoveX(-searchAnimationDistance * searchAnimationT)
+            );
 
             // selectorButton();
             var x = 5f; // 起始位置
@@ -702,7 +792,9 @@ public class AnimationWindowNavbar
         void searchButtonAndFieldSection()
         {
             SetGUIColor(Greyscale(1, searchAnimationT.Pow(2)));
-            GUI.BeginGroup(window.position.SetPos(0, 0).MoveX(searchAnimationDistance * (1 - searchAnimationT)));
+            GUI.BeginGroup(
+                window.position.SetPos(0, 0).MoveX(searchAnimationDistance * (1 - searchAnimationT))
+            );
 
             var searchFieldRect = searchField();
             closeSearchButton(searchFieldRect);
@@ -728,8 +820,10 @@ public class AnimationWindowNavbar
 
         void closeSearchOnEsc()
         {
-            if (!isSearchActive) return;
-            if (curEvent.keyCode != KeyCode.Escape) return;
+            if (!isSearchActive)
+                return;
+            if (curEvent.keyCode != KeyCode.Escape)
+                return;
             CloseSearch();
         }
 
@@ -739,11 +833,13 @@ public class AnimationWindowNavbar
 
     private bool ShouldShowCreateOption()
     {
-        if (string.IsNullOrEmpty(searchText)) return false;
+        if (string.IsNullOrEmpty(searchText))
+            return false;
 
         // 檢查是否有完全匹配的動畫名稱
         var hasExactMatch = currentMatches.Any(clip =>
-            string.Equals(clip.name, searchText, StringComparison.OrdinalIgnoreCase));
+            string.Equals(clip.name, searchText, StringComparison.OrdinalIgnoreCase)
+        );
 
         return !hasExactMatch;
     }
@@ -763,8 +859,9 @@ public class AnimationWindowNavbar
         }
         else if (isHovered)
         {
-            var hoverColor =
-                isDarkTheme ? new Color(0.1f, 0.1f, 0.1f) : new Color(0.9f, 0.9f, 0.9f);
+            var hoverColor = isDarkTheme
+                ? new Color(0.1f, 0.1f, 0.1f)
+                : new Color(0.9f, 0.9f, 0.9f);
             EditorGUI.DrawRect(itemRect, hoverColor);
             // itemRect.Draw(hoverColor);
             // Debug.Log($"Hovered create option: {clipName}");
@@ -786,8 +883,10 @@ public class AnimationWindowNavbar
 
         // 繪製文字，使用特殊樣式表示這是創建選項
         var labelStyle = new GUIStyle(EditorStyles.label);
-        labelStyle.normal.textColor = isHovered ? Color.white :
-            isDarkTheme ? new Color(0.7f, 0.7f, 0.7f) : new Color(0.1f, 0.1f, 0.1f);
+        labelStyle.normal.textColor =
+            isHovered ? Color.white
+            : isDarkTheme ? new Color(0.7f, 0.7f, 0.7f)
+            : new Color(0.1f, 0.1f, 0.1f);
         labelStyle.fontSize = 11;
         labelStyle.padding.left = 8;
         labelStyle.fontStyle = FontStyle.Italic;
@@ -826,7 +925,8 @@ public class AnimationWindowNavbar
         var hasCreateOption = ShouldShowCreateOption();
         var totalItems = currentMatches.Count + (hasCreateOption ? 1 : 0);
 
-        if (totalItems == 0) return;
+        if (totalItems == 0)
+            return;
 
         // 確保進入導航模式
         if (!isNavigatingDropdown)
@@ -879,7 +979,8 @@ public class AnimationWindowNavbar
         var hasCreateOption = ShouldShowCreateOption();
         var totalItems = currentMatches.Count + (hasCreateOption ? 1 : 0);
 
-        if (totalItems == 0) return;
+        if (totalItems == 0)
+            return;
 
         // 確保進入導航模式
         if (!isNavigatingDropdown)
@@ -940,7 +1041,7 @@ public class AnimationWindowNavbar
                 if (animator != null && animator.runtimeAnimatorController != null)
                 {
                     var allClips = animator.runtimeAnimatorController.animationClips;
-                    if(string.IsNullOrEmpty(searchTerm))
+                    if (string.IsNullOrEmpty(searchTerm))
                     {
                         // 如果沒有搜尋詞，返回所有clips
                         clips.AddRange(allClips.Where(clip => clip != null));
@@ -948,8 +1049,13 @@ public class AnimationWindowNavbar
                     else
                     {
                         // 根據搜尋詞過濾clips
-                        clips.AddRange(allClips.Where(clip =>
-                            clip != null && clip.name.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0));
+                        clips.AddRange(
+                            allClips.Where(clip =>
+                                clip != null
+                                && clip.name.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase)
+                                    >= 0
+                            )
+                        );
                     }
                 }
             }
@@ -959,7 +1065,7 @@ public class AnimationWindowNavbar
             Debug.LogError($"Error finding animation clips: {e.Message}");
         }
 
-        Debug.Log("clips count"+ clips.Count);
+        Debug.Log("clips count" + clips.Count);
         return clips.OrderBy(c => c.name).ToList();
     }
 
@@ -970,11 +1076,12 @@ public class AnimationWindowNavbar
             // 使用reflection來設置Animation Window的clip
             var animationWindow = window;
 
-
             // 確保選擇了正確的GameObject
             if (Selection.activeGameObject == null)
             {
-                Debug.LogWarning("No GameObject selected. Please select a GameObject with an Animator component.");
+                Debug.LogWarning(
+                    "No GameObject selected. Please select a GameObject with an Animator component."
+                );
                 return;
             }
 
@@ -1008,7 +1115,11 @@ public class AnimationWindowNavbar
             // 檢查是否有選中的GameObject
             if (Selection.activeGameObject == null)
             {
-                EditorUtility.DisplayDialog("錯誤", "請先選擇一個有Animator組件的GameObject", "確定");
+                EditorUtility.DisplayDialog(
+                    "錯誤",
+                    "請先選擇一個有Animator組件的GameObject",
+                    "確定"
+                );
                 return;
             }
 
@@ -1022,18 +1133,24 @@ public class AnimationWindowNavbar
             var controller = animator.runtimeAnimatorController as AnimatorController;
             if (controller == null)
             {
-                EditorUtility.DisplayDialog("錯誤", "Animator沒有Controller或Controller不是AnimatorController類型", "確定");
+                EditorUtility.DisplayDialog(
+                    "錯誤",
+                    "Animator沒有Controller或Controller不是AnimatorController類型",
+                    "確定"
+                );
                 return;
             }
 
             // 使用Reflection調用MonoFSM的AnimatorAssetUtility（因為可能不在同一個Assembly）
-            var animatorUtilityType =
-                Type.GetType("MonoFSM.AnimatorUtility.AnimatorAssetUtility, MonoFSM.Core");
+            var animatorUtilityType = Type.GetType(
+                "MonoFSM.AnimatorUtility.AnimatorAssetUtility, MonoFSM.Core"
+            );
             if (animatorUtilityType != null)
             {
                 var addStateMethod = animatorUtilityType.GetMethod(
                     "AddStateAndCreateClipToLayerIndex",
-                    BindingFlags.Public | BindingFlags.Static);
+                    BindingFlags.Public | BindingFlags.Static
+                );
 
                 if (addStateMethod != null)
                 {
@@ -1127,7 +1244,8 @@ public class AnimationWindowNavbar
             // 統一使用通用方法，它現在會自動處理Prefab Stage
             var newController =
                 AnimatorControllerUtility.CreateAnimatorControllerForAnimatorGeneric(
-                    currentAnimator);
+                    currentAnimator
+                );
 
             if (newController != null)
             {
@@ -1135,7 +1253,8 @@ public class AnimationWindowNavbar
                 currentController = newController;
 
                 Debug.Log(
-                    $"✓ Successfully created and assigned AnimatorController: {newController.name}");
+                    $"✓ Successfully created and assigned AnimatorController: {newController.name}"
+                );
 
                 // 強制刷新UI
                 window.Repaint();
@@ -1180,7 +1299,7 @@ public class AnimationWindowNavbar
             "AnimationWindow timeline",
             "AnimationWindow property",
             "AnimationWindow playback control",
-            "AnimationWindow other UI"
+            "AnimationWindow other UI",
         };
 
         // 基於ID範圍的簡單猜測

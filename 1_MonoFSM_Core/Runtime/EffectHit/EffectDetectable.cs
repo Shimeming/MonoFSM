@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Detection;
@@ -10,9 +11,24 @@ namespace MonoFSM.Runtime.Interact.EffectHit
 {
     public abstract class BaseEffectDetectTarget : AbstractDescriptionBehaviour //實作
     {
+        protected override void Start()
+        {
+            base.Start();
+            if (_detectable == null)
+            {
+                _detectable = GetComponentInParent<EffectDetectable>();
+                if (_detectable == null)
+                    Debug.LogError(
+                        "BaseEffectDetectTarget requires an EffectDetectable component on the same GameObject.",
+                        this
+                    );
+            }
+        }
+
         [AutoParent]
         private EffectDetectable _detectable;
-        public EffectDetectable Detectable => _detectable;
+
+        public EffectDetectable Detectable => _detectable; //動態生成的沒有綁定到？
         public GeneralEffectReceiver[] EffectReceivers => _detectable.EffectReceivers;
     }
 
@@ -21,10 +37,11 @@ namespace MonoFSM.Runtime.Interact.EffectHit
     //從Detector過來
     public class EffectDetectable : AbstractDescriptionBehaviour, IDefaultSerializable //關係
     {
+        [Obsolete("只是拿來新增用的button？其實不一定需要？")]
         [CompRef]
         [AutoChildren(DepthOneOnly = true)]
         [Required]
-        BaseEffectDetectTarget _effectDetectTarget;
+        private BaseEffectDetectTarget _effectDetectTarget; //FIXME:不該？
 
         // [AutoParent] private StateMachineOwner owner;
         //
@@ -53,32 +70,32 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         [PreviewInInspector]
         private HashSet<EffectDetector> toRemoves = new();
 
-//         private void OnDisable() //FIXME: 這是TriggerDetectableTarget該做的事嗎？
-//         {
-//             //FIXME: 標記狀態改變，不要在這裡執行OnSpatialExit?
-//             if (!Application.isPlaying)
-//                 return;
-// #if UNITY_EDITOR
-//             toRemoves.AddRange(_detectors);
-// #endif
-//             foreach (var toRemove in toRemoves)
-//             {
-//                 // Debug.Log("OnDisable of Detectable", this);
-//                 // Debug.Log("OnDisable of Detectable removef from" + toRemove, toRemove);
-//                 toRemove.OnDetectExitCheck(gameObject);
-//
-//                 //copy _detectedObjects to toRemove
-//                 // toRemove.AddRange(_detectedObjects);
-//                 // foreach (var detectable in toRemove)
-//                 // {
-//                 //     // Debug.Log("OnDisable of detectable",detectable);
-//                 //     OnTriggerExit(detectable.MyCollider);
-//                 // }
-//                 // toRemove.Clear();
-//             }
-//
-//             toRemoves.Clear();
-//         }
+        //         private void OnDisable() //FIXME: 這是TriggerDetectableTarget該做的事嗎？
+        //         {
+        //             //FIXME: 標記狀態改變，不要在這裡執行OnSpatialExit?
+        //             if (!Application.isPlaying)
+        //                 return;
+        // #if UNITY_EDITOR
+        //             toRemoves.AddRange(_detectors);
+        // #endif
+        //             foreach (var toRemove in toRemoves)
+        //             {
+        //                 // Debug.Log("OnDisable of Detectable", this);
+        //                 // Debug.Log("OnDisable of Detectable removef from" + toRemove, toRemove);
+        //                 toRemove.OnDetectExitCheck(gameObject);
+        //
+        //                 //copy _detectedObjects to toRemove
+        //                 // toRemove.AddRange(_detectedObjects);
+        //                 // foreach (var detectable in toRemove)
+        //                 // {
+        //                 //     // Debug.Log("OnDisable of detectable",detectable);
+        //                 //     OnTriggerExit(detectable.MyCollider);
+        //                 // }
+        //                 // toRemove.Clear();
+        //             }
+        //
+        //             toRemoves.Clear();
+        //         }
 
         protected override string DescriptionTag => "Detection Target";
     }

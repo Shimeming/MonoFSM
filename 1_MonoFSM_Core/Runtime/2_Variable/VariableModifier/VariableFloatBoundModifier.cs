@@ -7,7 +7,6 @@ using UnityEngine.Events;
 
 namespace MonoFSM.Variable
 {
-
     //get operation?
     public interface IVariableFloatOperation // //乘區  好像不是variable, 應該是 Effect的FinalValue Calculation
     {
@@ -30,7 +29,9 @@ namespace MonoFSM.Variable
     /// </summary>
     public class VariableFloatBoundModifier : MonoBehaviour, AbstractVariableModifier<float>
     {
-        [PreviewInInspector] [AutoParent] VarFloat _monoVar;
+        [PreviewInInspector]
+        [AutoParent]
+        VarFloat _monoVar;
 
         // [Auto] VariableFloat variable;
         // [HideIf(nameof(MinVar))] public float min = 0;
@@ -44,16 +45,26 @@ namespace MonoFSM.Variable
         // [DropDownRef] [SerializeField] VarFloat MaxVar; //好像應該用繼承的
         //FIXME: 依序拿也沒有很舒服
 
+        //FIXME: IFloatProvider有點過時了？
         //FIXME: simple bound怎麼設計？
-        [Component] [AutoChildren] IFloatProvider[] _floatProviderArray = Array.Empty<IFloatProvider>();
-        [PreviewInInspector] [Component] IFloatProvider _minValueProvider => _floatProviderArray.Length > 0 ? _floatProviderArray[0] : null;
-        [PreviewInInspector] [Component] IFloatProvider _maxValueProvider => _floatProviderArray.Length > 1 ? _floatProviderArray[1] : null;
+        [Component]
+        [AutoChildren]
+        IFloatProvider[] _floatProviderArray = Array.Empty<IFloatProvider>();
+
+        [PreviewInInspector]
+        [Component]
+        IFloatProvider _minValueProvider =>
+            _floatProviderArray.Length > 0 ? _floatProviderArray[0] : null;
+
+        [PreviewInInspector]
+        [Component]
+        IFloatProvider _maxValueProvider =>
+            _floatProviderArray.Length > 1 ? _floatProviderArray[1] : null;
 
         //FIXME: Editor time沒有...哭了
 
         [ShowInInspector]
-        public float MinValue =>
-            _minValueProvider?.Value ?? Mathf.NegativeInfinity; //MaxVar != null ? MaxVar.CurrentValue : max;
+        public float MinValue => _minValueProvider?.Value ?? Mathf.NegativeInfinity; //MaxVar != null ? MaxVar.CurrentValue : max;
 
         [ShowInInspector]
         public float MaxValue => _maxValueProvider?.Value ?? Mathf.Infinity; //MinVar != null ? MinVar.CurrentValue : min;
@@ -88,15 +99,15 @@ namespace MonoFSM.Variable
                 return;
             }
 
-            if (value < MinValue) value = MinValue;
+            if (value < MinValue)
+                value = MinValue;
 
-            if (value > MaxValue) value = MaxValue;
+            if (value > MaxValue)
+                value = MaxValue;
         }
 
-        public float BeforeSetValueModifyCheck(float value)
-            => SetOperation(value);
+        public float BeforeSetValueModifyCheck(float value) => SetOperation(value);
 
-        public float AfterGetValueModifyCheck(float value)
-            => value; //要再bound一次嗎？
+        public float AfterGetValueModifyCheck(float value) => value; //要再bound一次嗎？
     }
 }
