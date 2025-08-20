@@ -584,7 +584,7 @@ public class
         // Debug.Log("FlagField: ResetToDefault" + owner, owner);
         //[]: 要先init才能ResetToDefault
         if (owner == null)
-            Debug.LogError("PLZ FIX ME, Assign Owner for function block!!" + owner);
+            Debug.LogError("PLZ FIX ME, Assign Owner for function block!!" + owner, owner);
 
 
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using _1_MonoFSM_Core.Runtime.FSMCore.Core.StateBehaviour;
+using MonoFSM.Core.Simulate;
 using UnityEngine;
 using UnityEngine.Profiling;
 
@@ -130,6 +131,7 @@ namespace Fusion.Addons.FSM
             }
         }
 
-        public float DeltaTime => Time.deltaTime;
+        public float DeltaTime =>
+            Time.deltaTime * WorldUpdateSimulator.TimeScale; //FIXME: 要從world那邊同步？
     }
 }

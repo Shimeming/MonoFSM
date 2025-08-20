@@ -69,12 +69,12 @@ namespace UnityToolbarExtender.ToolbarElements
             toolWindowBtn.tooltip = "Open Tool Window";
             _pasteLinkBtn = EditorGUIUtility.IconContent("Clipboard");
             _pasteLinkBtn.tooltip = "Paste link";
-            
+
         }
 
         protected override void OnDrawInList(Rect position)
         {
-            
+
         }
 
 
@@ -100,57 +100,15 @@ namespace UnityToolbarExtender.ToolbarElements
             {
             }
 
-            if (GUILayout.Button(toolWindowBtn, ToolbarStyles.commandButtonStyle))
-            {
-                var types = TypeCache.GetTypesDerivedFrom<IToolbarWindow>().ToList();
-                // var types = new List<Type>() { typeof(IToolWindow) };
-                MySelector selector = new MySelector(types, false);
-
-                // selector.SetSelection(typeof(IToolbarWindow));
-
-                selector.SelectionCancelled += () =>
-                {
-                }; // Occurs when the popup window is closed, and no slection was confirmed.
-                selector.SelectionChanged += col =>
-                {
-                    
-                };
-                selector.SelectionConfirmed += col =>
-                {
-                    if (col.FirstOrDefault() == null)
-                        return;
-                    Debug.Log(col.FirstOrDefault());
-                    var window = EditorWindow.GetWindow(col.FirstOrDefault());
-                    window.Show();
-                };
-
-                selector.ShowInPopup(); // Returns the Odin Editor Window ins
-                //show popup panel
-                // var buttonRect = GUILayoutUtility.GetLastRect();
-                //
-                // var windowType = TypeCache.GetTypesDerivedFrom<PopupWindowContent>();
-                // foreach (var type in windowType)
-                // {
-                //     if (type.Name == "MainToolWindow")
-                //     {
-                //         var popupWindow = (PopupWindowContent)Activator.CreateInstance(type);
-                //         var size = popupWindow.GetWindowSize();
-                //         // window.Show();
-                //         var popupPosition = new Rect(buttonRect.xMax + 40, buttonRect.yMin + 20, 0, 0);
-                //         PopupWindow.Show(popupPosition, popupWindow);
-                //     }
-                // }
-            }
-
             //偷懶放label
             //FIXME: 改名會爛掉
             var isDebugMode = EditorPrefs.GetBool("MonoFSM.DebugSetting.IsDebugMode", false);
-          
+
             if (isDebugMode)
             {
-                
+
                 //green text
-               
+
                 // style.padding = new RectOffset(0, 0, 0, 0);
                 // style.margin = new RectOffset(0, 0, 0, 0);
                 // style.fontStyle = FontStyle.Bold;
@@ -159,8 +117,8 @@ namespace UnityToolbarExtender.ToolbarElements
             }
 
 
-                
-            
+
+
         }
     }
 }

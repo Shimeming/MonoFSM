@@ -7,7 +7,6 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
-using Object = UnityEngine.Object;
 
 namespace CommandPalette
 {
@@ -21,8 +20,8 @@ namespace CommandPalette
 
         public static void SaveCacheToFile(List<AssetEntry> assets, string cacheFilePath)
         {
-            try
-            {
+            // try
+            // {
                 if (!Directory.Exists(CacheDirectory))
                     Directory.CreateDirectory(CacheDirectory);
 
@@ -44,17 +43,17 @@ namespace CommandPalette
                 var json = JsonUtility.ToJson(cacheData, true);
                 File.WriteAllText(cacheFilePath, json);
                 Debug.Log($"[CommandPalette] 快取已儲存至 {cacheFilePath}，包含 {assets.Count} 個資源");
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[CommandPalette] 儲存快取失敗: {e.Message}");
-            }
+                // }
+                // catch (Exception e)
+                // {
+                //     Debug.LogError($"[CommandPalette] 儲存快取失敗: {e.StackTrace}");
+                // }
         }
 
         public static List<AssetEntry> LoadCacheFromFile(string cacheFilePath, SearchMode mode)
         {
-            try
-            {
+            // try
+            // {
                 if (!File.Exists(cacheFilePath))
                     return null;
 
@@ -93,7 +92,7 @@ namespace CommandPalette
                             cachedAsset.guid,
                             cachedAsset.typeName,
                             fileInfo.LastWriteTime.Ticks);
-                        
+
                         var updatedEntry = new AssetEntry(updatedCacheData);
                         assets.Add(updatedEntry);
                         updatedAssets.Add(updatedEntry);
@@ -127,12 +126,12 @@ namespace CommandPalette
                 Debug.Log(statusMessage);
 
                 return assets.Count > 0 ? assets : null;
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[CommandPalette] 載入快取失敗: {e.Message}");
-                return null;
-            }
+                // }
+                // catch (Exception e)
+                // {
+                //     Debug.LogError($"[CommandPalette] 載入快取失敗: {e.Message}");
+                //     return null;
+                // }
         }
 
         /// <summary>
@@ -141,18 +140,18 @@ namespace CommandPalette
         public static List<MenuItemEntry> CollectAllMenuItems()
         {
             var menuItems = new List<MenuItemEntry>();
-            
+
             try
             {
                 var stopwatch = Stopwatch.StartNew();
-                
+
                 // 收集多個選單的MenuItem
                 string[] menuCategories = { "Tools", "Window", "GameObject" };
-                
+
                 foreach (var menuCategory in menuCategories)
                 {
                     var menuItemsArray = Menu.GetMenuItems(menuCategory, false, false);
-                    
+
                     if (menuItemsArray != null)
                     {
                         foreach (var item in menuItemsArray)
@@ -160,19 +159,19 @@ namespace CommandPalette
                             Debug.Log($"[CommandPalette] 收集MenuItem: {item.path}");
                             // if (string.IsNullOrEmpty(menuPath)) continue;
                             var menuPath = item.path;
-                            
+
                             // 解析MenuItem資訊
                             var displayName = GetDisplayNameFromMenuPath(menuPath);
                             var category = GetCategoryFromMenuPath(menuPath);
-                            
+
                             // 驗證MenuItem是否可執行
                             var isValidated = ValidateMenuItem(menuPath);
-                            
+
                             menuItems.Add(new MenuItemEntry(menuPath, displayName, category, isValidated));
                         }
                     }
                 }
-                
+
                 stopwatch.Stop();
                 Debug.Log($"[CommandPalette] MenuItem收集完成，共 {menuItems.Count} 個，耗時 {stopwatch.ElapsedMilliseconds}ms");
             }
@@ -180,7 +179,7 @@ namespace CommandPalette
             {
                 Debug.LogError($"[CommandPalette] MenuItem收集失敗: {e.Message}");
             }
-            
+
             return menuItems;
         }
 
@@ -190,7 +189,7 @@ namespace CommandPalette
         private static string GetDisplayNameFromMenuPath(string menuPath)
         {
             if (string.IsNullOrEmpty(menuPath)) return "";
-            
+
             // 移除快捷鍵部分 (例如: "File/New Scene %n" -> "File/New Scene")
             var cleanPath = menuPath;
             var shortcutIndex = cleanPath.LastIndexOf(' ');
@@ -202,7 +201,7 @@ namespace CommandPalette
                     cleanPath = cleanPath.Substring(0, shortcutIndex);
                 }
             }
-            
+
             // 取得最後一段作為顯示名稱
             var lastSlash = cleanPath.LastIndexOf('/');
             return lastSlash >= 0 ? cleanPath.Substring(lastSlash + 1) : cleanPath;
@@ -214,7 +213,7 @@ namespace CommandPalette
         private static string GetCategoryFromMenuPath(string menuPath)
         {
             if (string.IsNullOrEmpty(menuPath)) return "Unknown";
-            
+
             var firstSlash = menuPath.IndexOf('/');
             return firstSlash >= 0 ? menuPath.Substring(0, firstSlash) : "Root";
         }
@@ -228,7 +227,7 @@ namespace CommandPalette
             {
                 // 某些MenuItem可能無法被ExecuteMenuItem執行，這裡做基本檢查
                 if (string.IsNullOrEmpty(menuPath)) return false;
-                
+
                 // 已知的無法執行的MenuItem前綴
                 var blacklistedPrefixes = new[]
                 {
@@ -236,12 +235,12 @@ namespace CommandPalette
                     "Edit/Preferences",
                     "Edit/Project Settings"
                 };
-                
+
                 foreach (var prefix in blacklistedPrefixes)
                 {
                     if (menuPath.StartsWith(prefix)) return false;
                 }
-                
+
                 return true;
             }
             catch

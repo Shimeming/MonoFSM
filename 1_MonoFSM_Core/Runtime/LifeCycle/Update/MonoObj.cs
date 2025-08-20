@@ -54,6 +54,8 @@ namespace MonoFSMCore.Runtime.LifeCycle
     [FormerlyNamedAs("MonoPoolObj")]
     public sealed class MonoObj : MonoBehaviour, IPrefabSerializeCacheOwner
     {
+        [field: Auto] public MonoEntity Entity { get; }
+
         // public
         //寫一個show error的Attribute，然後在這裡用
         [InfoBox("WorldUpdateSimulator is required for MonoPoolObj to function properly",InfoMessageType.Error,nameof(RuntimeCheckNoWorldUpdateSimulator))]
@@ -105,9 +107,6 @@ namespace MonoFSMCore.Runtime.LifeCycle
 
         public void SpawnFromPool() //必定是root吧
         {
-            //這兩行 Pool 準備的時候就要先call了吧？
-            HandleIAwake();
-            HandleSceneStart();
             ResetStateRestore();
             ResetStart();
         }
@@ -268,10 +267,10 @@ namespace MonoFSMCore.Runtime.LifeCycle
         /// </summary>
         private void HandleIAwake()
         {
-            var ILevelAwakes = new List<ISceneAwake>(_sceneAwakes);
-            ILevelAwakes.Reverse();
+            var iLevelAwakes = new List<ISceneAwake>(_sceneAwakes);
+            iLevelAwakes.Reverse();
 
-            foreach (var item in ILevelAwakes)
+            foreach (var item in iLevelAwakes)
             {
                 if (item == null)
                     continue;

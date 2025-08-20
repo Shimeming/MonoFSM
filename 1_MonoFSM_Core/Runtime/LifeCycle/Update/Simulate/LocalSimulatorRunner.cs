@@ -10,7 +10,7 @@ namespace MonoFSM.Core.Simulate
     {
         public static T[] GetComponents<T>(this Scene scene, bool includeInactive, out GameObject[] rootObjects) where T : Component {
             rootObjects = scene.GetRootGameObjects();
-      
+
             var partialResult = new List<T>();
             var result        = new List<T>();
 
@@ -22,7 +22,8 @@ namespace MonoFSM.Core.Simulate
                     result.Add(comp);
                 }
             }
-            return result.ToArray(); 
+
+            return result.ToArray();
         }
     }
     [DefaultExecutionOrder(10000)] //確保在所有Update之後執行
@@ -33,7 +34,7 @@ namespace MonoFSM.Core.Simulate
         [PreviewInInspector]// [AutoChildren]
         [SerializeField]
         private MonoObj[] _allSceneMonoPoolObjs;
-        
+
         [Auto] private WorldUpdateSimulator _world;
 
         private void Awake()
@@ -53,7 +54,7 @@ namespace MonoFSM.Core.Simulate
         }
         private void FixedUpdate()
         {
-            _world.Simulate(Time.fixedDeltaTime);
+            _world.Simulate(Time.fixedDeltaTime * WorldUpdateSimulator.TimeScale);
         }
         //會需要Update嗎？
         private void Update()
@@ -63,7 +64,7 @@ namespace MonoFSM.Core.Simulate
 
         private void LateUpdate()
         {
-            _world.Render(Time.deltaTime);
+            _world.Render(Time.deltaTime * WorldUpdateSimulator.TimeScale);
             _world.AfterUpdate();
         }
 

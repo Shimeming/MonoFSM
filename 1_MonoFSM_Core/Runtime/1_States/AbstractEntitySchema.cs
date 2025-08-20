@@ -28,6 +28,9 @@ namespace _1_MonoFSM_Core.Runtime._1_States
 
     // public class VarTagAttribute
     //一個entity應給要允許多個schema, 或是說多個variable folder?
+    /// <summary>
+    ///     定義 data structure 就好，不要寫邏輯, ECS?
+    /// </summary>
     [Searchable]
     public abstract class AbstractEntitySchema : AbstractDescriptionBehaviour,
         IStringKey, IValueOfKey<AbstractEntitySchema>

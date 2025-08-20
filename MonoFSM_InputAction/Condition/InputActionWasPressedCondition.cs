@@ -6,6 +6,9 @@ namespace Fusion.Addons.KCC.ECM2.Examples.Networking.Fusion_v2.Characters.Script
     //FIXME: move不能用這個
     public class InputActionWasPressedCondition : AbstractConditionBehaviour
     {
+        public override string Description =>
+            $"InputCondition: {_inputAction.name} {_inputActionType}";
+
         public enum InputActionType
         {
             WasPressed,

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using _1_MonoFSM_Core.Runtime.FSMCore.Core.StateBehaviour;
 using Fusion.Addons.FSM;
@@ -254,21 +253,22 @@ namespace MonoFSM.Core
 
         private bool CanTransition(ref TransitionData<TState> transition)
         {
-            try
-            {
-                if (transition.Transition(this as TState, transition.TargetState) == false)
-                    return false;
-            }
-            catch (Exception e)
-            {
-                Debug.LogError(
-                    $"Transition failed from {Name} to {transition.TargetState.Name}: {e.Message}{e.StackTrace}", this);
-                return false;
-            }
-            // if (transition.IsForced == true)
-            //     return true;
             if (transition.TargetState == null)
                 Debug.LogError($"Transition target state is null in {Name} to {transition}", this);
+            // try
+            // {
+                if (transition.Transition(this as TState, transition.TargetState) == false)
+                    return false;
+                // // }
+                // // catch (Exception e)
+                // // {
+                //     Debug.LogError(
+                //         $"Transition failed from {Name} to {transition.TargetState.Name}: {e.Message}{e.StackTrace}", this);
+                //     return false;
+                // }
+            // if (transition.IsForced == true)
+            //     return true;
+
 
             //FIXME: 這裡也判了？
             if (CanExitState(transition.TargetState) == false)

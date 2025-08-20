@@ -23,10 +23,10 @@ namespace MonoFSM.Core.LifeCycle
         public void AfterSpawn(MonoObj obj, Vector3 position, Quaternion rotation,
             GeneralEffectHitData hitData)
         {
-            var projectile = obj.GetComponent<ProjectileSchema>();
+            var projectileSchema = obj.Entity.GetSchema<ProjectileSchema>();
             // projectile._rigidbody.AddForce(
             //     _directionTransform.forward * _speed * _modifier.Value, ForceMode.VelocityChange);
-            projectile._rigidbody.linearVelocity =
+            projectileSchema._rigidbody.linearVelocity =
                 _directionTransform.forward * _speed * (_modifier.Value + _minModifier);
         }
     }

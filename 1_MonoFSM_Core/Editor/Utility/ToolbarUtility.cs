@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using MonoFSM.Utility.Editor;
 using UnityEditor;
 using UnityEditor.PackageManager.UI;
 using UnityEditor.SceneManagement;
@@ -152,6 +153,7 @@ namespace Example
             OnRightToolbarAttached(toolbar);
 
 //			toolbar.Add(CreateToolbarButton(ToggleTracing, "d_UnityEditor.ConsoleWindow@2x", "Tracing", GetTracingColor()));
+
             toolbar.Add(CreateToolbarButton(ShowPackageManager, "Package Manager", "Packages"));
             toolbar.Add(CreateToolbarButton(ShowSettings, "Settings", "Settings"));
 //			toolbar.Add(CreateToolbarButton(ShowRunnerControls, "d_SceneViewCamera@2x", "Fusion Controls"));
@@ -282,7 +284,17 @@ namespace Example
 
         private static void ShowPackageManager()
         {
-            Window.Open("");
+            var menu = new GenericMenu();
+            menu.AddItem(new GUIContent("Package Manager"), false,
+                () => Window.Open(""));
+
+            menu.AddItem(new GUIContent("Git Dependency Installer"), false,
+                () => { GitDependencyWindow.ShowWindow(); });
+            menu.AddSeparator("");
+            menu.AddItem(new GUIContent("Git Dependency Version Check"), false,
+                GitDependencyVersionChecker.ManualVersionCheck);
+
+            menu.ShowAsContext();
         }
 
         private static VisualElement CreateToolbarButton(Action onClick, string icon = null, string text = null,
