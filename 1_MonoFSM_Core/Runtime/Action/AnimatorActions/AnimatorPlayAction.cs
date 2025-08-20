@@ -22,16 +22,23 @@ namespace MonoFSM.Animation
     //documentation要放哪？
 
 
-//FIXME: 把StateAction拔掉？
-    [HelpURL("https://www.notion.so/AnimatorPlayA-061be2a2d4e5414e88e84f1ed80d8ea2")]
+    //FIXME: 把StateAction拔掉？ AnimatorPlayBehaviour? IRenderBehaviour?
+    // [HelpURL("https://www.notion.so/AnimatorPlayA-061be2a2d4e5414e88e84f1ed80d8ea2")]
     [Searchable]
-    public class AnimatorPlayAction : AbstractDescriptionBehaviour, IAnimatorPlayAction,
-        ISceneSavingCallbackReceiver, ISelfValidator, ISerializableComponent, ITransitionCheckInvoker, IRenderAction,
-        IOverrideHierarchyIcon
+    public class AnimatorPlayAction
+        : AbstractDescriptionBehaviour,
+            IAnimatorPlayAction,
+            ISceneSavingCallbackReceiver,
+            ISelfValidator,
+            ISerializableComponent,
+            ITransitionCheckInvoker,
+            IRenderBehaiour,
+            IOverrideHierarchyIcon
     {
-        public override string Description => animator
-            ? " " + animator.gameObject.name + ": " + "_" + StateName + stateLayer
-            : "NO ANIMATOR";
+        public override string Description =>
+            animator
+                ? " " + animator.gameObject.name + ": " + "_" + StateName + stateLayer
+                : "NO ANIMATOR";
         protected override string DescriptionTag => "Anim";
 
         protected override void Awake()
@@ -41,11 +48,10 @@ namespace MonoFSM.Animation
             _stateNameHash = Animator.StringToHash(StateName);
         }
 
-        private bool IsStateNameProvider()
-            => GetComponent<AbstractStringProvider>() != null;
+        private bool IsStateNameProvider() => GetComponent<AbstractStringProvider>() != null;
 
-        public void SimulationUpdate(float passedDuration)
-            => animator.playbackTime = passedDuration;
+        public void SimulationUpdate(float passedDuration) =>
+            animator.playbackTime = passedDuration;
 
         // FIXME: 不能直接往下找？要從IFSMOwner下面往下找之類的？
         private IEnumerable<Animator> GetAnimatorsInChildren()
@@ -67,7 +73,9 @@ namespace MonoFSM.Animation
         //     return animator != null || animator.runtimeAnimatorController == null;
         // }
 
-        [InlineEditor] [PreviewInInspector] private Animator animatorComp => animator;
+        [InlineEditor]
+        [PreviewInInspector]
+        private Animator animatorComp => animator;
 
         [TitleGroup("Animator")]
         [BoxGroup("Animator/StateName")]
@@ -75,18 +83,21 @@ namespace MonoFSM.Animation
         [PropertyOrder(0)]
 #if UNITY_EDITOR
         [InfoBox("Not Valid State name", InfoMessageType.Error, nameof(IsStateNameNotInAnimator))]
-        [ValueDropdown(nameof(GetAnimatorStateNamesWithNone), IsUniqueList = true,
-            NumberOfItemsBeforeEnablingSearch = 3)]
+        [ValueDropdown(
+            nameof(GetAnimatorStateNamesWithNone),
+            IsUniqueList = true,
+            NumberOfItemsBeforeEnablingSearch = 3
+        )]
         [OnValueChanged(nameof(OnStateNameChanged))]
 #endif
         [HideIf("IsStateNameProvider")]
         //有provider就藏起來
         public string stateName;
 
-
         private bool IsShowCreateAcAndClipButton()
         {
-            if (animator == null) return false;
+            if (animator == null)
+                return false;
             return IsStateNameNotInAnimator(StateName);
         }
 
@@ -104,26 +115,29 @@ namespace MonoFSM.Animation
                 // Debug.LogError("animator.runtimeAnimatorController is not AnimatorOverrideController");
                 controller =
                     AnimatorControllerUtility.CreateAnimatorControllerForAnimatorOfCurrentPrefab(
-                        animator);
+                        animator
+                    );
                 Debug.Log("CreateAnimatorController" + controller, controller);
             }
 
             var bindingState = GetComponentInParent<GeneralState>();
             //哭了...怎麼reference?
             var newStateName = bindingState.name.Replace("[State]", "").Replace(" ", "");
-            AnimatorAssetUtility.AddStateAndCreateClipToLayerIndex(controller, stateLayer,
-                newStateName);
+            AnimatorAssetUtility.AddStateAndCreateClipToLayerIndex(
+                controller,
+                stateLayer,
+                newStateName
+            );
             stateName = newStateName;
         }
 
-        [Auto(false)] private AbstractStringProvider stateNameProvider; //拿旁邊的，蓋掉要怎麼做...藏起來
+        [Auto(false)]
+        private AbstractStringProvider stateNameProvider; //拿旁邊的，蓋掉要怎麼做...藏起來
 
-        public string StateName => stateNameProvider
-            ? stateNameProvider.StringValue
-                : stateName;
+        public string StateName => stateNameProvider ? stateNameProvider.StringValue : stateName;
 
-        private int StateHash
-            => stateNameProvider && stateNameProvider is AnimatorStateStringListProvider listProvider
+        private int StateHash =>
+            stateNameProvider && stateNameProvider is AnimatorStateStringListProvider listProvider
                 ? listProvider.StateHashValue
                 : _stateNameHash;
 
@@ -142,12 +156,13 @@ namespace MonoFSM.Animation
                 Debug.Log("BuildStateHashToName: " + n + ", hash:" + hash, this);
                 _stateHashToName.Add(Animator.StringToHash(n), n);
             }
-
         }
 #endif
 
         //
-        [BoxGroup("Animator/StateLayer")] [TitleGroup("Animator")] [DisableIf("@true")]
+        [BoxGroup("Animator/StateLayer")]
+        [TitleGroup("Animator")]
+        [DisableIf("@true")]
         public int stateLayer; //FIXME: 做什麼用的?還要再講清楚? playerLayer
 
         // [ValueDropdown()]
@@ -166,15 +181,19 @@ namespace MonoFSM.Animation
         private string _stateLayerName;
 #endif
 
-
         private int stateRange => animator.layerCount;
 
-        [TitleGroup("Animator")] [Range(0, 1)] public float startNormalizedTimeOffset;
+        [TitleGroup("Animator")]
+        [Range(0, 1)]
+        public float startNormalizedTimeOffset;
 
-        [TitleGroup("Animator")] [Title("StateEnter 空降Normalized Time")] [ShowInPlayMode]
+        [TitleGroup("Animator")]
+        [Title("StateEnter 空降Normalized Time")]
+        [ShowInPlayMode]
         private float runtimeStartNormalizedTimeOffset = 0;
 
-        [TitleGroup("Animator")] public float animatorEnterCrossFade;
+        [TitleGroup("Animator")]
+        public float animatorEnterCrossFade;
 
 #if UNITY_EDITOR
 
@@ -215,7 +234,6 @@ namespace MonoFSM.Animation
             {
                 Debug.LogError(e, this);
             }
-
 
 #endif
         }
@@ -275,7 +293,8 @@ namespace MonoFSM.Animation
 
         private void OnStateNameChanged()
         {
-            if (stateName == "None") stateName = "";
+            if (stateName == "None")
+                stateName = "";
         }
 #endif
 
@@ -292,30 +311,35 @@ namespace MonoFSM.Animation
                 return;
             }
 
-            var originAnimatorController = animatorOverrideController.runtimeAnimatorController as AnimatorController;
+            var originAnimatorController =
+                animatorOverrideController.runtimeAnimatorController as AnimatorController;
             if (originAnimatorController == null)
             {
                 Debug.LogError("originAnimatorController == null");
                 return;
             }
 
-
             Undo.SetCurrentGroupName("Override Clip");
             var groupIndex = Undo.GetCurrentGroup();
             Undo.RecordObject(animatorOverrideController, "Override Clip");
             // Undo.RecordObject(this, "Override Clip");
 
-            var mappingState = originAnimatorController.layers[stateLayer].stateMachine.states
-                .First(s => s.state.name == StateName);
+            var mappingState = originAnimatorController
+                .layers[stateLayer]
+                .stateMachine.states.First(s => s.state.name == StateName);
             var baseClip = mappingState.state.motion as AnimationClip;
             var originalClip = animatorOverrideController[baseClip];
 
-            var newClip = AssetDatabaseUtility.CopyAssetOrCreateToPrefabFolder(originalClip, ".clip", (prefabPath) =>
-            {
-                var clip = new AnimationClip();
-                // AssetDatabase.CreateAsset(clip, path);
-                return clip;
-            });
+            var newClip = AssetDatabaseUtility.CopyAssetOrCreateToPrefabFolder(
+                originalClip,
+                ".clip",
+                (prefabPath) =>
+                {
+                    var clip = new AnimationClip();
+                    // AssetDatabase.CreateAsset(clip, path);
+                    return clip;
+                }
+            );
             //copy asset to new clip
             //override clip
 
@@ -342,15 +366,19 @@ namespace MonoFSM.Animation
                 //沒有OverrideController
                 var animatorController = animator.runtimeAnimatorController as AnimatorController;
                 if (animatorController == null)
-                    animatorController = ((AnimatorOverrideController)animator.runtimeAnimatorController)
-                        .runtimeAnimatorController as AnimatorController;
+                    animatorController =
+                        (
+                            (AnimatorOverrideController)animator.runtimeAnimatorController
+                        ).runtimeAnimatorController as AnimatorController;
 
                 if (animatorController == null)
                     return null;
                 try
                 {
-                    var state1 = animatorController.layers[stateLayer].stateMachine.states
-                        .First(s => s.state.name == StateName).state;
+                    var state1 = animatorController
+                        .layers[stateLayer]
+                        .stateMachine.states.First(s => s.state.name == StateName)
+                        .state;
                     return state1.motion as AnimationClip;
                 }
                 catch
@@ -359,7 +387,6 @@ namespace MonoFSM.Animation
                 }
             }
         }
-
 #endif
 
         // [CustomContextMenu("Override Clip", nameof(OverrideClip))]
@@ -395,15 +422,19 @@ namespace MonoFSM.Animation
                 if (animator.runtimeAnimatorController == null)
                     return null;
 
-                var overrideController = animator.runtimeAnimatorController as AnimatorOverrideController;
-                if (overrideController == null) return null;
+                var overrideController =
+                    animator.runtimeAnimatorController as AnimatorOverrideController;
+                if (overrideController == null)
+                    return null;
 
                 var ac = overrideController.runtimeAnimatorController as AnimatorController;
                 if (ac == null)
                     return null;
                 try
                 {
-                    var state = ac.layers[stateLayer].stateMachine.states.First(s => s.state.name == StateName).state;
+                    var state = ac.layers[stateLayer]
+                        .stateMachine.states.First(s => s.state.name == StateName)
+                        .state;
 
                     var originalClip = state.motion as AnimationClip;
                     //有override controller但是沒有override clip
@@ -411,17 +442,15 @@ namespace MonoFSM.Animation
                         return null;
                     return overrideController[originalClip];
                 }
-
                 catch
                 {
                     return null;
                 }
             }
         }
-
 #endif
 
-//如果animator沒開，就不要強迫開啟
+        //如果animator沒開，就不要強迫開啟
         public bool IsDontPlayWhenAnimatorDisabled = false;
 
         // protected override void OnStateEnterImplement()
@@ -432,8 +461,10 @@ namespace MonoFSM.Animation
         public Action<AnimationClip> OnClipPlay;
         private Action<string> _onStateNameChange;
 
-        [TitleGroup("Animator")] [ShowInPlayMode]
+        [TitleGroup("Animator")]
+        [ShowInPlayMode]
         private int _stateNameHash;
+
 #if UNITY_EDITOR
         [HideIf(nameof(NoDoneEventTransition))]
         [Header("Done")]
@@ -466,8 +497,8 @@ namespace MonoFSM.Animation
             }
         }
 
-
-        [SerializeField] private float _cachedClipLength = -1;
+        [SerializeField]
+        private float _cachedClipLength = -1;
 
 #if UNITY_EDITOR
         [Button]
@@ -514,12 +545,14 @@ namespace MonoFSM.Animation
         {
             var names = GetLayerNames();
 
-            if (names == null) return 0;
+            if (names == null)
+                return 0;
 
             var index = 0;
             foreach (var name in names)
             {
-                if (name == doneEventLayerName) return index;
+                if (name == doneEventLayerName)
+                    return index;
 
                 index++;
             }
@@ -527,16 +560,14 @@ namespace MonoFSM.Animation
             return 0;
         }
 
-
         public void SetPlaybackTime(float time)
         {
             var normalizedTime = time / ClipLength;
             animator.Play(StateHash, stateLayer, normalizedTime);
             animator.Update(0);
         }
-
-
 #endif
+
         public void Pause()
         {
             animator.speed = 0;
@@ -551,10 +582,11 @@ namespace MonoFSM.Animation
         private float CurrentPlayingNormalizedTime =>
             animator.GetCurrentAnimatorStateInfo(stateLayer).normalizedTime;
 
-        [AutoParent] private MonoStateBehaviour _stateBehaviour; //這個是State的行為，還是要有個StateAction來做事情
+        [AutoParent]
+        private MonoStateBehaviour _stateBehaviour; //這個是State的行為，還是要有個StateAction來做事情
+
         //FIXME: 錯了！抓到BUG 要cache? 切State後，StateTime就會重置了
         public bool IsDone => _stateBehaviour.StateTime >= ClipLength; // && IsPlayingCurrentClip();
-
 
         // [SerializeField] private float clipDuration;
 
@@ -591,7 +623,6 @@ namespace MonoFSM.Animation
                 return false;
             var stateInfo = animator.GetCurrentAnimatorStateInfo(layer);
 
-
             //Cross fade 這邊一定會叫
             if (animatorEnterCrossFade <= 0)
                 if (IsStatePlaying(layer) == false && stateInfo.normalizedTime > 0) //正在播別的state
@@ -601,42 +632,47 @@ namespace MonoFSM.Animation
                         BuildStateHashToName();
                     if (_stateHashToName.ContainsKey(StateHash) == false)
                     {
-                        Debug.LogError("AnimatorPlayAction: 沒有這個state:" + StateName + ",hash:" + StateHash, gameObject);
+                        Debug.LogError(
+                            "AnimatorPlayAction: 沒有這個state:" + StateName + ",hash:" + StateHash,
+                            gameObject
+                        );
                         return false;
                     }
 
                     var shouldPlayStateName = _stateHashToName[StateHash];
-                    if (_stateHashToName.ContainsKey(stateInfo.shortNameHash))
-                    {
-                    }
+                    if (_stateHashToName.ContainsKey(stateInfo.shortNameHash)) { }
                     var playingStateName = _stateHashToName[stateInfo.shortNameHash];
                     if (ClipLength == -1)
                     {
                         Debug.LogError("Null Clip of State: ClipLength == -1", this);
                     }
-
                     else if (HasAnimationPlaySuccess)
                     {
-// #if UNITY_EDITOR
-//                         EditorUtility.DisplayDialog("AnimatorPlayAction",
-//                             "AnimatorPlayAction 不該提早切走喔！(應該是animator controller裡面有transition) should play: " +
-//                             shouldPlayStateName +
-//                             ", playing: " + playingStateName + ", time:" + stateInfo.normalizedTime, "OK");
-// #endif
+                        // #if UNITY_EDITOR
+                        //                         EditorUtility.DisplayDialog("AnimatorPlayAction",
+                        //                             "AnimatorPlayAction 不該提早切走喔！(應該是animator controller裡面有transition) should play: " +
+                        //                             shouldPlayStateName +
+                        //                             ", playing: " + playingStateName + ", time:" + stateInfo.normalizedTime, "OK");
+                        // #endif
                         Debug.LogError(
-                            "AnimatorPlayAction 不該提早切走喔！(應該是animator controller裡面有transition) should play: " +
-                            shouldPlayStateName +
-                            ", playing: " + playingStateName + ", time:" + stateInfo.normalizedTime, gameObject);
+                            "AnimatorPlayAction 不該提早切走喔！(應該是animator controller裡面有transition) should play: "
+                                + shouldPlayStateName
+                                + ", playing: "
+                                + playingStateName
+                                + ", time:"
+                                + stateInfo.normalizedTime,
+                            gameObject
+                        );
                         // Debug.Break();
                     }
 
 #else
-                        // Debug.LogError("AnimatorPlayAction 不該提早切走喔！(應該是animator controller裡面有transition) should play: "+this._fsmOwner.name, gameObject);
+                    // Debug.LogError("AnimatorPlayAction 不該提早切走喔！(應該是animator controller裡面有transition) should play: "+this._fsmOwner.name, gameObject);
 #endif
                 }
 
-
-            if (stateInfo.normalizedTime <= 0) return false;
+            if (stateInfo.normalizedTime <= 0)
+                return false;
 
             var result = IsStatePlaying(layer);
 
@@ -677,11 +713,14 @@ namespace MonoFSM.Animation
         }
 
         // [HideIf(nameof(NoDoneEventTransition))] [TitleGroup("Animator")] [PreviewInInspector] [Component]
-        [CompRef] [AutoChildren] private TransitionBehaviour doneEventTransition; //寫成condition更好？
+        [CompRef]
+        [AutoChildren]
+        private TransitionBehaviour doneEventTransition; //寫成condition更好？
 
         private IEventReceiver _ircgArgEventReceiverImplementation;
 
-        [CompRef] [AutoChildren(DepthOneOnly = true)]
+        [CompRef]
+        [AutoChildren(DepthOneOnly = true)]
         private AbstractConditionBehaviour[] _conditions;
 
 #if UNITY_EDITOR
@@ -712,8 +751,11 @@ namespace MonoFSM.Animation
             }
 
             //FIXME: 沒有處理override controller?
-            var clip = controller.layers[stateLayer].stateMachine.states.First(s => s.state.name == StateName).state
-                .motion as AnimationClip;
+            var clip =
+                controller
+                    .layers[stateLayer]
+                    .stateMachine.states.First(s => s.state.name == StateName)
+                    .state.motion as AnimationClip;
             previewClip = clip;
             return clip;
         }
@@ -725,7 +767,7 @@ namespace MonoFSM.Animation
             EditorApplication.ExecuteMenuItem("Window/General/Hierarchy");
             Selection.activeObject = animator.gameObject;
             var animationWindow = EditorWindow.GetWindow<AnimationWindow>(false);
-// AnimatorHelper.EditClip(_lastEditState.BindAnimator, _lastEditState.Clip);
+            // AnimatorHelper.EditClip(_lastEditState.BindAnimator, _lastEditState.Clip);
             //TODO:選不到.. state和clip不會對上？
 
             // var clip = animator.GetCurrentAnimatorClipInfo(stateLayer)[0].clip;
@@ -736,7 +778,9 @@ namespace MonoFSM.Animation
             animationWindow.previewing = true;
             // animationWindow.recording = true;
 
-            Debug.Log("animationWindow current clip:" + animationWindow.animationClip + "," + previewClip);
+            Debug.Log(
+                "animationWindow current clip:" + animationWindow.animationClip + "," + previewClip
+            );
 
             // Debug.Log("Focus Window:" + EditorWindow.focusedWindow.ToString());
             // EditorWindow.GetWindow<ProjectWindowUtil>();
@@ -746,6 +790,7 @@ namespace MonoFSM.Animation
         public AnimationClip Clip => CurrentClip;
         public Animator BindAnimator => animator;
 #endif
+
         // public void EventReceived<T>(RCGEventReceiver receiver, T arg)
         // {
         //     OnStateEnterImplement();
@@ -756,10 +801,10 @@ namespace MonoFSM.Animation
             OnValidate();
         }
 
-
         #region InitAndAutoSkipToLastFrame
 
-        [AutoParent(false)] private StateMachineOwner _fsmOwner; //monster也可以，應該抽成interface
+        [AutoParent(false)]
+        private StateMachineOwner _fsmOwner; //monster也可以，應該抽成interface
 
         // private bool CheckInitAndSkipAnimationToLastFrame()
         // {
@@ -790,7 +835,9 @@ namespace MonoFSM.Animation
 #if UNITY_EDITOR
             if (IsStateNameNotInAnimator(StateName))
                 // Debug.LogError("AnimatorPlayAction: 沒有這個state:" + StateName + ",hash:" + StateHash, gameObject);
-                result.AddError("AnimatorPlayAction: 沒有這個state:" + StateName + ",hash:" + StateHash);
+                result.AddError(
+                    "AnimatorPlayAction: 沒有這個state:" + StateName + ",hash:" + StateHash
+                );
 #endif
         }
 
@@ -819,11 +866,13 @@ namespace MonoFSM.Animation
         // }
         // public ITransitionCheckingTarget ValueChangedTarget => doneEventTransition;
         private bool IsValid => _conditions.IsAllValid();
+
         public void OnEnterRender() //transition更早就判定？導致done錯了？
         {
             // Debug.Log("Play Animation State");
             HasAnimationPlaySuccess = false;
-            if (!IsValid) return;
+            if (!IsValid)
+                return;
             if (animator == null)
             {
                 Debug.LogError("animator is null" + _fsmOwner.name, this);
@@ -847,7 +896,6 @@ namespace MonoFSM.Animation
 
             this.Log("[AnimatorPlayAction]", gameObject, ":[", stateLayer, "]:", StateName);
 
-
             runtimeStartNormalizedTimeOffset = startNormalizedTimeOffset;
             //FIXME: init skip to last frame是不是不好...該拆兩個狀態就拆兩個狀態吧？
             // if (CheckInitAndSkipAnimationToLastFrame())
@@ -860,19 +908,26 @@ namespace MonoFSM.Animation
                 animator.enabled = true;
 #if UNITY_EDITOR
                 if (!animator.HasState(stateLayer, StateHash))
-                    Debug.LogError("AnimatorPlayAction: 沒有這個state:" + StateName + ",hash:" + StateHash, gameObject);
+                    Debug.LogError(
+                        "AnimatorPlayAction: 沒有這個state:" + StateName + ",hash:" + StateHash,
+                        gameObject
+                    );
 
                 OnClipPlay?.Invoke(CurrentClip);
 #endif
                 //如果是init state過來的，就直接跳到最後一幀
                 animator.Play(StateHash, stateLayer, runtimeStartNormalizedTimeOffset);
 
-
                 _onStateNameChange?.Invoke(StateName);
             }
             else
             {
-                animator.CrossFade(StateHash, animatorEnterCrossFade, stateLayer, runtimeStartNormalizedTimeOffset);
+                animator.CrossFade(
+                    StateHash,
+                    animatorEnterCrossFade,
+                    stateLayer,
+                    runtimeStartNormalizedTimeOffset
+                );
             }
 
             // FIXME: 不要update 0就不會造成這個onenable了？
@@ -885,7 +940,8 @@ namespace MonoFSM.Animation
         public void OnRender()
         {
             // Debug.Log("time:" + animator.GetCurrentAnimatorStateInfo(0).normalizedTime);
-            if (!IsValid) return;
+            if (!IsValid)
+                return;
             // if (doneEventTransition == null)
             //     return;
 
@@ -899,7 +955,6 @@ namespace MonoFSM.Animation
             //包子 Cross Fade 不能一直跑 （議會小電梯）
             if (animator.isActiveAndEnabled && animatorEnterCrossFade <= 0)
                 animator.Play(StateHash, stateLayer);
-
 
             // var info = animator.GetCurrentAnimatorStateInfo(doneEventLayer);
 

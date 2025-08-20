@@ -14,13 +14,16 @@ using UnityEngine.InputSystem;
 
 namespace MonoFSM.Core.Simulate
 {
-    public interface ISimulateRunner
-    {
-    }
+    public interface ISimulateRunner { }
 
     public static class WorldUpdateSimulatorExtensions
     {
-        public static MonoObj Spawn(this GameObject gObj, MonoObj obj, Vector3 position, Quaternion rotation)
+        public static MonoObj Spawn(
+            this GameObject gObj,
+            MonoObj obj,
+            Vector3 position,
+            Quaternion rotation
+        )
         {
             if (gObj == null)
             {
@@ -49,10 +52,16 @@ namespace MonoFSM.Core.Simulate
     {
         //反綁？
         //fsm reset?, simulate runner
-        [Required][CompRef][Auto] private ISimulateRunner _simulateRunner;
+        [Required]
+        [CompRef]
+        [Auto]
+        private ISimulateRunner _simulateRunner;
 
         //FIXME: Spawn要不要過我？
-        [Required][CompRef][Auto] private ISpawnProcessor _spawnProcessor;
+        [Required]
+        [CompRef]
+        [Auto]
+        private ISpawnProcessor _spawnProcessor;
 
         private void Awake()
         {
@@ -66,7 +75,9 @@ namespace MonoFSM.Core.Simulate
             Debug.Log("MonoEntityBinder Init");
         }
 
-       [CompRef] [Auto]  private MonoEntityBinder _binder;
+        [CompRef]
+        [Auto]
+        private MonoEntityBinder _binder;
 
         public static WorldUpdateSimulator GetWorldUpdateSimulator(GameObject me)
         {
@@ -118,7 +129,8 @@ namespace MonoFSM.Core.Simulate
         //FIXME: despawn都需要過這個？
         public void Despawn(MonoObj obj)
         {
-            if (obj == null) return;
+            if (obj == null)
+                return;
             // Unregister the object from the world update simulator
             UnregisterMonoObject(obj);
             obj.ResetStateRestore();
@@ -127,13 +139,14 @@ namespace MonoFSM.Core.Simulate
             _spawnProcessor.Despawn(obj); //看實作
         }
 
-
-
         public void RegisterMonoObject(MonoObj target)
         {
             if (_monoObjectSet.Add(target))
             {
-                Debug.Log($"Registering MonoPoolObj: {target.name} in WorldUpdateSimulator.", target);
+                Debug.Log(
+                    $"Registering MonoPoolObj: {target.name} in WorldUpdateSimulator.",
+                    target
+                );
                 target.WorldUpdateSimulator = this;
                 //重置狀態
                 // target.ResetStateRestore();
@@ -144,12 +157,13 @@ namespace MonoFSM.Core.Simulate
         //FIXME: local的沒有接到？
         public void AfterPoolSpawn(MonoObj target)
         {
-            if (target == null) return;
+            if (target == null)
+                return;
             //FIXME: 在這auto?
 
             //這個是用來做初始化的？
             RegisterMonoObject(target);
-            target.SpawnFromPool();//ISceneAwake叫兩次？
+            target.SpawnFromPool(); //ISceneAwake叫兩次？
         }
 
         public void UnregisterMonoObject(MonoObj target)
@@ -161,31 +175,39 @@ namespace MonoFSM.Core.Simulate
         private void SceneAwake()
         {
             //這個是用來做初始化的？
-            foreach (var monoObject in _monoObjectSet) monoObject.SceneAwake(this);
-            Debug.Log($"WorldUpdateSimulator SceneAwake called with {_monoObjectSet.Count} MonoPoolObjs.", this);
+            foreach (var monoObject in _monoObjectSet)
+                monoObject.SceneAwake(this);
+            Debug.Log(
+                $"WorldUpdateSimulator SceneAwake called with {_monoObjectSet.Count} MonoPoolObjs.",
+                this
+            );
         }
 
         private void SceneStart()
         {
-            foreach (var monoObject in _monoObjectSet) monoObject.HandleSceneStart();
+            foreach (var monoObject in _monoObjectSet)
+                monoObject.HandleSceneStart();
         }
-
-
 
         //從player進入？
         public void ResetLevelRestore()
         {
             //FIXME: Pool回收會
             // PoolManager.Instance.ReturnAllObjects(); //會把player也回收掉？
-            foreach (var mono in _monoObjectSet) mono.ResetStateRestore();
-            Debug.Log($"WorldUpdateSimulator ResetStateRestore called with {_monoObjectSet.Count} MonoPoolObjs.", this);
+            foreach (var mono in _monoObjectSet)
+                mono.ResetStateRestore();
+            Debug.Log(
+                $"WorldUpdateSimulator ResetStateRestore called with {_monoObjectSet.Count} MonoPoolObjs.",
+                this
+            );
         }
 
         public void ResetLevelStart()
         {
             //FIXME: 有人在這個過程spawn?
             var list = _monoObjectSet.ToList();
-            foreach (var mono in list) mono.ResetStart();
+            foreach (var mono in list)
+                mono.ResetStart();
             // foreach (var mono in _monoObjectSet) mono.ResetStart();
         }
 
@@ -207,11 +229,12 @@ namespace MonoFSM.Core.Simulate
 
         // [PreviewInInspector] [AutoChildren] private IMonoObject[] _localMonoObjects; //FIXME這顆要掛在？
         private readonly HashSet<MonoObj> _monoObjectSet = new(); //這個是用來做reset的？還是要有一個MonoObjectRunner?
-
 #if UNITY_EDITOR
         // [PreviewInInspector] private IUpdateSimulate[] PreviewSimulators => _simulators.ToArray();
-        [PreviewInInspector] private MonoObj[] PreviewMonoObjects => _monoObjectSet.ToArray();
+        [PreviewInInspector]
+        private MonoObj[] PreviewMonoObjects => _monoObjectSet.ToArray();
 #endif
+
         [ShowInInspector]
         public bool IsReady { get; private set; } = false;
 
@@ -220,8 +243,23 @@ namespace MonoFSM.Core.Simulate
         //FIXME: runner要是?
         public static float deltaTime => Time.deltaTime * TimeScale; //FIXME: 這個要從runner同步？
 
+        private void TimeScaleCheck()
+        {
+            if (Debug.isDebugBuild)
+            {
+                Debug.Log(
+                    $"WorldUpdateSimulator Simulate called with deltaTime: {deltaTime}, TimeScale: {TimeScale}",
+                    this
+                );
+                if (Keyboard.current.digit0Key.IsPressed() || Mouse.current.middleButton.isPressed)
+                    TimeScale = 5f;
+                else
+                    TimeScale = 1f;
+            }
+        }
 
         private readonly HashSet<MonoObj> _currentUpdatingObjs = new();
+
         /// <summary>
         /// 需要依照環境決定怎麼simulate
         /// </summary>
@@ -231,20 +269,11 @@ namespace MonoFSM.Core.Simulate
             if (!IsReady)
                 return;
 
-            if (Debug.isDebugBuild)
-            {
-                Debug.Log(
-                    $"WorldUpdateSimulator Simulate called with deltaTime: {deltaTime}, TimeScale: {TimeScale}",
-                    this);
-                if (Keyboard.current.digit0Key.IsPressed())
-                    TimeScale = 5f;
-                else
-                    TimeScale = 1f;
-            }
+            TimeScaleCheck();
 
             _currentUpdatingObjs.Clear();
 
-        #if UNITY_EDITOR //FIXME: 亂call destroy可能導致這個
+#if UNITY_EDITOR //FIXME: 亂call destroy可能導致這個
             foreach (var _mono in _monoObjectSet)
             {
                 if (_mono == null)
@@ -252,22 +281,16 @@ namespace MonoFSM.Core.Simulate
                     _monoObjectSet.Remove(_mono);
                 }
             }
-        #endif
+#endif
 
             _currentUpdatingObjs.AddRange(_monoObjectSet);
-
-
 
             //FIXME: isProxy? 要ㄇ 跳過模擬，或是regiester要兩階段
             foreach (var monoObject in _currentUpdatingObjs)
             {
-
-
                 if (monoObject is { isActiveAndEnabled: true })
                     monoObject.Simulate(deltaTime);
             }
-
-
 
             // else
             //     Debug.LogWarning("A mono object is null or not active and enabled, skipping simulation.");
@@ -288,7 +311,6 @@ namespace MonoFSM.Core.Simulate
             //     Debug.LogWarning("A mono object is null or not active and enabled, skipping after update.");
         }
 
-
 #if UNITY_EDITOR
         [MenuItem("MonoFSM/ResetLevel %R")]
         public static void ManualResetLevel() //Cheat Reset?
@@ -306,7 +328,8 @@ namespace MonoFSM.Core.Simulate
             //FIXME: 會拿到Temporary Runner Prefab所以才全拿
             if (simulators.Length == 0)
                 Debug.LogError(
-                    "No WorldUpdateSimulator found in the scene. Ensure it is present for proper reset.");
+                    "No WorldUpdateSimulator found in the scene. Ensure it is present for proper reset."
+                );
             else
             {
                 foreach (var simulator in simulators)
@@ -316,11 +339,9 @@ namespace MonoFSM.Core.Simulate
                     //這樣就可以reset了
                     simulator.ResetLevelStart();
             }
-
-
-
         }
 #endif
+
         public void Render(float runnerLocalRenderTime)
         {
             // throw new System.NotImplementedException();

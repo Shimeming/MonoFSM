@@ -12,13 +12,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c04251230671b427c952ae00fb192c5e, type: 3}
   m_Name: PlayerTransform
   m_EditorClassIdentifier: 
+  _variableTypeTag: {fileID: 0}
+  _valueTypeTag: {fileID: 0}
   Note: 
   _variableType:
-    _baseVarTypeName: 
+    _bindObject: {fileID: 11400000}
+    _baseFilterTypeName: 
+    _typeFullName: MonoFSM.Variable.VarTransform
+    _assemblyName: MonoFSM.Core.Runtime
     typeName: MonoFSM.Variable.VarTransform, MonoFSM.Core.Runtime, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   _valueFilterType:
-    _baseVarTypeName: UnityEngine.Transform, UnityEngine.CoreModule, Version=0.0.0.0,
+    _bindObject: {fileID: 11400000}
+    _baseFilterTypeName: UnityEngine.Transform, UnityEngine.CoreModule, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
+    _typeFullName: UnityEngine.Transform
+    _assemblyName: UnityEngine.CoreModule
     typeName: UnityEngine.Transform, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null

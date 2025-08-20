@@ -1,19 +1,16 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using Sirenix.OdinInspector;
 using UnityEditor;
-using Sirenix.Serialization;
+
 //統計用，買Asset畫圖表？
 
 namespace MonoFSM.Editor.DesignTool
 {
     public class GamePlayDesignToolManager : SerializedMonoBehaviour
     {
-    
         // public List<GamePlayerDesignPoint> points;
         public Dictionary<GamePlayTypeSO, int> tagCountDict;
-    
+
         [Button("Calculate")]
         void Calculate()
         {
@@ -32,35 +29,33 @@ namespace MonoFSM.Editor.DesignTool
             // Debug.Log("Find Tag:" + targetTag.name + ", count:" + tagCount);
         }
     }
-    
-    
+
     public static class GamePlayDesignPref
     {
         private const string MenuName = "RCGs/設計規劃/顯示標籤";
         private const string SettingName = "GamePlayTagDisplay";
         private const int priority = 100;
-    
-    #if UNITY_EDITOR
+
+#if UNITY_EDITOR
         public static bool IsEnabled
         {
             //TODO: OnDrawGizmo
             get { return EditorPrefs.GetBool(SettingName, true); }
             set { EditorPrefs.SetBool(SettingName, value); }
         }
-    
-        [MenuItem(MenuName, false, priority)]
+
+        // [MenuItem(MenuName, false, priority)]
         private static void ToggleAction()
         {
             IsEnabled = !IsEnabled;
         }
-    
-        [MenuItem(MenuName, true, priority)]
+
+        // [MenuItem(MenuName, true, priority)]
         private static bool ToggleActionValidate()
         {
             Menu.SetChecked(MenuName, IsEnabled);
             return true;
         }
-    #endif
+#endif
     }
-
 }

@@ -11,7 +11,10 @@ using UnityEngine;
 namespace MonoFSM.Core
 {
     //FIXME: TState還有意義嗎？直接確定是 MonoBehaviourState就好？
-    public abstract class AbstractStateBehaviour<TState> : MonoBehaviour, IState, IOwnedState<TState>
+    public abstract class AbstractStateBehaviour<TState>
+        : MonoBehaviour,
+            IState,
+            IOwnedState<TState>
         where TState : AbstractStateBehaviour<TState>
     {
         // PUBLIC MEMBERS
@@ -22,38 +25,52 @@ namespace MonoFSM.Core
         public int Priority => _priority;
         public float StateTime => _localStateTime;
         private float _localStateTime;
-        [AutoParent] protected StateMachineLogic _context;
 
-        [CompRef] [AutoChildren(DepthOneOnly = true)]
+        [AutoParent]
+        protected StateMachineLogic _context;
+
+        [CompRef]
+        [AutoChildren(DepthOneOnly = true)]
         private CanEnterNode _canEnterNode;
         public float DeltaTime => _context.DeltaTime;
+
         //  PRIVATE MEMBERS
 
-        [SerializeField] private int _priority = 0;
-        [SerializeField] private bool _checkPriorityOnExit = true;
+        [SerializeField]
+        private int _priority = 0;
+
+        [SerializeField]
+        private bool _checkPriorityOnExit = true;
 
         // private List<TransitionData<TState>> _transitions;
 
         // [AutoChildren] private AbstractStateAction[] _actions;
 
         // [CompRef] [AutoChildren] private TransitionBehaviour<TState>[] _transitions;
-        [CompRef] [AutoChildren] private TransitionBehaviour<TState>[] _transitions;
+        [CompRef]
+        [AutoChildren]
+        private TransitionBehaviour<TState>[] _transitions;
 
         // public StateTransition[] Transitions => transitions;
-        [CompRef] [AutoChildren(DepthOneOnly = true)]
-        private IRenderAction[] _renderActions;
+        [CompRef]
+        [AutoChildren(DepthOneOnly = true)]
+        private IRenderBehaiour[] _renderActions;
 
-        [CompRef] [AutoChildren(DepthOneOnly = true)]
+        [CompRef]
+        [AutoChildren(DepthOneOnly = true)]
         private OnStateEnterHandler _onStateEnter;
 
-        [CompRef] [AutoChildren(DepthOneOnly = true)]
+        [CompRef]
+        [AutoChildren(DepthOneOnly = true)]
         private OnStateUpdateHandler _onStateUpdate;
 
-        [CompRef] [AutoChildren(DepthOneOnly = true)]
+        [CompRef]
+        [AutoChildren(DepthOneOnly = true)]
         private OnStateExitHandler _onStateExit;
 
         // Support for direct AbstractStateLifeCycleHandler children
-        [CompRef] [AutoChildren(DepthOneOnly = true)]
+        [CompRef]
+        [AutoChildren(DepthOneOnly = true)]
         private AbstractStateLifeCycleHandler[] _lifeCycleHandlers;
 
         //FIXME: EnterStateRender
@@ -69,13 +86,9 @@ namespace MonoFSM.Core
 
         // PROTECTED METHODS
 
-        protected virtual void OnInitialize()
-        {
-        }
+        protected virtual void OnInitialize() { }
 
-        protected virtual void OnDeinitialize(bool hasState)
-        {
-        }
+        protected virtual void OnDeinitialize(bool hasState) { }
 
         protected virtual bool CanEnterState()
         {
@@ -89,33 +102,19 @@ namespace MonoFSM.Core
             return true;
         }
 
-        protected virtual void OnEnterState()
-        {
-        }
+        protected virtual void OnEnterState() { }
 
-        protected virtual void OnFixedUpdate()
-        {
-        }
+        protected virtual void OnFixedUpdate() { }
 
-        protected virtual void OnExitState()
-        {
-        }
+        protected virtual void OnExitState() { }
 
-        protected virtual void OnEnterStateRender()
-        {
-        }
+        protected virtual void OnEnterStateRender() { }
 
-        protected virtual void OnRender()
-        {
-        }
+        protected virtual void OnRender() { }
 
-        protected virtual void OnExitStateRender()
-        {
-        }
+        protected virtual void OnExitStateRender() { }
 
-        protected virtual void OnCollectChildStateMachines(List<IStateMachine> stateMachines)
-        {
-        }
+        protected virtual void OnCollectChildStateMachines(List<IStateMachine> stateMachines) { }
 
         // IState INTERFACE
 
@@ -154,8 +153,11 @@ namespace MonoFSM.Core
         bool IState.CanExitState(IState nextState, bool isExplicitDeactivation)
         {
             // During explicit deactivation (e.g. when user specifically calls TryDeactivateState) priority is not checked
-            if (isExplicitDeactivation == false && _checkPriorityOnExit == true &&
-                (nextState as TState).Priority < _priority)
+            if (
+                isExplicitDeactivation == false
+                && _checkPriorityOnExit == true
+                && (nextState as TState).Priority < _priority
+            )
                 return false;
 
             return CanExitState(nextState as TState);
@@ -225,7 +227,6 @@ namespace MonoFSM.Core
                 if (renderAction.isActiveAndEnabled)
                     renderAction.OnEnterRender();
             }
-
         }
 
         void IState.OnRender()
@@ -257,15 +258,15 @@ namespace MonoFSM.Core
                 Debug.LogError($"Transition target state is null in {Name} to {transition}", this);
             // try
             // {
-                if (transition.Transition(this as TState, transition.TargetState) == false)
-                    return false;
-                // // }
-                // // catch (Exception e)
-                // // {
-                //     Debug.LogError(
-                //         $"Transition failed from {Name} to {transition.TargetState.Name}: {e.Message}{e.StackTrace}", this);
-                //     return false;
-                // }
+            if (transition.Transition(this as TState, transition.TargetState) == false)
+                return false;
+            // // }
+            // // catch (Exception e)
+            // // {
+            //     Debug.LogError(
+            //         $"Transition failed from {Name} to {transition.TargetState.Name}: {e.Message}{e.StackTrace}", this);
+            //     return false;
+            // }
             // if (transition.IsForced == true)
             //     return true;
 

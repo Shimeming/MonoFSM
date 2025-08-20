@@ -1,9 +1,9 @@
 using UnityEditor;
 using UnityEngine;
 
-public class EditorCloseWindowTab : EditorWindow
+public static class EditorCloseWindowTab //Vhierarchy已經有 %W了？
 {
-    [MenuItem("RCGs/ShortCut/Close Window Tab %_W")]
+    // [MenuItem("RCGs/ShortCut/Close Window Tab %_W")]
     static void CloseTab()
     {
         EditorWindow focusedWindow = EditorWindow.focusedWindow;
@@ -12,16 +12,12 @@ public class EditorCloseWindowTab : EditorWindow
             // Debug.Log(focusedWindow is MonoNodeWindow);
             // Debug.Log(focusedWindow.GetType());
             // if (focusedWindow is MonoNodeWindow)
-                CloseTab(focusedWindow);
+            // CloseTab(focusedWindow);
+            focusedWindow.Close();
         }
         else
         {
             Debug.LogWarning("Found no focused window to close");
         }
-    }
-
-    static void CloseTab(EditorWindow editorWindow)
-    {
-        editorWindow.Close();
     }
 }
