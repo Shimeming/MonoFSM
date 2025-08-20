@@ -115,9 +115,22 @@ Comprehensive editor toolset for enhanced development workflow and debugging exp
 - **Auto Attributes**: Automatic component reference resolution and hierarchy relationship management
 - **Custom Drawers**: Rich Inspector experience with specialized property drawers and selectors
 
-## Getting Started
+## 📚 Tutorials & Examples
 
-### Example 1: SimpleDoor
+Learn MonoFSM through hands-on examples, from basic state machines to complex gameplay systems.
+
+---
+
+### 🚪 Tutorial 1: Simple Door
+
+> **📝 What You'll Learn:**
+> - Creating FSM prefab variants
+> - Setting up states and transitions
+> - Working with animations and conditions
+> - Using variable bindings
+> 
+> **⏱ Time:** ~15 minutes  
+> **🎯 Difficulty:** Beginner
 
 This tutorial walks you through creating a simple door FSM that demonstrates MonoFSM's core concepts.
 
@@ -234,7 +247,18 @@ Your SimpleDoor FSM is now ready! The door will respond to the Should Open varia
 
 **Scene Location:** `MonoFSM/0_Getting Started Sample_Door Detect/SampleScene_SimpleDoor.unity`
 
-### Example 2: SimpleButton
+---
+
+### 🔘 Tutorial 2: Simple Button
+
+> **📝 What You'll Learn:**
+> - Creating interactive button states
+> - Handling press/release animations
+> - Setting up physics-based interactions
+> - Using detectors and effect systems
+> 
+> **⏱ Time:** ~10 minutes  
+> **🎯 Difficulty:** Beginner
 
 This tutorial demonstrates how to create a button FSM that interacts with the door from the previous example, showcasing variable relay binding between different FSM instances.
 
@@ -298,7 +322,18 @@ The button's `Pressed` state will trigger the door to open when activated.
 
 ![Button Result](0_MonoFSM_Example_Module/Document/DocumentAssets/buttonResult.gif)
 
-### Example 3: Simple Key and Lock System
+---
+
+### 🔐 Tutorial 3: Key and Lock System
+
+> **📝 What You'll Learn:**
+> - Creating multi-object interactions
+> - Setting up locked states
+> - Using effect detectors and receivers
+> - Binding multiple FSMs together
+> 
+> **⏱ Time:** ~20 minutes  
+> **🎯 Difficulty:** Intermediate
 
 This tutorial demonstrates how to create an interactive key and lock system using MonoFSM's Effect Detection system, showcasing detector-detectable interactions and variable relay binding.
 
@@ -464,7 +499,18 @@ The complete key and lock system allows the key to interact with the locked butt
 
 ![Key and Lock Demo](docs/images/key-and-lock-tutorial/keyandlock.gif)
 
-### Simple Player Controller Example
+---
+
+### 🎮 Tutorial 4: Player Controller
+
+> **📝 What You'll Learn:**
+> - Integrating Unity Input System with MonoFSM
+> - Creating movement and ability states
+> - Setting up physics-based character control
+> - Managing state transitions with input conditions
+> 
+> **⏱ Time:** ~25 minutes  
+> **🎯 Difficulty:** Intermediate
 
 This tutorial demonstrates how to create a simple player controller with movement, jump, and dash abilities using MonoFSM.
 
