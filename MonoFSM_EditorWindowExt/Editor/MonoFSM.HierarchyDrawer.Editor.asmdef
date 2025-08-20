@@ -1,7 +1,9 @@
 {
     "name": "MonoFSM.HierarchyDrawer.Editor",
     "rootNamespace": "",
-    "references": [],
+  "references": [
+    "GUID:2aebaadbe3874d2a8315ced15b4245b8"
+  ],
     "includePlatforms": [
         "Editor"
     ],

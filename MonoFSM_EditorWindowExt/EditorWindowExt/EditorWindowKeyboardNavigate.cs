@@ -5,38 +5,46 @@ using System.Reflection;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace MonoFSM_EditorWindowExt.EditorWindowExt
 {
     public static class EditorWindowKeyboardNavigate
     {
-     
+        public static void ExpandItem(Object obj)
+        {
+            var window = SceneHierarchyWindow.lastInteractedHierarchyWindow;
+            window.SetExpanded(obj.GetInstanceID(), true);
+        }
 
         public static void RepaintToolBar()
         {
             Toolbar.get.Repaint();
         }
+
         public static void RepaintAll()
         {
             EditorApplication.RequestRepaintAllViews();
         }
+
         [MenuItem("Tools/MonoFSM/Clear Console Log &#_c ", false, 1000)]
         public static void ClearConsoleLog()
         {
             LogEntries.Clear();
             var h = SceneHierarchyWindow.lastInteractedHierarchyWindow;
             h.titleContent.text = "4 Hierarchy";
-        if(ProjectBrowser.s_LastInteractedProjectBrowser != null)
-            ProjectBrowser.s_LastInteractedProjectBrowser.titleContent.text = "5 Project";
+            if (ProjectBrowser.s_LastInteractedProjectBrowser != null)
+                ProjectBrowser.s_LastInteractedProjectBrowser.titleContent.text = "5 Project";
             var p = ProjectBrowser.GetAllProjectBrowsers();
-            Debug.Log("Cleared Console Log and updated Hierarchy and Project Browser titles."+
-                      $" Hierarchy: {h.titleContent.text}, Project Browsers: {p.Count}");
+            Debug.Log(
+                "Cleared Console Log and updated Hierarchy and Project Browser titles."
+                    + $" Hierarchy: {h.titleContent.text}, Project Browsers: {p.Count}"
+            );
             foreach (var browser in p)
             {
-                    browser.titleContent.text = "5 Project";
+                browser.titleContent.text = "5 Project";
             }
             // var windows = InspectorWindow.GetAllInspectorWindows();
-
         }
 
         private static double _lastEscapeTime;
@@ -91,7 +99,8 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
             try
             {
                 var currentWindow = EditorWindow.focusedWindow;
-                if (currentWindow == null) return;
+                if (currentWindow == null)
+                    return;
 
                 // Get the dock area (container that holds multiple tabs)
                 var dockArea = currentWindow.m_Parent as DockArea;
@@ -120,7 +129,8 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
                     }
                 }
 
-                if (currentIndex == -1) return;
+                if (currentIndex == -1)
+                    return;
 
                 // Get target tab (循環)
                 int targetIndex = (currentIndex + direction + panes.Count) % panes.Count;
@@ -130,7 +140,9 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
                 {
                     targetWindow.Focus();
                     string directionText = direction > 0 ? "next" : "previous";
-                    Debug.Log($"Switched from {currentWindow.GetType().Name} to {targetWindow.GetType().Name} ({directionText} tab)");
+                    Debug.Log(
+                        $"Switched from {currentWindow.GetType().Name} to {targetWindow.GetType().Name} ({directionText} tab)"
+                    );
                 }
             }
             catch (Exception e)
@@ -154,13 +166,13 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
             RepaintToolBar();
         }
 
-
         private static void SwitchDockArea(int direction)
         {
             try
             {
                 var currentWindow = EditorWindow.focusedWindow;
-                if (currentWindow == null) return;
+                if (currentWindow == null)
+                    return;
 
                 // Get current dock area
                 var currentDockArea = currentWindow.m_Parent as DockArea;
@@ -195,7 +207,8 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
                 }
 
                 // Get next dock area (循環)
-                int nextIndex = (currentIndex + direction + allDockAreas.Count) % allDockAreas.Count;
+                int nextIndex =
+                    (currentIndex + direction + allDockAreas.Count) % allDockAreas.Count;
                 var nextDockArea = allDockAreas[nextIndex];
 
                 // Focus the first tab in the next dock area
@@ -204,7 +217,9 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
                     var targetWindow = nextDockArea.m_Panes[0];
                     targetWindow.Focus();
                     string directionText = direction > 0 ? "right" : "left";
-                    Debug.Log($"Switched from {currentWindow.GetType().Name} to {targetWindow.GetType().Name} in {directionText} dock area");
+                    Debug.Log(
+                        $"Switched from {currentWindow.GetType().Name} to {targetWindow.GetType().Name} in {directionText} dock area"
+                    );
                 }
             }
             catch (Exception e)
@@ -219,7 +234,8 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
             try
             {
                 var currentWindow = EditorWindow.focusedWindow;
-                if (currentWindow == null) return;
+                if (currentWindow == null)
+                    return;
 
                 // Get current dock area
                 var currentDockArea = currentWindow.m_Parent as DockArea;
@@ -257,7 +273,8 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
                 }
 
                 // Get next dock area vertically (循環)
-                int nextIndex = (currentIndex + direction + sortedDockAreas.Count) % sortedDockAreas.Count;
+                int nextIndex =
+                    (currentIndex + direction + sortedDockAreas.Count) % sortedDockAreas.Count;
                 var nextDockArea = sortedDockAreas[nextIndex];
 
                 // Focus the first tab in the next dock area
@@ -266,7 +283,9 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
                     var targetWindow = nextDockArea.m_Panes[0];
                     targetWindow.Focus();
                     string directionText = direction > 0 ? "down" : "up";
-                    Debug.Log($"Switched from {currentWindow.GetType().Name} to {targetWindow.GetType().Name} in {directionText} direction");
+                    Debug.Log(
+                        $"Switched from {currentWindow.GetType().Name} to {targetWindow.GetType().Name} in {directionText} direction"
+                    );
                 }
             }
             catch (Exception e)
@@ -288,7 +307,9 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
                 // Debug.Log($"Level {level}: {current.GetType().Name}");
 
                 // Check if we can find the container window through reflection
-                var containerWindowField = current.GetType().GetField("m_Window", BindingFlags.NonPublic | BindingFlags.Instance);
+                var containerWindowField = current
+                    .GetType()
+                    .GetField("m_Window", BindingFlags.NonPublic | BindingFlags.Instance);
                 if (containerWindowField != null)
                 {
                     var containerWindow = containerWindowField.GetValue(current) as ContainerWindow;
@@ -300,12 +321,20 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
                 }
 
                 // Also check if current itself might be a container-related type
-                if (current.GetType().Name.Contains("ContainerWindow") || current.GetType().Name.Contains("MainView"))
+                if (
+                    current.GetType().Name.Contains("ContainerWindow")
+                    || current.GetType().Name.Contains("MainView")
+                )
                 {
                     // Debug.Log($"Found container-related type: {current.GetType().Name}");
                     // Try to get container window from this view
-                    var windowProperty = current.GetType().GetProperty("window", BindingFlags.Public | BindingFlags.Instance);
-                    if (windowProperty != null && windowProperty.GetValue(current) is ContainerWindow window)
+                    var windowProperty = current
+                        .GetType()
+                        .GetProperty("window", BindingFlags.Public | BindingFlags.Instance);
+                    if (
+                        windowProperty != null
+                        && windowProperty.GetValue(current) is ContainerWindow window
+                    )
                     {
                         // Debug.Log($"Found container window via window property");
                         return window;
@@ -347,9 +376,14 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
             return dockAreas;
         }
 
-        private static void CollectDockAreas(View view, List<DockArea> dockAreas, HashSet<View> visitedViews)
+        private static void CollectDockAreas(
+            View view,
+            List<DockArea> dockAreas,
+            HashSet<View> visitedViews
+        )
         {
-            if (view == null) return;
+            if (view == null)
+                return;
 
             // Prevent infinite recursion
             if (visitedViews.Contains(view))
@@ -379,7 +413,10 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
                 }
             }
             // Handle MainView and other container views that might have children
-            else if (view.GetType().Name == "MainView" || view.GetType().BaseType?.Name == "ContainerView")
+            else if (
+                view.GetType().Name == "MainView"
+                || view.GetType().BaseType?.Name == "ContainerView"
+            )
             {
                 // Debug.Log($"Found MainView/ContainerView, using allChildren");
 
@@ -401,6 +438,7 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
                 // Debug.Log($"Unknown view type: {view.GetType().Name}");
             }
         }
+
         [InitializeOnLoadMethod]
         static void Init()
         {
@@ -412,7 +450,8 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
         // private static bool _isCustomNavigated = false;
         private static void HandleGlobalEscapeEvents()
         {
-            if (Event.current == null) return;
+            if (Event.current == null)
+                return;
 
             // Handle Cmd+Shift+Arrow keys combinations on KeyDown
             // if (Event.current.type == EventType.KeyDown)
@@ -456,7 +495,8 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
             //     }
             // }
 
-            if (Event.current.type != EventType.KeyUp) return;
+            if (Event.current.type != EventType.KeyUp)
+                return;
 
             // if (Event.current.keyCode == KeyCode.BackQuote)
             // {
@@ -497,7 +537,8 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
 
 
             // Handle ESC key for exiting prefab stage
-            if (Event.current.keyCode != KeyCode.Escape) return;
+            if (Event.current.keyCode != KeyCode.Escape)
+                return;
 
             // Debug.Log("Escape key pressed - Handling global escape events...");
 
