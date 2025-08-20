@@ -18,6 +18,7 @@ namespace MonoFSMCore.Runtime.LifeCycle
         //這個是給MonoPoolObj用的
         // MonoPoolObj GetMonoObject();
     }
+
     //1. 先回狀態
     public interface IResetStateRestore //新規用這個，現在和上面都有call, exitLevelAndDestroy是為了換場景很煩可以拔掉
     {
@@ -41,7 +42,7 @@ namespace MonoFSMCore.Runtime.LifeCycle
     /// 3.LevelStart,
     /// 4.LevelStartReverse
     /// </summary>
-//關著也能call
+    //關著也能call
     public interface ISceneAwake //摸自己, Prefab也需要(一次性
     {
         void EnterSceneAwake();
@@ -54,20 +55,29 @@ namespace MonoFSMCore.Runtime.LifeCycle
     [FormerlyNamedAs("MonoPoolObj")]
     public sealed class MonoObj : MonoBehaviour, IPrefabSerializeCacheOwner
     {
-        [field: Auto] public MonoEntity Entity { get; }
+        [field: Auto]
+        public MonoEntity Entity { get; }
 
         // public
         //寫一個show error的Attribute，然後在這裡用
-        [InfoBox("WorldUpdateSimulator is required for MonoPoolObj to function properly",InfoMessageType.Error,nameof(RuntimeCheckNoWorldUpdateSimulator))]
+        [InfoBox(
+            "WorldUpdateSimulator is required for MonoPoolObj to function properly",
+            InfoMessageType.Error,
+            nameof(RuntimeCheckNoWorldUpdateSimulator)
+        )]
         [ShowInDebugMode]
         public WorldUpdateSimulator WorldUpdateSimulator { get; set; }
-        bool RuntimeCheckNoWorldUpdateSimulator => WorldUpdateSimulator == null && Application.isPlaying;
+        bool RuntimeCheckNoWorldUpdateSimulator =>
+            WorldUpdateSimulator == null && Application.isPlaying;
 
         public void Despawn()
         {
             if (WorldUpdateSimulator == null)
             {
-                Debug.LogError("WorldUpdateSimulator is not set. Cannot despawn MonoPoolObj.", this);
+                Debug.LogError(
+                    "WorldUpdateSimulator is not set. Cannot despawn MonoPoolObj.",
+                    this
+                );
                 return;
             }
 
@@ -80,13 +90,34 @@ namespace MonoFSMCore.Runtime.LifeCycle
             //play mode 被刪掉要怎麼處理？
         }
 
-        [PreviewInInspector] [AutoChildren] private ISceneAwake[] _sceneAwakes;
-        [PreviewInInspector][AutoChildren] private ISceneStart[] _sceneStarts;
-        [PreviewInInspector] [AutoChildren] private ISceneDestroy[] _sceneDestroys;
-        [PreviewInInspector][AutoChildren] private IResetStateRestore[] _resetStateRestores;
-        [PreviewInInspector][AutoChildren] private IResetStart[] _resetStarts;
-        [PreviewInInspector][AutoChildren] private IInstantiated[] _instantiateds;
-        [PreviewInInspector][AutoChildren] private IUpdateSimulate[] _updateSimulates;
+        [PreviewInInspector]
+        [AutoChildren]
+        private ISceneAwake[] _sceneAwakes;
+
+        [PreviewInInspector]
+        [AutoChildren]
+        private ISceneStart[] _sceneStarts;
+
+        [PreviewInInspector]
+        [AutoChildren]
+        private ISceneDestroy[] _sceneDestroys;
+
+        [PreviewInInspector]
+        [AutoChildren]
+        private IResetStateRestore[] _resetStateRestores;
+
+        [PreviewInInspector]
+        [AutoChildren]
+        private IResetStart[] _resetStarts;
+
+        [PreviewInInspector]
+        [AutoChildren]
+        private IInstantiated[] _instantiateds;
+
+        [PreviewInInspector]
+        [AutoChildren]
+        private IUpdateSimulate[] _updateSimulates;
+
         //FIXME: PoolBeforeReturnToPool? OnReturnPool?
 
         [ShowInDebugMode]
@@ -119,7 +150,6 @@ namespace MonoFSMCore.Runtime.LifeCycle
             HandleIAwake();
             //這可以嗎？
             HandleIInstantiated(world); //和IAwake合併？
-
         }
 
         //FIXME: 想把這個拿掉
@@ -160,11 +190,11 @@ namespace MonoFSMCore.Runtime.LifeCycle
             HandleIResetStart();
         }
 
-
         private void HandleIResetStateRestore()
         {
             if (HasParent)
                 return;
+            Debug.Log("[MonoObj] HandleIResetStateRestore", this);
             foreach (var item in _resetStateRestores)
             {
                 if (item == null)
@@ -194,7 +224,7 @@ namespace MonoFSMCore.Runtime.LifeCycle
                 //FIXEM: 用trycatch不好debug?
                 // try
                 // {
-                    item.ResetStart();
+                item.ResetStart();
                 // }
                 // catch (Exception e)
                 // {
@@ -222,15 +252,15 @@ namespace MonoFSMCore.Runtime.LifeCycle
                     continue;
                 // try
                 // {
-                    item.Simulate(deltaTime);
-                    // }
-                    // catch (Exception e)
-                    // {
-                    //     if (item is MonoBehaviour)
-                    //         Debug.LogError(e.Message + "\n" + e.StackTrace, item as MonoBehaviour);
-                    //     else
-                    //         Debug.LogError(e.Message + "\n" + e.StackTrace);
-                    // }
+                item.Simulate(deltaTime);
+                // }
+                // catch (Exception e)
+                // {
+                //     if (item is MonoBehaviour)
+                //         Debug.LogError(e.Message + "\n" + e.StackTrace, item as MonoBehaviour);
+                //     else
+                //         Debug.LogError(e.Message + "\n" + e.StackTrace);
+                // }
             }
         }
 
@@ -258,7 +288,6 @@ namespace MonoFSMCore.Runtime.LifeCycle
                 // }
             }
         }
-
 
         /// <summary>
         /// 兩個進入點，SpawnFromPool 和 SceneAwake

@@ -13,7 +13,7 @@ namespace _1_MonoFSM_Core.Runtime.Attributes
     /// 可以指定期望的限制型別來過濾下拉選單中的選項
     /// 支援 VariableTag 和 MonoEntityTag 等類型，以及任何 ScriptableObject
     /// </summary>
-    public class TypeRestrictFilterAttribute : Attribute
+    public class TypeRestrictDropdownAttribute : Attribute
     {
         /// <summary>
         /// 期望的限制型別 (從 ScriptableObject 實例中取得的型別，如 VariableTag.VariableMonoType)
@@ -33,7 +33,7 @@ namespace _1_MonoFSM_Core.Runtime.Attributes
         /// <summary>
         /// 無參數構造函數 - 將不限制 RestrictType，接受任何 Property Type 的實例
         /// </summary>
-        public TypeRestrictFilterAttribute()
+        public TypeRestrictDropdownAttribute()
             : this(null) { }
 
         //FIXME: better AssetPicker?
@@ -44,7 +44,7 @@ namespace _1_MonoFSM_Core.Runtime.Attributes
         /// <param name="restrictInstanceType">期望的限制型別</param>
         /// <param name="allowCompatibleTypes">是否允許相容的類型</param>
         /// <param name="customErrorMessage">自定義錯誤訊息</param>
-        public TypeRestrictFilterAttribute(
+        public TypeRestrictDropdownAttribute(
             Type restrictInstanceType,
             bool allowCompatibleTypes = true,
             string customErrorMessage = null
@@ -92,7 +92,7 @@ namespace _1_MonoFSM_Core.Runtime.Attributes
     /// <summary>
     /// VarTagFilter 的向後相容別名
     /// </summary>
-    public class VarTagFilterAttribute : TypeRestrictFilterAttribute
+    public class VarTagFilterAttribute : TypeRestrictDropdownAttribute
     {
         public VarTagFilterAttribute(
             Type expectedVariableType,
@@ -105,7 +105,7 @@ namespace _1_MonoFSM_Core.Runtime.Attributes
     /// <summary>
     /// MonoEntityTagFilter 的向後相容別名
     /// </summary>
-    public class MonoEntityTagFilterAttribute : TypeRestrictFilterAttribute
+    public class MonoEntityTagFilterAttribute : TypeRestrictDropdownAttribute
     {
         public MonoEntityTagFilterAttribute(
             Type expectedEntityType,

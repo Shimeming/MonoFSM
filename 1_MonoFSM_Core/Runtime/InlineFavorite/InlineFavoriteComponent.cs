@@ -1,18 +1,17 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using MonoFSM.Core.Attributes;
-using MonoFSM.Runtime.Attributes;
 using MonoFSM.Variable;
-using UnityEngine;
 using Sirenix.OdinInspector;
+using UnityEditor;
+using UnityEngine;
 using Object = UnityEngine.Object;
 
 //對外開放
 public class InlineFavoriteComponent : MonoBehaviour, IEditorOnly
 {
     // [DropZone]
-    [InlineField] public QuickEntry[] favorites;
+    [InlineField]
+    public QuickEntry[] favorites;
 
     // [DropZone] [InlineEditor] public Component[] favoriteComps;
     // [InlineEditor]
@@ -28,17 +27,18 @@ public interface IObjectReference
     Type ObjectType { get; }
 }
 
-
-[System.Serializable]
+[Serializable]
 public class QuickEntry
 {
     //每個元件只需要expose一個欄位出來就好？
     // [InlineEditor]
-    [TextArea] public string note;
+    [TextArea]
+    public string note;
 
     bool isISerializedFloatValue => comp is ISerializedFloatValue;
 
-    [DropDownRef] public Component comp;
+    [DropDownRef]
+    public Component comp;
 
     [ShowInInspector]
     [ShowIf(nameof(isISerializedFloatValue))]
@@ -59,7 +59,7 @@ public class QuickEntry
             {
                 floatValue.EditorValue = value;
 #if UNITY_EDITOR
-                UnityEditor.EditorUtility.SetDirty(comp);
+                EditorUtility.SetDirty(comp);
 #endif
             }
         }
@@ -77,7 +77,7 @@ public class QuickEntry
         return typeof(Object);
     }
 
-    [DropDownAsset(nameof(GetObjectTypeFilter))]
+    // [DropDownAsset(nameof(GetObjectTypeFilter))]
     [ShowInInspector]
     [ShowIf(nameof(isCompObjectReference))]
     public Object ObjectValue //FIXME: 型別沒辦法限制感覺也蠻難用的？還是要自己做下拉式選單
@@ -97,7 +97,7 @@ public class QuickEntry
             {
                 ((IObjectReference)comp).EditorValue = value;
 #if UNITY_EDITOR
-                UnityEditor.EditorUtility.SetDirty(comp);
+                EditorUtility.SetDirty(comp);
 #endif
             }
         }

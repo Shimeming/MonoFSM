@@ -1,4 +1,5 @@
 using MonoFSM.Core.Attributes;
+using MonoFSM.Core.Runtime;
 using MonoFSM.EditorExtension;
 using MonoFSM.Runtime.Mono;
 using MonoFSM.Variable;
@@ -16,11 +17,9 @@ namespace MonoFSM.Runtime.Variable
     [FormerlyNamedAs("VarBlackboard")]
     public class VarEntity : GenericUnityObjectVariable<MonoEntity>, IHierarchyValueInfo
     {
-
         [FormerlySerializedAs("_MonoDescriptableTag")]
         [SOConfig("10_Flags/VarMono")]
         [BoxGroup("定義型別")]
-
         //FIXME: 這用了感覺就...沒彈性了？，限定schema如何？感覺在做差不多的事？[PropertyOrder(-1)]
         public MonoEntityTag _monoEntityTag; //FIXME: Expected MonoEntityTag, but can be null?
 
@@ -29,9 +28,7 @@ namespace MonoFSM.Runtime.Variable
         [PreviewInInspector]
         public GameData SampleData
 #if UNITY_EDITOR
-            => _monoEntityTag
-                ? _monoEntityTag.SamepleData
-                : null;
+            => _monoEntityTag ? _monoEntityTag.SamepleData : null;
 #else
             => null;
 #endif
@@ -56,19 +53,26 @@ namespace MonoFSM.Runtime.Variable
         // protected Component _defaultValue;
 
 
-        protected override MonoEntity DefaultValue =>_defaultValue;
+        protected override MonoEntity DefaultValue => _defaultValue;
+
         // _siblingDefaultValue != null ? _siblingDefaultValue :
 
         //FIXME: 用Type更好嗎？
         // public override GameFlagBase FinalData => Value != null ? Value.Data : SampleData;
 
-//         public string IconName => "vcs_document";
-//         public bool IsDrawingIcon => true;
-//         //Fixme: 還是應該要外部登記比較好？
-// #if UNITY_EDITOR
-//         public Texture2D CustomIcon => UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>("Packages/com.rcgmaker.fsm/RCGMakerFSMCore/Runtime/2_Variable/VarMonoIcon.png");
-// #endif
+        //         public string IconName => "vcs_document";
+        //         public bool IsDrawingIcon => true;
+        //         //Fixme: 還是應該要外部登記比較好？
+        // #if UNITY_EDITOR
+        //         public Texture2D CustomIcon => UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>("Packages/com.rcgmaker.fsm/RCGMakerFSMCore/Runtime/2_Variable/VarMonoIcon.png");
+        // #endif
         public string ValueInfo => Value?.name ?? "null";
         public bool IsDrawingValueInfo => true;
+
+        [Button]
+        private void AddEntityFromVarEntityProvider()
+        {
+            this.AddChildrenComponent<EntityFromVarEntityProvider>("entityProvider");
+        }
     }
 }

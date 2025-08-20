@@ -83,43 +83,73 @@ namespace CommandPalette
         private static readonly string CacheDirectory = Path.Combine("Library", "CommandPalette");
 
         // 資源類型定義
-        private static readonly List<AssetTypeDefinition> SupportedAssetTypes = new()
-        {
-            new AssetTypeDefinition(SearchMode.Prefabs, "Prefabs", ".prefab", "t:Prefab", typeof(
-                GameObject), "PrefabCache.json"),
-            new AssetTypeDefinition(SearchMode.ScriptableObjects, "ScriptableObjects", ".asset",
-                "t:ScriptableObject", typeof(ScriptableObject), "ScriptableObjectCache.json"),
-            new AssetTypeDefinition(SearchMode.Scenes, "Scenes", ".unity", "t:Scene", typeof(SceneAsset), "SceneCache.json"),
-            new AssetTypeDefinition(SearchMode.MenuItems, "MenuItems", "", "", typeof(object), "MenuItemCache.json")
-        };
+        private static readonly List<AssetTypeDefinition> SupportedAssetTypes =
+            new()
+            {
+                new AssetTypeDefinition(
+                    SearchMode.Prefabs,
+                    "Prefabs",
+                    ".prefab",
+                    "t:Prefab",
+                    typeof(GameObject),
+                    "PrefabCache.json"
+                ),
+                new AssetTypeDefinition(
+                    SearchMode.ScriptableObjects,
+                    "ScriptableObjects",
+                    ".asset",
+                    "t:ScriptableObject",
+                    typeof(ScriptableObject),
+                    "ScriptableObjectCache.json"
+                ),
+                new AssetTypeDefinition(
+                    SearchMode.Scenes,
+                    "Scenes",
+                    ".unity",
+                    "t:Scene",
+                    typeof(SceneAsset),
+                    "SceneCache.json"
+                ),
+                new AssetTypeDefinition(
+                    SearchMode.MenuItems,
+                    "MenuItems",
+                    "",
+                    "",
+                    typeof(object),
+                    "MenuItemCache.json"
+                ),
+            };
 
         // 動態快取字典
-        private static readonly Dictionary<SearchMode, Dictionary<string, AssetEntry>> AssetCaches = new()
-        {
-            { SearchMode.Prefabs, new Dictionary<string, AssetEntry>() },
-            { SearchMode.ScriptableObjects, new Dictionary<string, AssetEntry>() },
-            { SearchMode.Scenes, new Dictionary<string, AssetEntry>() }
-        };
+        private static readonly Dictionary<SearchMode, Dictionary<string, AssetEntry>> AssetCaches =
+            new()
+            {
+                { SearchMode.Prefabs, new Dictionary<string, AssetEntry>() },
+                { SearchMode.ScriptableObjects, new Dictionary<string, AssetEntry>() },
+                { SearchMode.Scenes, new Dictionary<string, AssetEntry>() },
+            };
 
         // MenuItem專用快取
         private static List<MenuItemEntry> menuItemCache = new();
         private static bool menuItemCacheValid = false;
 
         // 動態快取有效性標誌
-        private static readonly Dictionary<SearchMode, bool> CacheValidFlags = new()
-        {
-            { SearchMode.Prefabs, false },
-            { SearchMode.ScriptableObjects, false },
-            { SearchMode.Scenes, false }
-        };
+        private static readonly Dictionary<SearchMode, bool> CacheValidFlags =
+            new()
+            {
+                { SearchMode.Prefabs, false },
+                { SearchMode.ScriptableObjects, false },
+                { SearchMode.Scenes, false },
+            };
 
         // 動態待處理變更標誌
-        private static readonly Dictionary<SearchMode, bool> PendingChangesFlags = new()
-        {
-            { SearchMode.Prefabs, false },
-            { SearchMode.ScriptableObjects, false },
-            { SearchMode.Scenes, false }
-        };
+        private static readonly Dictionary<SearchMode, bool> PendingChangesFlags =
+            new()
+            {
+                { SearchMode.Prefabs, false },
+                { SearchMode.ScriptableObjects, false },
+                { SearchMode.Scenes, false },
+            };
 
         [MenuItem("Tools/Search Prefab Command Palette %t")]
         public static void OpenWindow()
@@ -171,7 +201,8 @@ namespace CommandPalette
             // 從 EditorPrefs 載入保存的搜尋字串和模式
             searchString = EditorPrefs.GetString(SEARCH_STRING_PREF_KEY, "");
             prevSearchString = "";
-            currentMode = (SearchMode)EditorPrefs.GetInt(SEARCH_MODE_PREF_KEY, (int)SearchMode.Prefabs);
+            currentMode = (SearchMode)
+                EditorPrefs.GetInt(SEARCH_MODE_PREF_KEY, (int)SearchMode.Prefabs);
 
             // 初始化位置追蹤
             previousPosition = position;
@@ -201,14 +232,15 @@ namespace CommandPalette
 
         private void OnGUI()
         {
-            float keyboardInputTime,                drawModeTabTime,
+            float keyboardInputTime,
+                drawModeTabTime,
                 drawSearchFieldTime,
                 drawRefreshButtonTime,
                 drawAssetListTime,
                 updateSearchTime,
                 handleContextMenuTime;
 
-            onGuiStopwatch .Restart();
+            onGuiStopwatch.Restart();
 
             guiStopwatch.Restart();
             HandleKeyboardInput();
@@ -251,7 +283,8 @@ namespace CommandPalette
             if (guiStopwatch.ElapsedMilliseconds > 100)
             {
                 Debug.Log(
-                    $"[CommandPalette] GUI 重繪時間: {onGuiStopwatch.ElapsedMilliseconds}ms (Frame: {Time.frameCount})");
+                    $"[CommandPalette] GUI 重繪時間: {onGuiStopwatch.ElapsedMilliseconds}ms (Frame: {Time.frameCount})"
+                );
                 Debug.Log($"[CommandPalette] 鍵盤輸入處理時間: {keyboardInputTime}ms");
                 Debug.Log($"[CommandPalette] 標籤頁繪製時間: {drawModeTabTime}ms");
                 Debug.Log($"[CommandPalette] 搜尋欄繪製時間: {drawSearchFieldTime}ms");
@@ -259,9 +292,7 @@ namespace CommandPalette
                 Debug.Log($"[CommandPalette] 資源列表繪製時間: {drawAssetListTime}ms");
                 Debug.Log($"[CommandPalette] 搜尋更新時間: {updateSearchTime}ms");
                 Debug.Log($"[CommandPalette] 上下文菜單處理時間: {handleContextMenuTime}ms");
-
             }
-
         }
 
         private void HandleKeyboardInput()
@@ -276,7 +307,9 @@ namespace CommandPalette
 
                     case KeyCode.Tab:
                         // 循環切換搜尋模式
-                        var currentIndex = SupportedAssetTypes.FindIndex(x => x.Mode == currentMode);
+                        var currentIndex = SupportedAssetTypes.FindIndex(x =>
+                            x.Mode == currentMode
+                        );
                         var nextIndex = (currentIndex + 1) % SupportedAssetTypes.Count;
                         currentMode = SupportedAssetTypes[nextIndex].Mode;
 
@@ -306,14 +339,16 @@ namespace CommandPalette
                         break;
 
                     case KeyCode.UpArrow:
-                        selectedIndex = selectedIndex <= 0 ? filteredAssets.Count - 1 : selectedIndex - 1;
+                        selectedIndex =
+                            selectedIndex <= 0 ? filteredAssets.Count - 1 : selectedIndex - 1;
                         Event.current.Use();
                         EditorGUIUtility.PingObject(filteredAssets[selectedIndex].asset);
                         Repaint();
                         break;
 
                     case KeyCode.DownArrow:
-                        selectedIndex = selectedIndex >= filteredAssets.Count - 1 ? 0 : selectedIndex + 1;
+                        selectedIndex =
+                            selectedIndex >= filteredAssets.Count - 1 ? 0 : selectedIndex + 1;
                         Event.current.Use();
                         EditorGUIUtility.PingObject(filteredAssets[selectedIndex].asset);
                         Repaint();
@@ -384,7 +419,12 @@ namespace CommandPalette
         {
             var listStartY = TAB_HEIGHT + 28; // 考慮標籤頁和搜尋欄的高度
             var listRect = new Rect(0, listStartY, position.width, position.height - listStartY);
-            var contentRect = new Rect(0, 0, position.width - 20, filteredAssets.Count * ROW_HEIGHT);
+            var contentRect = new Rect(
+                0,
+                0,
+                position.width - 20,
+                filteredAssets.Count * ROW_HEIGHT
+            );
 
             scrollPos = GUI.BeginScrollView(listRect, scrollPos, contentRect);
 
@@ -402,7 +442,8 @@ namespace CommandPalette
                 // 繪製圖標 - 延遲載入
                 var iconRect = new Rect(rect.x + 5, rect.y + 3, 16, 16);
                 asset.LoadIconIfNeeded();
-                if (asset.icon != null) GUI.DrawTexture(iconRect, asset.icon);
+                if (asset.icon != null)
+                    GUI.DrawTexture(iconRect, asset.icon);
 
                 // 繪製名稱
                 var nameRect = new Rect(rect.x + 25, rect.y, rect.width - 30, rect.height);
@@ -416,8 +457,12 @@ namespace CommandPalette
                 GUI.Label(actualNameRect, asset.name);
 
                 // 繪製路徑（灰色文字）
-                var pathRect = new Rect(actualNameRect.xMax + 10, nameRect.y, nameRect.width - nameWidth - 10,
-                    nameRect.height);
+                var pathRect = new Rect(
+                    actualNameRect.xMax + 10,
+                    nameRect.y,
+                    nameRect.width - nameWidth - 10,
+                    nameRect.height
+                );
                 if (pathRect.width > 0)
                 {
                     var originalColor = GUI.color;
@@ -434,14 +479,18 @@ namespace CommandPalette
                 HandleDragAndDrop(rect, asset);
 
                 // 處理滑鼠點擊
-                if (Event.current.type == EventType.MouseDown && rect.Contains(Event.current.mousePosition))
+                if (
+                    Event.current.type == EventType.MouseDown
+                    && rect.Contains(Event.current.mousePosition)
+                )
                 {
                     selectedIndex = i;
 
                     // Ping 選中的 Object 以在 Project 視窗中高亮顯示
                     EditorGUIUtility.PingObject(asset.asset);
 
-                    if (Event.current.clickCount == 2) OpenAssetInEditor(asset);
+                    if (Event.current.clickCount == 2)
+                        OpenAssetInEditor(asset);
                     Event.current.Use();
                     Repaint();
                 }
@@ -513,39 +562,48 @@ namespace CommandPalette
             // 檢查記憶體快取是否有效
             if (isCacheValid)
             {
-                Debug.Log($"[CommandPalette] {assetTypeDefinition.DisplayName} 快取有效，直接使用記憶體快取");
+                Debug.Log(
+                    $"[CommandPalette] {assetTypeDefinition.DisplayName} 快取有效，直接使用記憶體快取"
+                );
                 // 如果有待處理的變更，表示 AssetPostprocessor 已經通過 AddOrUpdateAssetInCache/RemoveAssetFromCache 更新了快取並寫入檔案
                 if (hasPendingChanges)
                 {
                     Debug.Log(
-                        $"[CommandPalette] 檢測到待處理的 {assetTypeDefinition.DisplayName} 變更，快取已通過增量更新保持最新狀態，檔案快取也已同步");
+                        $"[CommandPalette] 檢測到待處理的 {assetTypeDefinition.DisplayName} 變更，快取已通過增量更新保持最新狀態，檔案快取也已同步"
+                    );
 
                     // 快取已同步完成，清除待處理標誌
                     PendingChangesFlags[currentMode] = false;
                 }
                 else
                 {
-                    Debug.Log($"[CommandPalette] {assetTypeDefinition.DisplayName} 快取無待處理變更");
+                    Debug.Log(
+                        $"[CommandPalette] {assetTypeDefinition.DisplayName} 快取無待處理變更"
+                    );
                 }
 
                 allAssets = new List<AssetEntry>(currentCache.Values);
                 filteredAssets = new List<AssetEntry>(allAssets);
                 return;
             }
-            else
-            {
-                Debug.Log($"[CommandPalette] {assetTypeDefinition.DisplayName} 快取無效或過期，重新掃描資源");
-            }
+
+            Debug.Log(
+                $"[CommandPalette] {assetTypeDefinition.DisplayName} 快取無效或過期，重新掃描資源"
+            );
 
             // 嘗試從檔案快取載入
             cacheLoadStopwatch.Restart();
             var cacheFilePath = GetCacheFilePath(currentMode);
-            var fileCache = SearchCommandPaletteCacheHelper.LoadCacheFromFile(cacheFilePath, currentMode);
+            var fileCache = SearchCommandPaletteCacheHelper.LoadCacheFromFile(
+                cacheFilePath,
+                currentMode
+            );
             if (fileCache != null)
             {
                 var dictConversionStart = cacheLoadStopwatch.ElapsedMilliseconds;
                 AssetCaches[currentMode] = fileCache.ToDictionary(asset => asset.guid);
-                var dictConversionTime = cacheLoadStopwatch.ElapsedMilliseconds - dictConversionStart;
+                var dictConversionTime =
+                    cacheLoadStopwatch.ElapsedMilliseconds - dictConversionStart;
 
                 CacheValidFlags[currentMode] = true;
                 PendingChangesFlags[currentMode] = false; // 從檔案載入後清除待處理標誌
@@ -553,13 +611,20 @@ namespace CommandPalette
                 var listConversionStart = cacheLoadStopwatch.ElapsedMilliseconds;
                 allAssets = new List<AssetEntry>(AssetCaches[currentMode].Values);
                 filteredAssets = new List<AssetEntry>(allAssets);
-                var listConversionTime = cacheLoadStopwatch.ElapsedMilliseconds - listConversionStart;
+                var listConversionTime =
+                    cacheLoadStopwatch.ElapsedMilliseconds - listConversionStart;
 
                 cacheLoadStopwatch.Stop();
-                Debug.Log($"[CommandPalette] {assetTypeDefinition.DisplayName} 快取載入完成: 總時間 {cacheLoadStopwatch.ElapsedMilliseconds}ms, " +
-                          $"Dictionary轉換 {dictConversionTime}ms, List轉換 {listConversionTime}ms, 資源數量 {fileCache.Count}");
+                Debug.Log(
+                    $"[CommandPalette] {assetTypeDefinition.DisplayName} 快取載入完成: 總時間 {cacheLoadStopwatch.ElapsedMilliseconds}ms, "
+                        + $"Dictionary轉換 {dictConversionTime}ms, List轉換 {listConversionTime}ms, 資源數量 {fileCache.Count}"
+                );
                 return;
             }
+
+            Debug.LogError(
+                $"[CommandPalette] 無法從檔案快取載入 {assetTypeDefinition.DisplayName}，將重新收集資源"
+            );
 
             // 快取無效或過期，重新掃描資源
             PendingChangesFlags[currentMode] = false; // 重新掃描後清除待處理標誌
@@ -578,7 +643,9 @@ namespace CommandPalette
             // 嘗試從檔案快取載入MenuItem
             cacheLoadStopwatch.Restart();
             var cacheFilePath = GetCacheFilePath(SearchMode.MenuItems);
-            var fileCache = SearchCommandPaletteCacheHelper.LoadMenuItemCacheFromFile(cacheFilePath);
+            var fileCache = SearchCommandPaletteCacheHelper.LoadMenuItemCacheFromFile(
+                cacheFilePath
+            );
             if (fileCache != null && fileCache.Count > 0)
             {
                 menuItemCache = fileCache;
@@ -586,7 +653,9 @@ namespace CommandPalette
                 ConvertMenuItemsToAssets();
 
                 cacheLoadStopwatch.Stop();
-                Debug.Log($"[CommandPalette] MenuItem 快取載入完成，共 {fileCache.Count} 個項目，耗時 {cacheLoadStopwatch.ElapsedMilliseconds}ms");
+                Debug.Log(
+                    $"[CommandPalette] MenuItem 快取載入完成，共 {fileCache.Count} 個項目，耗時 {cacheLoadStopwatch.ElapsedMilliseconds}ms"
+                );
                 return;
             }
 
@@ -596,7 +665,8 @@ namespace CommandPalette
 
         private void ConvertMenuItemsToAssets()
         {
-            allAssets = menuItemCache.Select(menuItem => new AssetEntry(menuItem.displayName, menuItem.menuPath, null))
+            allAssets = menuItemCache
+                .Select(menuItem => new AssetEntry(menuItem.displayName, menuItem.menuPath, null))
                 .ToList();
             filteredAssets = new List<AssetEntry>(allAssets);
         }
@@ -614,12 +684,15 @@ namespace CommandPalette
             SearchCommandPaletteCacheHelper.SaveMenuItemCacheToFile(menuItemCache, cacheFilePath);
 
             cacheLoadStopwatch.Stop();
-            Debug.Log($"[CommandPalette] MenuItem 重新收集完成，共 {menuItemCache.Count} 個項目，耗時 {cacheLoadStopwatch.ElapsedMilliseconds}ms");
+            Debug.Log(
+                $"[CommandPalette] MenuItem 重新收集完成，共 {menuItemCache.Count} 個項目，耗時 {cacheLoadStopwatch.ElapsedMilliseconds}ms"
+            );
         }
 
         private void UpdateSearch()
         {
-            if (searchString == prevSearchString) return;
+            if (searchString == prevSearchString)
+                return;
 
             prevSearchString = searchString;
 
@@ -641,14 +714,20 @@ namespace CommandPalette
 
                     // 使用 Unity 的 FuzzySearch API
                     var normalMatch = FuzzySearch.FuzzyMatch(normalizedSearch, assetNameLower);
-                    var spaceMatch = FuzzySearch.FuzzyMatch(spaceToUnderscoreSearch, assetNameLower);
+                    var spaceMatch = FuzzySearch.FuzzyMatch(
+                        spaceToUnderscoreSearch,
+                        assetNameLower
+                    );
 
                     // 如果任一匹配成功，計算優先級分數
                     if (normalMatch || spaceMatch)
                     {
                         // 使用匹配優先級作為分數（數字越小優先級越高，所以用負數讓 ThenByDescending 正確排序）
                         var priority = GetMatchPriority(asset.name, searchString);
-                        var spaceToUnderscorePriority = GetMatchPriority(asset.name, spaceToUnderscoreSearch);
+                        var spaceToUnderscorePriority = GetMatchPriority(
+                            asset.name,
+                            spaceToUnderscoreSearch
+                        );
                         var bestPriority = Math.Min(priority, spaceToUnderscorePriority);
 
                         searchResults.Add((asset, -bestPriority)); // 負數讓優先級高的排在前面
@@ -768,8 +847,12 @@ namespace CommandPalette
             {
                 // 階段1：統一搜尋所有資源（Assets + Packages）
                 var phase1Start = stopwatch.ElapsedMilliseconds;
-                var allAssetGuids = AssetDatabase.FindAssets(assetTypeDefinition.AssetDatabaseFilter);
-                Debug.Log($"[CommandPalette] 搜尋完成，找到 {allAssetGuids.Length} 個 {assetTypeDefinition.DisplayName}，耗時 {stopwatch.ElapsedMilliseconds - phase1Start}ms");
+                var allAssetGuids = AssetDatabase.FindAssets(
+                    assetTypeDefinition.AssetDatabaseFilter
+                );
+                Debug.Log(
+                    $"[CommandPalette] 搜尋完成，找到 {allAssetGuids.Length} 個 {assetTypeDefinition.DisplayName}，耗時 {stopwatch.ElapsedMilliseconds - phase1Start}ms"
+                );
 
                 // 階段2：載入所有資源
                 var phase2Start = stopwatch.ElapsedMilliseconds;
@@ -789,7 +872,9 @@ namespace CommandPalette
                             assetsCount++;
                     }
                 }
-                Debug.Log($"[CommandPalette] 載入 {assetTypeDefinition.DisplayName} 完成，Assets: {assetsCount} 個，Packages: {packagesCount} 個，總計 {tempAssets.Count} 個，耗時 {stopwatch.ElapsedMilliseconds - phase2Start}ms");
+                Debug.Log(
+                    $"[CommandPalette] 載入 {assetTypeDefinition.DisplayName} 完成，Assets: {assetsCount} 個，Packages: {packagesCount} 個，總計 {tempAssets.Count} 個，耗時 {stopwatch.ElapsedMilliseconds - phase2Start}ms"
+                );
 
                 // 階段3：智慧排序（Assets 資料夾優先，然後按名稱）
                 var sortStart = stopwatch.ElapsedMilliseconds;
@@ -797,7 +882,9 @@ namespace CommandPalette
                     .OrderBy(p => p.path.StartsWith("Packages/") ? 1 : 0) // Assets 資料夾優先於 Packages
                     .ThenBy(p => p.name)
                     .ToList();
-                Debug.Log($"[CommandPalette] 排序完成，耗時 {stopwatch.ElapsedMilliseconds - sortStart}ms");
+                Debug.Log(
+                    $"[CommandPalette] 排序完成，耗時 {stopwatch.ElapsedMilliseconds - sortStart}ms"
+                );
 
                 // 更新快取
                 AssetCaches[currentMode] = tempAssets.ToDictionary(asset => asset.guid);
@@ -813,7 +900,9 @@ namespace CommandPalette
                 filteredAssets = new List<AssetEntry>(allAssets);
 
                 stopwatch.Stop();
-                Debug.Log($"[CommandPalette] {assetTypeDefinition.DisplayName} 資源掃描完成，總計 {tempAssets.Count} 個資源，總耗時 {stopwatch.ElapsedMilliseconds}ms (不包含縮圖載入)");
+                Debug.Log(
+                    $"[CommandPalette] {assetTypeDefinition.DisplayName} 資源掃描完成，總計 {tempAssets.Count} 個資源，總耗時 {stopwatch.ElapsedMilliseconds}ms (不包含縮圖載入)"
+                );
             }
             finally
             {
@@ -845,20 +934,28 @@ namespace CommandPalette
                 var menu = new GenericMenu();
                 var assetTypeDefinition = GetAssetTypeDefinition(currentMode);
 
-                menu.AddItem(new GUIContent($"重新整理 {assetTypeDefinition.DisplayName} 清單"), false, () =>
-                {
-                    RefreshAssetsInternal();
-                    Repaint();
-                });
+                menu.AddItem(
+                    new GUIContent($"重新整理 {assetTypeDefinition.DisplayName} 清單"),
+                    false,
+                    () =>
+                    {
+                        RefreshAssetsInternal();
+                        Repaint();
+                    }
+                );
 
-                menu.AddItem(new GUIContent("清除快取"), false, () =>
-                {
-                    CacheValidFlags[currentMode] = false;
-                    AssetCaches[currentMode].Clear();
-                    PendingChangesFlags[currentMode] = false;
-                    RefreshAssetsInternal();
-                    Repaint();
-                });
+                menu.AddItem(
+                    new GUIContent("清除快取"),
+                    false,
+                    () =>
+                    {
+                        CacheValidFlags[currentMode] = false;
+                        AssetCaches[currentMode].Clear();
+                        PendingChangesFlags[currentMode] = false;
+                        RefreshAssetsInternal();
+                        Repaint();
+                    }
+                );
 
                 menu.ShowAsContext();
                 Event.current.Use();
@@ -896,18 +993,26 @@ namespace CommandPalette
                 {
                     // 對於 Prefab，嘗試使用 PrefabStageUtility 進入 Prefab 模式 (Unity 2018.3+)
                     var sceneManagementAssembly = typeof(EditorSceneManager).Assembly;
-                    var prefabStageUtilityType =
-                        sceneManagementAssembly.GetType("UnityEditor.SceneManagement.PrefabStageUtility");
+                    var prefabStageUtilityType = sceneManagementAssembly.GetType(
+                        "UnityEditor.SceneManagement.PrefabStageUtility"
+                    );
 
                     if (prefabStageUtilityType != null)
                     {
-                        var openPrefabMethod = prefabStageUtilityType.GetMethod("OpenPrefab",
+                        var openPrefabMethod = prefabStageUtilityType.GetMethod(
+                            "OpenPrefab",
                             BindingFlags.Public | BindingFlags.Static,
-                            null, new[] { typeof(string) }, null);
+                            null,
+                            new[] { typeof(string) },
+                            null
+                        );
 
                         if (openPrefabMethod != null)
                         {
-                            var result = openPrefabMethod.Invoke(null, new object[] { assetEntry.path });
+                            var result = openPrefabMethod.Invoke(
+                                null,
+                                new object[] { assetEntry.path }
+                            );
                             if (result != null)
                             {
                                 Debug.Log($"已在 Prefab 模式中打開: {assetEntry.name}");
@@ -918,7 +1023,9 @@ namespace CommandPalette
                     }
 
                     // 如果 PrefabStageUtility 不可用，嘗試使用傳統方法
-                    Debug.LogWarning("PrefabStageUtility 不可用，使用 AssetDatabase.OpenAsset 作為回退方案");
+                    Debug.LogWarning(
+                        "PrefabStageUtility 不可用，使用 AssetDatabase.OpenAsset 作為回退方案"
+                    );
                 }
 
                 // 對於 ScriptableObject 或其他資源，直接使用 AssetDatabase.OpenAsset
@@ -965,11 +1072,17 @@ namespace CommandPalette
                 return 0;
 
             // 開頭匹配
-            if (assetNameLower.StartsWith(searchTermLower) || normalizedAssetName.StartsWith(normalizedSearchTerm))
+            if (
+                assetNameLower.StartsWith(searchTermLower)
+                || normalizedAssetName.StartsWith(normalizedSearchTerm)
+            )
                 return 2;
 
             // 包含匹配
-            if (assetNameLower.Contains(searchTermLower) || normalizedAssetName.Contains(normalizedSearchTerm))
+            if (
+                assetNameLower.Contains(searchTermLower)
+                || normalizedAssetName.Contains(normalizedSearchTerm)
+            )
                 return 4;
 
             // 模糊匹配（已通過 FuzzyMatch 驗證）
@@ -1037,7 +1150,8 @@ namespace CommandPalette
         public static void AddOrUpdateAssetInCache(string assetPath)
         {
             var guid = AssetDatabase.AssetPathToGUID(assetPath);
-            if (string.IsNullOrEmpty(guid)) return;
+            if (string.IsNullOrEmpty(guid))
+                return;
 
             // 找到對應的資源類型定義
             AssetTypeDefinition matchingType = null;
@@ -1050,37 +1164,68 @@ namespace CommandPalette
                 }
             }
 
-            if (matchingType == null) return;
+            if (matchingType == null)
+                return;
 
             // 載入資源
             var asset = AssetDatabase.LoadAssetAtPath(assetPath, matchingType.UnityType);
             if (asset != null)
             {
                 var entry = new AssetEntry(asset.name, assetPath, asset);
+
+                // 確保記憶體快取已載入，避免覆蓋現有快取
+                if (!CacheValidFlags[matchingType.Mode])
+                {
+                    Debug.Log(
+                        $"[CommandPalette] {matchingType.DisplayName} 記憶體快取未載入，先從檔案載入避免覆蓋"
+                    );
+                    var cacheFilePath = GetCacheFilePath(matchingType.Mode);
+                    var existingCache = SearchCommandPaletteCacheHelper.LoadCacheFromFile(
+                        cacheFilePath,
+                        matchingType.Mode
+                    );
+                    if (existingCache != null && existingCache.Count > 0)
+                    {
+                        AssetCaches[matchingType.Mode] = existingCache.ToDictionary(cacheEntry =>
+                            cacheEntry.guid
+                        );
+                        CacheValidFlags[matchingType.Mode] = true;
+                        Debug.Log(
+                            $"[CommandPalette] 已從檔案載入 {existingCache.Count} 個 {matchingType.DisplayName} 快取項目"
+                        );
+                    }
+                }
+
                 AssetCaches[matchingType.Mode][guid] = entry;
                 PendingChangesFlags[matchingType.Mode] = true;
-                
+
                 // 立即寫入檔案快取以防 domain reload 導致記憶體快取丟失
-                var writeStopwatch = System.Diagnostics.Stopwatch.StartNew();
+                var writeStopwatch = Stopwatch.StartNew();
                 try
                 {
                     var cacheFilePath = GetCacheFilePath(matchingType.Mode);
                     var cacheList = new List<AssetEntry>(AssetCaches[matchingType.Mode].Values);
                     SearchCommandPaletteCacheHelper.SaveCacheToFile(cacheList, cacheFilePath);
                     writeStopwatch.Stop();
-                    
-                    Debug.Log($"[CommandPalette] 已添加/更新 {matchingType.DisplayName} 快取: {assetPath} (寫入耗時: {writeStopwatch.ElapsedMilliseconds}ms)");
+
+                    Debug.Log(
+                        $"[CommandPalette] 已添加/更新 {matchingType.DisplayName} 快取: {assetPath} (總快取: {cacheList.Count} 項，寫入耗時: {writeStopwatch.ElapsedMilliseconds}ms)"
+                    );
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     writeStopwatch.Stop();
-                    Debug.LogError($"[CommandPalette] 寫入 {matchingType.DisplayName} 檔案快取失敗: {ex.Message} (嘗試耗時: {writeStopwatch.ElapsedMilliseconds}ms)");
+                    Debug.LogError(
+                        $"[CommandPalette] 寫入 {matchingType.DisplayName} 檔案快取失敗: {ex.Message} (嘗試耗時: {writeStopwatch.ElapsedMilliseconds}ms)"
+                    );
                 }
 
                 // 只有在視窗開啟且當前模式匹配時才立即更新UI
                 if (instance != null && instance.currentMode == matchingType.Mode)
                 {
-                    instance.allAssets = new List<AssetEntry>(AssetCaches[matchingType.Mode].Values);
+                    instance.allAssets = new List<AssetEntry>(
+                        AssetCaches[matchingType.Mode].Values
+                    );
                     instance.UpdateSearch();
                     instance.Repaint();
                 }
@@ -1094,48 +1239,87 @@ namespace CommandPalette
         public static void RemoveAssetFromCache(string assetPath)
         {
             var guid = AssetDatabase.AssetPathToGUID(assetPath);
-            if (string.IsNullOrEmpty(guid)) return;
+            if (string.IsNullOrEmpty(guid))
+                return;
 
             var removed = false;
 
             // 找到對應的資源類型定義
             foreach (var assetType in SupportedAssetTypes)
             {
-                if (assetPath.EndsWith(assetType.FileExtension) && AssetCaches[assetType.Mode].ContainsKey(guid))
+                if (assetPath.EndsWith(assetType.FileExtension))
                 {
-                    AssetCaches[assetType.Mode].Remove(guid);
-                    removed = true;
-                    PendingChangesFlags[assetType.Mode] = true;
-                    
-                    // 立即寫入檔案快取以防 domain reload 導致記憶體快取丟失
-                    var writeStopwatch = System.Diagnostics.Stopwatch.StartNew();
-                    try
+                    // 確保記憶體快取已載入，避免遺漏要移除的項目
+                    if (!CacheValidFlags[assetType.Mode])
                     {
+                        Debug.Log(
+                            $"[CommandPalette] {assetType.DisplayName} 記憶體快取未載入，先從檔案載入避免遺漏移除項目"
+                        );
                         var cacheFilePath = GetCacheFilePath(assetType.Mode);
-                        var cacheList = new List<AssetEntry>(AssetCaches[assetType.Mode].Values);
-                        SearchCommandPaletteCacheHelper.SaveCacheToFile(cacheList, cacheFilePath);
-                        writeStopwatch.Stop();
-                        
-                        Debug.Log($"[CommandPalette] 已從 {assetType.DisplayName} 快取移除: {assetPath} (寫入耗時: {writeStopwatch.ElapsedMilliseconds}ms)");
-                    }
-                    catch (System.Exception ex)
-                    {
-                        writeStopwatch.Stop();
-                        Debug.LogError($"[CommandPalette] 移除後寫入 {assetType.DisplayName} 檔案快取失敗: {ex.Message} (嘗試耗時: {writeStopwatch.ElapsedMilliseconds}ms)");
+                        var existingCache = SearchCommandPaletteCacheHelper.LoadCacheFromFile(
+                            cacheFilePath,
+                            assetType.Mode
+                        );
+                        if (existingCache != null && existingCache.Count > 0)
+                        {
+                            AssetCaches[assetType.Mode] = existingCache.ToDictionary(cacheEntry =>
+                                cacheEntry.guid
+                            );
+                            CacheValidFlags[assetType.Mode] = true;
+                            Debug.Log(
+                                $"[CommandPalette] 已從檔案載入 {existingCache.Count} 個 {assetType.DisplayName} 快取項目"
+                            );
+                        }
                     }
 
-                    // 只有在視窗開啟且當前模式匹配時才立即更新UI
-                    if (instance != null && instance.currentMode == assetType.Mode)
+                    if (AssetCaches[assetType.Mode].ContainsKey(guid))
                     {
-                        instance.allAssets = new List<AssetEntry>(AssetCaches[assetType.Mode].Values);
-                        instance.UpdateSearch();
-                        instance.Repaint();
+                        AssetCaches[assetType.Mode].Remove(guid);
+                        removed = true;
+                        PendingChangesFlags[assetType.Mode] = true;
+
+                        // 立即寫入檔案快取以防 domain reload 導致記憶體快取丟失
+                        var writeStopwatch = Stopwatch.StartNew();
+                        try
+                        {
+                            var cacheFilePath = GetCacheFilePath(assetType.Mode);
+                            var cacheList = new List<AssetEntry>(
+                                AssetCaches[assetType.Mode].Values
+                            );
+                            SearchCommandPaletteCacheHelper.SaveCacheToFile(
+                                cacheList,
+                                cacheFilePath
+                            );
+                            writeStopwatch.Stop();
+
+                            Debug.Log(
+                                $"[CommandPalette] 已從 {assetType.DisplayName} 快取移除: {assetPath} (總快取: {cacheList.Count} 項，寫入耗時: {writeStopwatch.ElapsedMilliseconds}ms)"
+                            );
+                        }
+                        catch (Exception ex)
+                        {
+                            writeStopwatch.Stop();
+                            Debug.LogError(
+                                $"[CommandPalette] 移除後寫入 {assetType.DisplayName} 檔案快取失敗: {ex.Message} (嘗試耗時: {writeStopwatch.ElapsedMilliseconds}ms)"
+                            );
+                        }
+
+                        // 只有在視窗開啟且當前模式匹配時才立即更新UI
+                        if (instance != null && instance.currentMode == assetType.Mode)
+                        {
+                            instance.allAssets = new List<AssetEntry>(
+                                AssetCaches[assetType.Mode].Values
+                            );
+                            instance.UpdateSearch();
+                            instance.Repaint();
+                        }
+                        break;
                     }
-                    break;
                 }
             }
 
-            if (!removed) Debug.Log($"[CommandPalette] 嘗試移除資源但未在快取中找到: {assetPath}");
+            if (!removed)
+                Debug.Log($"[CommandPalette] 嘗試移除資源但未在快取中找到: {assetPath}");
         }
 
         private static void InvalidateAllCaches()

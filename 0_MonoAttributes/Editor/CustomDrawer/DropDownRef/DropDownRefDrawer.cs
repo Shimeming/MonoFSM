@@ -1,16 +1,17 @@
 #if UNITY_EDITOR
-using Sirenix.OdinInspector.Editor;
-using Sirenix.Utilities.Editor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using MonoFSM.Core;
 using Sirenix.OdinInspector;
+using Sirenix.OdinInspector.Editor;
 using Sirenix.OdinInspector.Editor.ValueResolvers;
 using Sirenix.Utilities;
+using Sirenix.Utilities.Editor;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 [UsedImplicitly]
 [DrawerPriority(0.0, 2.0, 0.25)]
@@ -124,16 +125,16 @@ public class DropDownRefAttributeDrawer : OdinAttributeDrawer<DropDownRefAttribu
         if (this.label != null)
             width += GUIHelper.BetterLabelWidth;
         GUIContent btnLabel = GUIHelper.TempContent("");
-        if (this.Property.Info.TypeOfValue == typeof(System.Type))
+        if (Property.Info.TypeOfValue == typeof(Type))
             btnLabel.image = (Texture)
                 GUIHelper.GetAssetThumbnail(
-                    (UnityEngine.Object)null,
-                    this.Property.ValueEntry.WeakSmartValue as System.Type,
+                    null,
+                    Property.ValueEntry.WeakSmartValue as Type,
                     false
                 );
         var OnlyChangeValueOnConfirm = true;
         // objects = OdinSelector<object>.DrawSelectorDropdown(this.label, btnLabel, new Func<Rect, OdinSelector<object>>(this.ShowSelector), !this.OnlyChangeValueOnConfirm, GUIStyle.none, (GUILayoutOption[]) GUILayoutOptions.Width(width));
-        if (Event.current.type == UnityEngine.EventType.Repaint)
+        if (Event.current.type == EventType.Repaint)
         {
             Rect position = GUILayoutUtility.GetLastRect().AlignRight(15f);
             position.y += 4f;
@@ -181,15 +182,15 @@ public class DropDownRefAttributeDrawer : OdinAttributeDrawer<DropDownRefAttribu
         labelRect.width /= 2;
         //Double Click叫事件
         //ping?
-        var target = Property.ValueEntry.WeakSmartValue as UnityEngine.Object;
-
-        if (target != null && labelRect.Contains(Event.current.mousePosition))
-        {
-            if (Event.current.clickCount == 1)
-                EditorGUIUtility.PingObject(target);
-            if (Event.current.clickCount == 3)
-                Selection.activeObject = target;
-        }
+        // var target = Property.ValueEntry.WeakSmartValue as UnityEngine.Object;
+        //
+        // if (target != null && labelRect.Contains(Event.current.mousePosition))
+        // {
+        //     if (Event.current.clickCount == 1)
+        //         EditorGUIUtility.PingObject(target);
+        //     if (Event.current.clickCount == 3)
+        //         Selection.activeObject = target;
+        // }
 
         // if (_isInlineEditor)
         //     CallNextDrawer(label);
@@ -197,11 +198,11 @@ public class DropDownRefAttributeDrawer : OdinAttributeDrawer<DropDownRefAttribu
         // {
         GUI.backgroundColor =
             Property.ValueEntry.WeakSmartValue == null
-                ? new Color(0.2f, 0.2f, 0.3f, 0.1f)
+                ? new Color(0.9f, 0.2f, 0.3f, 0.5f)
                 : new Color(0.35f, 0.3f, 0.1f, 0.2f);
 
         var newObj = SirenixEditorFields.UnityObjectField(
-            Property.ValueEntry.WeakSmartValue as UnityEngine.Object,
+            Property.ValueEntry.WeakSmartValue as Object,
             Property.ValueEntry.TypeOfValue,
             true
         ); //GUILayout.Width(EditorGUIUtility.currentViewWidth) 這個會太肥噴掉

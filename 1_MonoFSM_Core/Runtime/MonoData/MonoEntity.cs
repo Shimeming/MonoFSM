@@ -21,7 +21,7 @@ using UnityEngine;
 
 namespace MonoFSM.Runtime
 {
-    public interface IMonoAddToBinderChecker   //network想要看authority來決定要不要加到字典裡...這個性質是什麼
+    public interface IMonoAddToBinderChecker //network想要看authority來決定要不要加到字典裡...這個性質是什麼
     {
         bool IsAddValid();
     }
@@ -30,14 +30,20 @@ namespace MonoFSM.Runtime
     [RequireComponent(typeof(MonoObj))]
     [Searchable]
     [FormerlyNamedAs("MonoDescriptable")]
-    public class MonoEntity : AbstractMonoDescriptable<GameData>, IInstantiated,
-        IBeforePrefabSaveCallbackReceiver, IGameDataProvider, IValueProvider, IAnimatorProvider //這樣data也要一直繼承，好ㄇ...
+    public class MonoEntity
+        : AbstractMonoDescriptable<GameData>,
+            IInstantiated,
+            IBeforePrefabSaveCallbackReceiver,
+            IGameDataProvider,
+            IValueProvider,
+            IAnimatorProvider //這樣data也要一直繼承，好ㄇ...
     {
         // [CompRef] [Auto] [SerializeField] private AbstractEntitySchema _entitySchema;
         // public AbstractEntitySchema EntitySchema => _entitySchema; //不唯一？defaultSchema?
 
         [PreviewInInspector]
-        [AutoChildren(DepthOneOnly = true)] private SchemaFolder _schemaFolder;
+        [AutoChildren(DepthOneOnly = true)]
+        private SchemaFolder _schemaFolder;
 
         // set => _entitySchema = value;
         //Utility? 開始要拿一些Rigidbody、Collider之類的東西了
@@ -57,9 +63,11 @@ namespace MonoFSM.Runtime
                 Debug.Log("Registering MonoEntity to WorldBinder: " + name, this);
                 _worldBinder.Add(DefaultTag, this); //註冊法
             }
-
             else
-                Debug.LogError("MonoDescriptableBinder not found in parent, cannot register to world binder", this);
+                Debug.LogError(
+                    "MonoDescriptableBinder not found in parent, cannot register to world binder",
+                    this
+                );
             // GetComponent<MonoDescriptableBinder>().Add(DescriptableTag, this);
         }
 
@@ -75,7 +83,8 @@ namespace MonoFSM.Runtime
 
         public T1 Get<T1>()
         {
-            if (this is T1 t1) return t1;
+            if (this is T1 t1)
+                return t1;
 
             Debug.LogError($"Cannot cast {GetType()} to {typeof(T1)}", this);
             return default;
@@ -87,7 +96,8 @@ namespace MonoFSM.Runtime
 
         public Animator[] ChildAnimators => GetComponentsInChildren<Animator>();
 
-        public TSchema GetSchema<TSchema>() where TSchema : AbstractEntitySchema
+        public TSchema GetSchema<TSchema>()
+            where TSchema : AbstractEntitySchema
         {
             if (_schemaFolder != null)
             {
@@ -107,44 +117,53 @@ namespace MonoFSM.Runtime
     //應該要可以繼承這個嗎？Inventory
     //不該有variable嗎？
     //FIXME: 這層多餘嗎？
-    public class AbstractMonoDescriptable<TMonoDescriptable> : MonoBlackboard, IMonoDescriptable, ISceneAwake
+    public class AbstractMonoDescriptable<TMonoDescriptable>
+        : MonoBlackboard,
+            IMonoDescriptable,
+            ISceneAwake
         where TMonoDescriptable : GameData //,IVariableOwner //VariableOwner?
     {
-
-
         //FIXME: 更複雜的描述組合？
         [UsedImplicitly] //從UI直接選
         public virtual string RuntimeDescription =>
             string.IsNullOrEmpty(Data.Description) ? Data.name : Data.Description;
 
-// #if UNITY_EDITOR
-//         [RequiredIn(PrefabKind.InstanceInScene)] [PreviewInInspector] [AutoParent]
-//         private MonoDescriptableBinder _binder;
-// #endif
+        // #if UNITY_EDITOR
+        //         [RequiredIn(PrefabKind.InstanceInScene)] [PreviewInInspector] [AutoParent]
+        //         private MonoDescriptableBinder _binder;
+        // #endif
 
         //GameLogic不該Nested?
         //FIXME: 太深了...會包到過多的東西
-        [PreviewInInspector] [AutoChildren] private GeneralEffectDealer[] _dealers; //可以互動的性質門
+        [PreviewInInspector]
+        [AutoChildren]
+        private GeneralEffectDealer[] _dealers; //可以互動的性質門
+
         // private HashSet<GeneralEffectType> _dealerTypeSet = new HashSet<GeneralEffectType>(); //可以被互動的性質
 
         private readonly Dictionary<GeneralEffectType, GeneralEffectDealer> _dealerTypeMap = new(); //keys?
-
 #if UNITY_EDITOR
 
-        [PreviewInInspector] private List<GeneralEffectType> DealerTypes => _dealerTypeMap.Keys.ToList();
-        [PreviewInInspector] private List<GeneralEffectType> ReceiverTypes => _receiverTypeMap.Keys.ToList();
+        [PreviewInInspector]
+        private List<GeneralEffectType> DealerTypes => _dealerTypeMap.Keys.ToList();
 
+        [PreviewInInspector]
+        private List<GeneralEffectType> ReceiverTypes => _receiverTypeMap.Keys.ToList();
 #endif
 
-        [PreviewInInspector] private int DealerSetCount => _dealerTypeMap.Count;
+        [PreviewInInspector]
+        private int DealerSetCount => _dealerTypeMap.Count;
 
-        [PreviewInInspector] [AutoChildren] private GeneralEffectReceiver[] _receivers; //可以互動的性質門
+        [PreviewInInspector]
+        [AutoChildren]
+        private GeneralEffectReceiver[] _receivers; //可以互動的性質門
 
         // readonly HashSet<GeneralEffectType> _receiverTypeSet = new HashSet<GeneralEffectType>(); //可以被互動的性質
-        private readonly Dictionary<GeneralEffectType, GeneralEffectReceiver> _receiverTypeMap = new();
+        private readonly Dictionary<GeneralEffectType, GeneralEffectReceiver> _receiverTypeMap =
+            new();
 
-        [PreviewInInspector] private int ReceiverSetCount => _receiverTypeMap.Count;
-
+        [PreviewInInspector]
+        private int ReceiverSetCount => _receiverTypeMap.Count;
 
         //帶有xx性質的物件
         public bool HasReceiverType(GeneralEffectType effectType)
@@ -182,15 +201,15 @@ namespace MonoFSM.Runtime
         }
 
         // public DescriptableData SampleData;
-        //FIXME: 型別限制？
-        //FIXME: Generic?
-        //FIXME: 不一定需要data?
-        [SOConfig("10_Flags/GameData")] [SerializeField]
+        //FIXME: 不一定需要data? VarGameData比較對？這樣就往下直接找，code就從schema define? 還是其實 MonoEntity要和Schema合併
+        [SOConfig("10_Flags/GameData")]
+        [SerializeField]
         protected TMonoDescriptable data; //config
 
         public virtual IDescriptableData Descriptable => data;
 
-        public T GetData<T>() where T : GameData
+        public T GetData<T>()
+            where T : GameData
         {
             return data as T;
         }
@@ -241,12 +260,10 @@ namespace MonoFSM.Runtime
 
         public Dictionary<string, Func<IMonoDescriptable, object>> propertyCache = new();
 
-        public Func<IMonoDescriptable, object> GetPropertyCache(
-            string propertyName)
+        public Func<IMonoDescriptable, object> GetPropertyCache(string propertyName)
         {
             if (propertyCache.TryGetValue(propertyName, out var info))
                 return info;
-
 
             var propertyInfo = GetType()
                 .GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance);
@@ -264,13 +281,12 @@ namespace MonoFSM.Runtime
             var getMethod = propertyInfo.GetGetMethod();
             if (getMethod == null)
             {
-                Debug.LogError($"Property {propertyName} does not have a getter in {GetType()}"
-                );
+                Debug.LogError($"Property {propertyName} does not have a getter in {GetType()}");
                 return null;
             }
 
-            Func<IMonoDescriptable, object>
-                _getMyProperty = (source) => getMethod.Invoke(source, null);
+            Func<IMonoDescriptable, object> _getMyProperty = (source) =>
+                getMethod.Invoke(source, null);
             propertyCache[propertyName] = _getMyProperty;
             return _getMyProperty;
         }
@@ -296,7 +312,6 @@ namespace MonoFSM.Runtime
                     }
                 }
 
-
             foreach (var dealer in _dealers)
                 if (_dealerTypeMap.TryAdd(dealer._effectType, dealer) == false)
                     Debug.LogWarning($"Dealer {dealer._effectType} already exists", dealer);
@@ -316,7 +331,9 @@ namespace MonoFSM.Runtime
         {
             var tagDropdownItems = new List<ValueDropdownItem<VariableTag>>();
             foreach (var variable in VariableFolder.GetValues)
-                tagDropdownItems.Add(new ValueDropdownItem<VariableTag>(variable.name, variable._varTag));
+                tagDropdownItems.Add(
+                    new ValueDropdownItem<VariableTag>(variable.name, variable._varTag)
+                );
             return tagDropdownItems;
         }
 
@@ -335,7 +352,8 @@ namespace MonoFSM.Runtime
             // 為所有 DescriptableTag 新增缺失的 variable tags
             foreach (var descriptableTag in DescriptableTags)
             {
-                if (descriptableTag == null) continue;
+                if (descriptableTag == null)
+                    continue;
 
                 foreach (var variable in variables)
                 {
@@ -346,7 +364,6 @@ namespace MonoFSM.Runtime
                 EditorUtility.SetDirty(descriptableTag);
 #endif
             }
-
         }
 
         //FIXME: 好像不需要了？要繼承 MonoEntity 才需要
@@ -378,7 +395,9 @@ namespace MonoFSM.Runtime
                 else
                 {
                     Debug.Log("all variables count:" + VariableFolder.GetValues.Count);
-                    VariableFolder.GetValues.ForEach(v => Debug.Log(v._varTag.GetStringKey, v._varTag));
+                    VariableFolder.GetValues.ForEach(v =>
+                        Debug.Log(v._varTag.GetStringKey, v._varTag)
+                    );
                     Debug.LogError($"{fieldName} not found", this);
                 }
                 // var value = field.GetValue(this) as AbstractMonoVariable;

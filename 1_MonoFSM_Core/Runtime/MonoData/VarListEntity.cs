@@ -11,21 +11,22 @@ using Object = UnityEngine.Object;
 
 namespace MonoFSM.Core.Variable
 {
-    public class VarListEntity : VarList<MonoEntity> //這個變
-    {
-    }
+    public class VarListEntity
+        : VarList<MonoEntity> //這個變
+    { }
 
     public class VarList<T> : AbstractVarList, ISerializationCallbackReceiver, IResetStateRestore
     {
-
         public enum CollectionStorageType
         {
             List,
             Queue,
-            HashSet
+            HashSet,
         }
 
-        [SerializeField] [ShowInInspector] [Tooltip("Determines the underlying collection type used.")]
+        [SerializeField]
+        [ShowInInspector]
+        [Tooltip("Determines the underlying collection type used.")]
         private CollectionStorageType _storageType = CollectionStorageType.List;
 
         //FIXME: 好像也不需要這個？runtime用而已？ 不一定
@@ -38,11 +39,14 @@ namespace MonoFSM.Core.Variable
 
         public int _currentIndex = -1; //FIXME: save? var int?
         public int _defaultIndex;
+
         public override void SetIndex(int index)
         {
             if (index < 0 || index >= Count)
             {
-                Debug.LogError($"Index {index} is out of bounds for the collection of size {Count}.");
+                Debug.LogError(
+                    $"Index {index} is out of bounds for the collection of size {Count}."
+                );
                 return;
             }
             _currentIndex = index;
@@ -52,9 +56,12 @@ namespace MonoFSM.Core.Variable
         public T GetFirstOrDefault()
         {
             EnsureActiveCollectionInitialized();
-            if (_activeCollection is List<T> list && list.Count > 0) return list[0];
-            if (_activeCollection is Queue<T> queue && queue.Count > 0) return queue.Peek();
-            if (_activeCollection is HashSet<T> set && set.Count > 0) return set.FirstOrDefault();
+            if (_activeCollection is List<T> list && list.Count > 0)
+                return list[0];
+            if (_activeCollection is Queue<T> queue && queue.Count > 0)
+                return queue.Peek();
+            if (_activeCollection is HashSet<T> set && set.Count > 0)
+                return set.FirstOrDefault();
             return default;
         }
 
@@ -84,8 +91,11 @@ namespace MonoFSM.Core.Variable
             get
             {
                 EnsureActiveCollectionInitialized();
-                if (_activeCollection is IEnumerable<T> enumerable) return enumerable;
-                throw new InvalidOperationException("Active collection is not initialized or of an unknown type.");
+                if (_activeCollection is IEnumerable<T> enumerable)
+                    return enumerable;
+                throw new InvalidOperationException(
+                    "Active collection is not initialized or of an unknown type."
+                );
             }
         }
 
@@ -94,8 +104,11 @@ namespace MonoFSM.Core.Variable
             get
             {
                 EnsureActiveCollectionInitialized();
-                if (_activeCollection is IReadOnlyCollection<T> collection) return collection;
-                throw new InvalidOperationException("Active collection is not initialized or of an unknown type.");
+                if (_activeCollection is IReadOnlyCollection<T> collection)
+                    return collection;
+                throw new InvalidOperationException(
+                    "Active collection is not initialized or of an unknown type."
+                );
             }
         }
 
@@ -114,38 +127,51 @@ namespace MonoFSM.Core.Variable
         public List<T> GetList()
         {
             EnsureActiveCollectionInitialized();
-            if (_activeCollection is List<T> list) return list;
-            if (_activeCollection is Queue<T> queue) return queue.ToList();
-            if (_activeCollection is HashSet<T> set) return set.ToList();
-            throw new InvalidOperationException("Active collection is not initialized or of an unknown type.");
+            if (_activeCollection is List<T> list)
+                return list;
+            if (_activeCollection is Queue<T> queue)
+                return queue.ToList();
+            if (_activeCollection is HashSet<T> set)
+                return set.ToList();
+            throw new InvalidOperationException(
+                "Active collection is not initialized or of an unknown type."
+            );
         }
 
         public HashSet<T> GetHashSet()
         {
             EnsureActiveCollectionInitialized();
-            if (_activeCollection is HashSet<T> hashSet) return hashSet;
-            throw new InvalidOperationException("Active collection is not initialized or of an unknown type.");
+            if (_activeCollection is HashSet<T> hashSet)
+                return hashSet;
+            throw new InvalidOperationException(
+                "Active collection is not initialized or of an unknown type."
+            );
         }
 
         public Queue<T> GetQueue()
         {
             EnsureActiveCollectionInitialized();
-            if (_activeCollection is Queue<T> queue) return queue;
-            throw new InvalidOperationException("Active collection is not initialized or of an unknown type.");
+            if (_activeCollection is Queue<T> queue)
+                return queue;
+            throw new InvalidOperationException(
+                "Active collection is not initialized or of an unknown type."
+            );
         }
-
 
         private void EnsureActiveCollectionInitialized()
         {
-            if (_activeCollection != null &&
-                GetCollectionTypeFromInstance(_activeCollection) ==
-                _storageType) return; // Already initialized with the correct type
+            if (
+                _activeCollection != null
+                && GetCollectionTypeFromInstance(_activeCollection) == _storageType
+            )
+                return; // Already initialized with the correct type
 
             switch (_storageType)
             {
                 case CollectionStorageType.List:
                     var list = new List<T>();
-                    if (_backingListForSerialization != null) list.AddRange(_backingListForSerialization);
+                    if (_backingListForSerialization != null)
+                        list.AddRange(_backingListForSerialization);
                     _activeCollection = list;
                     break;
                 case CollectionStorageType.Queue:
@@ -164,7 +190,8 @@ namespace MonoFSM.Core.Variable
                     break;
                 default: // Fallback to List<T>
                     var defaultList = new List<T>();
-                    if (_backingListForSerialization != null) defaultList.AddRange(_backingListForSerialization);
+                    if (_backingListForSerialization != null)
+                        defaultList.AddRange(_backingListForSerialization);
                     _activeCollection = defaultList;
                     break;
             }
@@ -172,9 +199,12 @@ namespace MonoFSM.Core.Variable
 
         private CollectionStorageType GetCollectionTypeFromInstance(object collection)
         {
-            if (collection is List<T>) return CollectionStorageType.List;
-            if (collection is Queue<T>) return CollectionStorageType.Queue;
-            if (collection is HashSet<T>) return CollectionStorageType.HashSet;
+            if (collection is List<T>)
+                return CollectionStorageType.List;
+            if (collection is Queue<T>)
+                return CollectionStorageType.Queue;
+            if (collection is HashSet<T>)
+                return CollectionStorageType.HashSet;
             // This should not happen if EnsureActiveCollectionInitialized is working correctly
             throw new InvalidOperationException("Unknown collection type in _activeCollection.");
         }
@@ -183,10 +213,14 @@ namespace MonoFSM.Core.Variable
         {
             switch (type)
             {
-                case CollectionStorageType.List: return typeof(List<T>);
-                case CollectionStorageType.Queue: return typeof(Queue<T>);
-                case CollectionStorageType.HashSet: return typeof(HashSet<T>);
-                default: return typeof(List<T>);
+                case CollectionStorageType.List:
+                    return typeof(List<T>);
+                case CollectionStorageType.Queue:
+                    return typeof(Queue<T>);
+                case CollectionStorageType.HashSet:
+                    return typeof(HashSet<T>);
+                default:
+                    return typeof(List<T>);
             }
         }
 
@@ -201,7 +235,7 @@ namespace MonoFSM.Core.Variable
 
         //FIXME: 這裡有給ValueType耶
         //給list? queue的話我Provider根本吃不到？ realtime type還會變...乾
-        public override void ResetToDefaultValue()
+        public override void ResetStateRestore()
         {
             EnsureActiveCollectionInitialized();
 
@@ -235,8 +269,7 @@ namespace MonoFSM.Core.Variable
                 OnValueChanged();
         }
 
-        public override Type ValueType =>
-            typeof(List<T>); //_activeCollection?.GetType() ?? DetermineRuntimeTypeFromStorage(_storageType);
+        public override Type ValueType => typeof(List<T>); //_activeCollection?.GetType() ?? DetermineRuntimeTypeFromStorage(_storageType);
         public override object objectValue => _activeCollection;
 
         public override Object CurrentRawObject => CurrentListItem as Object;
@@ -252,7 +285,9 @@ namespace MonoFSM.Core.Variable
             if (item is T typedItem)
                 Add(typedItem);
             else
-                throw new InvalidCastException($"Cannot add item of type {item.GetType()} to VarList<{typeof(T)}>");
+                throw new InvalidCastException(
+                    $"Cannot add item of type {item.GetType()} to VarList<{typeof(T)}>"
+                );
         }
 
         public override void Remove(object item)
@@ -261,7 +296,8 @@ namespace MonoFSM.Core.Variable
                 Remove(typedItem);
             else
                 throw new InvalidCastException(
-                    $"Cannot remove item of type {item.GetType()} from VarList<{typeof(T)}>");
+                    $"Cannot remove item of type {item.GetType()} from VarList<{typeof(T)}>"
+                );
         }
 
         // public List<T> _list = new(); // This is replaced by _activeCollection and serialization logic
@@ -269,33 +305,50 @@ namespace MonoFSM.Core.Variable
         public void Add(T item)
         {
             EnsureActiveCollectionInitialized();
-            if (_activeCollection is List<T> list) list.Add(item);
-            else if (_activeCollection is Queue<T> queue) queue.Enqueue(item);
-            else if (_activeCollection is HashSet<T> set) set.Add(item);
-            else throw new InvalidOperationException("Collection not properly initialized or unknown type.");
+            if (_activeCollection is List<T> list)
+                list.Add(item);
+            else if (_activeCollection is Queue<T> queue)
+                queue.Enqueue(item);
+            else if (_activeCollection is HashSet<T> set)
+                set.Add(item);
+            else
+                throw new InvalidOperationException(
+                    "Collection not properly initialized or unknown type."
+                );
             OnValueChanged();
         }
 
         public void Remove(T item)
         {
             EnsureActiveCollectionInitialized();
-            if (_activeCollection is List<T> list) list.Remove(item);
-            else if (_activeCollection is HashSet<T> set) set.Remove(item);
+            if (_activeCollection is List<T> list)
+                list.Remove(item);
+            else if (_activeCollection is HashSet<T> set)
+                set.Remove(item);
             else if (_activeCollection is Queue<T>)
                 throw new NotSupportedException(
-                    "Remove(T item) is not supported for Queue. Use Dequeue() to remove the item from the front, or manage items by clearing and re-adding if specific item removal is needed.");
-            else throw new InvalidOperationException("Collection not properly initialized or unknown type.");
+                    "Remove(T item) is not supported for Queue. Use Dequeue() to remove the item from the front, or manage items by clearing and re-adding if specific item removal is needed."
+                );
+            else
+                throw new InvalidOperationException(
+                    "Collection not properly initialized or unknown type."
+                );
             OnValueChanged();
         }
 
         public override void Clear()
         {
-
             EnsureActiveCollectionInitialized();
-            if (_activeCollection is List<T> list) list.Clear();
-            else if (_activeCollection is Queue<T> queue) queue.Clear();
-            else if (_activeCollection is HashSet<T> set) set.Clear();
-            else throw new InvalidOperationException("Collection not properly initialized or unknown type.");
+            if (_activeCollection is List<T> list)
+                list.Clear();
+            else if (_activeCollection is Queue<T> queue)
+                queue.Clear();
+            else if (_activeCollection is HashSet<T> set)
+                set.Clear();
+            else
+                throw new InvalidOperationException(
+                    "Collection not properly initialized or unknown type."
+                );
             OnValueChanged();
         }
 
@@ -307,9 +360,12 @@ namespace MonoFSM.Core.Variable
             get
             {
                 EnsureActiveCollectionInitialized();
-                if (_activeCollection is List<T> list) return list.Count;
-                if (_activeCollection is Queue<T> queue) return queue.Count;
-                if (_activeCollection is HashSet<T> set) return set.Count;
+                if (_activeCollection is List<T> list)
+                    return list.Count;
+                if (_activeCollection is Queue<T> queue)
+                    return queue.Count;
+                if (_activeCollection is HashSet<T> set)
+                    return set.Count;
                 return 0;
             }
         }
@@ -317,7 +373,8 @@ namespace MonoFSM.Core.Variable
         public IEnumerable<T> GetItems()
         {
             EnsureActiveCollectionInitialized();
-            if (_activeCollection is IEnumerable<T> enumerable) return enumerable;
+            if (_activeCollection is IEnumerable<T> enumerable)
+                return enumerable;
             return Enumerable.Empty<T>();
         }
 
@@ -333,23 +390,30 @@ namespace MonoFSM.Core.Variable
                 return item;
             }
 
-            throw new InvalidOperationException("Dequeue is only available if the collection type is Queue.");
-
+            throw new InvalidOperationException(
+                "Dequeue is only available if the collection type is Queue."
+            );
         }
 
         public T Peek()
         {
             EnsureActiveCollectionInitialized();
-            if (_activeCollection is Queue<T> queue) return queue.Peek();
-            throw new InvalidOperationException("Peek is only available if the collection type is Queue.");
+            if (_activeCollection is Queue<T> queue)
+                return queue.Peek();
+            throw new InvalidOperationException(
+                "Peek is only available if the collection type is Queue."
+            );
         }
 
         public bool Contains(T item)
         {
             EnsureActiveCollectionInitialized();
-            if (_activeCollection is List<T> list) return list.Contains(item);
-            if (_activeCollection is Queue<T> queue) return queue.Contains(item);
-            if (_activeCollection is HashSet<T> set) return set.Contains(item);
+            if (_activeCollection is List<T> list)
+                return list.Contains(item);
+            if (_activeCollection is Queue<T> queue)
+                return queue.Contains(item);
+            if (_activeCollection is HashSet<T> set)
+                return set.Contains(item);
             return false;
         }
 
@@ -383,34 +447,27 @@ namespace MonoFSM.Core.Variable
         // Since it's not, users of this class or an explicit Init() method would handle it.
         // OnAfterDeserialize helps with editor changes.
         // Methods also call EnsureActiveCollectionInitialized() as a safeguard.
-        public void ResetStateRestore()
-        {
-            ResetToDefaultValue();
-        }
     }
 
     //不想定義型別
     public abstract class AbstractVarList : AbstractMonoVariable
     {
         public override bool IsValueExist => Count > 0;
+
         // public override Type ValueType => typeof(List<T>);
         // public override object objectValue => _list;
         [ShowInPlayMode]
         public abstract Object CurrentRawObject { get; }
         public abstract void SetIndex(int index);
-        protected override void SetValueInternal<T1>(T1 value, Object byWho = null)
-        {
-        }
+
+        protected override void SetValueInternal<T1>(T1 value, Object byWho = null) { }
 
         public abstract int Count { get; }
 
-
         public abstract void Add(object item);
-
 
         public abstract void Remove(object item);
 
         public abstract void Clear();
     }
 }
-

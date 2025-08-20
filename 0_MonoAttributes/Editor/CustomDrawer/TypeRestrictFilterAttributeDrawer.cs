@@ -19,7 +19,7 @@ namespace MonoFSM.Core.Editor
     /// 支援任何 ScriptableObject 類型
     /// </summary>
     public class TypeRestrictFilterAttributeDrawer
-        : OdinAttributeDrawer<TypeRestrictFilterAttribute>
+        : OdinAttributeDrawer<TypeRestrictDropdownAttribute>
     {
         protected override bool CanDrawAttributeProperty(InspectorProperty property)
         {
@@ -88,12 +88,9 @@ namespace MonoFSM.Core.Editor
                 Property.ValueEntry.WeakSmartValue as Object,
                 Property.ValueEntry.TypeOfValue,
                 false
-            ); //GUILayout.Width(EditorGUIUtility.currentViewWidth) 這個會太肥噴掉
-            // if (newObj == _bindComp)
-            //     // Debug.Log("newObj == Property.ParentValues[0]");
-            //     Debug.LogError("newObj == Property.ParentValues[0], this should not happen, please check your code.");
-            // else
-            //     Property.ValueEntry.WeakSmartValue = newObj;
+            );
+
+            Property.ValueEntry.WeakSmartValue = newObj;
             GUI.backgroundColor = Color.white;
         }
 
@@ -139,12 +136,12 @@ namespace MonoFSM.Core.Editor
     /// </summary>
     public class TypeRestrictFilteredSelector : OdinSelector<ScriptableObject>
     {
-        private readonly TypeRestrictFilterAttribute _filterAttribute;
+        private readonly TypeRestrictDropdownAttribute _filterAttribute;
         private readonly Type _propertyType;
         private readonly Type _restrictInstanceType;
 
         public TypeRestrictFilteredSelector(
-            TypeRestrictFilterAttribute filterAttribute,
+            TypeRestrictDropdownAttribute filterAttribute,
             Type propertyType,
             Type restrictInstanceType = null
         )

@@ -37,7 +37,15 @@ namespace MonoFSM.Core.Detection
             // 找出離開的collider (在lastFrame但不在thisFrame)
             foreach (var col in _lastFrameColliders)
                 if (!_thisFrameColliders.Contains(col))
-                    QueueExitEvent(col.gameObject);
+                {
+                    if (col == null)
+                        Debug.LogError(
+                            "TriggerDetector: Found a null collider in lastFrameColliders, this may cause issues.",
+                            this
+                        );
+                    else
+                        QueueExitEvent(col.gameObject);
+                }
 
             // 更新lastFrame為thisFrame的資料
             _lastFrameColliders.Clear();

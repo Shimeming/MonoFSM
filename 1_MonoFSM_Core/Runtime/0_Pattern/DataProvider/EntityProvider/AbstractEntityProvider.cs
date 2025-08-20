@@ -19,16 +19,16 @@ namespace MonoFSM.Core.Runtime
     {
         public abstract string SuggestDeclarationName { get; }
 
-
         [FormerlySerializedAs("_monoEntityTag")]
         [HideIf(nameof(monoEntity))]
-        [TypeRestrictFilter(typeof(MonoEntityTag), true, "請選擇 MonoEntity 類型的 EntityTag")]
+        [TypeRestrictDropdown(typeof(MonoEntityTag), true, "請選擇 MonoEntity 類型的 EntityTag")]
         public MonoEntityTag _expectedEntityTag; //這個是用來在Editor上顯示的，實際上會從HitDataProvider拿到
 
+        [ShowInDebugMode]
+        public abstract MonoEntity monoEntity { get; }
 
-        [ShowInDebugMode] public abstract MonoEntity monoEntity { get; }
-
-        [PreviewInDebugMode] public MonoEntityTag entityTag => monoEntity?.DefaultTag ?? _expectedEntityTag;
+        [PreviewInDebugMode]
+        public MonoEntityTag entityTag => monoEntity?.DefaultTag ?? _expectedEntityTag;
 
         public T GetComponentOfOwner<T>() //好像有點白痴
         {

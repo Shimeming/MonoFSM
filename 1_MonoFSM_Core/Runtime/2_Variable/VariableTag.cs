@@ -42,7 +42,7 @@ namespace MonoFSM.Variable
 
         // [ShowDrawerChain]
         [SOConfig("VarMonoTypeTags")]
-        [TypeRestrictFilter(typeof(VarMonoTypeTag))]
+        [TypeRestrictDropdown(typeof(VarMonoTypeTag))]
         // [FormerlySerializedAs("_variableTypeData")]
         public VarMonoTypeTag _variableTypeTag;
 

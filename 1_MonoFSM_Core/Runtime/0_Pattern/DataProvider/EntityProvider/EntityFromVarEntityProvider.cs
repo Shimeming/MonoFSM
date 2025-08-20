@@ -1,3 +1,4 @@
+using MonoFSM.Core.Attributes;
 using MonoFSM.Runtime;
 using MonoFSM.Runtime.Variable;
 using Sirenix.OdinInspector;
@@ -8,10 +9,15 @@ namespace MonoFSM.Core.Runtime
     public class EntityFromVarEntityProvider : AbstractEntityProvider
     {
         public override string SuggestDeclarationName => _varEntity._varTag?.name;
+
+        [ShowInPlayMode]
         public override MonoEntity monoEntity => _varEntity?.Value;
 
         [PropertyOrder(-1)]
-        [DropDownRef] public VarEntity _varEntity;
+        [DropDownRef]
+        public VarEntity _varEntity;
+
+        //ExpectedEntityTag可以去和VarEntity直接拿才對
         //ValueProvider放Children?
     }
 }

@@ -6,11 +6,13 @@ namespace _1_MonoFSM_Core.Runtime.Action.VariableAction
 {
     public class SetVarToDefaultAction : AbstractStateAction
     {
-        [Required] [DropDownRef] public AbstractMonoVariable _targetVariable;
+        [Required]
+        [DropDownRef]
+        public AbstractMonoVariable _targetVariable;
 
         protected override void OnActionExecuteImplement()
         {
-            _targetVariable.ResetToDefaultValue();
+            _targetVariable.ResetStateRestore();
         }
     }
 }

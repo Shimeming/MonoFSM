@@ -247,10 +247,10 @@ namespace MonoFSM.Core.Simulate
         {
             if (Debug.isDebugBuild)
             {
-                Debug.Log(
-                    $"WorldUpdateSimulator Simulate called with deltaTime: {deltaTime}, TimeScale: {TimeScale}",
-                    this
-                );
+                // Debug.Log(
+                //     $"WorldUpdateSimulator Simulate called with deltaTime: {deltaTime}, TimeScale: {TimeScale}",
+                //     this
+                // );
                 if (Keyboard.current.digit0Key.IsPressed() || Mouse.current.middleButton.isPressed)
                     TimeScale = 5f;
                 else

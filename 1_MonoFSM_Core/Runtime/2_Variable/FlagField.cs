@@ -14,59 +14,47 @@ using Object = UnityEngine.Object;
 [Serializable]
 public class FlagFieldString : FlagField<string>
 {
-    protected override bool IsCurrentValueEquals(string value)
-        => _currentValue == value;
+    protected override bool IsCurrentValueEquals(string value) => _currentValue == value;
 }
 
 [Serializable]
-public class FlagFieldEnum<T> : FlagField<T> where T : struct, IConvertible, IComparable
+public class FlagFieldEnum<T> : FlagField<T>
+    where T : struct, IConvertible, IComparable
 {
-    protected override bool IsCurrentValueEquals(T value)
-        => _currentValue.Equals(value);
+    protected override bool IsCurrentValueEquals(T value) => _currentValue.Equals(value);
 }
 
 [Serializable]
 public class FlagFieldInt : FlagField<int>
 {
-    protected override bool IsCurrentValueEquals(int value)
-        => _currentValue == value;
+    protected override bool IsCurrentValueEquals(int value) => _currentValue == value;
 }
 
 [Serializable]
 public class FlagFieldLong : FlagField<long>
 {
-    protected override bool IsCurrentValueEquals(long value)
-        => _currentValue == value;
+    protected override bool IsCurrentValueEquals(long value) => _currentValue == value;
 }
-
 
 [Serializable]
 public class FlagFieldFloat : FlagField<float>
 {
-    public static bool operator ==(FlagFieldFloat j, float k)
-        => j.CurrentValue == k;
+    public static bool operator ==(FlagFieldFloat j, float k) => j.CurrentValue == k;
 
-    public static bool operator !=(FlagFieldFloat j, float k)
-        => j.CurrentValue != k;
+    public static bool operator !=(FlagFieldFloat j, float k) => j.CurrentValue != k;
 
-    protected override bool IsCurrentValueEquals(float value)
-        => _currentValue == value;
+    protected override bool IsCurrentValueEquals(float value) => _currentValue == value;
 }
-
 
 [Serializable]
 public class FlagFieldVector2 : FlagField<Vector2>
 {
-    public static bool operator ==(FlagFieldVector2 j, Vector2 k)
-        => j.CurrentValue == k;
+    public static bool operator ==(FlagFieldVector2 j, Vector2 k) => j.CurrentValue == k;
 
-    public static bool operator !=(FlagFieldVector2 j, Vector2 k)
-        => j.CurrentValue != k;
+    public static bool operator !=(FlagFieldVector2 j, Vector2 k) => j.CurrentValue != k;
 
-    protected override bool IsCurrentValueEquals(Vector2 value)
-        => _currentValue == value;
+    protected override bool IsCurrentValueEquals(Vector2 value) => _currentValue == value;
 }
-
 
 [Serializable]
 public class ValueChangedListener<T>
@@ -82,14 +70,15 @@ public class ValueChangedListener<T>
     private Dictionary<int, Tuple<Object, UnityAction<T>>> onChangeActionDict;
 
     [PreviewInInspector]
-    private List<Object> ownersInDict
-        => onChangeActionDict?.Values.Select(x => x.Item1).ToList();
+    private List<Object> ownersInDict => onChangeActionDict?.Values.Select(x => x.Item1).ToList();
 
-    [PreviewInInspector] private List<int> tempKeys = new();
+    [PreviewInInspector]
+    private List<int> tempKeys = new();
 
     public void OnChange(T value, bool clearAll)
     {
-        if (onChangeActionDict == null) return;
+        if (onChangeActionDict == null)
+            return;
 
         CleanNullListener();
 
@@ -97,7 +86,8 @@ public class ValueChangedListener<T>
         tempKeys.Clear();
 
         var iterator = onChangeActionDict.GFIterator();
-        while (iterator.MoveNext()) tempKeys.Add(iterator.Current.Key);
+        while (iterator.MoveNext())
+            tempKeys.Add(iterator.Current.Key);
 
         foreach (var key in tempKeys) //這個keys怎麼可能變動？在別的地方add listener?
             if (onChangeActionDict.TryGetValue(key, out var value1))
@@ -156,7 +146,6 @@ public class ValueChangedListener<T>
             }
         }
 
-
         for (var i = 0; i < toRemove.Count; i++)
             //Debug.Log("Remove" + toRemove[i]);
             onChangeActionDict.Remove(toRemove[i]);
@@ -170,11 +159,13 @@ public class ValueChangedListener<T>
     // }
     public bool RemoveListenerDict(UnityAction<T> action, Object target)
     {
-        if (onChangeActionDict == null) return true;
+        if (onChangeActionDict == null)
+            return true;
 
         // var key = action.GetHashCode();
         var key = Tuple.Create(target, action).GetHashCode();
-        if (!onChangeActionDict.ContainsKey(key)) return false;
+        if (!onChangeActionDict.ContainsKey(key))
+            return false;
 
         onChangeActionDict.Remove(key);
         return true;
@@ -186,7 +177,9 @@ public class FlagFieldModifier<T>
 {
     public T OverrideValue; //FIXME: 這個是用來override的值嗎？ 啥？
     public IStatModifierOwner source;
-    [PreviewInInspector] public Object sourceObj => source as Object;
+
+    [PreviewInInspector]
+    public Object sourceObj => source as Object;
 }
 
 [Serializable]
@@ -197,7 +190,6 @@ public class FlagFieldBool : FlagField<bool>
     public bool Value
     {
         get => CurrentValue;
-
         set => SetCurrentValue(value);
     }
 
@@ -209,9 +201,8 @@ public class FlagFieldBool : FlagField<bool>
     //     return Equals((FlagFieldBool)obj);
     // }
 
-    public FlagFieldBool() : base()
-    {
-    }
+    public FlagFieldBool()
+        : base() { }
 
     public FlagFieldBool(bool defaultValue)
     {
@@ -243,11 +234,10 @@ public interface IVariableField
 }
 
 [Serializable]
-public class
-    FlagField<T> : FlagFieldBase,
-    IVariableField // where T : IComparable, IComparable<bool>, IConvertible, IEquatable<bool>
+public class FlagField<T> : FlagFieldBase, IVariableField // where T : IComparable, IComparable<bool>, IConvertible, IEquatable<bool>
 {
-    [ShowInInspector] [ReadOnly]
+    [ShowInInspector]
+    [ReadOnly]
     // private FlagFieldModifier<T> _modifier;
     private List<FlagFieldModifier<T>> _modifiers = new(); //FIXME: 這啥？
 
@@ -260,6 +250,7 @@ public class
     {
         ProductionValue = defaultValue;
     }
+
     // [Header("Game Setting")]
     // [JsonIgnore]
     // [SerializeField]
@@ -276,11 +267,13 @@ public class
 
 
     [GUIColor(0.3f, 0.7f, 0.7f, 1f)]
-    [FormerlySerializedAs("DefaultValue")] public T ProductionValue;
+    [FormerlySerializedAs("DefaultValue")]
+    public T ProductionValue;
 
     // public T PlayTestValue;
     // [HideInInspector]
-    [FormerlySerializedAs("TestValue")] [ShowInDebugMode]
+    [FormerlySerializedAs("TestValue")]
+    [ShowInDebugMode]
     // [JsonIgnore]
     public T DevValue; //DebugValue?
 
@@ -316,7 +309,8 @@ public class
     // private T OverrideValue => modifiers.Count > 0 ? modifiers[0].OverrideValue : default;
 
 
-    [PreviewInInspector] protected T _currentValue; //真正拿來存的值
+    [PreviewInInspector]
+    protected T _currentValue; //真正拿來存的值
 
     [PropertyOrder(-1)]
     [GUIColor(0, 1, 0.5f, 1)]
@@ -341,11 +335,12 @@ public class
         //   Debug.Log("FlagField Set CurrentValue" + value);
     }
 
-
     public T SaveValue => _currentValue;
 
     protected T _lastValue;
-    [ShowInPlayMode] public T LastValue => _lastValue;
+
+    [ShowInPlayMode]
+    public T LastValue => _lastValue;
 
     public void RevertToLastValue() //FIXME: 什麼時候需要revert?
     {
@@ -354,17 +349,21 @@ public class
 
     public (T lastValue, T currentValue) CommitValue() //state update之後，要commit
     {
-        if (owner is MonoBehaviour mono)
-            mono.Log("FlagField CommitValue: ", CurrentValue);
+        // if (owner is MonoBehaviour mono)
+        //     mono.Log("FlagField CommitValue: ", CurrentValue);
+
         // owner.Log("FlagField CommitValue: ", CurrentValue);
         var old = _lastValue;
         _lastValue = CurrentValue;
         return (old, _lastValue);
     }
 
-    [ShowInDebugMode] private ValueChangedListener<T> listener; //好像可以把監聽對象丟出來看？
+    [ShowInDebugMode]
+    private ValueChangedListener<T> listener; //好像可以把監聽對象丟出來看？
+
     // [ShowInDebugMode] private ValueChangedListener<T> listenerOnce = new();
-    [ShowInDebugMode] private UnityAction _onChangeAction;
+    [ShowInDebugMode]
+    private UnityAction _onChangeAction;
 
     // public void AddListener<TTarget, TParam>(TTarget target, TParam param, UnityAction<TTarget, TParam, T> callback)
     //     where TTarget : Object
@@ -386,7 +385,8 @@ public class
 
     public void RemoveListener(UnityAction action, Object owner)
     {
-        if (_onChangeAction == null) return;
+        if (_onChangeAction == null)
+            return;
         _onChangeAction -= action;
     }
 
@@ -409,12 +409,15 @@ public class
             // owner = mono;
         }
 
-        if (listener == null) listener = new ValueChangedListener<T>();
+        if (listener == null)
+            listener = new ValueChangedListener<T>();
 
-        if (owner is Component comp) comp.Log("FlagField Add Listener", comp);
+        if (owner is Component comp)
+            comp.Log("FlagField Add Listener", comp);
 
         listener.AddListenerDict(action, owner);
     }
+
     // public void AddListener(UnityAction<T> action, ScriptableObject owner)
     // {
     //     if (owner == null)
@@ -458,7 +461,6 @@ public class
         //     Debug.Log("Remove Listener" + action.Method);
     }
 
-
     //[]: debug mode才顯示？ conditional inspector property
 
     // [ShowInPlayMode(DebugModeOnly = true)]
@@ -466,25 +468,26 @@ public class
     // [ShowIf("@DebugSetting.IsDebugMode")] [ShowInInspector]
 
     //會被清掉...
-    [ShowInDebugMode] public bool _isShowDebugLog = false;
+    [ShowInDebugMode]
+    public bool _isShowDebugLog = false;
 
     protected virtual bool IsCurrentValueEquals(T value)
     {
         return _currentValue.Equals(value);
     }
 
-
     private Object _lastByWho;
 
-    [ShowInDebugMode] public Object LastByWho => _lastByWho;
+    [ShowInDebugMode]
+    public Object LastByWho => _lastByWho;
 
     //NOTE: public是為了，propertyDrawer
     public void SetCurrentValue(T value, Object byWho = null) //FIXME: 可能會memory leak
     {
-// #if UNITY_EDITOR
-//         if (DebugSetting.IsDebugMode && _isShowDebugLog)
-//             Debug.Log("[FlagField] Before Set lastValue:" + _currentValue + "set with:" + value, owner);
-// #endif
+        // #if UNITY_EDITOR
+        //         if (DebugSetting.IsDebugMode && _isShowDebugLog)
+        //             Debug.Log("[FlagField] Before Set lastValue:" + _currentValue + "set with:" + value, owner);
+        // #endif
 
         Profiler.BeginSample("IsCurrentValueEquals");
         if (IsCurrentValueEquals(value))
@@ -505,6 +508,7 @@ public class
         //     Debug.Log("[FlagField] After CurrentValue" + value);
         OnChangeInvoke(value);
     }
+
     //need UI update...
     // public bool InvokeSetEventValueNotChanged
 
@@ -518,7 +522,7 @@ public class
     }
 
 #if UNITY_EDITOR
-    [InfoBox("Init後才可以使用，否則會報錯", InfoMessageType.Warning,nameof(NotInit))]
+    [InfoBox("Init後才可以使用，否則會報錯", InfoMessageType.Warning, nameof(NotInit))]
     [ShowInInspector]
     bool _isInit = false;
     bool NotInit => !_isInit && Application.isPlaying;
@@ -576,6 +580,7 @@ public class
     }
 
     private TestMode lastMode = TestMode.EditorDevelopment;
+
     //FIXME: local field...不會有一般的init途徑，怎麼辦？
 
 
@@ -586,17 +591,6 @@ public class
         if (owner == null)
             Debug.LogError("PLZ FIX ME, Assign Owner for function block!!" + owner, owner);
 
-
-
-        //[]: 有singleton就不用lastMode了吧
-        //FIXME: 這個整個都住解掉了？
-        // if (lastMode != TestMode.Undefined)
-        // {
-        //     // Debug.Log("FlagField: ResetToDefault" + lastMode);
-        //     Init(lastMode, owner);
-        //
-        //     // Debug.Log("FlagField: CurrentValue" + CurrentValue);
-        // }
         // else
         //FIXME: 要這樣用嗎？hmmm先不要？
         // _currentValue = RuntimeDebugSetting.IsDebugMode ? DevValue : ProductionValue;
@@ -604,8 +598,6 @@ public class
         // Debug.Log("FlagField Init: " + _currentValue + " Mode: " + DebugSetting.IsDebugMode, owner);
         //沒有register耶？
     }
-
-
 }
 
 // public class OnChangedCallAttribute : PropertyAttribute

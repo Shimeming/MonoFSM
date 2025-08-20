@@ -10,6 +10,7 @@ namespace MonoFSM.Runtime.Vote
         // [SerializeField]
         private readonly RuntimeConditionVote _vote = new();
         public RuntimeConditionVote Vote => _vote;
+
         // public override GameFlagBase FinalData { get; }
         // public override Type FinalDataType { get; }
         // public override void AddListener<T>(UnityAction<T> action)
@@ -18,10 +19,6 @@ namespace MonoFSM.Runtime.Vote
         //     throw new NotImplementedException("MonoVariableVote does not support AddListener with UnityAction<T>.");
         // }
 
-        public override void ResetToDefaultValue()
-        {
-            _vote.Reset();
-        }
 
         public override Type ValueType => typeof(bool);
         public override object objectValue => _vote.Result;
@@ -33,7 +30,13 @@ namespace MonoFSM.Runtime.Vote
 
         public override bool IsValueExist => true;
 
-        [PreviewInInspector] public bool Result => _vote.Result;
+        public override void ResetStateRestore()
+        {
+            _vote.Reset();
+        }
+
+        [PreviewInInspector]
+        public bool Result => _vote.Result;
         // public void Vote(bool vote, MonoBehaviour m)
         // {
         //     _vote.Vote(m, vote);

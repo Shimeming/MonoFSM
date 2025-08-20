@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using System.Reflection;
 using MonoFSM.Core.Attributes;
 using MonoFSM.CustomAttributes;
-// using MonoFSM.Runtime.Mono;
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
 using UnityEditor;
 using UnityEngine;
+// using MonoFSM.Runtime.Mono;
 using Object = UnityEngine.Object;
 
 namespace MonoFSM.Core
@@ -31,11 +31,12 @@ namespace MonoFSM.Core
         /// <summary>
         /// 產生統一格式的檔案名稱
         /// </summary>
-        private string GenerateFileName(Type configType)
+        private string GenerateFileName(string fileName)
         {
+            //FIXME: vartag的話應該用原本變數的名字, 但名字誰先誰後？
             var parentObject = Property.ParentValues[0];
             var propertyName = Property.Name;
-            var actualType = GetActualConfigType(configType);
+            // var actualType = GetActualConfigType(configType);
             // var typeOfValue = Property.ValueEntry.TypeOfValue; //這是用property type, 而不是實際想要的type
             var prefix = "d"; //scriptableObject 前綴
             //FIXME: 用interface做？
@@ -48,7 +49,7 @@ namespace MonoFSM.Core
             //     prefix = "E";
             // }
 
-            var postfix = actualType.Name;
+            var postfix = fileName;
 
             // if (parentObject is ScriptableObject sObj)
             // {
@@ -137,7 +138,8 @@ namespace MonoFSM.Core
         {
             var defaultConfigType = Property.ValueEntry.TypeOfValue;
             var actualConfigType = GetActualConfigType(defaultConfigType);
-            var fileName = GenerateFileName(actualConfigType);
+            //FIXME: 自動命名？
+            var fileName = GenerateFileName(actualConfigType.Name);
             var myScriptableObject = CreateScriptableObjectWithSelectedPath(
                 actualConfigType,
                 fileName
@@ -151,7 +153,7 @@ namespace MonoFSM.Core
             var defaultConfigType = Property.ValueEntry.TypeOfValue;
             var actualConfigType = GetActualConfigType(defaultConfigType);
             var parentComp = Property.ParentValues[0] as Component;
-            var fileName = GenerateFileName(actualConfigType);
+            var fileName = GenerateFileName(parentComp.name);
             var myScriptableObject = CreateScriptableObjectWithSelectedPath(
                 actualConfigType,
                 fileName
@@ -204,13 +206,13 @@ namespace MonoFSM.Core
             var actualElementType = GetActualConfigType(defaultElementType);
 
             // 產生檔案名稱
-            var fileName = GenerateFileName(actualElementType);
+            var fileName = GenerateFileName(actualElementType.Name);
 
             // 使用路徑配置建立新的 ScriptableObject
-            var newSO = CreateScriptableObjectWithSelectedPath(actualElementType, fileName);
+            var newSo = CreateScriptableObjectWithSelectedPath(actualElementType, fileName);
 
             // 將新建立的 ScriptableObject 加入到 List 中
-            if (newSO != null)
+            if (newSo != null)
             {
                 var list = Property.ValueEntry.WeakSmartValue as IList;
                 if (list == null)
@@ -220,7 +222,7 @@ namespace MonoFSM.Core
                     Property.ValueEntry.WeakSmartValue = list;
                 }
 
-                list.Add(newSO);
+                list.Add(newSo);
                 Property.ValueEntry.ApplyChanges();
             }
         }

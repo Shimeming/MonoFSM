@@ -9,6 +9,7 @@ using MonoFSM.CustomAttributes;
 using MonoFSM.EditorExtension;
 using MonoFSM.Variable.VariableBinder;
 using MonoFSM.VarRefOld;
+using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEngine;
@@ -26,8 +27,10 @@ namespace MonoFSM.Variable
             IOverrideHierarchyIcon,
             IValueProvider,
             IBeforePrefabSaveCallbackReceiver,
-            IConfigTypeProvider
+            IConfigTypeProvider,
+            IResetStateRestore
     {
+        //FIXME: 應該把ResetToDefault做掉？
 #if UNITY_EDITOR
         public string IconName { get; }
         public bool IsDrawingIcon => CustomIcon != null;
@@ -88,8 +91,6 @@ namespace MonoFSM.Variable
 #endif
         }
 
-        public abstract void ResetToDefaultValue();
-
         [Button("建立 ValueProvider Reference")]
         private void CreateValueProvider()
         {
@@ -140,10 +141,6 @@ namespace MonoFSM.Variable
 #endif
         }
 
-
-
-
-
         [FormerlySerializedAs("varTag")]
         // [MCPExtractable]
         [OnValueChanged(nameof(UpdateTag))]
@@ -188,12 +185,47 @@ namespace MonoFSM.Variable
             }
         }
 
+        // private readonly HashSet<Object> byWhoHashSet = new();
+        // [ShowInDebugMode] public List<Object> byWhoList => byWhoHashSet.ToList();
         protected abstract void SetValueInternal<T>(T value, Object byWho);
+
+#if UNITY_EDITOR
+        [ShowInDebugMode]
+        private Queue<SetValueExecutionData> _byWhoQueue = new(); //沒有人清，resetrestore要清掉嗎？先不要好了
+
+        [Serializable]
+        public struct SetValueExecutionData
+        {
+            public object _value;
+            public Object _byWho;
+            public float _time;
+        }
+#endif
+
+        protected void RecordSetbyWho<T>(Object byWho, T tempValue)
+        {
+            // byWho.Log("[Variable] Set", name, value);
+            this.Log("[Variable] Set", tempValue, "byWho", byWho);
+            // byWhoHashSet.Add(byWho);
+#if UNITY_EDITOR
+            //這個最係最好，如果有包含原因會更好？直接用字串？
+            var byWhoData = new SetValueExecutionData
+            {
+                _value = tempValue,
+                _byWho = byWho,
+                _time = Time.time,
+            };
+            _byWhoQueue.Enqueue(byWhoData);
+            if (_byWhoQueue.Count > 10)
+                _byWhoQueue.Dequeue(); //保持最新的10個
+#endif
+        }
 
         public void SetValue<T>(T value, Object byWho)
         {
             SetValueInternal(value, byWho);
             OnValueChanged();
+
             // OnValueChangedRaw?.Invoke(); //通知有人改變了
             //FIXME: 如果還有什麼需要處理的？
         }
@@ -418,7 +450,7 @@ namespace MonoFSM.Variable
 
         // [HideInInlineEditors] [Header("Flag Setting")]
         // public FlagTypeScriptable typeScriptable;
-        protected virtual void Awake() { }
+        protected virtual void Awake() { } //FIXME: 好像盡量不要亂用awake喔
 
         //FIXME: virtual variable?
         // [FormerlySerializedAs("VariableSource")]
@@ -441,7 +473,7 @@ namespace MonoFSM.Variable
             return new[] { _varTag };
         }
 
-        public void OnBeforePrefabSave()
+        public virtual void OnBeforePrefabSave()
         {
             UpdateTag();
         }
@@ -450,5 +482,8 @@ namespace MonoFSM.Variable
         {
             return _varTag?.ValueFilterType;
         }
+
+        public abstract void ResetStateRestore();
+        // public abstract void ResetToDefaultValue();
     }
 }

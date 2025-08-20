@@ -328,6 +328,7 @@ public class GameData
     [BoxGroup("CopyFrom")]
     private GameData toCopySource;
 
+    //FIXME: 改成升級成不同type？meta id保留
     [BoxGroup("CopyFrom")]
     [Button]
     private void CopyFrom()

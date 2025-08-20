@@ -22,8 +22,12 @@ namespace MonoFSM.Core.DataProvider
             return Get<T>();
         }
     }
+
     //用這顆就夠了，其他應該都不需要了？除了literal
-    public class ValueProvider : AbstractVariableProviderRef, IOverrideHierarchyIcon, IHierarchyValueInfo
+    public class ValueProvider
+        : AbstractVariableProviderRef,
+            IOverrideHierarchyIcon,
+            IHierarchyValueInfo
     {
         //自引用？
         // [SerializeField] ValueProvider _valueProviderRef;
@@ -40,7 +44,10 @@ namespace MonoFSM.Core.DataProvider
             {
                 if (Application.isPlaying)
                 {
-                    Debug.LogError("VarRef: Cannot set varTag in play mode. Please set it in edit mode.", this);
+                    Debug.LogError(
+                        "VarRef: Cannot set varTag in play mode. Please set it in edit mode.",
+                        this
+                    );
                     return;
                 }
 
@@ -61,10 +68,9 @@ namespace MonoFSM.Core.DataProvider
                     return new List<ValueDropdownItem<VariableTag>>();
                 }
 
-
-            return entityProvider?.entityTag?.GetVariableTagItems() ?? ParentEntity?.GetVarTagOptions();
+            return entityProvider?.entityTag?.GetVariableTagItems()
+                ?? ParentEntity?.GetVarTagOptions();
         }
-
 
         [ShowInDebugMode]
         [BoxGroup("varTag")]
@@ -77,6 +83,7 @@ namespace MonoFSM.Core.DataProvider
             _varTag = null;
             // Debug.Log("VarRef: Cleared varTag.", this);
         }
+
         // private bool TypeCheckFail()
         // {
         //     if (_varTag == null) return false;
@@ -120,12 +127,14 @@ namespace MonoFSM.Core.DataProvider
             }
         }
 
-        [AutoParent] private MonoEntity _parentEntity;
+        [AutoParent]
+        private MonoEntity _parentEntity;
 
         //可auto? 有ref就不覆蓋？還是身上的比較大？
         //自己也是？
-        [DropDownRef] [SerializeField] public AbstractEntityProvider _entityProvider;
-
+        [DropDownRef]
+        [SerializeField]
+        public AbstractEntityProvider _entityProvider;
 
         private AbstractEntityProvider entityProvider
         {
@@ -142,12 +151,12 @@ namespace MonoFSM.Core.DataProvider
         {
             get
             {
-                if(!_declarationName.IsNullOrWhitespace())
+                if (!_declarationName.IsNullOrWhitespace())
                     return _declarationName;
-                if (entityProvider?.SuggestDeclarationName != null) return entityProvider?.SuggestDeclarationName;
+                if (entityProvider?.SuggestDeclarationName != null)
+                    return entityProvider?.SuggestDeclarationName;
                 // Debug.Log($"VarRef: Using entityProvider declaration name: {_declarationName}", this);
                 return _declarationName;
-
             }
         }
 
@@ -190,7 +199,6 @@ namespace MonoFSM.Core.DataProvider
                 // final = final.Replace("_", " ");
                 return final;
             }
-
         }
 
         // public override AbstractMonoVariable VarRaw => _monoVariable;
@@ -201,14 +209,16 @@ namespace MonoFSM.Core.DataProvider
                 ? lastPathEntryType
                 :
                 //GetTarget()?.ValueType ??
-                  varTag?.ValueType ?? entityProvider?.entityTag?.RestrictType ?? typeof(MonoEntity);
+                varTag?.ValueType
+                    ?? entityProvider?.entityTag?.RestrictType
+                    ?? typeof(MonoEntity);
 
         [PreviewInInspector]
         public string ValueTypeSourceFrom
         {
             get
             {
-                if(HasFieldPath)
+                if (HasFieldPath)
                     return "Field Path";
                 else if (_varTag != null)
                     return "Var Tag";
@@ -235,7 +245,6 @@ namespace MonoFSM.Core.DataProvider
             return VarRaw;
         }
 
-
         // public override Type GetValueType =>
         [PropertyOrder(-1)]
         [PreviewInInspector]
@@ -248,9 +257,11 @@ namespace MonoFSM.Core.DataProvider
                     return _varTag.VariableMonoType; //hmm少 var value type...
                 //entityType (tag)
                 if (entityProvider != null)
-                    return entityProvider.entityTag?._entityType?.RestrictType ?? typeof(MonoEntity);
+                    return entityProvider.entityTag?._entityType?.RestrictType
+                        ?? typeof(MonoEntity);
                 //parentEntityType (instance)
-                if (ParentEntity != null) return ParentEntity.GetType();
+                if (ParentEntity != null)
+                    return ParentEntity.GetType();
 
                 Debug.LogError("VarRef: No target entity or variable tag found.", this);
                 return typeof(object); // 如果沒有找到目標，返回 object 類型
@@ -261,13 +272,16 @@ namespace MonoFSM.Core.DataProvider
 
         public override TVariable GetVar<TVariable>()
         {
-            if (VarRaw is TVariable variable) return variable;
+            if (VarRaw is TVariable variable)
+                return variable;
             if (VarRaw == null)
-                throw new NullReferenceException("VarRaw is null, cannot cast to " +
-                                                 typeof(TVariable));
+            {
+                Debug.LogError("VarRef: VarRaw is null, cannot get variable.", this);
+            }
             else
-                throw new InvalidCastException(
-                    $"Cannot cast {VarRaw.GetType()} to {typeof(TVariable)}");
+                Debug.LogError("VarRef: VarRaw is not of type " + typeof(TVariable), this);
+
+            return null;
         }
 
         public override T1 Get<T1>()
@@ -279,7 +293,8 @@ namespace MonoFSM.Core.DataProvider
             {
                 Debug.LogError(
                     $"無法將 {ValueType} 轉換為 {typeof(T1)}，請檢查變數類型或欄位路徑設定。",
-                    this);
+                    this
+                );
                 return default;
             }
 
@@ -296,9 +311,14 @@ namespace MonoFSM.Core.DataProvider
 
             // 不選varTag的話就用Entity?
             // 使用欄位路徑存取特定欄位值
-            var fieldValue = ReflectionUtility.GetFieldValueFromPath(target, _pathEntries, gameObject);
+            var fieldValue = ReflectionUtility.GetFieldValueFromPath(
+                target,
+                _pathEntries,
+                gameObject
+            );
 
-            if (fieldValue is T1 tValue) return tValue;
+            if (fieldValue is T1 tValue)
+                return tValue;
 
             // 嘗試轉型
             if (fieldValue != null)
@@ -311,7 +331,8 @@ namespace MonoFSM.Core.DataProvider
                     if (Application.isPlaying)
                         Debug.LogError(
                             $"無法將欄位值 {fieldValue} (型別: {fieldValue.GetType()}) 轉換為 {typeof(T1)}: {e.Message}",
-                            this);
+                            this
+                        );
                 }
             else
             {
@@ -326,6 +347,7 @@ namespace MonoFSM.Core.DataProvider
         public bool IsDrawingIcon => true;
         public Texture2D CustomIcon => null;
         public string ValueInfo => $"{DeclarationName}"; //一play會call這個...
+
         // public string ValueInfo => $"{ValueType.Name} {DeclarationName}"; //一play會call這個...
         public bool IsDrawingValueInfo => true;
 

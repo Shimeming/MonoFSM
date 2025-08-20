@@ -9,24 +9,23 @@ using Object = UnityEngine.Object;
 namespace MonoFSM.Variable
 {
     [Serializable]
-    public class VarFloatWrapper : VarWrapper<VarFloat, float>
-    {
-    }
+    public class VarBoolWrapper : VarWrapper<VarBool, bool> { }
 
     [Serializable]
-    public class VarEntityWrapper : VarWrapper<VarEntity, MonoEntity>
-    {
-    }
+    public class VarFloatWrapper : VarWrapper<VarFloat, float> { }
 
     [Serializable]
-    public class VarListEntityWrapper : VarWrapper<VarListEntity, List<MonoEntity>>
-    {
-    }
+    public class VarEntityWrapper : VarWrapper<VarEntity, MonoEntity> { }
 
     [Serializable]
-    public class VarWrapper<TVar, TValue> where TVar : AbstractMonoVariable
+    public class VarListEntityWrapper : VarWrapper<VarListEntity, List<MonoEntity>> { }
+
+    [Serializable]
+    public class VarWrapper<TVar, TValue>
+        where TVar : AbstractMonoVariable
     {
-        [SOConfig("VariableType")] public VariableTag _bindTag;
+        [SOConfig("VariableType")]
+        public VariableTag _bindTag;
         public TVar _var;
 
         public TValue Value
@@ -39,6 +38,5 @@ namespace MonoFSM.Variable
         {
             _var.SetValue(value, byWho);
         }
-
     }
 }
