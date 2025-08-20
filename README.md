@@ -463,3 +463,99 @@ This creates a connection where inserting the key into the lock triggers the doo
 The complete key and lock system allows the key to interact with the locked button, which in turn controls the door's open/close state through variable relay binding.
 
 ![Key and Lock Demo](docs/images/key-and-lock-tutorial/keyandlock.gif)
+
+### Simple Player Controller Example
+
+This tutorial demonstrates how to create a simple player controller with movement, jump, and dash abilities using MonoFSM.
+
+#### Step 1: Create Player Prefab
+1. Drag `General FSM.prefab` to create a prefab variant named `General FSM - Player.prefab`
+2. Create corresponding states: `move`, `dash`, `jump`
+3. In the `ViewRoot` node, use a Sprite Renderer to create the player's visual representation (we'll use a car shape for this example)
+
+![Simple Player Prefab](0_MonoFSM_Example_Module/Document/PlayerExample/SimplePlayerPrefab.png)
+
+#### Step 2: Setup Physics Components
+On the `Animator` node, add the following components:
+- Animator
+- RootMotionRelay
+- RigidbodyMotionReceiver
+- BoxCollider (set to match visual size)
+- Rigidbody (enable `Use Gravity`)
+
+![Simple Player Physics](0_MonoFSM_Example_Module/Document/PlayerExample/SimplePlayerPhysics.png)
+
+#### Step 3: Configure Input Actions
+In `InputSystem_Actions`, define the following actions:
+- Move (Value/Vector2)
+- Jump (Button)
+- Sprint (Button)
+
+![Move Jump and Dash Actions](0_MonoFSM_Example_Module/Document/PlayerExample/MoveJumpAndDash.png)
+
+#### Step 4: Setup Player Input
+1. Under `General FSM - Player.prefab`, create a `PlayerInputs` node
+2. Add the `PlayerInput` component
+
+![Player Input Component](0_MonoFSM_Example_Module/Document/PlayerExample/PlayerInput.png)
+
+#### Step 5: Configure Input Actions
+1. Under `PlayerInputs`, create `[Input] JumpData` node
+   - Add components: `MonoInputAction`, `InputSystemInputActionImplementation`
+   - Configure InputActionData and Input Action Reference properly
+
+2. Under `PlayerInputs`, create `[Input] DashData` node
+   - Add components: `MonoInputAction`, `InputSystemInputActionImplementation`
+   - Configure InputActionData and Input Action Reference properly
+
+#### Step 6: Create Animations
+Create car animations for Move, Jump, and Dash
+- Remember to disable `Loop Time` for all animations
+- Bind animations to respective states: `[State] Move`, `[State] Dash`, `[State] Jump`
+
+![Car Animations](0_MonoFSM_Example_Module/Document/PlayerExample/carAnimations.gif)
+
+#### Step 7: Setup Move State Action
+1. On GameObject `[State] Move`, in Inspector click **AddChild:OnStateUpdateHandler**
+2. Create `PlayerMoveActionExample.cs` (see code in `0_MonoFSM_Example_Module/Actions/`)
+3. Under `[Event] OnStateUpdate`, add `[Action] PlayerMoveActionExample` object
+4. Add `PlayerMoveActionExample` component
+
+#### Step 8: Setup Jump State Action
+1. On GameObject `[State] Jump`, in Inspector click **AddChild:OnStateUpdateHandler**
+2. Under `[Event] OnStateUpdate`, add `[Action] PlayerMoveActionExample` object
+3. Add `PlayerMoveActionExample` component
+4. Ensure all public references are properly configured (RigidBody and InputActionReference)
+
+![Assign RigidBody and Move Input](0_MonoFSM_Example_Module/Document/PlayerExample/AssignRigidBodyAndMoveInput.png)
+
+#### Step 9: Configure State Transitions
+
+##### From Move State:
+1. Add two Transition Behaviours under `[State] move`:
+   - Transition to `[State] Jump`
+   - Transition to `[State] Dash`
+2. Use `[Condition] InputActionWasPressedCondition` for each transition with corresponding input actions
+
+![Jump and Dash Input Conditions](0_MonoFSM_Example_Module/Document/PlayerExample/jumpanddashinput.png)
+
+##### From Jump State:
+1. Configure animation-based transition back to `[State] move` when animation completes
+2. Add Transition Behaviour to `[State] Dash`
+3. Use `[Condition] InputActionWasPressedCondition` for dash input
+
+![Jump to Move Transition](0_MonoFSM_Example_Module/Document/PlayerExample/jumpToMove.png)
+
+##### Air Dash Setup:
+This configuration allows the player to dash while in the air (during jump state).
+
+![Air Dash Configuration](0_MonoFSM_Example_Module/Document/PlayerExample/airdash.png)
+
+#### Step 10: Scene Setup
+Remember to add a ground collider to prevent the player car from falling through the floor.
+
+#### Final Result
+
+The completed player controller allows for smooth movement, jumping, and dashing with proper physics interactions.
+
+![Player Car Result](0_MonoFSM_Example_Module/Document/PlayerExample/player-car-result.gif)
