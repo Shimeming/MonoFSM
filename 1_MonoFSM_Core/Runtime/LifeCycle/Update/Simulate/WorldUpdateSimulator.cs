@@ -10,6 +10,7 @@ using Sirenix.Utilities;
 using UnityEditor;
 using UnityEditor.Compilation;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace MonoFSM.Core.Simulate
 {
@@ -214,6 +215,11 @@ namespace MonoFSM.Core.Simulate
         [ShowInInspector]
         public bool IsReady { get; private set; } = false;
 
+        public static float TimeScale { get; set; } = 1f;
+
+        //FIXME: runner要是?
+        public static float deltaTime => Time.deltaTime * TimeScale; //FIXME: 這個要從runner同步？
+
 
         private readonly HashSet<MonoObj> _currentUpdatingObjs = new();
         /// <summary>
@@ -224,6 +230,17 @@ namespace MonoFSM.Core.Simulate
         {
             if (!IsReady)
                 return;
+
+            if (Debug.isDebugBuild)
+            {
+                Debug.Log(
+                    $"WorldUpdateSimulator Simulate called with deltaTime: {deltaTime}, TimeScale: {TimeScale}",
+                    this);
+                if (Keyboard.current.digit0Key.IsPressed())
+                    TimeScale = 5f;
+                else
+                    TimeScale = 1f;
+            }
 
             _currentUpdatingObjs.Clear();
 
