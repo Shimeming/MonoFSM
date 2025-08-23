@@ -1,17 +1,16 @@
-using System;
+using System.Linq;
+using MonoFSM.Core;
+using MonoFSM.Core.DataProvider;
 using MonoFSM.Core.Runtime.Action;
 using MonoFSM.PhysicsWrapper;
 using MonoFSM.Variable.Attributes;
 using MonoFSMCore.Runtime.LifeCycle;
-using MonoFSM.Core;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using System.Linq;
-using Object = UnityEngine.Object;
 
 //Editor Debug用
-public class PlayerStartSpawnPoint : MonoBehaviour, IBeforeBuildProcess,IActionParent,IResetStart
+public class PlayerStartSpawnPoint : MonoBehaviour, IBeforeBuildProcess, IActionParent, IResetStart
 {
     private void Start()
     {
@@ -33,7 +32,8 @@ public class PlayerStartSpawnPoint : MonoBehaviour, IBeforeBuildProcess,IActionP
     public static PlayerStartSpawnPoint GetCurrentSpawnPoint()
     {
         var spawnPoints = GetAllSpawnPoints();
-        if (spawnPoints.Length == 0) return null;
+        if (spawnPoints.Length == 0)
+            return null;
 
         // 確保索引在有效範圍內
         _currentSpawnPointIndex = Mathf.Clamp(_currentSpawnPointIndex, 0, spawnPoints.Length - 1);
@@ -44,7 +44,8 @@ public class PlayerStartSpawnPoint : MonoBehaviour, IBeforeBuildProcess,IActionP
     public static PlayerStartSpawnPoint SwitchToNextSpawnPoint()
     {
         var spawnPoints = GetAllSpawnPoints();
-        if (spawnPoints.Length == 0) return null;
+        if (spawnPoints.Length == 0)
+            return null;
 
         _currentSpawnPointIndex = (_currentSpawnPointIndex + 1) % spawnPoints.Length;
         return spawnPoints[_currentSpawnPointIndex];
@@ -56,11 +57,13 @@ public class PlayerStartSpawnPoint : MonoBehaviour, IBeforeBuildProcess,IActionP
         _currentSpawnPointIndex = 0;
         return GetCurrentSpawnPoint();
     }
+
     public Transform editorPlayerRef; //如果player是放在場景上
     public Transform oriSpawnRef;
 #if UNITY_EDITOR
     public InstanceReferenceData playerRef; //效能問題...
 #endif
+
     // public GameObject InScenePlayer;
     [Button]
     public void ResetToOriPos()
@@ -70,9 +73,10 @@ public class PlayerStartSpawnPoint : MonoBehaviour, IBeforeBuildProcess,IActionP
         transform.position = oriSpawnRef.position;
     }
 
-
     //基本上就是瞬移玩家位置，
-    [CompRef] [ShowInInspector] [AutoChildren]
+    [CompRef]
+    [ShowInInspector]
+    [AutoChildren]
     private IArgEventReceiver<Vector3> _playerTeleporter;
 
     [HideIf(nameof(oriSpawnRef))]
@@ -85,14 +89,20 @@ public class PlayerStartSpawnPoint : MonoBehaviour, IBeforeBuildProcess,IActionP
         oriSpawnRef.TryGetCompOrAdd<GizmoMarker>();
     }
 
-
     public void OnBeforeBuildProcess()
     {
         ResetToOriPos();
     }
 
-    [SerializeField] Camera _camera;
-    [SerializeField] LayerMask _teleportHitLayerMask;
+    [SerializeField]
+    Camera _camera;
+
+    [SerializeField]
+    LayerMask _teleportHitLayerMask;
+
+    [SerializeField]
+    private ValueProvider _currentPlayerEntityProvider;
+
     private void Update()
     {
         //Debug用，按`鍵，把player移到這個位置
@@ -114,10 +124,20 @@ public class PlayerStartSpawnPoint : MonoBehaviour, IBeforeBuildProcess,IActionP
 
             Debug.DrawRay(ray.origin, ray.direction * 100f, Color.red, 10f);
 
-            if (_raycastProcessor.Raycast(ray.origin, ray.direction, out var hit, 1000, _teleportHitLayerMask))
+            if (
+                _raycastProcessor.Raycast(
+                    ray.origin,
+                    ray.direction,
+                    out var hit,
+                    1000,
+                    _teleportHitLayerMask
+                )
+            )
             {
-                _playerTeleporter?.ArgEventReceived(hit.point);
-                Debug.Log("Alpha1 Pressed"+hit.point+hit.collider,hit.collider);
+                //好無聊？寫死？character移動？DI問題?
+                // _playerTeleporter?.ArgEventReceived(hit.point);
+                ProcessTeleport(hit.point);
+                Debug.Log("Alpha1 Pressed" + hit.point + hit.collider, hit.collider);
             }
             else
             {
@@ -131,12 +151,21 @@ public class PlayerStartSpawnPoint : MonoBehaviour, IBeforeBuildProcess,IActionP
         }
     }
 
+    private void ProcessTeleport(Vector3 point)
+    {
+        // _currentPlayerEntityProvider.GetSchema<Player>()
+        _playerTeleporter?.ArgEventReceived(point);
+    }
+
     [Required]
-    [CompRef] [Auto] private IRaycastProcessor _raycastProcessor;
+    [CompRef]
+    [Auto]
+    private IRaycastProcessor _raycastProcessor;
+
     public void EventReceived(Vector3 arg)
     {
         // _onPlayerSpawn.EventReceived(arg);
-        if(editorPlayerRef)
+        if (editorPlayerRef)
             editorPlayerRef.position = arg;
     }
 

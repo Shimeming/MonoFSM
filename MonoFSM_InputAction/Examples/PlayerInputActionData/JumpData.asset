@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: JumpData
   m_EditorClassIdentifier: 
   _inputAction: {fileID: -2099379676528639254, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-  actionID: 14
+  actionID: 16

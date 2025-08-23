@@ -14,9 +14,10 @@ namespace MonoFSM.Runtime.Mono
     //為了DI可以找到相對應的物件用的tag, 先宣告下面有什麼變數可以用
     //先設計schema, 但這樣物件那邊又要對應，是不是很麻煩？
     //FIXME: 用DescriptableData是不是不太好？ 應該和data互斥？ 這個只是描述要尋找的類別
+    //TODO: 要和
     //MonoEntityDef?
     //VarDef
-    [CreateAssetMenu(menuName = "RCGMaker/MonoDescriptableTag")]
+    [CreateAssetMenu(menuName = "Assets/MonoFSM/MonoEntityTag", fileName = "NewMonoEntityTag")]
     public class MonoEntityTag : ScriptableObject, IStringKey
     {
         //
@@ -27,8 +28,9 @@ namespace MonoFSM.Runtime.Mono
             get => _entityType.RestrictType;
             set => _entityType.RestrictType = value;
         }
-       
-        
+
+        //FIXME: 用不到？該拿掉
+        [Obsolete]
         public MySerializedType<GameData> DataType;
 
         public IEnumerable<ValueDropdownItem<VariableTag>> GetVariableTagItems()
@@ -45,10 +47,11 @@ namespace MonoFSM.Runtime.Mono
 
         [PreviewInInspector]
         string SampleDataFilter =>
-            "t:" + (DataType.RestrictType != null ? DataType.RestrictType.Name : "DescriptableData");
+            "t:"
+            + (DataType.RestrictType != null ? DataType.RestrictType.Name : "DescriptableData");
 
         // [AssetSelector(Filter = "@SampleDataFilter")]
-        // [AssetSelector] 
+        // [AssetSelector]
         // bool TypeFilter(DescriptableData data)
         // {
         //     return DataType.RestrictType.IsAssignableFrom(data.GetType());
@@ -58,14 +61,15 @@ namespace MonoFSM.Runtime.Mono
 #if UNITY_EDITOR
         IEnumerable<GameData> GetDescriptableData()
         {
-            return AssetDatabase.FindAssets(SampleDataFilter).Select(AssetDatabase.GUIDToAssetPath)
+            return AssetDatabase
+                .FindAssets(SampleDataFilter)
+                .Select(AssetDatabase.GUIDToAssetPath)
                 .Select(AssetDatabase.LoadAssetAtPath<GameData>);
         }
 
         [ValueDropdown(nameof(GetDescriptableData))]
         public GameData SamepleData; //FIXME: 需要嗎？
 #endif
-
 
         //FIXME: Data Type Restriction?
         public List<VariableTag> containsVariableTypeTags = new List<VariableTag>(); //VariableTag[] containsVariableTypeTags = Array.Empty<VariableTag>();
@@ -81,10 +85,18 @@ namespace MonoFSM.Runtime.Mono
                 .ToArray();
         }
 
-        [PreviewInInspector] public MonoEntity[] _allMonoDescriptable;
+        [PreviewInInspector]
+        public MonoEntity[] _allMonoDescriptable;
 #endif
 
-        [SerializeField] private string _stringKey;
+        [SerializeField]
+        private string _stringKey;
         public string GetStringKey => _stringKey;
+
+#if UNITY_EDITOR
+        [HideInInlineEditors]
+        [TextArea]
+        public string Note;
+#endif
     }
 }

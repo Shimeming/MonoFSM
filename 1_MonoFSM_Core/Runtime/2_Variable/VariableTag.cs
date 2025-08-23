@@ -3,12 +3,10 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using _1_MonoFSM_Core.Runtime.Attributes;
 using MonoFSM.Core.Attributes;
-using MonoFSM.Runtime.Attributes;
 using MonoFSM.Variable.FieldReference;
 using MonoFSM.Variable.TypeTag;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace MonoFSM.Variable
 {
@@ -22,7 +20,7 @@ namespace MonoFSM.Variable
         public string GetStringKey { get; }
     }
 
-    [CreateAssetMenu(menuName = "RCG/VariableTag")]
+    [CreateAssetMenu(menuName = "Assets/MonoFSM/VariableTag")]
     public class VariableTag : ScriptableObject, IStringKey, IProxyType //, IFloatValue , SceneSave?
     {
         private void OnValidate()
@@ -134,7 +132,7 @@ namespace MonoFSM.Variable
         [HideInInlineEditors]
         public MySerializedType<AbstractMonoVariable> _variableType; //我這個variable是什麼型別
 
-        [Obsolete]
+        [Obsolete] //名字不好.._valueRestrictType?
         public MySerializedType<object> _valueFilterType; //自動化的部分要改成去動tag? 但好像不該動tag?
 
         public Type ValueFilterType => _valueTypeTag?.Type ?? _valueFilterType.RestrictType;

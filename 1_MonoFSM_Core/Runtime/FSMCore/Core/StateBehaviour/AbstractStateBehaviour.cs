@@ -3,6 +3,7 @@ using _1_MonoFSM_Core.Runtime.FSMCore.Core.StateBehaviour;
 using Fusion.Addons.FSM;
 using MonoFSM_Core.Runtime.StateBehaviour;
 using MonoFSM.Editor;
+using MonoFSM.Runtime;
 using MonoFSM.Variable.Attributes;
 using UnityEngine;
 #if UNITY_EDITOR
@@ -28,6 +29,8 @@ namespace MonoFSM.Core
 
         [AutoParent]
         protected StateMachineLogic _context;
+
+        public MonoEntity ParentEntity => _context.ParentEntity; //extension method一路往上問？ vs直接GetComponentInParent?
 
         [CompRef]
         [AutoChildren(DepthOneOnly = true)]
@@ -137,7 +140,8 @@ namespace MonoFSM.Core
             if (_transitions != null)
                 foreach (var t in _transitions)
                 {
-                    var transition = t;
+                    if (!t.isActiveAndEnabled)
+                        continue;
 
                     if (CanTransition(ref t._transitionData) == true)
                     {
@@ -146,6 +150,21 @@ namespace MonoFSM.Core
                             return;
                     }
                 }
+
+            //anyState? 放最後？其他優先嗎
+            if (_context.anyState != null)
+            {
+                var transitions = _context.anyState._transitions;
+                foreach (var t in transitions)
+                {
+                    if (!t.isActiveAndEnabled)
+                        continue;
+                    if (_context.anyState.CanTransition(ref t._transitionData))
+                        // Debug.Log($"[{Name}] ForceActivateState to {transition.TargetState.Name}", this);
+                        if (Machine.TryActivateState(t.TargetState))
+                            return;
+                }
+            }
 
             OnFixedUpdate();
         }

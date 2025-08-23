@@ -15,14 +15,14 @@ namespace MonoFSM.Variable
         [Header("預設值")]
         [SerializeField]
         [DropDownRef(null, nameof(SiblingValueFilter))]
-        private Component _siblingDefaultValue;
+        private Component _siblingDefaultValue; //FIXME: 應該要可以篩選type
 
-        [SerializeField] private Type _type;
+        // [SerializeField] private Type _type;
         Type SiblingValueFilter()
         {
             if (_varTag == null)
                 return typeof(Component);
-            // Debug.Log("RestrictType is " + _varTag._valueFilterType.RestrictType);
+            // Debug.Log("RestrictType is " + _varTag.ValueFilterType, _varTag);
             return _varTag.ValueFilterType;
         }
 

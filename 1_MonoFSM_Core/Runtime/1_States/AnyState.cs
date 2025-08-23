@@ -1,22 +1,19 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using Sirenix.OdinInspector;
-
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
+using _1_MonoFSM_Core.Runtime.FSMCore.Core.StateBehaviour;
 
 namespace MonoFSM.Core
 {
-    public class RCGFSMAnyState : MonoBehaviour, IState<GeneralState>, IDefaultSerializable
+    // [Obsolete("Obsolete")]
+    public class AnyState : MonoStateBehaviour, IState<GeneralState>, IDefaultSerializable
     {
-        [AutoParent] private GeneralFSMContext context;
+        // [AutoParent] private GeneralFSMContext context;
 
-        public GeneralFSMContext Context => context;
+        // public GeneralFSMContext Context => context;
 
-        public bool TransitionCheck(GeneralState toState, float timeOffset = 0,
-            global::StateTransition fromTransition = null)
+        public bool TransitionCheck(
+            GeneralState toState,
+            float timeOffset = 0,
+            StateTransition fromTransition = null
+        )
         {
             // context.SetLastTransition(fromTransition);
             return TransitionCheck(toState);
@@ -38,7 +35,7 @@ namespace MonoFSM.Core
         // }
 
 
-        [AutoChildren] global::StateTransition[] transitions;
+        // [AutoChildren] StateTransition[] transitions;
 
 #if UNITY_EDITOR
         // [Button("Add Event Transition")]

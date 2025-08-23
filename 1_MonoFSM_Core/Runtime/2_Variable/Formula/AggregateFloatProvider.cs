@@ -7,7 +7,6 @@ using MonoFSM.Core.Variable;
 using MonoFSM.Runtime;
 using MonoFSM.Runtime.Attributes;
 using MonoFSM.Variable;
-using MonoFSM.Variable.Attributes;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -22,7 +21,7 @@ namespace MonoFSM.Core.Formula
             Average,
             Min,
             Max,
-            Count
+            Count,
         }
 
         // [AutoChildren] [CompRef] [Required] [Tooltip("The component that provides the list of objects to process.")]
@@ -30,26 +29,35 @@ namespace MonoFSM.Core.Formula
 
         [ValueTypeValidate(typeof(List<MonoEntity>))] //var -> VarListEntity, value-> MonoEntity
         [Auto]
-        [CompRef]
+        // [CompRef]
         [Required]
         [Tooltip("The MonoEntity list provider to use for aggregation.")]
+        [SerializeField]
         private ValueProvider _monoEntityListProvider;
 
-        [SerializeField] [Required] [Tooltip("The variable tag to look for on each object to get the float value.")]
+        [SerializeField]
+        [Required]
+        [Tooltip("The variable tag to look for on each object to get the float value.")]
         private VariableTag _variableToAggregate;
 
-        [SerializeField] private AggregationType _operation = AggregationType.Sum;
+        [SerializeField]
+        private AggregationType _operation = AggregationType.Sum;
 
-        [ShowInPlayMode] public float Value => GetValue();
+        [ShowInPlayMode]
+        public float Value => GetValue();
 
         public float GetValue()
         {
-            if (_monoEntityListProvider == null || _variableToAggregate == null) return 0f;
-            var values = _monoEntityListProvider.GetVar<VarListEntity>().GetList()
+            if (_monoEntityListProvider == null || _variableToAggregate == null)
+                return 0f;
+            var values = _monoEntityListProvider
+                .GetVar<VarListEntity>()
+                .GetList()
                 .Select(GetFloatFromDescriptable)
                 .ToList();
 
-            if (!values.Any()) return 0f;
+            if (!values.Any())
+                return 0f;
 
             switch (_operation)
             {
@@ -76,25 +84,29 @@ namespace MonoFSM.Core.Formula
                 return 0f;
             }
 
-
             var variable = entity.VariableFolder.GetVariable(_variableToAggregate);
             if (variable == null)
             {
                 Debug.LogError(
                     $"Variable '{_variableToAggregate.name}' not found on '{entity.name}'.",
-                    entity);
+                    entity
+                );
                 return 0f;
             }
 
-            if (variable is IFloatProvider floatProvider) return floatProvider.Value;
+            if (variable is IFloatProvider floatProvider)
+                return floatProvider.Value;
 
             // Fallback for variables that are not IFloatProvider but can be converted
-            if (variable.objectValue is float f) return f;
-            if (variable.objectValue is int i) return i;
+            if (variable.objectValue is float f)
+                return f;
+            if (variable.objectValue is int i)
+                return i;
 
             Debug.LogWarning(
                 $"Variable '{_variableToAggregate.name}' on '{entity.name}' is not a float provider or a convertible type.",
-                entity);
+                entity
+            );
             return 0f;
         }
 

@@ -41,7 +41,7 @@ namespace MonoFSM.Core.Editor
 
         protected override void DrawPropertyLayout(GUIContent label)
         {
-            var currentValue = Property.ValueEntry.WeakSmartValue;
+            var currentValue = Property.ValueEntry.WeakSmartValue as Object;
             var restrictInstanceType = GetRestrictInstanceType();
 
             // 驗證當前選中的值是否符合過濾條件
@@ -77,19 +77,19 @@ namespace MonoFSM.Core.Editor
             }
 
             // 繪製帶過濾功能的選擇器
-            var objValue = Property.ValueEntry.WeakSmartValue as Object;
-            DrawFilteredSelector(label, objValue);
+            // var objValue = Property.ValueEntry.WeakSmartValue as Object;
+            DrawFilteredSelector(label, currentValue);
             GUI.backgroundColor =
                 Property.ValueEntry.WeakSmartValue == null
                     ? new Color(0.2f, 0.2f, 0.3f, 0.1f)
                     : new Color(0.35f, 0.3f, 0.1f, 0.2f);
 
             var newObj = SirenixEditorFields.UnityObjectField(
-                Property.ValueEntry.WeakSmartValue as Object,
+                currentValue,
                 Property.ValueEntry.TypeOfValue,
                 false
             );
-
+            // Debug.Log("New Object Selected: " + newObj, newObj);
             Property.ValueEntry.WeakSmartValue = newObj;
             GUI.backgroundColor = Color.white;
         }

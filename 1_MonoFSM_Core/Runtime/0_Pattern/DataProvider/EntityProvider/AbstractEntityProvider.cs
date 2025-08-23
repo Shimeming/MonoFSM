@@ -1,7 +1,9 @@
 using _1_MonoFSM_Core.Runtime.Attributes;
 using MonoFSM.Core.Attributes;
+using MonoFSM.Core.DataProvider;
 using MonoFSM.Runtime;
 using MonoFSM.Runtime.Mono;
+using MonoFSM.Variable.Attributes;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -13,7 +15,7 @@ namespace MonoFSM.Core.Runtime
     ///     提供VariableOwner(可能會從一些奇怪的地方拿到), 必須要有HitDataProvider
     /// </summary>
     /// FIXME: 依照parent就能決定要用Dealer還是Receiver的Blackboard
-    ///
+    /// FIXME: 應該叫做EntityRef?
     /// 這個要自帶改名能力嗎？
     public abstract class AbstractEntityProvider : MonoBehaviour, IEntityProvider
     {
@@ -38,6 +40,9 @@ namespace MonoFSM.Core.Runtime
             return owner.GetComponent<T>();
         }
 
+        [CompRef]
+        [AutoChildren]
+        private ValueProvider[] _valueProviders;
         // public abstract string NickName { get; }
     }
 }

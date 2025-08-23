@@ -7,16 +7,18 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-[Obsolete] //FIXME: 不可信任XDD
+[Obsolete("不可信任XDD 還是直接從arg event當下拿比較好，還是可以修回來？")] //FIXME: 不可信任XDD 還是直接從arg event當下拿比較好
 public class HitDataEntityProvider : AbstractEntityProvider, IEntityProvider //這個介面很怪？VariableOwner...那就直接I
 {
     //可是這裡
-    [CompRef] [AutoParent] private IHitDataProvider _hitDataProvider;
+    [CompRef]
+    [AutoParent]
+    private IHitDataProvider _hitDataProvider;
 
     public enum HitDataVariableOwner
     {
         Dealer, //rename?
-        Receiver
+        Receiver,
     }
 
     //FIXME: Owner可以 自動判斷吧，parent有Dealer就表示要用Receiver的
@@ -59,10 +61,8 @@ public class HitDataEntityProvider : AbstractEntityProvider, IEntityProvider //�
     // public override string NickName => "HitData";
 
 
-    [ShowInDebugMode] private IEffectHitData currentHitData => _hitDataProvider?.GetHitData();
-
-
-
+    [ShowInDebugMode]
+    private IEffectHitData currentHitData => _hitDataProvider?.GetHitData();
 }
 
 namespace MonoFSM.Core.Runtime
@@ -73,19 +73,25 @@ namespace MonoFSM.Core.Runtime
     /// <typeparam name="T"></typeparam>
     public abstract class HitDataParentCompProvider<T> : MonoBehaviour
     {
-        [Required] [CompRef] [AutoParent] private IHitDataProvider _hitDataProvider;
+        [Required]
+        [CompRef]
+        [AutoParent]
+        private IHitDataProvider _hitDataProvider;
 
         public enum HitDataTargetType
         {
             Dealer,
-            Receiver
+            Receiver,
         }
 
-        [FormerlySerializedAs("ownerType")] public HitDataTargetType _targetType;
+        [FormerlySerializedAs("ownerType")]
+        public HitDataTargetType _targetType;
 
-// #if UNITY_EDITOR
-        [PreviewInInspector] private IEffectHitData HitData => _hitDataProvider.GetHitData();
-// #endif
+        // #if UNITY_EDITOR
+        [PreviewInInspector]
+        private IEffectHitData HitData => _hitDataProvider.GetHitData();
+
+        // #endif
 
         // private T _cached;
 
@@ -111,7 +117,9 @@ namespace MonoFSM.Core.Runtime
                     return _hitDataProvider.GetHitData().Dealer.transform.GetComponentInParent<T>();
                 case HitDataTargetType.Receiver:
                     // Debug.Log(" HitDataVariableOwner.ReceiverOwner", hitData.Receiver.transform);
-                    return _hitDataProvider.GetHitData().Receiver.transform.GetComponentInParent<T>();
+                    return _hitDataProvider
+                        .GetHitData()
+                        .Receiver.transform.GetComponentInParent<T>();
                 default:
                     throw new NotImplementedException();
             }

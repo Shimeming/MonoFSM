@@ -19,14 +19,12 @@ namespace _1_MonoFSM_Core.Runtime.Action.TransformAction
         [DropDownRef]
         public ValueProvider _sourceValueProvider; //FIXME: missing的時候validate有問題捏
 
-
         // public ValueProvider<Transform> Test; //FIXME: 感覺錯了
 
         // public VarCompProviderRef _targetVarRef; //拿到rigidbody的話，再拿transform
         [ValueTypeValidate(typeof(Transform))] //FIXME: validation沒有辦法提示嗎
         [DropDownRef]
         public ValueProvider _targetValueProvider;
-
 
         protected override void OnStateEnter()
         {
@@ -50,7 +48,7 @@ namespace _1_MonoFSM_Core.Runtime.Action.TransformAction
 
             if (targetTransform == null)
             {
-                Debug.LogError("Target transform is null. Cannot set parent.", this);
+                // Debug.LogError("Target transform is null. Cannot set parent.", this);
                 return;
             }
 
@@ -73,8 +71,10 @@ namespace _1_MonoFSM_Core.Runtime.Action.TransformAction
         public void SwitchSourceAndTarget()
         {
             //交換source和target
-            (_sourceValueProvider, _targetValueProvider) =
-                (_targetValueProvider, _sourceValueProvider);
+            (_sourceValueProvider, _targetValueProvider) = (
+                _targetValueProvider,
+                _sourceValueProvider
+            );
         }
     }
 }

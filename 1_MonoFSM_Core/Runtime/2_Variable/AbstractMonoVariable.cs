@@ -77,7 +77,11 @@ namespace MonoFSM.Variable
             if (_varTag != null)
             {
                 _varTag._variableType.SetType(GetType());
-                _varTag._valueFilterType.SetType(ValueType);
+
+                //如果有了不該蓋掉？如果改型別了呢？還是要看有沒有繼承關係？
+                //FIXME: BaseFilterType應該要改？
+                if (_varTag.ValueFilterType == null)
+                    _varTag._valueFilterType.SetType(ValueType);
             }
 
             // Debug.Log("Tag Changed");
@@ -473,9 +477,19 @@ namespace MonoFSM.Variable
             return new[] { _varTag };
         }
 
+        // public virtual void OnBeforePrefabSave()
+        // {
+        //
+        // }
+
         public virtual void OnBeforePrefabSave()
         {
+            // base.OnBeforePrefabSave();
             UpdateTag();
+            if (_varTag == null)
+                Debug.LogError("No VarTag: " + this, this);
+            else
+                name = _varTag.name;
         }
 
         public Type GetRestrictType()

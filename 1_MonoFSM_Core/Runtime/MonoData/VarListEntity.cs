@@ -50,7 +50,30 @@ namespace MonoFSM.Core.Variable
                 return;
             }
             _currentIndex = index;
-            // Debug.Log("Setting current index to: " + index + " CurrentObj: " + CurrentObj);
+        }
+
+        public override void GoToNext()
+        {
+            EnsureActiveCollectionInitialized();
+            if (Count == 0)
+            {
+                _currentIndex = -1;
+                return;
+            }
+
+            _currentIndex = (_currentIndex + 1) % Count;
+        }
+
+        public override void GoToPrevious()
+        {
+            EnsureActiveCollectionInitialized();
+            if (Count == 0)
+            {
+                _currentIndex = -1;
+                return;
+            }
+
+            _currentIndex = (_currentIndex - 1 + Count) % Count;
         }
 
         public T GetFirstOrDefault()
@@ -264,7 +287,7 @@ namespace MonoFSM.Core.Variable
             // 重置索引到預設值
             _currentIndex = _defaultIndex;
 
-            // 通知變更（Clear() 已經調用過，但如果有恢復內容需要再次通知）
+            // 通知變更（Clear() 已經調用過，但如果有恢復內容需要��次通知）
             if (_backingListForSerialization != null && _backingListForSerialization.Count > 0)
                 OnValueChanged();
         }
@@ -459,6 +482,8 @@ namespace MonoFSM.Core.Variable
         [ShowInPlayMode]
         public abstract Object CurrentRawObject { get; }
         public abstract void SetIndex(int index);
+        public abstract void GoToNext();
+        public abstract void GoToPrevious();
 
         protected override void SetValueInternal<T1>(T1 value, Object byWho = null) { }
 

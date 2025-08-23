@@ -14,15 +14,14 @@ namespace MonoFSM.Runtime.Vote
     {
         ConditionType GetConditionType();
         void OnValueChange(bool value);
-        void Vote(Object m, bool vote);
+        void Vote(Object voter, bool vote);
         bool GetDefaultValue();
     }
-
 
     public enum ConditionType
     {
         AND,
-        OR
+        OR,
     }
 
     public interface IVoteChild
@@ -41,6 +40,7 @@ namespace MonoFSM.Runtime.Vote
             _currentResult = GetDefaultValue();
             OnValueChange(_currentResult);
         }
+
         [ShowInPlayMode]
         private Object[] keys
         {
@@ -72,7 +72,6 @@ namespace MonoFSM.Runtime.Vote
         [Serializable]
         public struct VoteRecord
         {
-
             private string _voterName;
             private bool _vote;
 
@@ -82,13 +81,13 @@ namespace MonoFSM.Runtime.Vote
             [ShowInPlayMode]
             public bool Vote => _vote;
 
-            public VoteRecord(Object voter,bool vote)
+            public VoteRecord(Object voter, bool vote)
             {
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
                 _voterName = voter.name; //會有GC，UNITYEDITOR ONLY?
-    #else
+#else
                 _voterName = string.Empty;
-    #endif
+#endif
                 _vote = vote;
             }
         }
@@ -97,7 +96,6 @@ namespace MonoFSM.Runtime.Vote
         {
             return _getConditionTypeDelegate();
         }
-
 
         public bool GetDefaultValue()
         {
@@ -119,7 +117,7 @@ namespace MonoFSM.Runtime.Vote
 
         public delegate bool GetDefaultValueDelegate();
         public delegate void OnValueChangeDelegate(bool value);
-        public delegate ConditionType GetConditionTypeDelegate ();
+        public delegate ConditionType GetConditionTypeDelegate();
 
         public enum ChangeResultTiming
         {
@@ -135,30 +133,28 @@ namespace MonoFSM.Runtime.Vote
             CheckResult();
         }
 
-
-        public void Vote(Object m, bool vote)
+        public void Vote(Object voter, bool vote)
         {
-            if (m is IVoteChild voteChild)
-                m = voteChild.VoteOwner;
+            if (voter is IVoteChild voteChild)
+                voter = voteChild.VoteOwner;
 
             //不需樣Add?
-            voteDict[m] = new VoteRecord(m,vote) ;
-            Debug.Log($"Vote {m} bool:{vote}");
+            voteDict[voter] = new VoteRecord(voter, vote);
+            Debug.Log($"Vote {voter} bool:{vote}");
 
-            if(_changeChangeResultTiming == ChangeResultTiming.OnVote)
+            if (_changeChangeResultTiming == ChangeResultTiming.OnVote)
                 CheckResult();
             //ManualUpdate
             //投票的時候還沒solve
         }
 
-        public void Revoke(Object m)
+        public void Revoke(Object voter)
         {
-            if (m is IVoteChild voteChild)
-                m = voteChild.VoteOwner;
-            if (voteDict.ContainsKey(m))
-                voteDict.Remove(m);
+            if (voter is IVoteChild voteChild)
+                voter = voteChild.VoteOwner;
+            voteDict.Remove(voter);
 
-            if(_changeChangeResultTiming == ChangeResultTiming.OnVote)
+            if (_changeChangeResultTiming == ChangeResultTiming.OnVote)
                 CheckResult();
         }
 
@@ -170,6 +166,7 @@ namespace MonoFSM.Runtime.Vote
         }
 
         private List<Object> _toRemove = new();
+
         private void CheckResult()
         {
             var newResult = GetDefaultValue();
@@ -192,7 +189,6 @@ namespace MonoFSM.Runtime.Vote
             {
                 voteDict.Remove(key);
             }
-
 
             if (GetConditionType() == ConditionType.AND)
             {
@@ -221,18 +217,11 @@ namespace MonoFSM.Runtime.Vote
                 iterator = voteDict.GFIterator();
                 while (iterator.MoveNext())
                 {
-                    if (iterator.Current.Value.Vote != true) continue;
+                    if (iterator.Current.Value.Vote != true)
+                        continue;
                     newResult = true;
                     break;
                 }
-
-
-                // foreach (var vote in votes.Values)
-                // {
-                //     if (vote != true) continue;
-                //     newResult = true;
-                //     break;
-                // }
             }
 
             if (_currentResult != newResult)
@@ -240,7 +229,6 @@ namespace MonoFSM.Runtime.Vote
                 _currentResult = newResult;
                 OnValueChange(newResult);
             }
-
         }
 
         private bool _currentResult = false;
@@ -248,11 +236,16 @@ namespace MonoFSM.Runtime.Vote
         // public bool VoteResult => _currentResult;
         public bool Result => _currentResult;
 
-        public RuntimeConditionVote(ConditionType type = ConditionType.OR, bool defaultValue = false,
-            OnValueChangeDelegate onValueChangeDelegate = null,ChangeResultTiming updateTiming = ChangeResultTiming.OnVote)
+        //default用And?
+        public RuntimeConditionVote(
+            ConditionType type = ConditionType.AND,
+            bool defaultValue = false,
+            OnValueChangeDelegate onValueChangeDelegate = null,
+            ChangeResultTiming updateTiming = ChangeResultTiming.OnVote
+        )
         {
-            _getConditionTypeDelegate = ()=>type;
-            _getDefaultValueDelegate = ()=>defaultValue;
+            _getConditionTypeDelegate = () => type;
+            _getDefaultValueDelegate = () => defaultValue;
             _onValueChangeDelegate = onValueChangeDelegate;
             _currentResult = GetDefaultValue();
             _changeChangeResultTiming = updateTiming;
@@ -260,16 +253,20 @@ namespace MonoFSM.Runtime.Vote
             voteDict = new();
         }
 
-        public RuntimeConditionVote(GetConditionTypeDelegate getConditionTypeDelegate,
-            GetDefaultValueDelegate getDefaultValueDelegate, OnValueChangeDelegate onValueChangeDelegate = null,ChangeResultTiming updateTiming = ChangeResultTiming.OnVote)
+        public RuntimeConditionVote(
+            GetConditionTypeDelegate getConditionTypeDelegate,
+            GetDefaultValueDelegate getDefaultValueDelegate,
+            OnValueChangeDelegate onValueChangeDelegate = null,
+            ChangeResultTiming updateTiming = ChangeResultTiming.OnVote
+        )
         {
-             _getConditionTypeDelegate = getConditionTypeDelegate;
-             _getDefaultValueDelegate = getDefaultValueDelegate;
-             _onValueChangeDelegate = onValueChangeDelegate;
-             _changeChangeResultTiming = updateTiming;
-             _currentResult = GetDefaultValue();
-             OnValueChange(_currentResult);
-             voteDict = new();
+            _getConditionTypeDelegate = getConditionTypeDelegate;
+            _getDefaultValueDelegate = getDefaultValueDelegate;
+            _onValueChangeDelegate = onValueChangeDelegate;
+            _changeChangeResultTiming = updateTiming;
+            _currentResult = GetDefaultValue();
+            OnValueChange(_currentResult);
+            voteDict = new();
         }
     }
 }

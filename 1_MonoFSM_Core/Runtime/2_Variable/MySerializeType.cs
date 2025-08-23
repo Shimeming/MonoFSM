@@ -9,11 +9,8 @@ using Object = UnityEngine.Object;
 
 namespace MonoFSM.Variable
 {
-     [Serializable]
-    public class MySerializedType : MySerializedType<object>
-    {
-    }
-
+    [Serializable]
+    public class MySerializedType : MySerializedType<object> { }
 
     //EditorOnly
     //T 表示這個type可以
@@ -22,13 +19,15 @@ namespace MonoFSM.Variable
     public class MySerializedType<T> : ISerializationCallbackReceiver
     {
 #if UNITY_EDITOR
-        [HideInInspector] public Object _bindObject; //debug用
+        [HideInInspector]
+        public Object _bindObject; //debug用
 #endif
+
         //override baseType
         [FormerlySerializedAs("_baseVarTypeName")]
         [FormerlySerializedAs("_varTypeName")]
         [SerializeField]
-        [ShowInDebugMode]
+        [PreviewInDebugMode]
         private string _baseFilterTypeName;
 
         private Type _baseFilterType; //default 用 T?
@@ -37,20 +36,25 @@ namespace MonoFSM.Variable
         // [Header("Refactor-Safe 資料")] [SerializeField] [PreviewInInspector] [ReadOnly]
         // private int _typeMetadataToken;
 
-        [ShowInDebugMode] [SerializeField] [ReadOnly]
+        [ShowInDebugMode]
+        [SerializeField]
+        [ReadOnly]
         private string _typeFullName; // 用於顯示和驗證 //兩種都有？搞屁？
 
-        [ShowInDebugMode] [SerializeField] [ReadOnly]
+        [ShowInDebugMode]
+        [SerializeField]
+        [ReadOnly]
         private string _assemblyName;
 
         public void SetBaseType(Type type)
         {
-            if (type == null) return;
+            if (type == null)
+                return;
             _baseFilterType = type;
             _baseFilterTypeName = type.AssemblyQualifiedName;
         }
 
-        [ShowInDebugMode]
+        [PreviewInDebugMode]
         public Type BaseFilterType
         {
             get
@@ -104,10 +108,9 @@ namespace MonoFSM.Variable
                 _typeFullName = "";
                 _assemblyName = "";
             }
-            
+
             // Debug.Log($"SetType: {_type}");
         }
-
 
         // [Header("宣告型別：")]
 
@@ -152,6 +155,7 @@ namespace MonoFSM.Variable
                 // TypeToString();
             }
         }
+
         //
         // void TypeToString()
         // {
@@ -196,10 +200,13 @@ namespace MonoFSM.Variable
                 if (_type == null)
                     Debug.LogError(
                         $"Type '{typeName}' could not be found. Please check the type name.",
-                        _bindObject); //沒辦法拿到data holder...煩
+                        _bindObject
+                    ); //沒辦法拿到data holder...煩
             }
 
-            _baseFilterType = string.IsNullOrEmpty(_baseFilterTypeName) ? null : Type.GetType(_baseFilterTypeName);
+            _baseFilterType = string.IsNullOrEmpty(_baseFilterTypeName)
+                ? null
+                : Type.GetType(_baseFilterTypeName);
         }
 
         /// <summary>
@@ -210,7 +217,10 @@ namespace MonoFSM.Variable
             // 優先使用 RefactorSafeNameResolver 進行 attribute-based 查找
             if (!string.IsNullOrEmpty(typeName))
             {
-                var type = RefactorSafeNameResolver.FindTypeByCurrentOrFormerName(typeName, _assemblyName);
+                var type = RefactorSafeNameResolver.FindTypeByCurrentOrFormerName(
+                    typeName,
+                    _assemblyName
+                );
                 // Debug.Log($"RefactorSafeNameResolver 查找型別 '{typeName}' 結果：{type?.FullName ?? "未找到"}", _bindObject);
                 if (type != null)
                 {
@@ -220,9 +230,9 @@ namespace MonoFSM.Variable
                     return type;
                 }
             }
-            
+
             // 最終回退：直接用名稱查找
-            Debug.LogError($"RefactorSafeNameResolver 無法找到型別 '{typeName}'",_bindObject);
+            Debug.LogError($"RefactorSafeNameResolver 無法找到型別 '{typeName}'", _bindObject);
             // Debug.LogWarning($"使用 RefactorSafeNameResolver 和 MetadataToken 都失敗，回退到標準名稱查找: {typeName}");
             return null;
         }
@@ -232,7 +242,8 @@ namespace MonoFSM.Variable
         /// </summary>
         private void SyncTypeNameIfNeeded()
         {
-            if (_type == null) return;
+            if (_type == null)
+                return;
 
             var currentFullName = _type.FullName;
             var currentAssemblyQualifiedName = _type.AssemblyQualifiedName;
@@ -240,11 +251,14 @@ namespace MonoFSM.Variable
             // 檢查 FullName 是否有變化
             if (_typeFullName != currentFullName)
             {
-                Debug.Log($"檢測到型別重構：'{_typeFullName}' -> '{currentFullName}'，自動更新型別名稱");
+                Debug.Log(
+                    $"檢測到型別重構：'{_typeFullName}' -> '{currentFullName}'，自動更新型別名稱"
+                );
 
                 // 檢查是否有 FormerlyNamedAs 或 FormerlyFullName 屬性
                 var trackingInfo = RefactorSafeNameResolver.GetTypeTrackingInfo(_type);
-                if (trackingInfo.HasFormerNames) Debug.Log($"型別 {currentFullName} 有重構歷史，attribute-based 追踪可用");
+                if (trackingInfo.HasFormerNames)
+                    Debug.Log($"型別 {currentFullName} 有重構歷史，attribute-based 追踪可用");
 
                 // 更新所有相關資訊
                 _typeFullName = currentFullName;
@@ -287,7 +301,6 @@ namespace MonoFSM.Variable
             return true;
         }
 
-
         /// <summary>
         /// 🆕 檢查型別名稱同步狀態
         /// </summary>
@@ -305,7 +318,9 @@ namespace MonoFSM.Variable
 
                 if (actualType.FullName != _typeFullName)
                 {
-                    Debug.Log($"檢測到型別名稱不同步：儲存='{_typeFullName}', 實際='{actualType.FullName}'");
+                    Debug.Log(
+                        $"檢測到型別名稱不同步：儲存='{_typeFullName}', 實際='{actualType.FullName}'"
+                    );
                     Debug.Log("請使用 '重新整理型別 MetadataToken' 按鈕進行同步");
                 }
                 else

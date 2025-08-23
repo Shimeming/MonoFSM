@@ -1,5 +1,6 @@
 using System;
 using MonoFSM.Core.Attributes;
+using MonoFSM.EditorExtension;
 using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -20,7 +21,8 @@ namespace MonoFSM.Variable
     public abstract class GenericUnityObjectVariable<TValueType>
         : AbstractObjectVariable,
             ISettable<TValueType>,
-            IResetStateRestore
+            IResetStateRestore,
+            IHierarchyValueInfo
         where TValueType : Object
     {
         protected override void Awake()
@@ -35,6 +37,7 @@ namespace MonoFSM.Variable
         // [Header("預設值")] [HideIf(nameof(_siblingDefaultValue))]
         [SOConfig("10_Flags/GameData", useVarTagRestrictType: true)] //痾，只有SO類才需要ㄅ
         [SerializeField]
+        [Required]
         protected TValueType _defaultValue;
 
         protected virtual TValueType DefaultValue
@@ -173,6 +176,9 @@ namespace MonoFSM.Variable
         [Header("避免關卡重置時清除資料")]
         [SerializeField]
         public bool _isConst; //
+
         //避免reset restore?
+        public string ValueInfo => Value != null ? Value.name : "null";
+        public bool IsDrawingValueInfo => true;
     }
 }

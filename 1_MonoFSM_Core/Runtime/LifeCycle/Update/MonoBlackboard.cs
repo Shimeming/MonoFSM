@@ -14,7 +14,6 @@ namespace MonoFSM.Runtime.Variable
     [DisallowMultipleComponent]
     public class MonoBlackboard : MonoBehaviour, IMonoEntity, IUpdateSimulate //FIXME: 沒有必要用介面？
     {
-
         private bool IsVariableMissing()
         {
             return !CheckAllVariableExists();
@@ -31,7 +30,7 @@ namespace MonoFSM.Runtime.Variable
                 return false;
             }
 
-            if (DescriptableTags == null || DescriptableTags.Count == 0)
+            if (DefaultTag == null)
             {
                 _errorValue = "Descriptable Tags is null or empty"; //需要Descriptable Tag嗎？從Data取得？
                 return false;
@@ -64,30 +63,48 @@ namespace MonoFSM.Runtime.Variable
             return true;
         }
 
-        [InfoBox("$errorString", InfoMessageType.Error, nameof(IsVariableMissing))]
+        [InlineEditor]
+        [Required]
+        [SOConfig("MonoEntityTag")]
+        [SerializeField]
+        protected MonoEntityTag _entityTag;
+
+        // [InfoBox("$errorString", InfoMessageType.Error, nameof(IsVariableMissing))]
         [InlineEditor]
         [Required]
         [ShowInInspector]
         [SerializeField]
+        [Obsolete("應該不需要多個？")]
         [SOConfig("MonoEntityTag")] //可以用一個scriptableObject/preference來改path相對路徑？
         // [ListDrawerSettings(ShowFoldout = true, ShowIndexLabels = true, ListElementLabelName = "name")]
         protected List<MonoEntityTag> _descriptableTags = new(); //支援多個 DescriptableTag
 
+        private void OnValidate()
+        {
+            if (_entityTag == null && _descriptableTags != null && _descriptableTags.Count > 0)
+                _entityTag = _descriptableTags[0]; //如果沒有指定，則使用第一個 Descriptable Tag
+        }
+
+        //FIXME: 好像不用多個耶，錯了，多個schema就好，一個物體對一個entity比較好想
         public List<MonoEntityTag> DescriptableTags => _descriptableTags;
 
         //FIXME: 可以多個tag? runtime
-        public MonoEntityTag DefaultTag => DescriptableTags?.Count > 0 ? DescriptableTags[0] : null;
+        public MonoEntityTag DefaultTag =>
+            _entityTag ?? (DescriptableTags?.Count > 0 ? DescriptableTags[0] : null);
 
         //reflection 同名還會...
         public AbstractMonoVariable this[string statName] => GetVar(statName); //索引器，直接用GetVariable,還是也可以get comp?
+
         // public AbstractMonoVariable this[VariableTag varTag] => GetVariable(varTag); //索引器，直接用GetVariable,還是也可以get comp?
         // public Component this[Type type] => GetComp(type); //索引器，直接用GetVariable,還是也可以get comp?
 
         private Dictionary<Type, Component> _compCache = new();
 
-        public T GetComp<T>() where T : Component
+        public T GetComp<T>()
+            where T : Component
         {
-            if (_compCache.TryGetValue(typeof(T), out var comp)) return comp as T;
+            if (_compCache.TryGetValue(typeof(T), out var comp))
+                return comp as T;
             var component = GetComponentInChildren<T>(); //從children找
             if (component != null)
             {
@@ -101,7 +118,8 @@ namespace MonoFSM.Runtime.Variable
 
         public Component GetComp(Type type)
         {
-            if (_compCache.TryGetValue(type, out var comp)) return comp;
+            if (_compCache.TryGetValue(type, out var comp))
+                return comp;
             var component = GetComponentInChildren(type);
             if (component != null)
             {
@@ -114,7 +132,9 @@ namespace MonoFSM.Runtime.Variable
         }
 
         //FIXME: 可能有多個？ multiple folder
-        [CompRef] [AutoChildren] [Required]
+        [CompRef]
+        [AutoChildren]
+        [Required]
         private VariableFolder _variableFolder;
 
         //從一開始就應該做getter?? 然後用attribute來標記怎麼做的？ 像是[Networked]掛在getter上面？
@@ -138,19 +158,19 @@ namespace MonoFSM.Runtime.Variable
             return VariableFolder.GetVariable(varTagName);
         }
 
-        public TMonoVariable GetVar<TMonoVariable>(VariableTag varTag) where TMonoVariable : AbstractMonoVariable
+        public TMonoVariable GetVar<TMonoVariable>(VariableTag varTag)
+            where TMonoVariable : AbstractMonoVariable
         {
             return VariableFolder.GetVariable<TMonoVariable>(varTag);
         }
 
-        public TMonoVariable GetVar<TMonoVariable>(string varTagName) where TMonoVariable : AbstractMonoVariable
+        public TMonoVariable GetVar<TMonoVariable>(string varTagName)
+            where TMonoVariable : AbstractMonoVariable
         {
             return GetVar(varTagName) as TMonoVariable;
         }
 
-        public void Simulate(float deltaTime)
-        {
-        }
+        public void Simulate(float deltaTime) { }
 
         public void AfterUpdate() //等Simulate都跑完後才CommitValue
         {
@@ -161,7 +181,9 @@ namespace MonoFSM.Runtime.Variable
         // 多 Tag 支援方法
         public MonoEntityTag GetDescriptableTag(string tagName)
         {
-            return DescriptableTags?.FirstOrDefault(descriptableTag => descriptableTag != null && descriptableTag.GetStringKey == tagName);
+            return DescriptableTags?.FirstOrDefault(descriptableTag =>
+                descriptableTag != null && descriptableTag.GetStringKey == tagName
+            );
         }
 
         public MonoEntityTag GetDescriptableTag(int index)

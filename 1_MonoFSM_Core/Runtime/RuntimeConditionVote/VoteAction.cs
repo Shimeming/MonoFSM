@@ -1,26 +1,25 @@
-using System;
 using MonoFSM.Core.Runtime.Action;
-using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
 
 namespace MonoFSM.Runtime.Vote
 {
     //Default: Vote
-    public class VoteAction : AbstractStateAction, IResetStateRestore
+    public class VoteAction : AbstractStateAction
     {
         public enum VoteType
         {
             Vote,
             Revoke,
-            EnableDisable
+            EnableDisable,
         }
 
-        public VoteType voteType = VoteType.EnableDisable;
+        public VoteType voteType = VoteType.Vote;
 
         [ShowIf(nameof(voteType), VoteType.Vote)]
         public bool voteValue = true;
 
-        [DropDownRef] public MonoVariableVote _voteVar;
+        [DropDownRef]
+        public VarVote _voteVar;
 
         protected override string renamePostfix => $"{voteType} {_voteVar.name} {voteValue}";
 
@@ -34,6 +33,7 @@ namespace MonoFSM.Runtime.Vote
 
         private void OnEnable()
         {
+            //FIXME: 不是很喜歡，需要更能信任的 OnEnable/OnDisable
             if (_isPrepared == false)
                 return;
             if (voteType == VoteType.EnableDisable)
@@ -50,9 +50,10 @@ namespace MonoFSM.Runtime.Vote
 
         private bool _isPrepared = false;
 
-        public void ResetStateRestore()
+        public override void ResetStateRestore()
         {
             _isPrepared = true;
+            base.ResetStateRestore();
         }
     }
 }

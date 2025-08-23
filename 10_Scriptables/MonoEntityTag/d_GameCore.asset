@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8e71863d6a014827a715566dd5c5af2f, type: 3}
-  m_Name: Foo
+  m_Name: d_GameCore
   m_EditorClassIdentifier: 
   _entityType:
     _bindObject: {fileID: 0}
@@ -26,12 +26,9 @@ MonoBehaviour:
     typeName: 
   SamepleData: {fileID: 0}
   containsVariableTypeTags:
-  - {fileID: 11400000, guid: 6f5d3d9290990430c9e43445c7215145, type: 2}
-  - {fileID: 11400000, guid: d11b81a369b66433092365c315c1d3e8, type: 2}
-  - {fileID: 11400000, guid: 75b60f1fe6a4c4ceaa8b8df077de7100, type: 2}
-  - {fileID: 11400000, guid: 02cf875545f8a44e6ab6500afc5d346a, type: 2}
-  - {fileID: 11400000, guid: 944ac56177d1944029d21e05db319614, type: 2}
-  - {fileID: 11400000, guid: e2491fb40028e41838bbb8399b05e7eb, type: 2}
+  - {fileID: 11400000, guid: 08bf72ccace8c4001b80737cb5aa28e1, type: 2}
+  - {fileID: 11400000, guid: 22b2108d6e6ac474c9f72265fe25a6ae, type: 2}
+  - {fileID: 11400000, guid: 49109f46edcdd476aa6c3a94e1b27369, type: 2}
   IsCollectionTag: 0
   _allMonoDescriptable: []
   _stringKey: 

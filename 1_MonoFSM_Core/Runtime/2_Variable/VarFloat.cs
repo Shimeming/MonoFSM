@@ -12,11 +12,13 @@ namespace MonoFSM.Variable
     /// This class provides functionality for float values that can be accessed, modified, and tracked
     /// across the application.
     /// </summary>
-    public class VarFloat : GenericMonoVariable<GameDataFloat, FlagFieldFloat, float>, ISerializedFloatValue,
-        IHierarchyValueInfo
+    public class VarFloat
+        : GenericMonoVariable<GameDataFloat, FlagFieldFloat, float>,
+            ISerializedFloatValue,
+            IHierarchyValueInfo
     {
-
         public bool IsDirty => CurrentValue != LastValue; //這樣只會一個frame耶？完全不用resolve啊...?
+
         //FIXME: 需要一個reset value source? 回到maxValue or minValue之類的...?
         // public override GameFlagBase FinalData => BindData;
 
@@ -24,23 +26,29 @@ namespace MonoFSM.Variable
         [ShowInDebugMode]
         public int IntValue => Mathf.CeilToInt(CurrentValue);
 
-        [ShowInPlayMode] public float Percentage => (CurrentValue - Min) / (Max - Min);
+        [ShowInPlayMode]
+        public float Percentage => (CurrentValue - Min) / (Max - Min);
 
         //FIXME: 要editor time的時候GetComponent嗎？
         public float Min => _boundModifier ? _boundModifier.MinValue : float.MinValue;
 
-        [FormerlyNamedAs("MaxTest")] public float Max => _boundModifier ? _boundModifier.MaxValue : float.MaxValue;
-
+        [FormerlyNamedAs("MaxTest")]
+        public float Max => _boundModifier ? _boundModifier.MaxValue : float.MaxValue;
 
         public override void OnBeforePrefabSave()
         {
             base.OnBeforePrefabSave();
             if (_boundModifier != null)
             {
-                Field.ResetToDefault();
+                //FIXME: 蛤？
+                // Field.ResetToDefault();
+                Field.Init(TestMode.Production, this);
                 _boundModifier.EditorBoundCheck(ref Field.ProductionValue);
                 _boundModifier.EditorBoundCheck(ref Field.DevValue);
-                Debug.Log($"VarFloat OnBeforePrefabSave: Min={Min}, Max={Max}, CurrentValue={CurrentValue}", this);
+                Debug.Log(
+                    $"VarFloat OnBeforePrefabSave: Min={Min}, Max={Max}, CurrentValue={CurrentValue}",
+                    this
+                );
 #if UNITY_EDITOR
                 EditorUtility.SetDirty(this);
 #endif
@@ -62,9 +70,9 @@ namespace MonoFSM.Variable
         /// <param name="currentValue"></param>
         protected override void ValueCommited(float lastValue, float currentValue)
         {
-            if (currentValue < lastValue) _lastDecreasingTime = Time.time; //FIXME: 還是要往上問？
+            if (currentValue < lastValue)
+                _lastDecreasingTime = Time.time; //FIXME: 還是要往上問？
         }
-
 
         [ShowInDebugMode]
         public bool IsIncreasing => CurrentValue > LastValue;
@@ -72,6 +80,7 @@ namespace MonoFSM.Variable
         [AutoChildren(false)] //[PreviewInInspector]
         [SerializeField]
         private VariableFloatBoundModifier _boundModifier; //FIXME: Nested Prefab時會有髒髒狀態？ 還是要Editor都寫GetComponent...?
+
         // [PreviewInInspector] [Component] [AutoChildren]
         // AbstractVariableModifier<float>[] _setOperations;
 

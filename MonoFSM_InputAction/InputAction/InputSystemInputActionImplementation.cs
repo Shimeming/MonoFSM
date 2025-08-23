@@ -8,24 +8,28 @@ namespace MonoFSM_InputAction
 {
     //FIXME: 應該綁這個為主？DI IsPressed實作
     [RequireComponent(typeof(MonoInputAction))]
-    public class InputSystemInputActionImplementation : AbstractDescriptionBehaviour, IInputActionImplementation
+    public class InputSystemInputActionImplementation
+        : AbstractDescriptionBehaviour,
+            IInputActionImplementation
     {
-
-        [Required]
-        [PreviewInInspector] [AutoParent] private PlayerInput _localPlayerInput;
+        // [Required]
+        // [PreviewInInspector] [AutoParent] private PlayerInput _localPlayerInput;
         public int InputActionId => _inputActionData.actionID; //還是monobehaviour自己assign就好？
 
         [InlineEditor]
-        [SOConfig("PlayerInputActionData")] [SerializeField]
+        [SOConfig("PlayerInputActionData")]
+        [SerializeField]
         protected InputActionData _inputActionData;
 
         // private bool _readLocalVec2;
 
         // private InputActionMap _inputActionMap;
-        public InputAction myAction =>
-            _inputActionData && _inputActionData._inputAction != null
-                ? _localPlayerInput?.actions?[_inputActionData?._inputAction?.name]
-                : null;
+        public InputAction myAction => _inputActionData._inputAction.action;
+
+        // public InputAction myAction =>
+        // _inputActionData && _inputActionData._inputAction != null
+        //     ? _localPlayerInput?.actions?[_inputActionData?._inputAction?.name] //好像不要用了？
+        //     : null;
         // public InputAction myAction => _localPlayerInput.currentActionMap.FindAction(_inputActionData.inputAction.name);
 
         bool IInputActionImplementation.IsLocalPressed =>
@@ -34,7 +38,9 @@ namespace MonoFSM_InputAction
         [ShowInDebugMode]
         Vector2 IInputActionImplementation.ReadLocalVec2 =>
             myAction?.ReadValue<Vector2>() ?? Vector2.zero;
-        Vector2 IInputActionImplementation.Vec2Value => ((IInputActionImplementation)this).ReadLocalVec2;
+        Vector2 IInputActionImplementation.Vec2Value =>
+            ((IInputActionImplementation)this).ReadLocalVec2;
+
         [ShowInInspector]
         bool IInputActionImplementation.IsVec2 =>
             _inputActionData?._inputAction?.action?.expectedControlType == "Vector2";

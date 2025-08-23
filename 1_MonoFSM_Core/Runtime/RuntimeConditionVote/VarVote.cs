@@ -5,7 +5,7 @@ using Object = UnityEngine.Object;
 
 namespace MonoFSM.Runtime.Vote
 {
-    public class MonoVariableVote : AbstractMonoVariable
+    public class VarVote : AbstractMonoVariable
     {
         // [SerializeField]
         private readonly RuntimeConditionVote _vote = new();

@@ -4,6 +4,7 @@ using Cysharp.Threading.Tasks;
 using MonoFSM.Core.Attributes;
 using MonoFSM.EditorExtension;
 using MonoFSM.Foundation;
+using MonoFSM.Runtime;
 using MonoFSM.Runtime.Vote;
 using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
@@ -49,6 +50,9 @@ namespace MonoFSM.Core.Runtime.Action
             IResetStateRestore
     // IArgEventReceiver<GeneralEffectHitData>
     {
+        // public MonoEntity ParentEntity => GetComponentInParent<MonoEntity>();
+        public MonoEntity ParentEntity => bindingState.ParentEntity;
+
         protected override bool HasError()
         {
             return GetComponentInParent<IActionParent>(true) == null;
@@ -205,7 +209,7 @@ namespace MonoFSM.Core.Runtime.Action
 
         public virtual void Resume() { }
 
-        public void ResetStateRestore()
+        public virtual void ResetStateRestore()
         {
             _lastEventReceivedTime = -1f;
             _delay = false;

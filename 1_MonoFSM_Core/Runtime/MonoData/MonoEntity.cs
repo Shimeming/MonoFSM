@@ -38,8 +38,7 @@ namespace MonoFSM.Runtime
             IValueProvider,
             IAnimatorProvider //這樣data也要一直繼承，好ㄇ...
     {
-        // [CompRef] [Auto] [SerializeField] private AbstractEntitySchema _entitySchema;
-        // public AbstractEntitySchema EntitySchema => _entitySchema; //不唯一？defaultSchema?
+        //FIXME: GetComponentsInChildren IFeature, 然後用type把dict包起來，那和schema不就一樣了？更彈性的版本嗎？
 
         [PreviewInInspector]
         [AutoChildren(DepthOneOnly = true)]
@@ -154,6 +153,25 @@ namespace MonoFSM.Runtime
         [PreviewInInspector]
         private int DealerSetCount => _dealerTypeMap.Count;
 
+        /// <summary>
+        ///     直接讓兩個entity觸發作用
+        /// </summary>
+        /// <param name="effectType"></param>
+        /// <param name="target"></param>
+        public void ApplyEffectTo(GeneralEffectType effectType, MonoEntity target)
+        {
+            //FIXME: 可以保證一個entity下只有一個type的Dealer嗎？不一定吧？但receiver可以？ 還是拿到list?
+            if (target == null)
+            {
+                Debug.LogError("Target is null", this);
+                return;
+            }
+
+            var dealer = GetDealer(effectType);
+            var receiver = target.GetReceiver(effectType);
+            receiver.ForceDirectEffectHit(dealer);
+        }
+
         [PreviewInInspector]
         [AutoChildren]
         private GeneralEffectReceiver[] _receivers; //可以互動的性質門
@@ -191,6 +209,11 @@ namespace MonoFSM.Runtime
 
         public GeneralEffectReceiver GetReceiver(GeneralEffectType effectType)
         {
+            if (effectType == null)
+            {
+                Debug.LogError("EffectType is null", this);
+                return null;
+            }
             if (_receiverTypeMap.TryGetValue(effectType, out var receiver) == false)
             {
                 Debug.LogError($"Receiver \"{effectType}\" not found in {name}", this);
@@ -345,25 +368,24 @@ namespace MonoFSM.Runtime
         {
             if (VariableFolder == null)
                 return;
-            if (DescriptableTags == null || DescriptableTagCount == 0)
-                return;
+            // if (DescriptableTags == null || DescriptableTagCount == 0)
+            //     return;
             var variables = VariableFolder.GetValues;
 
             // 為所有 DescriptableTag 新增缺失的 variable tags
-            foreach (var descriptableTag in DescriptableTags)
-            {
-                if (descriptableTag == null)
-                    continue;
+            // foreach (var descriptableTag in DescriptableTags)
+            // {
+            var descriptableTag = DefaultTag;
+            if (descriptableTag == null)
+                return;
 
-                foreach (var variable in variables)
-                {
-                    if (!descriptableTag.containsVariableTypeTags.Contains(variable._varTag))
-                        descriptableTag.containsVariableTypeTags.Add(variable._varTag);
-                }
+            foreach (var variable in variables)
+                if (!descriptableTag.containsVariableTypeTags.Contains(variable._varTag))
+                    descriptableTag.containsVariableTypeTags.Add(variable._varTag);
 #if UNITY_EDITOR
-                EditorUtility.SetDirty(descriptableTag);
+            EditorUtility.SetDirty(descriptableTag);
 #endif
-            }
+            // }
         }
 
         //FIXME: 好像不需要了？要繼承 MonoEntity 才需要

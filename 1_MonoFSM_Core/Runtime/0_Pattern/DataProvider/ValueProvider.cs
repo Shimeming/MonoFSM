@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using _1_MonoFSM_Core.Runtime._1_States;
 using Cysharp.Text;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Runtime;
@@ -284,7 +285,27 @@ namespace MonoFSM.Core.DataProvider
             return null;
         }
 
-        public override T1 Get<T1>()
+        public MonoEntity GetMonoEntity()
+        {
+            if (entityProvider != null)
+                return entityProvider.monoEntity;
+            return ParentEntity;
+        }
+
+        public TSchema GetSchema<TSchema>()
+            where TSchema : AbstractEntitySchema
+        {
+            var entity = GetMonoEntity();
+            if (entity == null)
+            {
+                Debug.LogError("VarRef: No target entity found.", this);
+                return null;
+            }
+
+            return entity.GetSchema<TSchema>();
+        }
+
+        public override T1 Get<T1>() //GetAs?
         {
             if (ValueType == null)
                 // Debug.LogError("VarRef: ValueType is null, cannot get value.", this);

@@ -1,18 +1,17 @@
 using System;
 using _1_MonoFSM_Core.Runtime._3_FlagData;
 using MonoFSM.Core.Attributes;
+using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-using UnityEngine;
 
 namespace MonoFSM.Variable.TypeTag
 {
     [CreateAssetMenu(fileName = "NewSOType", menuName = "MonoFSM/Variable/SOType")]
-    public class MonoTypeTag : AbstractTypeTag<MonoBehaviour> //這個感覺有點討厭？
-    {
-        
-    }
+    public class MonoTypeTag
+        : AbstractTypeTag<MonoBehaviour> //這個感覺有點討厭？
+    { }
 
     public abstract class AbstractTypeTag<T> : AbstractTypeTag
     {
@@ -25,7 +24,8 @@ namespace MonoFSM.Variable.TypeTag
 
         [InlineField]
         public MySerializedType<T> _type;
-        public override Type Type => _type.RestrictType; //這樣就可以直接拿到Type了
+
+        public override Type Type => _type?.RestrictType; //這樣就可以直接拿到Type了
 
         //存檔時，把name改成TypeName
 
