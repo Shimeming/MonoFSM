@@ -4,10 +4,15 @@ using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Variable;
 using MonoFSM.Runtime;
 using MonoFSM.Runtime.Variable;
+using MonoFSM.Runtime.Vote;
+using Sirenix.OdinInspector;
 using Object = UnityEngine.Object;
 
 namespace MonoFSM.Variable
 {
+    [Serializable]
+    public class VarVoteWrapper : VarWrapper<VarVote, bool> { }
+
     [Serializable]
     public class VarBoolWrapper : VarWrapper<VarBool, bool> { }
 
@@ -26,7 +31,10 @@ namespace MonoFSM.Variable
         where TVar : AbstractMonoVariable
     {
         [SOConfig("VariableType")]
+        [Required]
         public VariableTag _bindTag;
+
+        [Required]
         public TVar _var;
 
         public TValue Value

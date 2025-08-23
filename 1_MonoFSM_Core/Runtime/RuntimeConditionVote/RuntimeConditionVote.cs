@@ -34,6 +34,39 @@ namespace MonoFSM.Runtime.Vote
     [Serializable]
     public class RuntimeConditionVote : IRuntimeConditionImplementation //這個只有Bool
     {
+        //default用And?
+        public RuntimeConditionVote(
+            ConditionType type = ConditionType.AND,
+            bool defaultValue = false,
+            OnValueChangeDelegate onValueChangeDelegate = null,
+            ChangeResultTiming updateTiming = ChangeResultTiming.OnVote
+        )
+        {
+            _getConditionTypeDelegate = () => type;
+            _getDefaultValueDelegate = () => defaultValue;
+            _onValueChangeDelegate = onValueChangeDelegate;
+            _currentResult = GetDefaultValue();
+            _changeChangeResultTiming = updateTiming;
+            OnValueChange(_currentResult);
+            voteDict = new Dictionary<Object, VoteRecord>();
+        }
+
+        public RuntimeConditionVote(
+            GetConditionTypeDelegate getConditionTypeDelegate,
+            GetDefaultValueDelegate getDefaultValueDelegate,
+            OnValueChangeDelegate onValueChangeDelegate = null,
+            ChangeResultTiming updateTiming = ChangeResultTiming.OnVote
+        )
+        {
+            _getConditionTypeDelegate = getConditionTypeDelegate;
+            _getDefaultValueDelegate = getDefaultValueDelegate;
+            _onValueChangeDelegate = onValueChangeDelegate;
+            _changeChangeResultTiming = updateTiming;
+            _currentResult = GetDefaultValue();
+            OnValueChange(_currentResult);
+            voteDict = new Dictionary<Object, VoteRecord>();
+        }
+
         public void Reset()
         {
             voteDict.Clear();
@@ -72,22 +105,22 @@ namespace MonoFSM.Runtime.Vote
         [Serializable]
         public struct VoteRecord
         {
-            private string _voterName;
+            //FIXME: 不要用string, keep ref?
+            // private string _voterName;
             private bool _vote;
+            private Object _voterRef;
 
+#if UNITY_EDITOR
             [ShowInPlayMode]
-            public string Voter => _voterName;
+            public string Voter => _voterRef.name;
+#endif
 
             [ShowInPlayMode]
             public bool Vote => _vote;
 
             public VoteRecord(Object voter, bool vote)
             {
-#if UNITY_EDITOR
-                _voterName = voter.name; //會有GC，UNITYEDITOR ONLY?
-#else
-                _voterName = string.Empty;
-#endif
+                _voterRef = voter;
                 _vote = vote;
             }
         }
@@ -111,7 +144,7 @@ namespace MonoFSM.Runtime.Vote
         //FIXME: 有做這個耶！ 統一事件的實作
         public UnityEvent<bool> OnVoteChange = new UnityEvent<bool>();
 
-        private GetDefaultValueDelegate _getDefaultValueDelegate;
+        private GetDefaultValueDelegate _getDefaultValueDelegate; //有必要用delegate嗎？
         private OnValueChangeDelegate _onValueChangeDelegate;
         private GetConditionTypeDelegate _getConditionTypeDelegate;
 
@@ -133,10 +166,11 @@ namespace MonoFSM.Runtime.Vote
             CheckResult();
         }
 
-        public void Vote(Object voter, bool vote)
+        public void Vote(Object voter, bool vote) //FIXME: 直接拿對象來vote比較好？IVoter?
         {
-            if (voter is IVoteChild voteChild)
-                voter = voteChild.VoteOwner;
+            //FIXME: 可能會有相同owner所以進入點不同但想要A綁B解綁？
+            // if (voter is IVoteChild voteChild)
+            //     voter = voteChild.VoteOwner;
 
             //不需樣Add?
             voteDict[voter] = new VoteRecord(voter, vote);
@@ -150,8 +184,8 @@ namespace MonoFSM.Runtime.Vote
 
         public void Revoke(Object voter)
         {
-            if (voter is IVoteChild voteChild)
-                voter = voteChild.VoteOwner;
+            // if (voter is IVoteChild voteChild)
+            // voter = voteChild.VoteOwner;
             voteDict.Remove(voter);
 
             if (_changeChangeResultTiming == ChangeResultTiming.OnVote)
@@ -235,38 +269,5 @@ namespace MonoFSM.Runtime.Vote
 
         // public bool VoteResult => _currentResult;
         public bool Result => _currentResult;
-
-        //default用And?
-        public RuntimeConditionVote(
-            ConditionType type = ConditionType.AND,
-            bool defaultValue = false,
-            OnValueChangeDelegate onValueChangeDelegate = null,
-            ChangeResultTiming updateTiming = ChangeResultTiming.OnVote
-        )
-        {
-            _getConditionTypeDelegate = () => type;
-            _getDefaultValueDelegate = () => defaultValue;
-            _onValueChangeDelegate = onValueChangeDelegate;
-            _currentResult = GetDefaultValue();
-            _changeChangeResultTiming = updateTiming;
-            OnValueChange(_currentResult);
-            voteDict = new();
-        }
-
-        public RuntimeConditionVote(
-            GetConditionTypeDelegate getConditionTypeDelegate,
-            GetDefaultValueDelegate getDefaultValueDelegate,
-            OnValueChangeDelegate onValueChangeDelegate = null,
-            ChangeResultTiming updateTiming = ChangeResultTiming.OnVote
-        )
-        {
-            _getConditionTypeDelegate = getConditionTypeDelegate;
-            _getDefaultValueDelegate = getDefaultValueDelegate;
-            _onValueChangeDelegate = onValueChangeDelegate;
-            _changeChangeResultTiming = updateTiming;
-            _currentResult = GetDefaultValue();
-            OnValueChange(_currentResult);
-            voteDict = new();
-        }
     }
 }

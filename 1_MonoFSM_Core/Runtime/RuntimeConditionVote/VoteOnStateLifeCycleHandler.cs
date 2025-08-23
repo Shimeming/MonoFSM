@@ -21,13 +21,13 @@ namespace MonoFSM.Runtime.Vote
         {
             base.OnStateEnter();
             // _vote.Vote
-            _vote.Vote.Vote(this, _voteValue);
+            _vote.Vote.Vote(_bindingState, _voteValue);
         }
 
         protected override void OnStateExit()
         {
             base.OnStateExit();
-            _vote.Vote.Revoke(this);
+            _vote.Vote.Revoke(_bindingState);
         }
     }
 }
