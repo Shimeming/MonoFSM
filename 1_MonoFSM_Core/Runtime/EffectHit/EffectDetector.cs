@@ -76,6 +76,7 @@ namespace MonoFSM.Core.Detection
 
         private readonly List<EffectDetectable> _toRemove = new();
         private readonly Dictionary<GameObject, EffectDetectable> _currentDetections = new();
+        private readonly HashSet<EffectDetectable> _processedThisFrame = new();
 
         //FIXME: Receiver的部分要怎麼處理？ 也會有開關的問題？還是沒差遇到再說
         private void OnDisable()
@@ -162,6 +163,13 @@ namespace MonoFSM.Core.Detection
             }
 
             // Debug.Log("OnSpatialEnter: " + spatialDetectable.name + " by " + gameObject.name, this);
+
+            // 檢查這個EffectDetectable是否已經在這個frame處理過了
+            if (!_processedThisFrame.Add(spatialDetectable.Detectable))
+                return "EffectDetectable already processed this frame";
+
+            // 標記為已處理
+
             var detectData = new DetectData(this, spatialDetectable);
 
             if (point != null)
@@ -267,6 +275,9 @@ namespace MonoFSM.Core.Detection
 
         public void DetectCheck() //關掉就沒檢查了...不就導致沒辦法判斷exit了嗎？ 最後還是要OnDisable處理喔？
         {
+            // 每frame開始時清空已處理的EffectDetectable集合
+            _processedThisFrame.Clear();
+
             foreach (var detectionSource in _detectionSources)
             {
                 if (!detectionSource.IsEnabled)
