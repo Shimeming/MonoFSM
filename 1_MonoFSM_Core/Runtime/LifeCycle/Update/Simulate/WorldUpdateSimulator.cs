@@ -241,7 +241,7 @@ namespace MonoFSM.Core.Simulate
         public static float TimeScale { get; set; } = 1f;
 
         //FIXME: runner要是?
-        public static float deltaTime => Time.deltaTime * TimeScale; //FIXME: 這個要從runner同步？
+        // public static float deltaTime => Time.deltaTime * TimeScale; //FIXME: 這個要從runner同步？
 
         private void TimeScaleCheck()
         {
@@ -259,6 +259,15 @@ namespace MonoFSM.Core.Simulate
         }
 
         private readonly HashSet<MonoObj> _currentUpdatingObjs = new();
+        public static float _deltaTime;
+
+        public void BeforeSimulate(float deltaTime)
+        {
+            _deltaTime = deltaTime;
+            foreach (var monoObject in _currentUpdatingObjs)
+                if (monoObject is { isActiveAndEnabled: true })
+                    monoObject.BeforeSimulate(deltaTime);
+        }
 
         /// <summary>
         /// 需要依照環境決定怎麼simulate

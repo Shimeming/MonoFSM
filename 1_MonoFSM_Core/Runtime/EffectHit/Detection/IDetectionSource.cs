@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using MonoFSM.Core.Attributes;
+using MonoFSM.EditorExtension;
 using MonoFSM.Foundation;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -31,24 +32,37 @@ namespace MonoFSM.Core.Detection
     //好像還是要可以拖拉耶，結構不定 FIXME: 直接和BaseDetectProcessor合併?
 
     // public interface IDetectionSource //AbstractComponent
-    public abstract class IDetectionSource : AbstractDescriptionBehaviour
+    public abstract class IDetectionSource : AbstractDescriptionBehaviour, IHierarchyValueInfo
     {
         protected override string DescriptionTag => "DetectionSource";
-        [Required] [AutoParent] public EffectDetector _detector;
+
+        [Required]
+        [AutoParent]
+        public EffectDetector _detector;
         public virtual bool IsEnabled => enabled;
 
         //trigger類？
-        [ShowInDebugMode] protected List<GameObject> _toEnter = new();
+        [ShowInDebugMode]
+        protected List<GameObject> _toEnter = new();
 
-        [ShowInDebugMode] protected List<GameObject> _toExit = new();
-
+        [ShowInDebugMode]
+        protected List<GameObject> _toExit = new();
 
         //FIXME: 要有thisFrameHitData?
         //FIXME: 已經打死是Collider了，感覺要抽象掉一層，3D間共用？傳T?
-        [PreviewInInspector] protected readonly HashSet<Collider> _thisFrameColliders = new();
+        [PreviewInInspector]
+        protected readonly HashSet<Collider> _thisFrameColliders = new();
 
         [PreviewInInspector]
         protected readonly HashSet<Collider> _lastFrameColliders = new(); //ondisable也要清掉？
+
+        private void OnDisable()
+        {
+            //FIXME: 要讓 EffectDetector handle就好？
+            //TODO: Exit check?
+            _thisFrameColliders.Clear();
+            _lastFrameColliders.Clear();
+        }
 
         public abstract IEnumerable<DetectionResult> GetCurrentDetections();
 
@@ -62,13 +76,12 @@ namespace MonoFSM.Core.Detection
             foreach (var obj in _toEnter)
             {
                 var result = _detector.OnDetectEnterCheck(obj);
-                // Debug.Log("OnDetectEnterCheck me: " + name + " result: " + result, this);
-                // Debug.Log("OnDetectEnterCheck other: " + obj.name + " result: " + result, obj);
             }
 
             _toEnter.Clear();
 
-            foreach (var obj in _toExit) _detector.OnDetectExitCheck(obj);
+            foreach (var obj in _toExit)
+                _detector.OnDetectExitCheck(obj);
 
             _toExit.Clear();
         }
@@ -83,5 +96,8 @@ namespace MonoFSM.Core.Detection
         {
             _toExit.Add(obj);
         }
+
+        public string ValueInfo => "L:" + LayerMask.LayerToName(gameObject.layer);
+        public bool IsDrawingValueInfo => true;
     }
 }

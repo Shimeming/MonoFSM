@@ -123,6 +123,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5267f2df9256e49ff918c479e92d3518, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  anyState: {fileID: 0}
 --- !u!114 &1973556432026734445
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -295,7 +296,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _noteType: 0
   note: 
-  bgColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!114 &2870840079908465395
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -308,6 +308,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8fdaea9a50c9419b9e6f82ed28c91b37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _entityTag: {fileID: 0}
   _descriptableTags: []
   data: {fileID: 0}
 --- !u!114 &4819980146996288446
@@ -382,7 +383,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _noteType: 0
   note: "\u9019\u5C64\u597D\u50CF\u6C92\u7528\uFF1F"
-  bgColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!1 &4731588778212171276
 GameObject:
   m_ObjectHideFlags: 0

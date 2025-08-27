@@ -21,6 +21,7 @@ namespace MonoFSM.Core.Runtime
     {
         public abstract string SuggestDeclarationName { get; }
 
+        [Required]
         [FormerlySerializedAs("_monoEntityTag")]
         [HideIf(nameof(monoEntity))]
         [TypeRestrictDropdown(typeof(MonoEntityTag), true, "請選擇 MonoEntity 類型的 EntityTag")]

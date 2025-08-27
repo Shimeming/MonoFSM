@@ -57,6 +57,16 @@ public class FlagFieldVector2 : FlagField<Vector2>
 }
 
 [Serializable]
+public class FlagFieldVector3 : FlagField<Vector3>
+{
+    public static bool operator ==(FlagFieldVector3 j, Vector3 k) => j.CurrentValue == k;
+
+    public static bool operator !=(FlagFieldVector3 j, Vector3 k) => j.CurrentValue != k;
+
+    protected override bool IsCurrentValueEquals(Vector3 value) => _currentValue == value;
+}
+
+[Serializable]
 public class ValueChangedListener<T>
 {
     public void Clear()

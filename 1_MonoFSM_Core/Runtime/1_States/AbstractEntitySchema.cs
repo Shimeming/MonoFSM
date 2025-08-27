@@ -7,7 +7,10 @@ using MonoFSM.Core.Editor.Utility;
 using MonoFSM.Foundation;
 using MonoFSM.Runtime;
 using MonoFSM.Variable;
+using MonoFSM.Variable.SOType;
+using MonoFSM.Variable.TypeTag;
 using Sirenix.OdinInspector;
+using UnityEditor;
 using UnityEngine;
 
 // using MonoFSM.Core.Editor.Utility;
@@ -51,6 +54,10 @@ namespace _1_MonoFSM_Core.Runtime._1_States
         private MonoEntity _parentEntity;
         public MonoEntity BindEntity => _parentEntity;
 
+        [SOConfig("TypeTags")]
+        [InfoBox("Schema 對應的類型標籤，用於識別此 Schema 的類型")]
+        public MonoTypeTag _typeTag;
+
         [Button]
         public void Mapping()
         {
@@ -66,6 +73,9 @@ namespace _1_MonoFSM_Core.Runtime._1_States
                 return;
             }
 
+            // 0. 首先確保有 TypeTag
+            AutoAssignTypeTag();
+
             // 1. Get All VarWrapper fields
             var varWrapperFields = GetVarWrapperFields();
             Debug.Log($"找到 {varWrapperFields.Length} 個 VarWrapper 欄位", this);
@@ -75,6 +85,30 @@ namespace _1_MonoFSM_Core.Runtime._1_States
             // 向後相容：保留舊的 VarTagMappingAttribute 支援
             // var legacyFields = GetFieldsWithVarTagMappingAttribute();
             // foreach (var field in legacyFields) ProcessLegacyField(field);
+        }
+
+        [Button]
+        [InfoBox("自動為此 Schema 指派對應的 TypeTag")]
+        public void AutoAssignTypeTag()
+        {
+            if (_typeTag != null)
+                // Debug.Log($"已有 TypeTag: {_typeTag.name}", this);
+                return;
+
+            var manager = SchemaTypeTagManager.Instance;
+            _typeTag = manager.GetOrCreateTypeTagForSchema(GetType());
+
+            if (_typeTag != null)
+            {
+                Debug.Log($"自動指派 TypeTag: {_typeTag.name}", this);
+#if UNITY_EDITOR
+                EditorUtility.SetDirty(this);
+#endif
+            }
+            else
+            {
+                Debug.LogWarning($"無法為 {GetType().Name} 獲取或創建 TypeTag", this);
+            }
         }
 
         private FieldInfo[] GetVarWrapperFields()
@@ -127,9 +161,11 @@ namespace _1_MonoFSM_Core.Runtime._1_States
                 );
 
 #if UNITY_EDITOR
-                targetTag = SOUtility.FindAssetByExactName<VariableTag>(fieldName);
-                if (targetTag != null)
+                var foundTags = SOUtility.FindAssetsByName<VariableTag>(fieldName);
+                // targetTag = SOUtility.FindAssetByExactName<VariableTag>(fieldName);
+                if (foundTags != null && foundTags.Count() > 0)
                 {
+                    targetTag = foundTags.First();
                     Debug.Log($"找到匹配的 VariableTag: {targetTag.name}，設定到 _bindTag", this);
                     // 設定 VarWrapper 的 _bindTag 欄位
                     SetVarWrapperBindTag(field, targetTag);
@@ -207,57 +243,6 @@ namespace _1_MonoFSM_Core.Runtime._1_States
                 }
             }
         }
-
-        // private FieldInfo[] GetFieldsWithVarTagMappingAttribute()
-        // {
-        //     return GetType()
-        //         .GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-        //         .Where(field => field.GetCustomAttribute<VarTagMappingAttribute>() != null)
-        //         .ToArray();
-        // }
-        //
-        // private void ProcessLegacyField(FieldInfo field)
-        // {
-        //     var attribute = field.GetCustomAttribute<VarTagMappingAttribute>();
-        //     if (attribute == null) return;
-        //
-        //     // 2. Find if var exist in _parentEntity.VariableFolder
-        //     var existingVar = _parentEntity.VariableFolder.GetVariable(attribute.TagName);
-        //
-        //     if (existingVar != null)
-        //     {
-        //         // Variable exists, assign to field
-        //         if (field.FieldType.IsAssignableFrom(existingVar.GetType()))
-        //         {
-        //             field.SetValue(this, existingVar);
-        //             Debug.Log($"已將現有變數 {attribute.TagName} 指派到欄位 {field.Name}", this);
-        //         }
-        //         else
-        //         {
-        //             Debug.LogWarning(
-        //                 $"變數 {attribute.TagName} 的類型 {existingVar.GetType()} 與欄位 {field.Name} 的類型 {field.FieldType} 不匹配",
-        //                 this);
-        //         }
-        //     }
-        //     else
-        //     {
-        //         // 3. If not exist, create a new Var with the same name and type
-        //         var newVar = CreateVariableForField(field, attribute.TagName);
-        //         if (newVar != null)
-        //         {
-        //             field.SetValue(this, newVar);
-        //             Debug.Log($"已創建並指派新變數 {attribute.TagName} 到欄位 {field.Name}", this);
-        //         }
-        //     }
-        // }
-
-        // private AbstractMonoVariable FindVariableByTagName(string tagName)
-        // {
-        //
-        //     var variables = _parentEntity.VariableFolder.GetValues;
-        //     return variables.FirstOrDefault(var =>
-        //         var._varTag != null && var._varTag.GetStringKey == tagName);
-        // }
 
         private AbstractMonoVariable CreateVariableForField(FieldInfo field, string tagName)
         {

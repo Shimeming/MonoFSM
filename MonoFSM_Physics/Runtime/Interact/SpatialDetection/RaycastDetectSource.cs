@@ -9,7 +9,9 @@ namespace MonoFSM_Physics.Runtime.Interact.SpatialDetection
 {
     public class RaycastDetectSource : IDetectionSource
     {
-        [FormerlySerializedAs("_raycastDetector")] [DropDownRef]
+        //FIXME: 應該用他的 layerMask
+        [FormerlySerializedAs("_raycastDetector")]
+        [DropDownRef]
         public RaycastCache _raycastCache;
 
         public override IEnumerable<DetectionResult> GetCurrentDetections()
@@ -31,14 +33,14 @@ namespace MonoFSM_Physics.Runtime.Interact.SpatialDetection
             PhysicsUpdate();
         }
 
-
-        private void OnDisable()
-        {
-            //FIXME: 要讓 EffectDetector handle就好？
-            //TODO: Exit check?
-            _thisFrameColliders.Clear();
-            _lastFrameColliders.Clear();
-        }
+        //
+        // private void OnDisable()
+        // {
+        //     //FIXME: 要讓 EffectDetector handle就好？
+        //     //TODO: Exit check?
+        //     _thisFrameColliders.Clear();
+        //     _lastFrameColliders.Clear();
+        // }
 
         private void PhysicsUpdate() //network?
         {
@@ -46,7 +48,8 @@ namespace MonoFSM_Physics.Runtime.Interact.SpatialDetection
             //FIXME:  TryCast();
             //從hit拿collider
             var cachedHits = _raycastCache.CachedHits;
-            foreach (var hit in cachedHits) _thisFrameColliders.Add(hit.collider);
+            foreach (var hit in cachedHits)
+                _thisFrameColliders.Add(hit.collider);
 
             //上個frame不在，這個frame卻在
             foreach (var hit in cachedHits)
@@ -61,8 +64,11 @@ namespace MonoFSM_Physics.Runtime.Interact.SpatialDetection
                     // if (hit.rigidbody)
                     //     _detector.OnDetectEnterCheck(hit.rigidbody.gameObject, hit.point, hit.normal);
                     // else
-                    var result = _detector.OnDetectEnterCheck(hit.collider.gameObject, hit.point,
-                        hit.normal);
+                    var result = _detector.OnDetectEnterCheck(
+                        hit.collider.gameObject,
+                        hit.point,
+                        hit.normal
+                    );
                     Debug.Log("Detect:" + hit.collider + result, this);
                 }
 

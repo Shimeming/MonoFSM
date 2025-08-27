@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
+using _1_MonoFSM_Core.Runtime._1_States;
 using MonoFSM.Core.DataProvider;
 using MonoFSM.Core.Runtime;
 using MonoFSM.Variable;
+using MonoFSM.Variable.TypeTag;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
 using UnityEditor;
@@ -20,72 +21,6 @@ namespace MonoFSM.Core.Editor
     [CustomEditor(typeof(ValueProvider), true)]
     public class ValueProviderEditorDrawer : BasePathEditorDrawer<ValueProvider>
     {
-        // protected override bool CanDrawValueProperty(InspectorProperty property)
-        // {
-        //     // return false;
-        //     // Debug.Log(
-        //     //     $"SimpleFieldPathEditorDrawer: Checking if can draw property {property.Name} of type {property.ParentType.Name}");
-        //     if (property.ParentType == typeof(ValueRef))
-        //         return false;
-        //     return true;
-        // }
-        //
-        // public override bool CanDrawTypeFilter(Type type)
-        // {
-        //     // Debug.Log($"SimpleFieldPathEditorDrawer: Checking if can draw type {type.Name}");
-        //     // 排除 ValueRef 及其子類型
-        //     return type != typeof(ValueRef);
-        //     return !typeof(ValueRef).IsAssignableFrom(type) && base.CanDrawTypeFilter(type);
-        // }
-
-
-        // protected override void DrawPropertyLayout(GUIContent label)
-        // {
-        //     var target = ValueEntry.SmartValue;
-        //     if (target == null)
-        //     {
-        //         CallNextDrawer(label);
-        //         return;
-        //     }
-        //
-        //     // 如果是 ValueRef 類型，讓其他 drawer 處理
-        //     if (target is ValueRef)
-        //     {
-        //         Debug.Log("SimpleFieldPathEditorDrawer: ValueRef detected, delegating to next drawer.");
-        //         CallNextDrawer(label);
-        //         return;
-        //     }
-        //
-        //     SirenixEditorGUI.BeginBox();
-        //
-        //     // 繪製UseSimplePathEditor勾選框
-        //     var useSimpleEditor = GetUseSimplePathEditor(target);
-        //
-        //     // EditorGUI.BeginChangeCheck();
-        //     // var newUseSimpleEditor = EditorGUILayout.Toggle("使用簡化路徑編輯器 (A.B.C)", useSimpleEditor);
-        //     // if (EditorGUI.EndChangeCheck())
-        //     // {
-        //     //     Undo.RecordObject(target, "切換路徑編輯器模式");
-        //     //     SetUseSimplePathEditor(target, newUseSimpleEditor);
-        //     //     EditorUtility.SetDirty(target);
-        //     // }
-        //     //
-        //     // EditorGUILayout.Space(3);
-        //
-        //     if (useSimpleEditor)
-        //     {
-        //         DrawSimplifiedEditor(target, label);
-        //     }
-        //     else
-        //     {
-        //         // 繪製原始的詳細編輯器，但不包含最外層的Box（避免雙重boxing）
-        //         SirenixEditorGUI.EndBox();
-        //         CallNextDrawer(label);
-        //         return;
-        //     }
-        //
-        //     SirenixEditorGUI.EndBox();
-        // }
         protected override void DrawTree()
         {
             // public override void OnInspectorGUI()
@@ -250,6 +185,11 @@ namespace MonoFSM.Core.Editor
 
             EditorGUILayout.Space(5);
 
+            // 繪製 Schema 選擇器
+            DrawSchemaTypeSelector(target);
+
+            EditorGUILayout.Space(5);
+
             // 顯示Root Object資訊
             DrawRootObjectInfo(target);
             // 繪製fieldPath編輯器
@@ -300,6 +240,74 @@ namespace MonoFSM.Core.Editor
                     );
                 EditorGUI.EndDisabledGroup();
                 // EditorGUILayout.LabelField($"變數型別: {currentVarTag.ValueType?.Name ?? "未知"}", style);
+            }
+        }
+
+        /// <summary>
+        /// 繪製 Schema 類型選擇器
+        /// </summary>
+        private void DrawSchemaTypeSelector(ValueProvider target)
+        {
+            EditorGUILayout.LabelField("Schema Type", EditorStyles.boldLabel);
+
+            // 獲取當前選擇的 Schema 類型標籤
+            var currentSchemaTypeTag = target.DropDownSchemaTypeTag;
+            var displayText =
+                currentSchemaTypeTag != null && currentSchemaTypeTag.Type != null
+                    ? currentSchemaTypeTag.Type.Name
+                    : "-- 選擇 Schema --";
+
+            var selectorRect = EditorGUILayout.GetControlRect();
+            if (GUI.Button(selectorRect, displayText, EditorStyles.popup))
+                ShowSchemaTypeSelector(target, currentSchemaTypeTag, selectorRect);
+
+            // 顯示當前 Schema 的詳細資訊
+            if (currentSchemaTypeTag != null && currentSchemaTypeTag.Type != null)
+            {
+                var style = new GUIStyle(EditorStyles.helpBox)
+                {
+                    normal = { textColor = new Color(0.7f, 0.2f, 0.7f) }, // 紫色文字
+                    fontStyle = FontStyle.Italic,
+                };
+
+                EditorGUI.BeginDisabledGroup(true);
+                SirenixEditorFields.UnityObjectField(
+                    currentSchemaTypeTag,
+                    typeof(AbstractTypeTag),
+                    true,
+                    GUILayout.Height(20)
+                );
+                EditorGUI.EndDisabledGroup();
+
+                EditorGUILayout.LabelField($"Schema 類型: {currentSchemaTypeTag.Type.Name}", style);
+
+                // 顯示當前 Schema 實例（如果存在）
+                if (Application.isPlaying)
+                    try
+                    {
+                        var schemaInstance = target.GetSelectedSchema();
+                        if (schemaInstance != null)
+                        {
+                            EditorGUI.BeginDisabledGroup(true);
+                            SirenixEditorFields.UnityObjectField(
+                                schemaInstance,
+                                typeof(AbstractEntitySchema),
+                                true,
+                                GUILayout.Height(20)
+                            );
+                            EditorGUI.EndDisabledGroup();
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        EditorGUILayout.LabelField(
+                            $"無法獲取 Schema 實例: {e.Message}",
+                            new GUIStyle(EditorStyles.helpBox)
+                            {
+                                normal = { textColor = Color.red },
+                            }
+                        );
+                    }
             }
         }
 
@@ -394,6 +402,68 @@ namespace MonoFSM.Core.Editor
                     }
                 }
             };
+        }
+
+        /// <summary>
+        /// 顯示 Schema 類型選擇器
+        /// </summary>
+        private void ShowSchemaTypeSelector(
+            ValueProvider target,
+            AbstractTypeTag currentSchemaTypeTag,
+            Rect rect
+        )
+        {
+            // 創建 Schema 類型標籤的選擇器
+            var schemaTypeTagItems = target.GetSchemaTypeTagsFromEntity().ToArray();
+
+            if (schemaTypeTagItems.Length == 0)
+            {
+                EditorUtility.DisplayDialog(
+                    "無可選的 Schema",
+                    "當前 Entity 沒有可用的 Schema 類型標籤。\n請先在對應的 MonoEntityTag 中設定 containsSchemaTypeTags。",
+                    "確定"
+                );
+                return;
+            }
+
+            // 創建一個簡單的下拉選單
+            var menu = new GenericMenu();
+
+            // 添加「清空選擇」選項
+            menu.AddItem(
+                new GUIContent("-- 清空選擇 --"),
+                currentSchemaTypeTag == null,
+                () =>
+                {
+                    Undo.RecordObject(target, "清空 Schema 類型標籤");
+                    target.ClearSchemaTypeTag();
+                    EditorUtility.SetDirty(target);
+                    Debug.Log("已清空 Schema 類型標籤選擇");
+                }
+            );
+
+            menu.AddSeparator("");
+
+            // 添加可用的 Schema 類型標籤選項
+            foreach (var item in schemaTypeTagItems)
+            {
+                var schemaTypeTag = item.Value;
+                var isSelected = currentSchemaTypeTag == schemaTypeTag;
+
+                menu.AddItem(
+                    new GUIContent(item.Text),
+                    isSelected,
+                    () =>
+                    {
+                        Undo.RecordObject(target, "修改 Schema 類型標籤");
+                        target.DropDownSchemaTypeTag = schemaTypeTag;
+                        EditorUtility.SetDirty(target);
+                        Debug.Log($"Schema 類型標籤已更改為: {schemaTypeTag.Type?.Name ?? "未知"}");
+                    }
+                );
+            }
+
+            menu.ShowAsContext();
         }
 
         /// <summary>

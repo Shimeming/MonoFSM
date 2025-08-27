@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8e71863d6a014827a715566dd5c5af2f, type: 3}
-  m_Name: Foo
+  m_Name: d_Enemy
   m_EditorClassIdentifier: 
   _entityType:
     _bindObject: {fileID: 0}
@@ -26,14 +26,11 @@ MonoBehaviour:
     typeName: 
   SamepleData: {fileID: 0}
   containsVariableTypeTags:
-  - {fileID: 11400000, guid: 6f5d3d9290990430c9e43445c7215145, type: 2}
-  - {fileID: 11400000, guid: d11b81a369b66433092365c315c1d3e8, type: 2}
-  - {fileID: 11400000, guid: 75b60f1fe6a4c4ceaa8b8df077de7100, type: 2}
-  - {fileID: 11400000, guid: 02cf875545f8a44e6ab6500afc5d346a, type: 2}
-  - {fileID: 11400000, guid: 944ac56177d1944029d21e05db319614, type: 2}
-  - {fileID: 11400000, guid: e2491fb40028e41838bbb8399b05e7eb, type: 2}
+  - {fileID: 11400000, guid: bf157b66407c94e64bfedb0474cc2523, type: 2}
+  - {fileID: 11400000, guid: be447a61645d24bcb9b45e819ff3e6aa, type: 2}
+  - {fileID: 11400000, guid: ffbfd9a10616c49aca7b62194ea461a2, type: 2}
   containsSchemaTypeTags:
-  - {fileID: 11400000, guid: cae70b72fb5af4c4cbcfddd29843275f, type: 2}
+  - {fileID: 11400000, guid: daf4cf2ebd208418fbcfe4775cb366dc, type: 2}
   IsCollectionTag: 0
   _allMonoDescriptable: []
   _stringKey: 

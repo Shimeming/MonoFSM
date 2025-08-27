@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f54b396fca66942dca18ba104e9d4f34, type: 3}
   m_Name: DashData
   m_EditorClassIdentifier: 
-  _inputAction: {fileID: -7471211009204490832, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  _inputAction: {fileID: 0}
   actionID: 15

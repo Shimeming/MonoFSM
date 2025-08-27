@@ -1,27 +1,27 @@
-using MonoFSM.Core.Simulate;
+using MonoFSM.Core.LifeCycle;
+using MonoFSM.Core.Runtime.Action;
 using UnityEngine;
 
 namespace MonoFSM_Physics.Runtime
 {
-    public class RigidbodyDirFollowVelocity : MonoBehaviour, IUpdateSimulate
+    public class RigidbodyDirFollowVelocity : AbstractStateAction
     {
-        [Auto] [SerializeField] private Rigidbody _rb;
+        //FIXME: 從Schema拿?
+        // [SerializeField] private Rigidbody _rb;
 
-        public void Simulate(float deltaTime)
+        protected override void OnActionExecuteImplement()
         {
-            if (_rb == null || _rb.isKinematic)
+            var rb = ParentEntity.GetSchema<ProjectileSchema>()._rigidbody;
+            if (rb == null || rb.isKinematic)
                 return;
-            var v = _rb.linearVelocity;
+            var v = rb.linearVelocity;
             if (v.sqrMagnitude > 0.01f)
             {
                 var targetRot = Quaternion.LookRotation(v, Vector3.up);
-                _rb.MoveRotation(Quaternion.Slerp(_rb.rotation, targetRot, 0.2f)); // 0.2f 可調
+                rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRot, 0.2f)); // 0.2f 可調
             }
-        }
 
-        public void AfterUpdate()
-        {
-            // throw new NotImplementedException();
+            Debug.Log("RigidbodyDirFollowVelocity set rot: " + v, this);
         }
     }
 }

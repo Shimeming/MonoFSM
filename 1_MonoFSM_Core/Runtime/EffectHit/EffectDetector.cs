@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using _1_MonoFSM_Core.Runtime.EffectHit.Action;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Simulate;
 using MonoFSM.Foundation;
@@ -46,10 +47,14 @@ namespace MonoFSM.Core.Detection
     }
 
     [DisallowMultipleComponent]
-    public class EffectDetector : AbstractDescriptionBehaviour, IDefaultSerializable,
-        IUpdateSimulate
+    public class EffectDetector
+        : AbstractDescriptionBehaviour,
+            IDefaultSerializable,
+            IUpdateSimulate
     {
-        [SerializeField] private string _designName;
+        //FIXME: 這個不好...會以為可以改name結果又跑掉？
+        [SerializeField]
+        private string _designName;
         public override string Description => _designName;
 
         [CompRef]
@@ -63,6 +68,11 @@ namespace MonoFSM.Core.Detection
         [CompRef]
         [AutoChildren(DepthOneOnly = true)]
         private IDetectionSource[] _detectionSources; //想要手動拉？不好？還是裝下面嗎？
+
+        [Required]
+        [CompRef]
+        [AutoChildren(DepthOneOnly = true)]
+        private IDetectionSource _detectionSource;
 
         private readonly List<EffectDetectable> _toRemove = new();
         private readonly Dictionary<GameObject, EffectDetectable> _currentDetections = new();
@@ -130,7 +140,7 @@ namespace MonoFSM.Core.Detection
                 return "Detector is not valid";
             //理論上不該打到別的東西，layer就擋掉了才對 (有分layer的話)
 
-            //FIXME: 往parent找？ gc問題？
+            //FIXME: 往parent找？ 應該還是要拿到EffectDetectable才對，避免重複判定 (一個frame判兩次?)
 
             if (other.TryGetComponent<BaseEffectDetectTarget>(out var spatialDetectable))
             {
@@ -164,7 +174,7 @@ namespace MonoFSM.Core.Detection
             _detectedObjects.Add(spatialDetectable.Detectable);
 #if UNITY_EDITOR
             _lastDetectedObjects.Add(spatialDetectable.Detectable);
-            spatialDetectable.Detectable._detectors.Add(this); //FIXME: 有點醜？
+            spatialDetectable.Detectable._debugDetectors.Add(this); //FIXME: 有點醜？
 #endif
             // Debug.Log("OnSpatialEnter dealers:"+dealers.Length+" receivers:"+effectCollider.EffectReceivers.Length, this);
             //FIXME: 用update撈起來等等再判？
@@ -182,6 +192,7 @@ namespace MonoFSM.Core.Detection
                     continue;
                 }
 
+                //FIXME: receiver有可能同個frame已經處理過了，不同的物理進入點？
                 foreach (var receiver in spatialDetectable.EffectReceivers) //condition會錯？因為一直打？
                 {
                     //FIXME: proxy的判定
@@ -217,7 +228,7 @@ namespace MonoFSM.Core.Detection
 
             _detectedObjects.Remove(spatialDetectable);
 #if UNITY_EDITOR
-            spatialDetectable._detectors.Remove(this);
+            spatialDetectable._debugDetectors.Remove(this);
 #endif
             //FIXME: 連點會有狀態問題耶...
             if (dealers != null)
@@ -243,34 +254,29 @@ namespace MonoFSM.Core.Detection
                 }
         }
 
+        //需要debug是誰改的嗎？
+        public ManualEffectDetectAction _manualEffectDetectAction; //被Action控走的話，就不自己update了
+
+        //FIXME: manual Update? from StateAction?
         public void Simulate(float deltaTime)
         {
-            if (!IsValid || _detectionSources == null)
+            if (!IsValid || _detectionSources == null || _manualEffectDetectAction != null)
                 return;
+            DetectCheck();
+        }
 
-            // var previousDetections = new Dictionary<GameObject, EffectDetectable>(
-            //     _currentDetections
-            // );
-            // _currentDetections.Clear();
-
+        public void DetectCheck() //關掉就沒檢查了...不就導致沒辦法判斷exit了嗎？ 最後還是要OnDisable處理喔？
+        {
             foreach (var detectionSource in _detectionSources)
             {
                 if (!detectionSource.IsEnabled)
                     continue;
                 detectionSource.UpdateDetection();
             }
-
-            //FIXME: 蛤？
-            // foreach (var kvp in previousDetections)
-            // {
-            //     if (!_currentDetections.ContainsKey(kvp.Key))
-            //     {
-            //         OnDetectExitCheck(kvp.Key);
-            //     }
-            // }
         }
 
         public void AfterUpdate() { }
+
         protected override string DescriptionTag => "Detector";
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using _1_MonoFSM_Core.Runtime._1_States;
 using Cysharp.Text;
 using MonoFSM.Core.Attributes;
@@ -8,6 +9,8 @@ using MonoFSM.Core.Utilities;
 using MonoFSM.EditorExtension;
 using MonoFSM.Runtime;
 using MonoFSM.Variable;
+using MonoFSM.Variable.FieldReference;
+using MonoFSM.Variable.TypeTag;
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;
 using UnityEngine;
@@ -23,6 +26,8 @@ namespace MonoFSM.Core.DataProvider
             return Get<T>();
         }
     }
+
+    //EntityTag可以拿到Schema的話更好？這樣寫什麼都可以了
 
     //用這顆就夠了，其他應該都不需要了？除了literal
     public class ValueProvider
@@ -73,6 +78,16 @@ namespace MonoFSM.Core.DataProvider
                 ?? ParentEntity?.GetVarTagOptions();
         }
 
+        public IEnumerable<ValueDropdownItem<AbstractTypeTag>> GetSchemaTypeTagsFromEntity()
+        {
+            if (entityProvider != null && entityProvider.entityTag != null)
+                return entityProvider.entityTag.GetSchemaTypeTagItems();
+
+            // 如果沒有 entityProvider，可以考慮從 ParentEntity 獲取
+            // 或者返回空列表
+            return new List<ValueDropdownItem<AbstractTypeTag>>();
+        }
+
         [ShowInDebugMode]
         [BoxGroup("varTag")]
         // [Required]
@@ -83,6 +98,12 @@ namespace MonoFSM.Core.DataProvider
         {
             _varTag = null;
             // Debug.Log("VarRef: Cleared varTag.", this);
+        }
+
+        public void ClearSchemaTypeTag()
+        {
+            _schemaTypeTag = null;
+            // Debug.Log("ValueProvider: Cleared schemaTypeTag.", this);
         }
 
         // private bool TypeCheckFail()
@@ -148,6 +169,34 @@ namespace MonoFSM.Core.DataProvider
 
         public string _declarationName; //可以有default name?
 
+        // Schema selection related fields
+        [PropertyOrder(0)]
+        [BoxGroup("schema")]
+        [ShowInInspector]
+        [ValueDropdown(nameof(GetSchemaTypeTagsFromEntity), NumberOfItemsBeforeEnablingSearch = 5)]
+        public AbstractTypeTag DropDownSchemaTypeTag
+        {
+            set
+            {
+                if (Application.isPlaying)
+                {
+                    Debug.LogError(
+                        "ValueProvider: Cannot set schemaTypeTag in play mode. Please set it in edit mode.",
+                        this
+                    );
+                    return;
+                }
+
+                _schemaTypeTag = value;
+            }
+            get => _schemaTypeTag;
+        }
+
+        [ShowInDebugMode]
+        [BoxGroup("schema")]
+        [SerializeField]
+        private AbstractTypeTag _schemaTypeTag;
+
         public string DeclarationName
         {
             get
@@ -206,13 +255,21 @@ namespace MonoFSM.Core.DataProvider
 
         [PreviewInInspector]
         public override Type ValueType =>
-            HasFieldPath
-                ? lastPathEntryType
-                :
-                //GetTarget()?.ValueType ??
-                varTag?.ValueType
-                    ?? entityProvider?.entityTag?.RestrictType
-                    ?? typeof(MonoEntity);
+            HasFieldPath ? lastPathEntryType : GetValueTypeFromSource();
+
+        private Type GetValueTypeFromSource()
+        {
+            // 優先級 1: VarTag
+            if (_varTag != null)
+                return _varTag.ValueType;
+
+            // 優先級 2: Schema Type
+            if (_schemaTypeTag != null)
+                return _schemaTypeTag.Type;
+
+            // 優先級 3: Entity Type
+            return entityProvider?.entityTag?.RestrictType ?? typeof(MonoEntity);
+        }
 
         [PreviewInInspector]
         public string ValueTypeSourceFrom
@@ -223,6 +280,8 @@ namespace MonoFSM.Core.DataProvider
                     return "Field Path";
                 else if (_varTag != null)
                     return "Var Tag";
+                else if (_schemaTypeTag != null)
+                    return "Schema Type";
                 else if (entityProvider != null && entityProvider.entityTag != null)
                     return "Entity Tag";
                 else if (ParentEntity != null)
@@ -236,14 +295,17 @@ namespace MonoFSM.Core.DataProvider
 
         private IValueProvider GetTarget()
         {
-            if (_varTag == null)
+            // 優先級 1: VarTag（如果有選擇 Variable）
+            if (_varTag != null)
             {
-                if (entityProvider != null)
-                    return entityProvider.monoEntity;
-                return ParentEntity;
+                return VarRaw;
             }
 
-            return VarRaw;
+            // 優先級 2 & 3: Schema 模式下不能使用 IValueProvider，返回 Entity
+            // Schema 會在 Get<T>() 方法中特殊處理
+            if (entityProvider != null)
+                return entityProvider.monoEntity;
+            return ParentEntity;
         }
 
         // public override Type GetValueType =>
@@ -253,19 +315,25 @@ namespace MonoFSM.Core.DataProvider
         {
             get
             {
-                //varType (tag
+                // 優先級 1: VarTag
                 if (_varTag != null)
-                    return _varTag.VariableMonoType; //hmm少 var value type...
-                //entityType (tag)
+                    return _varTag.VariableMonoType;
+
+                // 優先級 2: Schema Type
+                if (_schemaTypeTag != null)
+                    return _schemaTypeTag.Type;
+
+                // 優先級 3: Entity Type (from tag)
                 if (entityProvider != null)
                     return entityProvider.entityTag?._entityType?.RestrictType
                         ?? typeof(MonoEntity);
-                //parentEntityType (instance)
+
+                // 優先級 4: Parent Entity Type (from instance)
                 if (ParentEntity != null)
                     return ParentEntity.GetType();
 
-                Debug.LogError("VarRef: No target entity or variable tag found.", this);
-                return typeof(object); // 如果沒有找到目標，返回 object 類型
+                Debug.LogError("VarRef: No target entity, schema, or variable tag found.", this);
+                return typeof(object);
             }
         }
 
@@ -292,6 +360,33 @@ namespace MonoFSM.Core.DataProvider
             return ParentEntity;
         }
 
+        public AbstractEntitySchema GetSelectedSchema()
+        {
+            if (_schemaTypeTag == null)
+            {
+                Debug.LogError("ValueProvider: No schema type selected.", this);
+                return null;
+            }
+
+            var schemaType = _schemaTypeTag.Type;
+            if (schemaType == null)
+            {
+                Debug.LogError("ValueProvider: Schema type tag has no type.", this);
+                return null;
+            }
+
+            var entity = GetMonoEntity();
+            if (entity == null)
+            {
+                Debug.LogError("ValueProvider: No target entity found for schema.", this);
+                return null;
+            }
+
+            // 使用反射調用泛型方法
+            var method = typeof(MonoEntity).GetMethod("GetSchema").MakeGenericMethod(schemaType);
+            return (AbstractEntitySchema)method.Invoke(entity, null);
+        }
+
         public TSchema GetSchema<TSchema>()
             where TSchema : AbstractEntitySchema
         {
@@ -303,6 +398,197 @@ namespace MonoFSM.Core.DataProvider
             }
 
             return entity.GetSchema<TSchema>();
+        }
+
+        /// <summary>
+        ///     檢查當前選擇的欄位是否支援設定值
+        ///     FIXME: 這個現在還是錯的，跑去拿GetterMember了
+        /// </summary>
+        public bool CanSetProperty
+        {
+            get
+            {
+                // Variable 模式：變數都可以設定
+                if (_varTag != null && !HasFieldPath)
+                    return true;
+
+                // 其他模式需要檢查欄位路徑
+                if (!HasFieldPath)
+                {
+                    Debug.LogError("ValueProvider: 需要設定欄位路徑才能進行屬性設定。", this);
+                    return false;
+                }
+
+                return CanSetFieldPath();
+            }
+        }
+
+        /// <summary>
+        ///     檢查欄位路徑的最終欄位是否可以設定
+        /// </summary>
+        private bool CanSetFieldPath()
+        {
+            if (_pathEntries == null || _pathEntries.Count == 0)
+                return false;
+
+            var lastEntry = _pathEntries[^1];
+            var targetType = GetTargetTypeForFieldPath();
+
+            if (targetType == null || string.IsNullOrEmpty(lastEntry._propertyName))
+            {
+                Debug.LogError("ValueProvider: 無法確定欄位路徑的目標型別或屬性名稱。", this);
+                return false;
+            }
+
+            // 使用 RefactorSafeNameResolver 查找成員
+            var member = RefactorSafeNameResolver.FindMemberByCurrentOrFormerName(
+                targetType,
+                lastEntry._propertyName
+            );
+
+            if (member is PropertyInfo prop)
+            {
+                if (!prop.CanWrite)
+                    Debug.LogError(
+                        $"ValueProvider: 屬性 {targetType}.{lastEntry._propertyName} 是唯讀的，無法設定值。",
+                        this
+                    );
+                return prop.CanWrite;
+            }
+
+            if (member is FieldInfo field)
+                return !field.IsInitOnly && !field.IsLiteral; // 不是 readonly 和 const
+
+            Debug.LogError(
+                $"ValueProvider: 無法找到 {targetType} 中的成員 {lastEntry._propertyName}，無法設定值。",
+                this
+            );
+            return false;
+        }
+
+        /// <summary>
+        ///     取得欄位路徑檢查的目標型別
+        /// </summary>
+        private Type GetTargetTypeForFieldPath()
+        {
+            if (_pathEntries.Count == 1)
+            {
+                // 只有一層，直接檢查來源型別
+                if (_varTag != null)
+                    return _varTag.ValueType;
+                if (_schemaTypeTag != null)
+                    return _schemaTypeTag.Type;
+                return GetMonoEntity()?.GetType();
+            }
+
+            // 多層路徑，需要遍歷到倒數第二層
+            try
+            {
+                var target = GetTarget();
+                if (target == null)
+                    return null;
+
+                object currentObj = target; // 明確宣告為 object 型別
+                for (var i = 0; i < _pathEntries.Count - 1; i++)
+                {
+                    var entry = _pathEntries[i];
+                    var type = currentObj.GetType();
+                    var getter = ReflectionUtility.GetMemberGetter(type, entry._propertyName);
+
+                    if (getter != null)
+                        currentObj = getter(currentObj);
+                    else
+                        return null;
+
+                    if (currentObj == null)
+                        return null;
+                }
+
+                return currentObj.GetType();
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public void SetProperty<T>(T settingValue)
+        {
+            // 特殊處理：Schema 模式
+            if (_schemaTypeTag != null && _varTag == null)
+            {
+                var schemaInstance = GetSelectedSchema();
+                if (schemaInstance == null)
+                {
+                    Debug.LogError("ValueProvider: 無法獲取 Schema 實例進行設定。", this);
+                    return;
+                }
+
+                if (!HasFieldPath)
+                {
+                    Debug.LogError(
+                        "ValueProvider: Schema 模式需要設定欄位路徑才能進行屬性設定。",
+                        this
+                    );
+                    return;
+                }
+
+                // 設定 Schema 欄位值
+                ReflectionUtility.SetFieldValueFromPath(
+                    schemaInstance,
+                    _pathEntries,
+                    settingValue,
+                    gameObject
+                );
+                return;
+            }
+
+            // Variable 模式：如果選擇了變數，直接設定變數值
+            if (_varTag != null)
+            {
+                var variable = VarRaw;
+                if (variable == null)
+                {
+                    Debug.LogError("ValueProvider: 變數為 null，無法設定值。", this);
+                    return;
+                }
+
+                if (!HasFieldPath)
+                {
+                    // 直接設定變數值
+                    variable.SetValue(settingValue, this);
+                    return;
+                }
+
+                // 透過欄位路徑設定變數的特定屬性
+                ReflectionUtility.SetFieldValueFromPath(
+                    variable,
+                    _pathEntries,
+                    settingValue,
+                    gameObject
+                );
+                return;
+            }
+
+            // Entity 模式：直接設定實體的欄位
+            var target = GetTarget();
+            if (target == null)
+            {
+                Debug.LogError("ValueProvider: 目標實體為 null，無法設定值。", this);
+                return;
+            }
+
+            if (!HasFieldPath)
+            {
+                Debug.LogError(
+                    "ValueProvider: Entity 模式需要設定欄位路徑才能進行屬性設定。",
+                    this
+                );
+                return;
+            }
+
+            // 透過欄位路徑設定實體的特定屬性
+            ReflectionUtility.SetFieldValueFromPath(target, _pathEntries, settingValue, gameObject);
         }
 
         public override T1 Get<T1>() //GetAs?
@@ -319,10 +605,62 @@ namespace MonoFSM.Core.DataProvider
                 return default;
             }
 
+            // 特殊處理：Schema 模式
+            if (_schemaTypeTag != null && _varTag == null)
+            {
+                var schemaInstance = GetSelectedSchema();
+                if (schemaInstance == null)
+                {
+                    Debug.LogError("ValueProvider: 無法獲取 Schema 實例。", this);
+                    return default;
+                }
+
+                // 如果沒有設定欄位路徑，直接返回 Schema 實例
+                if (!HasFieldPath)
+                {
+                    if (schemaInstance is T1 schemaValue)
+                        return schemaValue;
+
+                    Debug.LogError(
+                        $"無法將 Schema {schemaInstance.GetType()} 轉換為 {typeof(T1)}",
+                        this
+                    );
+                    return default;
+                }
+
+                // 有欄位路徑時，從 Schema 實例中存取欄位
+                var schemaFieldValue = ReflectionUtility.GetFieldValueFromPath(
+                    schemaInstance,
+                    _pathEntries,
+                    gameObject
+                );
+
+                if (schemaFieldValue is T1 schemaT1Value)
+                    return schemaT1Value;
+
+                // 嘗試轉型
+                if (schemaFieldValue != null)
+                    try
+                    {
+                        return (T1)Convert.ChangeType(schemaFieldValue, typeof(T1));
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogError(
+                            $"無法將 Schema 欄位值 {schemaFieldValue} 轉換為 {typeof(T1)}: {e.Message}",
+                            this
+                        );
+                    }
+
+                return default;
+            }
+
+            // 原有的 VarTag 或 Entity 模式
             var target = GetTarget();
             if (target == null)
                 // Debug.LogError("VarRef: 目標變數或實體為 null，無法獲取值。", this);
                 return default;
+
             // 如果沒有設定欄位路徑，直接回傳變數值
             if (!HasFieldPath)
             {
@@ -376,11 +714,13 @@ namespace MonoFSM.Core.DataProvider
         {
             get
             {
-                //Value, Var, Entity
+                //Value, Var, Schema, Entity
                 if (HasFieldPath)
                     return "Value";
                 if (_varTag != null)
                     return "Var";
+                if (_schemaTypeTag != null)
+                    return "Schema";
                 if (entityProvider != null)
                     return "Entity";
                 return "Unknown";

@@ -6,10 +6,14 @@ using MonoFSM.Runtime;
 using MonoFSM.Runtime.Variable;
 using MonoFSM.Runtime.Vote;
 using Sirenix.OdinInspector;
+using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace MonoFSM.Variable
 {
+    [Serializable]
+    public class VarVector3Wrapper : VarWrapper<VarVector3, Vector3> { }
+
     [Serializable]
     public class VarVoteWrapper : VarWrapper<VarVote, bool> { }
 

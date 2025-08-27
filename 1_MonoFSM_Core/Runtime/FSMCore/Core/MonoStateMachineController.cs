@@ -7,16 +7,20 @@ using UnityEngine.Profiling;
 
 namespace Fusion.Addons.FSM
 {
+    //FIXME: 會不小心沒有轉成networked版的？
     //Local版的？
     [DisallowMultipleComponent]
     [RequireComponent(typeof(StateMachineLogic))] // Ensure StateMachineLogic is present
     public class MonoStateMachineController : MonoBehaviour, IStateMachineController
+    // IUpdateSimulate
     {
         public IReadOnlyList<IStateMachine> StateMachines => _fsmLogic.StateMachines;
 
         // PRIVATE MEMBERS
         //FIXME: 可以拿掉了ㄅ
-        [Header("DEBUG")] [SerializeField] private bool _enableLogging; // Removed default initialization
+        [Header("DEBUG")]
+        [SerializeField]
+        private bool _enableLogging; // Removed default initialization
 
         private StateMachineLogic _fsmLogic;
 
@@ -33,12 +37,16 @@ namespace Fusion.Addons.FSM
         private void Start()
         {
             Initialize();
+#if FUSION2
+            Debug.LogError("應該用networked的MonoStateMachineController，這個只是local用的", this);
+#endif
         }
 
         private void OnEnable()
         {
             // Ensure initialization if Start was missed (e.g. object enabled late)
-            if (!_initialized) Initialize();
+            if (!_initialized)
+                Initialize();
         }
 
         private void Update()
@@ -62,14 +70,14 @@ namespace Fusion.Addons.FSM
         {
             if (_initialized)
                 for (var i = 0; i < _fsmLogic.StateMachines.Count; i++)
-                    _fsmLogic.StateMachines[i]
-                        .Deinitialize(false); // Assuming 'false' for hasState in non-networked context
+                    _fsmLogic.StateMachines[i].Deinitialize(false); // Assuming 'false' for hasState in non-networked context
         }
 
         // PUBLIC METHODS
         public void Initialize()
         {
-            if (_initialized) return;
+            if (_initialized)
+                return;
 
             _fsmLogic.InitializeLogic(); // This calls CollectStateMachines
 
@@ -78,9 +86,7 @@ namespace Fusion.Addons.FSM
                 machine.Reset();
                 // Initialize with null runner for non-networked context, or a mock/dummy runner if required by IStateMachine
                 //FIXME:
-                machine
-                    .Initialize(_fsmLogic,
-                        new LocalTickProvider()); // Assuming ITickProvider is not needed or handled internally
+                machine.Initialize(_fsmLogic, new LocalTickProvider()); // Assuming ITickProvider is not needed or handled internally
             }
 
             _initialized = true;
@@ -110,11 +116,13 @@ namespace Fusion.Addons.FSM
         // PRIVATE METHODS
         private void FixedUpdateInternal()
         {
-            if (!_initialized) return;
+            if (!_initialized)
+                return;
             for (var i = 0; i < _fsmLogic.StateMachines.Count; i++)
             {
                 Profiler.BeginSample(
-                    $"MonoStateMachineController.FixedUpdate ({_fsmLogic.StateMachines[i].Name})");
+                    $"MonoStateMachineController.FixedUpdate ({_fsmLogic.StateMachines[i].Name})"
+                );
                 _fsmLogic.StateMachines[i].FixedUpdate(); // Assuming IStateMachine can handle null Runner
                 Profiler.EndSample();
             }
@@ -122,16 +130,27 @@ namespace Fusion.Addons.FSM
 
         private void RenderInternal()
         {
-            if (!_initialized) return;
+            if (!_initialized)
+                return;
             for (var i = 0; i < _fsmLogic.StateMachines.Count; i++)
             {
-                Profiler.BeginSample($"MonoStateMachineController.Render ({_fsmLogic.StateMachines[i].Name})");
+                Profiler.BeginSample(
+                    $"MonoStateMachineController.Render ({_fsmLogic.StateMachines[i].Name})"
+                );
                 _fsmLogic.StateMachines[i].Render();
                 Profiler.EndSample();
             }
         }
 
-        public float DeltaTime =>
-            Time.deltaTime * WorldUpdateSimulator.TimeScale; //FIXME: 要從world那邊同步？
+        public float DeltaTime => Time.deltaTime * WorldUpdateSimulator.TimeScale; //FIXME: 要從world那邊同步？
+
+        // public void Simulate(float deltaTime)
+        // {
+        // }
+        //
+        // public void AfterUpdate()
+        // {
+        //     throw new NotImplementedException();
+        // }
     }
 }

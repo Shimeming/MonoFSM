@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using MonoFSM_Physics.Runtime.Interact.SpatialDetection;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Simulate;
+using MonoFSM.EditorExtension;
 using MonoFSM.Foundation;
 using MonoFSM.PhysicsWrapper;
 using MonoFSM.Variable.Attributes;
@@ -12,14 +14,23 @@ using UnityEngine.Serialization;
 
 namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
 {
-    // [DisallowMultipleComponent]
-
     /// <summary>
     ///     純做Raycast的偵測器，會在SimulateUpdate時進行射線檢測。
     /// </summary>
     [DefaultExecutionOrder(-1)] //要把RaycastDetectSource前面，有執行順序問題hmm
-    public class RaycastCache : AbstractDescriptionBehaviour, IUpdateSimulate, IResetStateRestore
+    public class RaycastCache
+        : AbstractDescriptionBehaviour,
+            IBeforeSimulate,
+            IUpdateSimulate,
+            IResetStateRestore,
+            IHierarchyValueInfo
     {
+        [SerializeField]
+        private Transform _cacheOrigin;
+
+        [SerializeField]
+        private Transform _cacheEndPoint;
+
         public enum RaycastMode
         {
             Single, //FIXME: 應該都要用all 然後再sort, 然後會需要filter掉一部分
@@ -29,7 +40,22 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
 
         [SerializeField]
         private RaycastMode _raycastMode = RaycastMode.Single;
-        public float _distance = 30;
+
+        [HideIf("@_distanceProvider != null")]
+        public float _distance = 30; //要依照速度來決定distance...distance provider?
+
+        [CompRef]
+        [Auto]
+        [SerializeField]
+        private DistanceProviderFromSpeed _distanceProvider;
+
+        [ShowInInspector]
+        private float GetDistance()
+        {
+            if (_distanceProvider != null)
+                return _distanceProvider.Distance * _deltaTime;
+            return _distance;
+        }
 
         [FormerlySerializedAs("HittingLayer")]
         [CustomSerializable]
@@ -62,6 +88,7 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
         // [Auto]
         // private ISphereCastProcessor _sphereCastProcessor;
         // public float _sphereRadius = 0.5f; //FIXME: spherecast的半徑要怎麼處理？ 這個是用來儲存spherecast的結果
+        [ShowInInspector]
         private Ray _cachedRay;
 
 #if UNITY_EDITOR
@@ -69,9 +96,16 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
         private readonly List<Collider> _debugHistoryObjs = new();
 #endif
 
+        public bool _isDrawDebugColor;
+
+        [SerializeField]
+        private Color _overrideGizmoColor = Color.red;
+
         private void OnDrawGizmos()
         {
-            Gizmos.color = Color.red;
+            if (!enabled)
+                return;
+            Gizmos.color = _overrideGizmoColor;
             // if (_sphereCastProcessor != null)
             // {
             //     Gizmos.DrawWireSphere(_cachedRay.origin, _sphereRadius);
@@ -86,10 +120,10 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
             //FIXME: 處理 editor mode的ray provider
             if (Application.isPlaying == false && _rayProvider != null)
                 _cachedRay = _rayProvider.GetRay();
-
+            // Debug.Log("[RaycastCache] Draw Gizmo Ray:" + _cachedRay, this);
             //FIXME: 要選mode? sphere cast, ray cast...
-            Gizmos.DrawRay(_cachedRay.origin, _cachedRay.direction * _distance);
-
+            Gizmos.DrawRay(_cachedRay.origin, _cachedRay.direction * GetDistance());
+            Gizmos.DrawWireCube(_cachedRay.origin, Vector3.one * 0.1f);
             foreach (var hit in CachedHits)
             {
                 Gizmos.color = Color.green;
@@ -113,67 +147,45 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
         // private float _maxVerticalAngle = 45f; // Maximum vertical angle limit
         // private Transform _characterTransform; // Reference to the character's transform
 
-        void TryCast()
-        {
-            //FIXME: 把ray 外包？
-            var ray = _rayProvider.GetRay();
-            // _characterTransform = transform;
 
+        private void TryCast()
+        {
+            var ray = _rayProvider.GetRay();
             CachedHits.Clear();
-            // _thisFrameColliders.Clear();
             _cachedRay = ray;
             transform.rotation = Quaternion.LookRotation(_cachedRay.direction);
             if (_raycastMode == RaycastMode.Single)
             {
-                // if (_sphereCastProcessor != null)
-                // {
-                //     if (
-                //         _sphereCastProcessor.SphereCast(
-                //             ray.origin,
-                //             _sphereRadius,
-                //             ray.direction,
-                //             out var hitInfo,
-                //             _distance,
-                //             _hittingLayer,
-                //             QueryTriggerInteraction.UseGlobal
-                //         )
-                //     )
-                //     {
-                //         if (hitInfo.distance == 0)
-                //             Debug.LogError(
-                //                 "RaycastDetector: SphereCast hit distance is 0, this may indicate an issue with the ray or sphere radius.",
-                //                 this
-                //             );
-                //         _cachedHits.Add(hitInfo);
-                //         _thisFrameColliders.Add(hitInfo.collider);
-                //     }
-                // }
-                // else
+                var endPoint = _cachedRay.origin + _cachedRay.direction * GetDistance();
+                if (_cacheOrigin != null)
+                    _cacheOrigin.position = _cachedRay.origin;
+                if (_cacheEndPoint != null)
+                    _cacheEndPoint.position = endPoint;
+                if (_isDrawDebugColor)
+                    Debug.DrawLine(_cachedRay.origin, endPoint, _overrideGizmoColor, 10f);
+
                 if (_raycastProcessor != null)
                 {
                     if (
-                        _raycastProcessor.Raycast(
+                        !_raycastProcessor.Raycast(
                             ray.origin,
                             ray.direction,
                             out var hitInfo,
-                            _distance,
+                            GetDistance(),
                             _hittingLayer
                         )
                     )
-                    {
-                        //FIXME: 操作 list好嗎？
-                        CachedHits.Add(hitInfo);
-                        // _thisFrameColliders.Add(hitInfo.collider);
-                        _debugHistoryObjs.Add(hitInfo.collider);
-                        // Debug.Log("hit" + hit.collider.name, hit.collider);
-                    }
+                        return;
+                    //FIXME: 操作 list好嗎？
+                    CachedHits.Add(hitInfo);
+                    // Debug.Log("[RaycastCache] RaycastProcessor Hit:" + hitInfo.collider, this);
+                    // _thisFrameColliders.Add(hitInfo.collider);
+                    _debugHistoryObjs.Add(hitInfo.collider);
                 }
-                else if (Physics.Raycast(ray, out var hit, _distance, _hittingLayer))
+                else if (Physics.Raycast(ray, out var hit, GetDistance(), _hittingLayer))
                 {
                     CachedHits.Add(hit);
-                    // _thisFrameColliders.Add(hit.collider);
                     _debugHistoryObjs.Add(hit.collider);
-                    // Debug.Log("hit" + hit.collider.name, hit.collider);
                 }
             }
             else
@@ -202,10 +214,22 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
         // {
         //     PhysicsUpdate();
         // }
+        private float _deltaTime;
 
-        public void Simulate(float deltaTime)
+        //FIXME: raycast時間點...
+        //beforeStateUpdate?
+        //AfterStateUpdate?
+        //怎麼保證這幾個順序？寫在StateUpdate裡一起用？
+
+        public bool _manualUpdateMode; //FIXME: 這個要不要放在外面？ 讓外面控制
+
+        public void Simulate(float deltaTime) //這個優先順序問題？
         {
+            // if (_manualUpdateMode)
+            //     return;
+            _deltaTime = deltaTime;
             TryCast();
+            // Debug.Log("[RaycastCache] Simulate Ray:" + _cachedRay, this);
         }
 
         public void AfterUpdate() { }
@@ -219,10 +243,21 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
             CachedHits.Clear();
             _debugHistoryObjs.Clear();
         }
+
+        public void BeforeSimulate(float deltaTime)
+        {
+            // _deltaTime = deltaTime;
+            // TryCast();
+            // Debug.Log("[RaycastCache] BeforeSimulate Ray:" + _cachedRay, this);
+        }
+
+        public string ValueInfo => "h:" + _hittingLayer.value; //FIXME: 可能會是多個..
+        public bool IsDrawingValueInfo => true;
     }
 
     public abstract class IRayProvider : MonoBehaviour
     {
         public abstract Ray GetRay();
+        //FIXME: 應該要包含距離？
     }
 }

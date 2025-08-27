@@ -4,16 +4,25 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 
 // [RequireComponent(typeof(Rigidbody))]
-public class RigidbodyMotionCustomReceiver : MonoBehaviour, IRootMotionReceiver,
-    IOverrideHierarchyIcon, IDrawHierarchyBackGround, IHierarchyValueInfo, IUpdateSimulate
+public class RigidbodyMotionCustomReceiver
+    : MonoBehaviour,
+        IRootMotionReceiver,
+        IOverrideHierarchyIcon,
+        IDrawHierarchyBackGround,
+        IHierarchyValueInfo,
+        IUpdateSimulate
 {
-    [Required] [ShowInInspector] [SerializeField]
+    [Required]
+    [ShowInInspector]
+    [SerializeField]
+    [AutoParent]
     private Rigidbody rb;
 
     private Vector3 pendingPosition;
     private Quaternion pendingRotation = Quaternion.identity;
 
-    [Auto] private RootMotionRelay _relay;
+    [Auto]
+    private RootMotionRelay _relay;
 
     public void OnProcessRootMotion(Vector3 deltaPosition, Quaternion deltaRotation)
     {
@@ -43,6 +52,7 @@ public class RigidbodyMotionCustomReceiver : MonoBehaviour, IRootMotionReceiver,
     public string ValueInfo => "Rigidbody ↰";
     public bool IsDrawingValueInfo => _relay == null; // 只有獨立存在時顯示文字
 #endif
+
     public void Simulate(float deltaTime)
     {
         if (pendingPosition != Vector3.zero || pendingRotation != Quaternion.identity)
@@ -55,7 +65,5 @@ public class RigidbodyMotionCustomReceiver : MonoBehaviour, IRootMotionReceiver,
         }
     }
 
-    public void AfterUpdate()
-    {
-    }
+    public void AfterUpdate() { }
 }

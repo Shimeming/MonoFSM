@@ -3,37 +3,48 @@ using MonoFSM.Core;
 using MonoFSM.EditorExtension;
 using MonoFSM.Foundation;
 using MonoFSM.Variable.Attributes;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace _1_MonoFSM_Core.Runtime.FSMCore.Core.StateBehaviour
 {
     //只需要這個就好了嗎？但是
-    public class TransitionBehaviour : TransitionBehaviour<MonoStateBehaviour>, IOverrideHierarchyIcon,
-        IDrawHierarchyBackGround
+    public class TransitionBehaviour
+        : TransitionBehaviour<MonoStateBehaviour>,
+            IOverrideHierarchyIcon,
+            IDrawHierarchyBackGround
     {
         protected override string DescriptionTag => "Transition";
 
-        public override string Description
-            => _target != null && _target.Name != null ? "=>" + _target.Name.Replace("[State]", "") : "";
+        public override string Description =>
+            _target != null && _target.Name != null
+                ? "=>" + _target.Name.Replace("[State]", "")
+                : "";
 
         protected override void Awake()
         {
-            _transitionData = new TransitionData<MonoStateBehaviour>(_target, (state, machine) =>
-            {
-                if (isActiveAndEnabled == false)
-                    return false;
+            _transitionData = new TransitionData<MonoStateBehaviour>(
+                _target,
+                (state, machine) =>
+                {
+                    if (isActiveAndEnabled == false)
+                        return false;
 
-                // Check all conditions
-                return _conditions.IsAllValid();
-            });
+                    // Check all conditions
+                    return _conditions.IsAllValid();
+                }
+            );
         }
 
-        [DropDownRef] public MonoStateBehaviour _target;
+        [Required]
+        [DropDownRef]
+        public MonoStateBehaviour _target;
 
         // [RequiredListLength(1, null)]
-        [SerializeField] [CompRef] [AutoChildren(DepthOneOnly = true)]
+        [SerializeField]
+        [CompRef]
+        [AutoChildren(DepthOneOnly = true)]
         private AbstractConditionBehaviour[] _conditions;
-
 
 #if UNITY_EDITOR
         // public Color BackgroundColor => new(1.0f, 0f, 0f, 0.3f);
@@ -66,7 +77,6 @@ namespace _1_MonoFSM_Core.Runtime.FSMCore.Core.StateBehaviour
         //     return false;
         // }
     }
-
 
     //這層才算是換掉的實作？上面是介面 serialized field就是一種介面的參數，如果放在最外層，名字一樣就可以直接抽換了
     public abstract class TransitionBehaviour<TState> : AbstractDescriptionBehaviour

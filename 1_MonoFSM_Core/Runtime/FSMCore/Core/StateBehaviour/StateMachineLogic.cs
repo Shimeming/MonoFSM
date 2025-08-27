@@ -197,8 +197,7 @@ namespace Fusion.Addons.FSM
             foreach (var stateMachine in StateMachines)
                 stateMachine.Reset();
 
-            // else
-            //     Debug.LogError("State machines not collected yet, cannot reset.", this);
+            //network會失敗嗎？
         }
     }
 }

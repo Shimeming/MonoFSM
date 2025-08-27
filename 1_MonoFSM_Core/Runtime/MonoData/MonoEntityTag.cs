@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using _1_MonoFSM_Core.Runtime._1_States;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Variable;
+using MonoFSM.Variable.TypeTag;
 using Sirenix.OdinInspector;
 using UnityEngine;
 #if UNITY_EDITOR
@@ -73,6 +75,27 @@ namespace MonoFSM.Runtime.Mono
 
         //FIXME: Data Type Restriction?
         public List<VariableTag> containsVariableTypeTags = new List<VariableTag>(); //VariableTag[] containsVariableTypeTags = Array.Empty<VariableTag>();
+
+        //可用的 Schema types 列表，使用 AbstractTypeTag 來確保可序列化
+        public List<AbstractTypeTag> containsSchemaTypeTags = new List<AbstractTypeTag>();
+
+        public IEnumerable<ValueDropdownItem<AbstractTypeTag>> GetSchemaTypeTagItems()
+        {
+            var schemaTypeTagItems = new List<ValueDropdownItem<AbstractTypeTag>>();
+            foreach (var schemaTypeTag in containsSchemaTypeTags)
+            {
+                if (schemaTypeTag != null && schemaTypeTag.Type != null)
+                {
+                    schemaTypeTagItems.Add(
+                        new ValueDropdownItem<AbstractTypeTag>(
+                            schemaTypeTag.Type.Name,
+                            schemaTypeTag
+                        )
+                    );
+                }
+            }
+            return schemaTypeTagItems;
+        }
 
         //GameFlagDescriptable? Item?
         public bool IsCollectionTag; //還要繼承嗎？

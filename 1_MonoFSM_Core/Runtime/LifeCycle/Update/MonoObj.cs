@@ -118,6 +118,10 @@ namespace MonoFSMCore.Runtime.LifeCycle
         [AutoChildren]
         private IUpdateSimulate[] _updateSimulates;
 
+        [PreviewInInspector]
+        [AutoChildren]
+        private IBeforeSimulate[] _beforeSimulates;
+
         //FIXME: PoolBeforeReturnToPool? OnReturnPool?
 
         [ShowInDebugMode]
@@ -194,7 +198,7 @@ namespace MonoFSMCore.Runtime.LifeCycle
         {
             if (HasParent)
                 return;
-            Debug.Log("[MonoObj] HandleIResetStateRestore", this);
+            // Debug.Log("[MonoObj] HandleIResetStateRestore", this);
             foreach (var item in _resetStateRestores)
             {
                 if (item == null)
@@ -238,6 +242,30 @@ namespace MonoFSMCore.Runtime.LifeCycle
 
         public bool IsProxy { get; set; }
 
+        public void BeforeSimulate(float deltaTime)
+        {
+            if (HasParent)
+                return;
+            if (IsProxy)
+                return;
+            foreach (var item in _beforeSimulates)
+            {
+                if (item == null || !item.isActiveAndEnabled)
+                    continue;
+                // try
+                // {
+                item.BeforeSimulate(deltaTime);
+                // }
+                // catch (Exception e)
+                // {
+                //     if (item is MonoBehaviour)
+                //         Debug.LogError(e.Message + "\n" + e.StackTrace, item as MonoBehaviour);
+                //     else
+                //         Debug.LogError(e.Message + "\n" + e.StackTrace);
+                // }
+            }
+        }
+
         //理論上沒有註冊就不會call到這個
         public void Simulate(float deltaTime)
         {
@@ -246,6 +274,7 @@ namespace MonoFSMCore.Runtime.LifeCycle
             //如果proxy就跳過？
             if (IsProxy)
                 return;
+            //要在state machine之後嗎？還是要可以排順序？
             foreach (var item in _updateSimulates)
             {
                 if (item == null || item.isActiveAndEnabled == false)

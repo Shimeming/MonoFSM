@@ -7,7 +7,7 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-[Obsolete("不可信任XDD 還是直接從arg event當下拿比較好，還是可以修回來？")] //FIXME: 不可信任XDD 還是直接從arg event當下拿比較好
+// [Obsolete("不可信任XDD 還是直接從arg event當下拿比較好，還是可以修回來？")] //FIXME: 不可信任XDD 還是直接從arg event當下拿比較好
 public class HitDataEntityProvider : AbstractEntityProvider, IEntityProvider //這個介面很怪？VariableOwner...那就直接I
 {
     //可是這裡

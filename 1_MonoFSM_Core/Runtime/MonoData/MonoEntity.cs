@@ -44,6 +44,15 @@ namespace MonoFSM.Runtime
         [AutoChildren(DepthOneOnly = true)]
         private SchemaFolder _schemaFolder;
 
+        public SchemaFolder SchemaFolder
+        {
+            get
+            {
+                this.EnsureComponentInChildren(ref _schemaFolder);
+                return _schemaFolder;
+            }
+        }
+
         // set => _entitySchema = value;
         //Utility? 開始要拿一些Rigidbody、Collider之類的東西了
         // public Rigidbody DefaultRigidbody => GetComponent<Rigidbody>(); //FIXME: 位置對嗎？
@@ -76,6 +85,69 @@ namespace MonoFSM.Runtime
         public void OnBeforePrefabSave()
         {
             FillVarTagsToMonoDescriptableTag();
+            FillSchemaTypesToMonoEntityTag();
+        }
+
+        //撈出所有變數的tag和schema類型塞到 DescriptableTags
+        protected void FillSchemaTypesToMonoEntityTag()
+        {
+            var descriptableTag = DefaultTag;
+            if (descriptableTag == null)
+                return;
+
+            var isTagDirty = false;
+
+            // 填充 Schema Types - 先確保 _schemaFolder 存在
+            this.EnsureComponentInChildren(ref _schemaFolder);
+            if (_schemaFolder != null)
+            {
+                var schemas = _schemaFolder.GetValues;
+                foreach (var schema in schemas)
+                {
+                    // 確保 Schema 有 _typeTag
+                    schema.AutoAssignTypeTag();
+
+                    if (schema._typeTag == null)
+                    {
+                        Debug.LogWarning(
+                            $"Schema {schema.GetType().Name} 無法自動指派 TypeTag",
+                            schema
+                        );
+                        continue;
+                    }
+
+                    Debug.Log($"Found schema with TypeTag: {schema._typeTag.name}");
+
+                    // 檢查是否已經存在相同的 TypeTag
+                    var schemaTypeTagExists = descriptableTag.containsSchemaTypeTags.Contains(
+                        schema._typeTag
+                    );
+
+                    if (!schemaTypeTagExists)
+                    {
+                        // 使用 Schema 的 _typeTag 自動添加到 MonoEntityTag
+                        descriptableTag.containsSchemaTypeTags.Add(schema._typeTag);
+                        isTagDirty = true;
+                        Debug.Log(
+                            $"自動添加 Schema TypeTag: {schema._typeTag.name} 到 MonoEntityTag"
+                        );
+                    }
+                    else
+                    {
+                        Debug.Log(
+                            $"Schema TypeTag {schema._typeTag.name} 已存在於 MonoEntityTag 中"
+                        );
+                    }
+                }
+            }
+
+#if UNITY_EDITOR
+            if (isTagDirty)
+            {
+                EditorUtility.SetDirty(descriptableTag);
+                Debug.Log($"已自動更新 {descriptableTag.name} 的 Schema Types");
+            }
+#endif
         }
 
         public GameData GameData => Data;
@@ -98,9 +170,9 @@ namespace MonoFSM.Runtime
         public TSchema GetSchema<TSchema>()
             where TSchema : AbstractEntitySchema
         {
-            if (_schemaFolder != null)
+            if (SchemaFolder != null)
             {
-                var result = _schemaFolder.Get<TSchema>();
+                var result = SchemaFolder.Get<TSchema>();
                 return result;
             }
 
@@ -366,26 +438,31 @@ namespace MonoFSM.Runtime
         //撈出所有變數的tag塞到 DescriptableTags
         protected void FillVarTagsToMonoDescriptableTag()
         {
-            if (VariableFolder == null)
-                return;
-            // if (DescriptableTags == null || DescriptableTagCount == 0)
-            //     return;
-            var variables = VariableFolder.GetValues;
-
-            // 為所有 DescriptableTag 新增缺失的 variable tags
-            // foreach (var descriptableTag in DescriptableTags)
-            // {
             var descriptableTag = DefaultTag;
             if (descriptableTag == null)
                 return;
 
-            foreach (var variable in variables)
-                if (!descriptableTag.containsVariableTypeTags.Contains(variable._varTag))
-                    descriptableTag.containsVariableTypeTags.Add(variable._varTag);
+            var isTagDirty = false;
+
+            // 填充 Variable Tags
+            if (VariableFolder != null)
+            {
+                var variables = VariableFolder.GetValues;
+                foreach (var variable in variables)
+                    if (!descriptableTag.containsVariableTypeTags.Contains(variable._varTag))
+                    {
+                        descriptableTag.containsVariableTypeTags.Add(variable._varTag);
+                        isTagDirty = true;
+                    }
+            }
+
 #if UNITY_EDITOR
-            EditorUtility.SetDirty(descriptableTag);
+            if (isTagDirty)
+            {
+                EditorUtility.SetDirty(descriptableTag);
+                Debug.Log($"已自動更新 {descriptableTag.name} 的 Variable Tags");
+            }
 #endif
-            // }
         }
 
         //FIXME: 好像不需要了？要繼承 MonoEntity 才需要

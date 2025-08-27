@@ -38,6 +38,7 @@ namespace MonoFSM.Core.Variable
         private object _activeCollection; // Runtime instance: List<T>, Queue<T>, or HashSet<T>
 
         public int _currentIndex = -1; //FIXME: save? var int?
+        public int _lastIndex = -1; //FIXME: save? var int?
         public int _defaultIndex;
 
         public override void SetIndex(int index)
@@ -49,6 +50,8 @@ namespace MonoFSM.Core.Variable
                 );
                 return;
             }
+
+            _lastIndex = _currentIndex;
             _currentIndex = index;
         }
 
@@ -57,11 +60,12 @@ namespace MonoFSM.Core.Variable
             EnsureActiveCollectionInitialized();
             if (Count == 0)
             {
-                _currentIndex = -1;
+                SetIndex(-1);
                 return;
             }
 
-            _currentIndex = (_currentIndex + 1) % Count;
+            var index = (_currentIndex + 1) % Count;
+            SetIndex(index);
         }
 
         public override void GoToPrevious()
@@ -69,11 +73,12 @@ namespace MonoFSM.Core.Variable
             EnsureActiveCollectionInitialized();
             if (Count == 0)
             {
-                _currentIndex = -1;
+                SetIndex(-1);
                 return;
             }
 
-            _currentIndex = (_currentIndex - 1 + Count) % Count;
+            var index = (_currentIndex - 1 + Count) % Count;
+            SetIndex(index);
         }
 
         public T GetFirstOrDefault()
@@ -86,6 +91,18 @@ namespace MonoFSM.Core.Variable
             if (_activeCollection is HashSet<T> set && set.Count > 0)
                 return set.FirstOrDefault();
             return default;
+        }
+
+        public T LastListItem
+        {
+            get
+            {
+                if (_lastIndex < 0)
+                    return default;
+                if (Count == 0)
+                    return default;
+                return GetList()[_lastIndex];
+            }
         }
 
         public T CurrentListItem //不是object... current ListItem

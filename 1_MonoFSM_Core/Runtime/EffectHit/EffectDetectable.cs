@@ -63,7 +63,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         //DebugOnly
 #if UNITY_EDITOR
         [PreviewInInspector]
-        public HashSet<EffectDetector> _detectors = new();
+        public HashSet<EffectDetector> _debugDetectors = new(); //沒在判？
 #endif
 
         // List<SpatialDetector> fromDetectors;
@@ -97,6 +97,6 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         //             toRemoves.Clear();
         //         }
 
-        protected override string DescriptionTag => "Detection Target";
+        protected override string DescriptionTag => "Detectable 接收";
     }
 }
