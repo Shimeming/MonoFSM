@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
+using MonoFSM.Core.Simulate;
 using MonoFSM.Runtime;
 using MonoFSM.Variable.Attributes;
 using MonoFSMCore.Runtime.LifeCycle;
@@ -30,7 +31,8 @@ namespace Fusion.Addons.FSM
         private MonoEntity _parentEntity;
         public MonoEntity ParentEntity => _parentEntity;
 
-        public float DeltaTime => _stateMachineController.DeltaTime;
+        [ShowInInspector]
+        public float DeltaTime => WorldUpdateSimulator.DeltaTime;
 
         // #if UNITY_EDITOR
         /// <summary>

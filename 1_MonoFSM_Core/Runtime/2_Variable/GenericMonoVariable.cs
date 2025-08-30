@@ -19,7 +19,7 @@ using Sirenix.OdinInspector.Editor;
 [Searchable]
 // [DisallowMultipleComponent]
 public abstract class GenericMonoVariable<TScriptableData, TField, TType>
-    : AbstractMonoVariable,
+    : TypedMonoVariable<TType>,
         ISettable<TType>,
         IGameStateOwner,
         IDefaultSerializable,
@@ -29,9 +29,31 @@ public abstract class GenericMonoVariable<TScriptableData, TField, TType>
     where TField : FlagField<TType>, new()
     where TType : IEquatable<TType>
 {
+    // [CompRef] [AutoChildren(DepthOneOnly = true)]
+    // private IValueProvider<TType>[] _valueSources; //FIXME: 可能會有多個耶...還要一層resolver嗎？
+    //
+    //
+    // [ShowInPlayMode]
+    // private IValueProvider<TType> valueSource
+    // {
+    //     get
+    //     {
+    //         if (_valueSources == null || _valueSources.Length == 0)
+    //             return null;
+    //         foreach (var valueProvider in _valueSources)
+    //             if (valueProvider.IsValid)
+    //                 return valueProvider;
+    //
+    //         //[]: 多個的話要怎麼辦？還是說不允許多個？
+    //         Debug.LogWarning("condition not met, use default? (last)" + _valueSources[^1], this);
+    //         return _valueSources[^1];
+    //     }
+    // }
+
+    //還要看條件嗎？ conditional value switch
     //想要直接選一個field就拿他的值，應該抽出去做成一個新東西不要放在GenericVariable裡面
     //VariableFloat應該獨立寫？這樣就一定可以有一個最好的abstract class
-    public void CommitValue()
+    public override void CommitValue()
     {
         var (last, current) = Field.CommitValue();
         ValueCommited(last, current);
@@ -40,12 +62,12 @@ public abstract class GenericMonoVariable<TScriptableData, TField, TType>
     //可以用abstract比較好？但目前只用到VarFloat
     protected virtual void ValueCommited(TType lastValue, TType currentValue) { }
 
-    public void SetValue(object value, MonoBehaviour byWho)
+    public override void SetValue(object value, MonoBehaviour byWho)
     {
         SetValueInternal((TType)value, byWho);
     }
 
-    public void SetValue(TType value, MonoBehaviour byWho)
+    public override void SetValue(TType value, MonoBehaviour byWho)
     {
         SetValueInternal(value, byWho);
     }
@@ -135,11 +157,14 @@ public abstract class GenericMonoVariable<TScriptableData, TField, TType>
     [TabGroup("Value")]
     [InlineField]
     [HideIf(nameof(_bindData))]
+    [HideIf(nameof(HasValueProvider))]
     public TField _localField; // = new();
+
+    private bool HasValueProvider => _valueSources is { Length: > 0 };
 
     //這個值會被蓋掉???
 
-    [TabGroup("Value")]
+    // [TabGroup("Value")]
     public TField Field => BindData != null ? BindData.field : _localField;
 
     //給非Auto的人看的，要綁，Auto自己就會生，就結束了
@@ -235,7 +260,7 @@ public abstract class GenericMonoVariable<TScriptableData, TField, TType>
     // [PreviewInInspector]
     public virtual TType FinalValue => CurrentValue;
 
-    [TabGroup("Value")]
+    // [TabGroup("Value")]
     [ShowInDebugMode]
     public virtual TType LastValue => Field.LastValue; //FIXME: 這裡沒有過到modifier
 
@@ -276,6 +301,9 @@ public abstract class GenericMonoVariable<TScriptableData, TField, TType>
         {
             if (!Application.isPlaying) //FIXME: 先隨便寫一下..
                 return EditorValue;
+
+            if (valueSource != null) //用外部source getter, 這樣原本一坨都不需要了吧？
+                return valueSource.Value;
 
             Profiler.BeginSample("Variable GetValue");
             var tempValue = _localField.CurrentValue;

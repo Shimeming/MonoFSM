@@ -3,24 +3,42 @@ using UnityEngine.Internal;
 
 namespace MonoFSM.PhysicsWrapper
 {
-    public interface IAllInOneRaycastProcessor : IRaycastProcessor, ISphereCastProcessor, ICapsuleRaycastProcessor,
-        IBoxCastProcessor
-    {
-    }
+    public interface IAllInOneRaycastProcessor
+        : IRaycastProcessor,
+            ISphereCastProcessor,
+            ICapsuleRaycastProcessor,
+            IBoxCastProcessor { }
 
     public interface IRaycastProcessor
     {
         bool Raycast(Vector3 origin, Vector3 direction, float maxDistance);
         bool Raycast(Vector3 origin, Vector3 direction, float maxDistance, int layerMask);
         bool Raycast(Vector3 origin, Vector3 direction, out RaycastHit hitInfo, float maxDistance);
-        bool Raycast(Vector3 origin, Vector3 direction, out RaycastHit hitInfo, float maxDistance, int layerMask);
+        bool Raycast(
+            Vector3 origin,
+            Vector3 direction,
+            out RaycastHit hitInfo,
+            float maxDistance,
+            int layerMask
+        );
 
-        bool Raycast(Vector3 origin, Vector3 direction, out RaycastHit hitInfo, float maxDistance,
-            int layerMask, QueryTriggerInteraction queryTriggerInteraction);
-
-        public int RaycastNonAlloc(Vector3 origin, Vector3 direction, RaycastHit[] hitInfos, float maxDistance,
+        bool Raycast(
+            Vector3 origin,
+            Vector3 direction,
+            out RaycastHit hitInfo,
+            float maxDistance,
             int layerMask,
-            QueryTriggerInteraction queryTriggerInteraction);
+            QueryTriggerInteraction queryTriggerInteraction
+        );
+
+        public int RaycastNonAlloc(
+            Vector3 origin,
+            Vector3 direction,
+            RaycastHit[] hitInfos,
+            float maxDistance,
+            int layerMask,
+            QueryTriggerInteraction queryTriggerInteraction
+        );
 
         // RaycastHit[] RaycastAll(Vector3 origin, Vector3 direction, float maxDistance,
         //     int layerMask, QueryTriggerInteraction queryTriggerInteraction);
@@ -32,15 +50,24 @@ namespace MonoFSM.PhysicsWrapper
 
     public interface ISphereCastProcessor
     {
-        int SphereOverlap(Vector3 origin, float radius, Collider[] results,
+        int SphereOverlap(
+            Vector3 origin,
+            float radius,
+            Collider[] results,
             [DefaultValue("DefaultRaycastLayers")] int layerMask,
             [DefaultValue("QueryTriggerInteraction.UseGlobal")]
-            QueryTriggerInteraction queryTriggerInteraction);
-        bool SphereCast(Vector3 origin, float radius, Vector3 direction, out RaycastHit hitInfo,
+                QueryTriggerInteraction queryTriggerInteraction
+        );
+        bool SphereCast(
+            Vector3 origin,
+            float radius,
+            Vector3 direction,
+            out RaycastHit hitInfo,
             [DefaultValue("Mathf.Infinity")] float maxDistance,
             [DefaultValue("DefaultRaycastLayers")] int layerMask,
             [DefaultValue("QueryTriggerInteraction.UseGlobal")]
-            QueryTriggerInteraction queryTriggerInteraction);
+                QueryTriggerInteraction queryTriggerInteraction
+        );
         public int SphereCastNonAlloc(
             Vector3 origin,
             float radius,
@@ -49,7 +76,8 @@ namespace MonoFSM.PhysicsWrapper
             [DefaultValue("Mathf.Infinity")] float maxDistance,
             [DefaultValue("DefaultRaycastLayers")] int layerMask,
             [DefaultValue("QueryTriggerInteraction.UseGlobal")]
-            QueryTriggerInteraction queryTriggerInteraction);
+                QueryTriggerInteraction queryTriggerInteraction
+        );
         // bool SphereCast(Vector3 origin, Vector3 direction, float radius, float maxDistance);
         // bool SphereCast(Vector3 origin, Vector3 direction, float radius, float maxDistance, int layerMask);
         //
@@ -62,60 +90,5 @@ namespace MonoFSM.PhysicsWrapper
         // bool SphereCast(Vector3 origin, Vector3 direction, float radius, out RaycastHit hitInfo,
         //     float maxDistance,
         //     int layerMask, QueryTriggerInteraction queryTriggerInteraction);
-    }
-
-    public interface IBoxCastProcessor
-    {
-        public int BoxCastNonAlloc(
-            Vector3 origin,
-            Vector3 halfExtents,
-            Vector3 direction,
-            RaycastHit[] results,
-            Quaternion orientation,
-            [DefaultValue("Mathf.Infinity")] float maxDistance,
-            [DefaultValue("DefaultRaycastLayers")] int layerMask,
-            [DefaultValue("QueryTriggerInteraction.UseGlobal")]
-            QueryTriggerInteraction queryTriggerInteraction);
-    }
-
-    public interface ICapsuleRaycastProcessor
-    {
-        public int CapsuleCastNonAlloc(
-            Vector3 point1,
-            Vector3 point2,
-            float radius,
-            Vector3 direction,
-            RaycastHit[] results,
-            [DefaultValue("Mathf.Infinity")] float maxDistance,
-            [DefaultValue("DefaultRaycastLayers")] int layerMask,
-            [DefaultValue("QueryTriggerInteraction.UseGlobal")]
-            QueryTriggerInteraction queryTriggerInteraction);
-    }
-
-    public interface ISphereOverlapProcessor
-    {
-        public int OverlapSphereNonAlloc(
-            Vector3 position,
-            float radius,
-            Collider[] results,
-            [DefaultValue("DefaultRaycastLayers")] int layerMask,
-            [DefaultValue("QueryTriggerInteraction.UseGlobal")]
-            QueryTriggerInteraction queryTriggerInteraction);
-    }
-
-    public interface IBoxOverlapProcessor
-    {
-        public int OverlapBoxNonAlloc(
-            Vector3 center,
-            Vector3 halfExtents,
-            Collider[] results,
-            [DefaultValue("Quaternion.identity")] Quaternion orientation,
-            [DefaultValue("DefaultRaycastLayers")] int layerMask,
-            [DefaultValue("QueryTriggerInteraction.UseGlobal")]
-            QueryTriggerInteraction queryTriggerInteraction);
-    }
-
-    public interface IOverlapProcessor : ICapsuleOverlapProcessor, ISphereOverlapProcessor, IBoxOverlapProcessor
-    {
     }
 }

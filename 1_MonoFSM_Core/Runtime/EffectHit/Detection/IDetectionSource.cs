@@ -73,6 +73,8 @@ namespace MonoFSM.Core.Detection
 
         protected void ProcessEnterExitEvents()
         {
+            //測試enter的部分
+            //現在是以 Detector,Detectable為單位，不能只key Dealer/Receiver 就觸發？
             foreach (var obj in _toEnter)
             {
                 var result = _detector.OnDetectEnterCheck(obj);

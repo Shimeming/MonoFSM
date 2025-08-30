@@ -207,7 +207,7 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
         [Required]
         [Auto]
         [CompRef]
-        private IRayProvider _rayProvider;
+        private AbstractRayProvider _rayProvider;
 
         //update?
         // public void Simulate(float deltaTime)
@@ -223,6 +223,7 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
 
         public bool _manualUpdateMode; //FIXME: 這個要不要放在外面？ 讓外面控制
 
+        //直接放在variable下面也是蠻好笑的？
         public void Simulate(float deltaTime) //這個優先順序問題？
         {
             // if (_manualUpdateMode)
@@ -235,6 +236,7 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
         public void AfterUpdate() { }
 
         protected override string DescriptionTag => "Raycast";
+        public override string Description => _rayProvider?.GetType().Name;
 
         public void ResetStateRestore()
         {
@@ -255,7 +257,7 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
         public bool IsDrawingValueInfo => true;
     }
 
-    public abstract class IRayProvider : MonoBehaviour
+    public abstract class AbstractRayProvider : MonoBehaviour
     {
         public abstract Ray GetRay();
         //FIXME: 應該要包含距離？

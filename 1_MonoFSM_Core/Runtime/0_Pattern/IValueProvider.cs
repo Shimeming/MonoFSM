@@ -6,7 +6,8 @@ namespace MonoFSM.Core
     public interface IValueProvider
     {
         public object ValueRaw => Get<object>();
-
+        public bool isActiveAndEnabled { get; }
+        public bool IsValid => isActiveAndEnabled;
         public bool IsValueExist
         {
             get
@@ -51,7 +52,8 @@ namespace MonoFSM.Core
         T1 IValueProvider.Get<T1>() //繼承關係的
         {
             var value = Get();
-            if (value is T1 t1Value) return t1Value;
+            if (value is T1 t1Value)
+                return t1Value;
             throw new InvalidCastException($"Cannot cast {typeof(Component)} to {typeof(T1)}");
         }
 
@@ -64,12 +66,14 @@ namespace MonoFSM.Core
     }
 
     // out T沒什麼意義...
-    public interface ICompProvider<out T> : ICompProvider where T : Component
+    public interface ICompProvider<out T> : ICompProvider
+        where T : Component
     {
         T1 IValueProvider.Get<T1>()
         {
             var value = Get();
-            if (value is T1 t1Value) return t1Value;
+            if (value is T1 t1Value)
+                return t1Value;
             throw new InvalidCastException($"Cannot cast {typeof(T)} to {typeof(T1)}");
         }
 
@@ -80,6 +84,7 @@ namespace MonoFSM.Core
             return Get();
             // 確保Get()返回Component類型
         }
+
         // object IValueProvider.GetValue => Get<T>()<T>;
 
 

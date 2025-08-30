@@ -3,7 +3,66 @@ using UnityEngine.Internal;
 
 namespace MonoFSM.PhysicsWrapper
 {
-    
+    public interface IBoxCastProcessor
+    {
+        public int BoxCastNonAlloc(
+            Vector3 origin,
+            Vector3 halfExtents,
+            Vector3 direction,
+            RaycastHit[] results,
+            Quaternion orientation,
+            [DefaultValue("Mathf.Infinity")] float maxDistance,
+            [DefaultValue("DefaultRaycastLayers")] int layerMask,
+            [DefaultValue("QueryTriggerInteraction.UseGlobal")]
+                QueryTriggerInteraction queryTriggerInteraction
+        );
+    }
+
+    public interface ICapsuleRaycastProcessor
+    {
+        public int CapsuleCastNonAlloc(
+            Vector3 point1,
+            Vector3 point2,
+            float radius,
+            Vector3 direction,
+            RaycastHit[] results,
+            [DefaultValue("Mathf.Infinity")] float maxDistance,
+            [DefaultValue("DefaultRaycastLayers")] int layerMask,
+            [DefaultValue("QueryTriggerInteraction.UseGlobal")]
+                QueryTriggerInteraction queryTriggerInteraction
+        );
+    }
+
+    public interface ISphereOverlapProcessor
+    {
+        public int OverlapSphereNonAlloc(
+            Vector3 position,
+            float radius,
+            Collider[] results,
+            [DefaultValue("DefaultRaycastLayers")] int layerMask,
+            [DefaultValue("QueryTriggerInteraction.UseGlobal")]
+                QueryTriggerInteraction queryTriggerInteraction
+        );
+    }
+
+    public interface IBoxOverlapProcessor
+    {
+        public int OverlapBoxNonAlloc(
+            Vector3 center,
+            Vector3 halfExtents,
+            Collider[] results,
+            [DefaultValue("Quaternion.identity")] Quaternion orientation,
+            [DefaultValue("DefaultRaycastLayers")] int layerMask,
+            [DefaultValue("QueryTriggerInteraction.UseGlobal")]
+                QueryTriggerInteraction queryTriggerInteraction
+        );
+    }
+
+    public interface IOverlapProcessor
+        : ICapsuleOverlapProcessor,
+            ISphereOverlapProcessor,
+            IBoxOverlapProcessor { }
+
     public interface ICapsuleOverlapProcessor
     {
         public int OverlapCapsuleNonAlloc(
@@ -13,13 +72,14 @@ namespace MonoFSM.PhysicsWrapper
             Collider[] results,
             [DefaultValue("DefaultRaycastLayers")] int layerMask,
             [DefaultValue("QueryTriggerInteraction.UseGlobal")]
-            QueryTriggerInteraction queryTriggerInteraction  = QueryTriggerInteraction.UseGlobal);
+                QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.UseGlobal
+        );
     }
-
 
     public class MyOverlap : MonoBehaviour
     {
-        [Auto] private IOverlapProcessor _overlapProcessor;
+        [Auto]
+        private IOverlapProcessor _overlapProcessor;
 
         /// <summary>
         /// Find all colliders touching or inside the capsule.
@@ -31,16 +91,36 @@ namespace MonoFSM.PhysicsWrapper
         /// <param name="layerMask">A layer mask that is used to selectively ignore colliders when casting a capsule.</param>
         /// <param name="queryTriggerInteraction">Specifies whether this query should hit Triggers.</param>
         /// <returns>The number of colliders stored in the results buffer.</returns>
-        public int OverlapCapsuleNonAlloc(Vector3 point1, Vector3 point2, float radius, Collider[] results, int layerMask = -1, QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.UseGlobal)
+        public int OverlapCapsuleNonAlloc(
+            Vector3 point1,
+            Vector3 point2,
+            float radius,
+            Collider[] results,
+            int layerMask = -1,
+            QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.UseGlobal
+        )
         {
-            if (_overlapProcessor != null) 
-                return _overlapProcessor.OverlapCapsuleNonAlloc(point1, point2, radius, results, layerMask, queryTriggerInteraction);
+            if (_overlapProcessor != null)
+                return _overlapProcessor.OverlapCapsuleNonAlloc(
+                    point1,
+                    point2,
+                    radius,
+                    results,
+                    layerMask,
+                    queryTriggerInteraction
+                );
 
             // Fallback to Physics.OverlapCapsuleNonAlloc if no processor is available
-            
-            return Physics.OverlapCapsuleNonAlloc(point1, point2, radius, results, layerMask, queryTriggerInteraction);
+
+            return Physics.OverlapCapsuleNonAlloc(
+                point1,
+                point2,
+                radius,
+                results,
+                layerMask,
+                queryTriggerInteraction
+            );
         }
-        
 
         /// <summary>
         /// Find all colliders touching or inside the sphere.
@@ -51,13 +131,31 @@ namespace MonoFSM.PhysicsWrapper
         /// <param name="layerMask">A layer mask that is used to selectively ignore colliders when casting a sphere.</param>
         /// <param name="queryTriggerInteraction">Specifies whether this query should hit Triggers.</param>
         /// <returns>The number of colliders stored in the results buffer.</returns>
-        public int OverlapSphereNonAlloc(Vector3 position, float radius, Collider[] results, int layerMask = -1, QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.UseGlobal)
+        public int OverlapSphereNonAlloc(
+            Vector3 position,
+            float radius,
+            Collider[] results,
+            int layerMask = -1,
+            QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.UseGlobal
+        )
         {
-            if (_overlapProcessor != null) 
-                return _overlapProcessor.OverlapSphereNonAlloc(position, radius, results, layerMask, queryTriggerInteraction);
+            if (_overlapProcessor != null)
+                return _overlapProcessor.OverlapSphereNonAlloc(
+                    position,
+                    radius,
+                    results,
+                    layerMask,
+                    queryTriggerInteraction
+                );
 
             // Fallback to Physics.OverlapSphereNonAlloc if no processor is available
-            return Physics.OverlapSphereNonAlloc(position, radius, results, layerMask, queryTriggerInteraction);
+            return Physics.OverlapSphereNonAlloc(
+                position,
+                radius,
+                results,
+                layerMask,
+                queryTriggerInteraction
+            );
         }
 
         /// <summary>
@@ -70,14 +168,71 @@ namespace MonoFSM.PhysicsWrapper
         /// <param name="layerMask">A layer mask that is used to selectively ignore colliders when casting a box.</param>
         /// <param name="queryTriggerInteraction">Specifies whether this query should hit Triggers.</param>
         /// <returns>The number of colliders stored in the results buffer.</returns>
-        public int OverlapBoxNonAlloc(Vector3 center, Vector3 halfExtents, Collider[] results, Quaternion orientation = default, int layerMask = -1, QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.UseGlobal)
+        public int OverlapBoxNonAlloc(
+            Vector3 center,
+            Vector3 halfExtents,
+            Collider[] results,
+            Quaternion orientation = default,
+            int layerMask = -1,
+            QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.UseGlobal
+        )
         {
-            if (_overlapProcessor != null) 
-                return _overlapProcessor.OverlapBoxNonAlloc(center, halfExtents, results, orientation, layerMask, queryTriggerInteraction);
+            if (_overlapProcessor != null)
+                return _overlapProcessor.OverlapBoxNonAlloc(
+                    center,
+                    halfExtents,
+                    results,
+                    orientation,
+                    layerMask,
+                    queryTriggerInteraction
+                );
 
             // Fallback to Physics.OverlapBoxNonAlloc if no processor is available
-            return Physics.OverlapBoxNonAlloc(center, halfExtents, results, orientation, layerMask, queryTriggerInteraction);
+            return Physics.OverlapBoxNonAlloc(
+                center,
+                halfExtents,
+                results,
+                orientation,
+                layerMask,
+                queryTriggerInteraction
+            );
         }
-        
     }
+
+    public interface IPenetrationProcessor //FIXME: runner physics
+    {
+        /// <summary>
+        ///     Compute the minimal translation required to separate the given colliders apart at specified
+        ///     poses.
+        /// </summary>
+        /// <param name="colliderA">The first collider.</param>
+        /// <param name="positionA">Position of the first collider.</param>
+        /// <param name="rotationA">Rotation of the first collider.</param>
+        /// <param name="colliderB">The second collider.</param>
+        /// <param name="positionB">Position of the second collider.</param>
+        /// <param name="rotationB">Rotation of the second collider.</param>
+        /// <param name="direction">
+        ///     Direction along which the translation required to separate the colliders
+        ///     apart is minimal.
+        /// </param>
+        /// <param name="distance">
+        ///     The distance along direction that is required to separate the colliders
+        ///     apart.
+        /// </param>
+        /// <returns>True when the colliders overlap, false otherwise.</returns>
+        public bool ComputePenetration(
+            Collider colliderA,
+            Vector3 positionA,
+            Quaternion rotationA,
+            Collider colliderB,
+            Vector3 positionB,
+            Quaternion rotationB,
+            out Vector3 direction,
+            out float distance
+        );
+    }
+
+    public interface IAllInOnePhysicsProcessor
+        : IOverlapProcessor //, IPenetrationProcessor
+    { }
 }

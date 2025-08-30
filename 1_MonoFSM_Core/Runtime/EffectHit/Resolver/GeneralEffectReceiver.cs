@@ -12,21 +12,22 @@ namespace MonoFSM.Runtime.Interact.EffectHit
             transform.localPosition = Vector3.zero;
         }
 
-        [Component(AddComponentAt.Parent)] [Required] [AutoParent]
+        [Component(AddComponentAt.Parent)]
+        [Required]
+        [AutoParent]
         private EffectDetectable _detectable; //不一定是，IEffectDetectable?
 
         // [PropertyOrder(-1)]
         // public  ValueSource; //FIXME: 拿來做什麼？
 
         //FIXME: 從GeneralEffectHitData？
-        public IEffectHitData GenerateEffectHitData(IEffectDealer dealer)
+        public GeneralEffectHitData GenerateEffectHitData(IEffectDealer dealer)
         {
             //FIXME: 要用pool, 泛用的pool
             var data = new GeneralEffectHitData();
             data.Override(dealer, this);
             return data;
         }
-
 
         public void ForceDirectEffectHit(GeneralEffectDealer dealer)
         {
@@ -51,14 +52,12 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         public void OnEffectHitEnter(IEffectHitData data)
         {
             this.Log("OnHitEnter");
-            _currentHitData = data;
+            _currentHitData = data as GeneralEffectHitData;
             _enterNode?.EventHandle(data as GeneralEffectHitData);
 #if UNITY_EDITOR
             _lastHitData = data;
 #endif
         }
-
-
 
         public void OnEffectHitExit(IEffectHitData data)
         {
@@ -71,8 +70,6 @@ namespace MonoFSM.Runtime.Interact.EffectHit
 
         //EffectExit也要呢
         protected override string TypeTag => "Receiver";
-
-
 
         public DetectData? GetDetectData()
         {

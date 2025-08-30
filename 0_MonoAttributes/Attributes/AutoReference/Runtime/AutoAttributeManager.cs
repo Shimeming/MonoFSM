@@ -25,9 +25,9 @@ using System.Reflection;
 using Auto_Attribute.Runtime;
 using Auto.Utils;
 using Sirenix.OdinInspector;
-// using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+// using Cysharp.Threading.Tasks;
 using Debug = UnityEngine.Debug;
 
 [ScriptTiming(-20000)]
@@ -408,6 +408,7 @@ public class AutoAttributeManager : MonoBehaviour
                     Attribute.IsDefined(prop, typeof(AutoAttribute))
                     || Attribute.IsDefined(prop, typeof(AutoChildrenAttribute))
                     || Attribute.IsDefined(prop, typeof(AutoParentAttribute))
+                    || Attribute.IsDefined(prop, typeof(AutoNestedAttribute))
                 )
             )
             .Concat(
@@ -420,6 +421,7 @@ public class AutoAttributeManager : MonoBehaviour
                             Attribute.IsDefined(prop, typeof(AutoAttribute))
                             || Attribute.IsDefined(prop, typeof(AutoChildrenAttribute))
                             || Attribute.IsDefined(prop, typeof(AutoParentAttribute))
+                            || Attribute.IsDefined(prop, typeof(AutoNestedAttribute))
                         )
                     )
             );

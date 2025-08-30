@@ -16,7 +16,9 @@ public class LocalTransformResetter : MonoBehaviour, IResetStateRestore
     private bool _isKinematic;
 
     //FIXME: 要拆開嗎？
-    [AutoParent] public Rigidbody _rigidbody;
+    [AutoParent]
+    public Rigidbody _rigidbody;
+
     // [AutoChildren(false)] private Rigidbody2D rigidbody2D;
 
     private void Awake()
@@ -61,11 +63,11 @@ public class LocalTransformResetter : MonoBehaviour, IResetStateRestore
 
         if (_rigidbody)
         {
+            _rigidbody.isKinematic = _isKinematic;
             _rigidbody.linearVelocity = Vector3.zero;
             _rigidbody.angularVelocity = Vector3.zero;
-            _rigidbody.isKinematic = _isKinematic;
+
             _rigidbody.ResetInertiaTensor();
         }
-
     }
 }

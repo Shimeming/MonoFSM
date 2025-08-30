@@ -14,7 +14,7 @@ namespace MonoFSM.Core.DataProvider
 
     //MonoObject
     //MonoVariable來源
-    //SOData來源 
+    //SOData來源
     public interface IFloatProvider : IValueProvider<float> //用介面好處，但是會哭哭
     {
         //監聽？
@@ -23,22 +23,22 @@ namespace MonoFSM.Core.DataProvider
 
     public interface IValueProvider<out T> : IValueProvider
     {
-        [ShowInDebugMode] public T Value { get; }
+        [ShowInDebugMode]
+        public T Value { get; }
 
         T1 IValueProvider.Get<T1>()
         {
             var value = Value;
-            if (value is T1 t1Value) return t1Value;
+            if (value is T1 t1Value)
+                return t1Value;
             return default;
             // throw new InvalidCastException($"Cannot cast {typeof(T)} to {typeof(T1)}");
         }
-
 
         Type IValueProvider.ValueType => typeof(T);
 
         //FIXME: valuechange?
     }
-    
 
     // [InlineProperty]
     // [Serializable]
@@ -71,36 +71,36 @@ namespace MonoFSM.Core.DataProvider
     //     }
     // }
 
-    [MovedFrom(false, null, "rcg.rcgmakercore.Runtime", "FloatProviderFromVariable")]
-    [InlineProperty]
-    [Serializable]
-    public class VarFloatDropDownRef : IFloatProvider //FIXME: 改名成 DropdownVarFloat?
-    {
-        [FormerlySerializedAs("_monoVariable")] [FormerlySerializedAs("_variable")] [HideLabel] [DropDownRef]
-        public VarFloat _monoVar;
-
-        public float Value => _monoVar?.FinalValue ?? 0;
-        
-
-        public string Description => _monoVar?._varTag?.name;
-        
-
-        public T GetValue<T>()
-        {
-            if (typeof(T) == typeof(float)) return (T)(object)_monoVar?.FinalValue;
-
-            throw new InvalidCastException($"Cannot cast {typeof(float)} to {typeof(T)}");
-        }
-
-        public Type ValueType => typeof(float);
-
-        public string GetDescription()
-        {
-            return _monoVar?.FinalValue.ToString();
-        }
-
-        public bool IsDirty => _monoVar?.IsDirty ?? false;
-    }
+    // [MovedFrom(false, null, "rcg.rcgmakercore.Runtime", "FloatProviderFromVariable")]
+    // [InlineProperty]
+    // [Serializable]
+    // public class VarFloatDropDownRef : IFloatProvider //FIXME: 改名成 DropdownVarFloat?
+    // {
+    //     [FormerlySerializedAs("_monoVariable")] [FormerlySerializedAs("_variable")] [HideLabel] [DropDownRef]
+    //     public VarFloat _monoVar;
+    //
+    //     public float Value => _monoVar?.FinalValue ?? 0;
+    //
+    //
+    //     public string Description => _monoVar?._varTag?.name;
+    //
+    //
+    //     public T GetValue<T>()
+    //     {
+    //         if (typeof(T) == typeof(float)) return (T)(object)_monoVar?.FinalValue;
+    //
+    //         throw new InvalidCastException($"Cannot cast {typeof(float)} to {typeof(T)}");
+    //     }
+    //
+    //     public Type ValueType => typeof(float);
+    //
+    //     public string GetDescription()
+    //     {
+    //         return _monoVar?.FinalValue.ToString();
+    //     }
+    //
+    //     public bool IsDirty => _monoVar?.IsDirty ?? false;
+    // }
 
     // [Serializable]
     // public class VariableBoolProvider : VariableProvider<VarBool, bool>

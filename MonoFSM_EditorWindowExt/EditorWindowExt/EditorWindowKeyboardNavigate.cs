@@ -36,10 +36,10 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
             if (ProjectBrowser.s_LastInteractedProjectBrowser != null)
                 ProjectBrowser.s_LastInteractedProjectBrowser.titleContent.text = "5 Project";
             var p = ProjectBrowser.GetAllProjectBrowsers();
-            Debug.Log(
-                "Cleared Console Log and updated Hierarchy and Project Browser titles."
-                    + $" Hierarchy: {h.titleContent.text}, Project Browsers: {p.Count}"
-            );
+            // Debug.Log(
+            //     "Cleared Console Log and updated Hierarchy and Project Browser titles."
+            //         + $" Hierarchy: {h.titleContent.text}, Project Browsers: {p.Count}"
+            // );
             foreach (var browser in p)
             {
                 browser.titleContent.text = "5 Project";

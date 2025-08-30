@@ -24,7 +24,7 @@ namespace MonoFSM.Core
             // var fsm = context.fsm;
             // fsm.ChangeState(toState);
 
-            return toState.ForceGoToState();
+            return toState.TryActivateState();
         }
         // public bool ForceTransition(GeneralState toState)
         // {

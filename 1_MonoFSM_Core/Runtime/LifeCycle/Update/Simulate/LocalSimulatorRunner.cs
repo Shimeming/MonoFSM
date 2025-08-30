@@ -8,17 +8,25 @@ namespace MonoFSM.Core.Simulate
 {
     public static class WorldSimulatorHelper
     {
-        public static T[] GetComponents<T>(this Scene scene, bool includeInactive, out GameObject[] rootObjects) where T : Component {
+        public static T[] GetComponents<T>(
+            this Scene scene,
+            bool includeInactive,
+            out GameObject[] rootObjects
+        )
+            where T : Component
+        {
             rootObjects = scene.GetRootGameObjects();
 
             var partialResult = new List<T>();
-            var result        = new List<T>();
+            var result = new List<T>();
 
-            foreach (var go in rootObjects) {
+            foreach (var go in rootObjects)
+            {
                 // depth-first, according to docs and verified by our tests
                 go.GetComponentsInChildren(includeInactive: includeInactive, partialResult);
                 // AddRange accepts IEnumerable, so there would be an alloc
-                foreach (var comp in partialResult) {
+                foreach (var comp in partialResult)
+                {
                     result.Add(comp);
                 }
             }
@@ -26,25 +34,28 @@ namespace MonoFSM.Core.Simulate
             return result.ToArray();
         }
     }
+
     [DefaultExecutionOrder(10000)] //確保在所有Update之後執行
     [RequireComponent(typeof(WorldUpdateSimulator))]
-    public class LocalSimulatorRunner : MonoBehaviour, ISimulateRunner,ISceneSavingCallbackReceiver
+    public class LocalSimulatorRunner : MonoBehaviour, ISimulateRunner, ISceneSavingCallbackReceiver
     {
         //撈場上所有的MonoPoolObj？
-        [PreviewInInspector]// [AutoChildren]
+        [PreviewInInspector] // [AutoChildren]
         [SerializeField]
         private MonoObj[] _allSceneMonoPoolObjs;
 
-        [Auto] private WorldUpdateSimulator _world;
+        [Auto]
+        private WorldUpdateSimulator _world;
 
         private void Awake()
         {
             //FIXME: 可以cache
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             _allSceneMonoPoolObjs = gameObject.scene.GetComponents<MonoObj>(true, out _);
-            #endif
+#endif
             //scene上的
-            foreach (var sceneMonoPoolObj in _allSceneMonoPoolObjs) _world.RegisterMonoObject(sceneMonoPoolObj);
+            foreach (var sceneMonoPoolObj in _allSceneMonoPoolObjs)
+                _world.RegisterMonoObject(sceneMonoPoolObj);
         }
 
         private void Start() //timing hmm
@@ -52,10 +63,13 @@ namespace MonoFSM.Core.Simulate
             //FIXME: 還是要player生出來才呼叫？
             _world.WorldInit();
         }
+
         private void FixedUpdate()
         {
-            _world.Simulate(Time.fixedDeltaTime * WorldUpdateSimulator.TimeScale);
+            _world.BeforeSimulate(Time.fixedDeltaTime);
+            _world.Simulate(WorldUpdateSimulator.DeltaTime);
         }
+
         //會需要Update嗎？
         private void Update()
         {

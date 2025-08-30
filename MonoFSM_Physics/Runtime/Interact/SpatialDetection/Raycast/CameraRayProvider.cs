@@ -3,10 +3,8 @@ using UnityEngine;
 
 namespace MonoFSM.PhysicsWrapper
 {
-    public class CameraRayProvider : IRayProvider
+    public class CameraRayProvider : AbstractRayProvider
     {
-        // [SerializeField] private Camera _mainCamera;
-        //FIXME: 從provider拿？
         private Transform _characterTransform;
 
         [SerializeField]

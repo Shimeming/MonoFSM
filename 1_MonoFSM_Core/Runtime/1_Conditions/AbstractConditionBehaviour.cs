@@ -1,59 +1,77 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using MonoDebugSetting;
 using MonoFSM.Core.Attributes;
+using MonoFSM.Core.DataProvider;
+using MonoFSM.EditorExtension;
 using MonoFSM.Foundation;
 using MonoFSM.Variable;
-using MonoFSM.EditorExtension;
+using MonoFSM.Variable.Attributes;
 using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEngine;
 
+[Serializable]
+public class ConditionGroup //封裝的蠻好的...? 但是auto可能會遇到問題...
+{
+    public bool IsValid => _conditions.IsAllValid();
+
+    [CompRef]
+    [AutoChildren(DepthOneOnly = true)]
+    [SerializeField]
+    private AbstractConditionBehaviour[] _conditions;
+}
 
 //還是Condition要用Is開頭？
-public abstract class AbstractConditionBehaviour : AbstractDescriptionBehaviour, IBoolProvider, IOverrideHierarchyIcon,
-    IHierarchyValueInfo
+public abstract class AbstractConditionBehaviour
+    : AbstractDescriptionBehaviour,
+        IBoolProvider,
+        IOverrideHierarchyIcon,
+        IValueProvider<bool>,
+        IHierarchyValueInfo
 {
 #if UNITY_EDITOR
     [ExcludeFromCodeCoverage]
-    public string IconName =>
-        Selection.activeGameObject == gameObject
-            ? "d__Help@2x"
-            : "_Help@2x"; //UnityEditor.EditorGUIUtility.ObjectContent(null, typeof(AbstractConditionBehaviour)).image.name;
+    public string IconName => Selection.activeGameObject == gameObject ? "d__Help@2x" : "_Help@2x"; //UnityEditor.EditorGUIUtility.ObjectContent(null, typeof(AbstractConditionBehaviour)).image.name;
+
     [ExcludeFromCodeCoverage]
     public bool IsDrawingIcon => true;
 
-    [ExcludeFromCodeCoverage] public Texture2D CustomIcon => null;
+    [ExcludeFromCodeCoverage]
+    public Texture2D CustomIcon => null;
     // UnityEditor.EditorGUIUtility.ObjectContent(null, typeof(AbstractConditionBehaviour)).image as Texture2D;
     //UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>("Packages/com.rcgmaker.fsm/RCGMakerFSMCore/Runtime/2_Variable/VarFloatIcon.png");
 #endif
-//     [Button]
-//     [ShowIf("IsShowRenameButton")]
-//     protected void RenameOfGameObject()
-//     {
-//         try
-//         {
-//             var text = "[Condition] " + Description;
-//             if (FinalResultInverted)
-//                 text = "[Condition] Not " + Description;
-//             gameObject.name = text;
-// #if UNITY_EDITOR
-//             UnityEditor.EditorUtility.SetDirty(gameObject);
-// #endif
-//         }
-//         catch (System.Exception e)
-//         {
-//             Debug.LogError(e,this);
-//         }
-//     }
+
+    //     [Button]
+    //     [ShowIf("IsShowRenameButton")]
+    //     protected void RenameOfGameObject()
+    //     {
+    //         try
+    //         {
+    //             var text = "[Condition] " + Description;
+    //             if (FinalResultInverted)
+    //                 text = "[Condition] Not " + Description;
+    //             gameObject.name = text;
+    // #if UNITY_EDITOR
+    //             UnityEditor.EditorUtility.SetDirty(gameObject);
+    // #endif
+    //         }
+    //         catch (System.Exception e)
+    //         {
+    //             Debug.LogError(e,this);
+    //         }
+    //     }
     protected override string DescriptionTag => "Condition";
 
     protected override string DescriptionPreprocess(string description)
     {
+        //FIXME: formatName會把這個尬爛...
         var text = base.DescriptionPreprocess(description);
         return FinalResultInverted ? " Not " + text : text;
     }
 
-    // protected override string Description => 
+    // protected override string Description =>
 
 
     // protected virtual bool IsShowRenameButton => Description != "";
@@ -74,7 +92,9 @@ public abstract class AbstractConditionBehaviour : AbstractDescriptionBehaviour,
     public virtual bool IsInvertResultOptionAvailable => true;
 
     [ShowIf(nameof(IsInvertResultOptionAvailable))]
-    [Tooltip("If true, the final result will be inverted. For example, if the condition is fulfilled when pressing a button normally, setting this to true will make it fulfilled when the button is not pressed.")]
+    [Tooltip(
+        "If true, the final result will be inverted. For example, if the condition is fulfilled when pressing a button normally, setting this to true will make it fulfilled when the button is not pressed."
+    )]
     public bool FinalResultInverted = false;
 
     protected abstract bool IsValid { get; }
@@ -104,16 +124,20 @@ public abstract class AbstractConditionBehaviour : AbstractDescriptionBehaviour,
         }
     }
 
-
 #if UNITY_EDITOR
-    [ShowIf("IsDebugMode")] [PropertyOrder(1)] [TabGroup("Debug")] [Component] [AutoChildren(false)]
+    [ShowIf("IsDebugMode")]
+    [PropertyOrder(1)]
+    [TabGroup("Debug")]
+    [Component]
+    [AutoChildren(false)]
     protected DebugConditionResultOverrider _debugConditionResultOverrider;
 
     [ShowIf("IsDebugMode")]
     [ShowInInspector]
     [TabGroup("Debug")]
     public bool OverrideValue =>
-        _debugConditionResultOverrider != null && _debugConditionResultOverrider.OverrideResultValue;
+        _debugConditionResultOverrider != null
+        && _debugConditionResultOverrider.OverrideResultValue;
 
     private static bool IsDebugMode => RuntimeDebugSetting.IsDebugMode;
 #endif
@@ -127,4 +151,5 @@ public abstract class AbstractConditionBehaviour : AbstractDescriptionBehaviour,
     public bool IsTrue => FinalResult;
     public string ValueInfo => FinalResult.ToString();
     public bool IsDrawingValueInfo => Application.isPlaying && isActiveAndEnabled;
+    public bool Value => FinalResult;
 }

@@ -1,6 +1,8 @@
 using System;
 using MonoFSM.Core.Attributes;
+using MonoFSM.Core.DataProvider;
 using MonoFSM.EditorExtension;
+using MonoFSM.Variable.Attributes;
 using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -25,16 +27,37 @@ namespace MonoFSM.Variable
             IHierarchyValueInfo
         where TValueType : Object
     {
-        protected override void Awake()
+        [CompRef]
+        [AutoChildren(DepthOneOnly = true)]
+        private IValueProvider<TValueType>[] _valueSources; //FIXME: 可能會有多個耶...還要一層resolver嗎？
+
+        private bool IsUsingValueSource => _valueSources is { Length: > 0 }; //要cached bool? 這塊絕對是config而已
+
+        [ShowInPlayMode]
+        private IValueProvider<TValueType> valueSource
         {
-            base.Awake();
-            // ResetToDefaultValue();
+            get
+            {
+                if (!IsUsingValueSource)
+                    return null;
+                foreach (var valueProvider in _valueSources)
+                    if (valueProvider.IsValid)
+                        return valueProvider;
+
+                //[]: 多個的話要怎麼辦？還是說不允許多個？
+                Debug.LogWarning(
+                    "condition not met, use default? (last)" + _valueSources[^1],
+                    this
+                );
+                return _valueSources[^1];
+            }
         }
 
         public override bool IsValueExist => _currentValue != null;
 
         //FIXME: 繼承時想要加更多attribute
         // [Header("預設值")] [HideIf(nameof(_siblingDefaultValue))]
+        [HideIf(nameof(IsUsingValueSource))]
         [SOConfig("10_Flags/GameData", useVarTagRestrictType: true)] //痾，只有SO類才需要ㄅ
         [SerializeField]
         [Required]
@@ -57,33 +80,23 @@ namespace MonoFSM.Variable
         {
             get
             {
+                if (IsUsingValueSource)
+                    return valueSource.Value;
+
                 if (!Application.isPlaying)
                     return DefaultValue;
                 return _currentValue;
             }
         }
 
-        public override Object RawValue //FIXME: 用Object?
-        {
-            get
-            {
-                if (!Application.isPlaying)
-                    return DefaultValue;
-                return _currentValue;
-            }
-            // set
-            // {
-            //     _currentValue = value as TValueType;
-            //     Debug.Log("Set CurrentValue to " + value, this);
-            // }
-        }
+        public override Object RawValue => Value; //FIXME: 用Object?
 
         // public T Value => _currentValue;
         //green
         [GUIColor(0.2f, 0.8f, 0.2f)]
         [PreviewInInspector]
         // [InlineEditor]
-        protected TValueType _currentValue; //要用ObjectField? 這樣才統一？
+        protected TValueType _currentValue; //要用ObjectField? 這樣才統一？ Object不可能做成GameFlag/Data?
 
         //所有人都不該set這個
 

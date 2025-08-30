@@ -85,14 +85,8 @@ public class DropDownRefAttributeDrawer : OdinAttributeDrawer<DropDownRefAttribu
                 IconAlignment.RightEdge
             )
         )
-        // if (GUILayout.Button())
         {
-            // Debug.Log("Parent Value:" + baseMemberProperty.ParentValues[0]);
-            // Debug.Log("BindComp:" + _bindComp+"type"+type);
             var selector = new DropDownRefCompSelector(_bindComp, filterType, Attribute);
-            // selector.EnableSingleClickTselector.EnableSingleClickToConfirm();oSelect();
-            // selector.SelectionChanged += col => { Debug.Log("SelectionChanged" + col.FirstOrDefault()); };
-
             selector.SelectionConfirmed += col =>
             {
                 Property.ValueEntry.WeakSmartValue = col.FirstOrDefault();

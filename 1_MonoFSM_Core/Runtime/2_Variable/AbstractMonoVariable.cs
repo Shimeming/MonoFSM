@@ -7,6 +7,8 @@ using MonoFSM.Core.DataProvider;
 using MonoFSM.Core.Runtime;
 using MonoFSM.CustomAttributes;
 using MonoFSM.EditorExtension;
+using MonoFSM.Foundation;
+using MonoFSM.Variable.Attributes;
 using MonoFSM.Variable.VariableBinder;
 using MonoFSM.VarRefOld;
 using MonoFSMCore.Runtime.LifeCycle;
@@ -18,6 +20,27 @@ using Object = UnityEngine.Object;
 
 namespace MonoFSM.Variable
 {
+    public abstract class TypedMonoVariable<T> : AbstractMonoVariable, ISettable<T>
+    {
+        [CompRef]
+        [AutoChildren(DepthOneOnly = true)]
+        protected IValueProvider<T>[] _valueSources;
+
+        protected IValueProvider<T> valueSource => GetActiveTypedValueSource();
+
+        protected IValueProvider<T> GetActiveTypedValueSource()
+        {
+            return ValueResolver.GetActiveValueSource(_valueSources);
+        }
+
+        protected bool HasValueProvider => ValueResolver.HasValueProvider(_valueSources);
+
+        public abstract void SetValue(T value, MonoBehaviour byWho);
+        public abstract void SetValue(object value, MonoBehaviour byWho);
+
+        public abstract void CommitValue();
+    }
+
     //FIXME: 應該要繼承AbstractSourceValueRef
     public abstract class AbstractMonoVariable //Rename self?
         : MonoBehaviour,

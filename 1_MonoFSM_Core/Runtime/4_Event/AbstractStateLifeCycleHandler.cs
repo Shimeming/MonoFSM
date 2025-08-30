@@ -5,6 +5,7 @@ using Fusion.Addons.FSM;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Runtime.Action;
 using MonoFSM.Foundation;
+using MonoFSM.Runtime;
 using MonoFSM.Runtime.Vote;
 using MonoFSM.Variable.Attributes;
 using Sirenix.OdinInspector;
@@ -33,11 +34,14 @@ namespace MonoFSM.Core
     /// <seealso cref="AbstractEventHandler"/>
     /// <seealso cref="AbstractStateAction"/>
     [Searchable]
-    public abstract class AbstractStateLifeCycleHandler : AbstractDescriptionBehaviour, IActionParent, IVoteChild,
-        IGuidEntity,
-        IDefaultSerializable, IArgEventReceiver<IEffectHitData>
+    public abstract class AbstractStateLifeCycleHandler
+        : AbstractDescriptionBehaviour,
+            IActionParent,
+            IVoteChild,
+            IGuidEntity,
+            IDefaultSerializable,
+            IArgEventReceiver<IEffectHitData>
     {
-
         #region AbstractStateAction Integration
 
         protected override bool HasError()
@@ -51,16 +55,22 @@ namespace MonoFSM.Core
         {
             get
             {
-                if (_delay) return false;
+                if (_delay)
+                    return false;
                 return isActiveAndEnabled && _conditions.IsAllValid();
             }
         }
 
-        [AutoParent] protected GeneralState _bindingState;
-        [AutoParent] protected StateMachineLogic _context;
+        [AutoParent]
+        protected GeneralState _bindingState;
+
+        [AutoParent]
+        protected StateMachineLogic _context;
         protected float DeltaTime => _context.DeltaTime;
 
-        [Required] [PreviewInInspector] [AutoParent]
+        [Required]
+        [PreviewInInspector]
+        [AutoParent]
         protected IActionParent _actionParent;
 
         [HideInInlineEditors]
@@ -73,14 +83,19 @@ namespace MonoFSM.Core
         protected AbstractConditionBehaviour[] _conditions;
 
 #if UNITY_EDITOR
-        [PreviewInInspector] private bool IsAllValid => _conditions.IsAllValid();
+        [PreviewInInspector]
+        private bool IsAllValid => _conditions.IsAllValid();
 #endif
 
-        [AutoParent] private DelayActionModifier delayActionModifier;
+        [AutoParent]
+        private DelayActionModifier delayActionModifier;
         private bool _delay = false;
 
+        public MonoEntity ParentEntity => _bindingState.ParentEntity;
         public virtual MonoBehaviour VoteOwner => nearestBinder as MonoBehaviour;
-        [AutoParent] private IBinder nearestBinder;
+
+        [AutoParent]
+        private IBinder nearestBinder;
 
         protected CancellationTokenSource cancellationTokenSource =>
             _bindingState?.GetStateExitCancellationTokenSource();
@@ -89,7 +104,8 @@ namespace MonoFSM.Core
 
         #region Event Receiver Management
 
-        [CompRef] [AutoChildren(DepthOneOnly = true)]
+        [CompRef]
+        [AutoChildren(DepthOneOnly = true)]
         protected IEventReceiver[] _eventReceivers;
 
         /// <summary>
@@ -178,21 +194,27 @@ namespace MonoFSM.Core
         /// </summary>
         private async UniTask ExecuteWithValidationAndDelay(Action action)
         {
-            if (!isActiveAndEnabled) return;
+            if (!isActiveAndEnabled)
+                return;
             if (_delay)
             {
                 Debug.LogError("Delay 還沒結束又DELAY 死罪", this);
                 return;
             }
 
-            if (!IsValid) return;
+            if (!IsValid)
+                return;
 
             _delay = true;
             if (delayActionModifier != null)
                 try
                 {
-                    await UniTask.Delay(TimeSpan.FromSeconds(delayActionModifier.delayTime), DelayType.DeltaTime,
-                        PlayerLoopTiming.Update, cancellationTokenSource?.Token ?? CancellationToken.None);
+                    await UniTask.Delay(
+                        TimeSpan.FromSeconds(delayActionModifier.delayTime),
+                        DelayType.DeltaTime,
+                        PlayerLoopTiming.Update,
+                        cancellationTokenSource?.Token ?? CancellationToken.None
+                    );
                 }
                 catch (OperationCanceledException)
                 {
@@ -231,30 +253,22 @@ namespace MonoFSM.Core
         /// <summary>
         /// Compatibility method for simulation update
         /// </summary>
-        public virtual void SimulationUpdate(float passedDuration)
-        {
-        }
+        public virtual void SimulationUpdate(float passedDuration) { }
 
         /// <summary>
         /// Compatibility method for setting playback time
         /// </summary>
-        public virtual void SetPlaybackTime(float time)
-        {
-        }
+        public virtual void SetPlaybackTime(float time) { }
 
         /// <summary>
         /// Compatibility method for pause
         /// </summary>
-        public virtual void Pause()
-        {
-        }
+        public virtual void Pause() { }
 
         /// <summary>
         /// Compatibility method for resume
         /// </summary>
-        public virtual void Resume()
-        {
-        }
+        public virtual void Resume() { }
 
         #endregion
     }

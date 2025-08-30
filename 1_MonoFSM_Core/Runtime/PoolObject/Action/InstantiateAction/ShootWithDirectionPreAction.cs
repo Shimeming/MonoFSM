@@ -8,7 +8,9 @@ namespace MonoFSM.Core.LifeCycle
     //FIXME: 會很怪嗎？
     public class ShootWithDirectionAfterProcess : MonoBehaviour, IAfterSpawnProcess
     {
-        public Transform _directionTransform;
+        // public Transform _directionTransform;
+        [DropDownRef]
+        public VarVector3 _directionVar; //用var, 然後bycondition拿
         public float _speed = 10f;
 
         // [AutoParent] public Playersche _playerDataGroupSchema;
@@ -25,7 +27,7 @@ namespace MonoFSM.Core.LifeCycle
         )
         {
             var projectileSchema = obj.Entity.GetSchema<ProjectileSchema>();
-            var vel = _directionTransform.forward * _speed * (_modifier.Value + _minModifier);
+            var vel = _directionVar.Value * _speed * (_modifier.Value + _minModifier);
             //第一個frame的速度沒有給到？不可以直接給嗎？ 還是要過一層比較好，set到linearVelocity再給別人處理
             projectileSchema._initVel.SetValue(vel, this);
             //方向和velocity都給了嗎？

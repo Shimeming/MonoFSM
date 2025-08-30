@@ -11,7 +11,7 @@ namespace MonoFSM.Core
         // [Obsolete]
         // [SerializeField]
         // private KeyCode _keyCode;
-        public override string Description => $"Is Key Pressed: {_key}";
+        public override string Description => $"Was Key Pressed: {_key}";
 
         [SerializeField]
         private Key _key;

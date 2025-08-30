@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.DataProvider;
 using MonoFSM.Core.Detection;
 using MonoFSM.Runtime.Interact.EffectHit.Resolver;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace MonoFSM.Runtime.Interact.EffectHit
 {
@@ -132,23 +134,38 @@ namespace MonoFSM.Runtime.Interact.EffectHit
 
         public void OnHitEnter(IEffectHitData data, DetectData? detectData = null)
         {
-            _currentHitData = data;
+            _currentHitData = data as GeneralEffectHitData;
+            if (_currentHitData == null)
+            {
+                Debug.LogError("EffectHitData is not GeneralEffectHitData");
+                return;
+            }
             if (_proxyProvider != null)
-                proxyDealer.OnHitEnter(data as GeneralEffectHitData, detectData);
+                proxyDealer.OnHitEnter(_currentHitData, detectData);
             //兩邊可能都要做事，都判
-            _enterNode?.EventHandle(data as GeneralEffectHitData);
-            _receivers.Add(data.Receiver);
+            _enterNode?.EventHandle(_currentHitData);
+            _receivers.Add(_currentHitData.Receiver);
+            _hittingEntities.Add(_currentHitData.GeneralReceiver.ParentEntity);
             _lastReceiver = data.Receiver as GeneralEffectReceiver;
+        }
+
+        private readonly HashSet<MonoEntity> _hittingEntities = new();
+
+        public List<MonoEntity> GetHittingEntities()
+        {
+            return _hittingEntities.ToList();
         }
 
         public void OnHitExit(IEffectHitData data)
         {
+            var hitData = data as GeneralEffectHitData;
             //_receivers裡面要有才可以做這件事
             if (_proxyProvider != null)
                 proxyDealer.OnHitEnter(data);
 
             _exitNode?.EventHandle(data as GeneralEffectHitData);
             _receivers.Remove(data.Receiver);
+            _hittingEntities.Remove(hitData.GeneralReceiver.ParentEntity);
         }
 
         protected override string TypeTag => "Dealer";

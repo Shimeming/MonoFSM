@@ -174,7 +174,7 @@ namespace MonoFSM.Runtime.Vote
 
             //不需樣Add?
             voteDict[voter] = new VoteRecord(voter, vote);
-            Debug.Log($"Vote {voter} bool:{vote}");
+            // Debug.Log($"Vote {voter} bool:{vote}");
 
             if (_changeChangeResultTiming == ChangeResultTiming.OnVote)
                 CheckResult();

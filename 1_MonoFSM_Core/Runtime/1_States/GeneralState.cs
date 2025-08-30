@@ -2,11 +2,10 @@ using System.Threading;
 using _1_MonoFSM_Core.Runtime.FSMCore.Core.StateBehaviour;
 using Fusion.Addons.FSM;
 using Sirenix.OdinInspector;
+using UnityEngine;
 
 //FIXME: 可以拿掉？
-public interface IGuidEntity
-{
-}
+public interface IGuidEntity { }
 
 public interface ISerializableComponent
 {
@@ -17,29 +16,27 @@ public interface ISerializableComponent
 public interface IDefaultSerializable { }
 
 public interface IReferenceTarget //FIXME: 這樣只有我自己寫的型別可以用？
-{
-}
-
+{ }
 
 [Searchable]
 public class GeneralState : MonoStateBehaviour
 {
     public float statusTimer => Machine.StateTime;
 
-    public bool ForceGoToState() //FIXME: 拿掉這個
+    public bool TryActivateState() //FIXME: 拿掉這個
     {
         return Machine.TryActivateState(this);
     }
 
-    [Button("強制跳State")]
+    [Button("強制跳State (無視條件)")]
     private void TestGoToState()
     {
-        ForceGoToState();
+        //hot reload不能改這個？為什麼？
+        Debug.Log("ForceActivateState?", this);
+        Machine.ForceActivateState(this);
     }
 
-    protected virtual void OnStateEnter()
-    {
-    }
+    protected virtual void OnStateEnter() { }
 
     protected override void OnEnterState()
     {

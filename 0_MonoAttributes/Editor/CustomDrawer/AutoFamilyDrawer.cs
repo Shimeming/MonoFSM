@@ -87,6 +87,7 @@ namespace MonoFSM.Core
         {
             get
             {
+                //這個可以讓nested class找到是屬於哪個MonoBehaviour, nested下的autoProperty 必定要serialize?
                 var parent = Property.FindParent(
                     (parent) => parent.ParentValues[0] is MonoBehaviour,
                     true

@@ -95,9 +95,11 @@ namespace MonoFSM.Core
 
         protected virtual bool CanEnterState()
         {
+            if (!gameObject.activeSelf) //關著不可以
+                return false;
             if (_canEnterNode == null)
                 return true;
-            return _canEnterNode.IsValid;
+            return _canEnterNode.FinalResult;
         }
 
         protected virtual bool CanExitState(TState nextState)

@@ -1,16 +1,14 @@
+using System;
+using System.Linq;
 using MonoFSM.CustomAttributes;
+using Sirenix.OdinInspector;
+using Sirenix.OdinInspector.Editor;
+using Sirenix.Utilities.Editor;
 using UnityEditor.SceneManagement;
+using UnityEngine;
 
 namespace MonoFSM.Core
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using Sirenix.OdinInspector;
-    using Sirenix.OdinInspector.Editor;
-    using Sirenix.Utilities.Editor;
-    using UnityEngine;
-
     //FIXME: 如果也有帶ValueTypeValidate，可以過濾更細
     public class DropDownRefCompSelector : OdinSelector<Component>
     {
@@ -87,15 +85,19 @@ namespace MonoFSM.Core
                     continue;
 
                 //FIXME: 好亂：應該要和上面邏輯共用？
-                var parent = comp.GetComponentInParent<IDropdownRoot>();
-                if (parent == null)
+                var parents = comp.GetComponentsInParent<IDropdownRoot>(true);
+                if (parents == null || parents.Length == 0)
                 {
-                    Debug.LogError("IVariableOwner not found for component " + comp.name, comp);
+                    Debug.LogError("IDropdownRoot not found for component " + comp.name, comp);
                     continue;
                 }
 
-                var ownerName = parent.name;
-                tree.Add(ownerName + "/" + comp.name + " (" + comp.GetType().Name + ")", comp);
+                //FIXME: 可以有多層？
+                var ownerNames = new string[parents.Length];
+                for (var i = parents.Length - 1; i >= 0; i--) // 从最远的父级开始，构建层级路径
+                    ownerNames[parents.Length - 1 - i] = parents[i].name;
+                var ownerPath = string.Join("/", ownerNames);
+                tree.Add(ownerPath + "/" + comp.name + " (" + comp.GetType().Name + ")", comp);
                 // Debug.Log("Add type " + comp.GetType() + " ownerName is " + ownerName);
             }
 
@@ -113,7 +115,7 @@ namespace MonoFSM.Core
             // GUILayout.Label("Data: " + selected.Data);
         }
 
-        //FIXME: 單點選擇後，自動確認選擇...hack code
+        //FIXME: 單點選擇後���自動確認選擇...hack code
         public void EnableSingleClickToConfirm()
         {
             SelectionTree.EnumerateTree(x =>

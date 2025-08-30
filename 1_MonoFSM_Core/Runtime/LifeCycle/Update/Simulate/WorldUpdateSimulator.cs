@@ -143,10 +143,10 @@ namespace MonoFSM.Core.Simulate
         {
             if (_monoObjectSet.Add(target))
             {
-                Debug.Log(
-                    $"Registering MonoPoolObj: {target.name} in WorldUpdateSimulator.",
-                    target
-                );
+                // Debug.Log(
+                //     $"Registering MonoPoolObj: {target.name} in WorldUpdateSimulator.",
+                //     target
+                // );
                 target.WorldUpdateSimulator = this;
                 //重置狀態
                 // target.ResetStateRestore();
@@ -259,7 +259,8 @@ namespace MonoFSM.Core.Simulate
         }
 
         private readonly HashSet<MonoObj> _currentUpdatingObjs = new();
-        public static float _deltaTime;
+        private static float _deltaTime;
+        public static float DeltaTime => _deltaTime * TimeScale;
 
         public void BeforeSimulate(float deltaTime)
         {
@@ -279,15 +280,14 @@ namespace MonoFSM.Core.Simulate
                 return;
 
             TimeScaleCheck();
-
             _currentUpdatingObjs.Clear();
 
 #if UNITY_EDITOR //FIXME: 亂call destroy可能導致這個
-            foreach (var _mono in _monoObjectSet)
+            foreach (var mono in _monoObjectSet)
             {
-                if (_mono == null)
+                if (mono == null)
                 {
-                    _monoObjectSet.Remove(_mono);
+                    _monoObjectSet.Remove(mono);
                 }
             }
 #endif

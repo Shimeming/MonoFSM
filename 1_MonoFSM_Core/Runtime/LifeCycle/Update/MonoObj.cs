@@ -88,6 +88,7 @@ namespace MonoFSMCore.Runtime.LifeCycle
         {
             //fixme: ??
             //play mode 被刪掉要怎麼處理？
+            Debug.Log("MonoObj OnDestroy" + name, this);
         }
 
         [PreviewInInspector]
@@ -277,7 +278,7 @@ namespace MonoFSMCore.Runtime.LifeCycle
             //要在state machine之後嗎？還是要可以排順序？
             foreach (var item in _updateSimulates)
             {
-                if (item == null || item.isActiveAndEnabled == false)
+                if (item == null || !item.IsValid)
                     continue;
                 // try
                 // {

@@ -17,7 +17,8 @@ namespace Fusion.Addons.FSM
         // Stage Stage { get; }
     }
 
-    public partial class StateMachine<TState> : IStateMachine where TState : class, IState
+    public partial class StateMachine<TState> : IStateMachine
+        where TState : class, IState
     {
         // PUBLIC MEMBERS
         public void RestoreState(int stateId)
@@ -25,7 +26,9 @@ namespace Fusion.Addons.FSM
             _activeStateId = stateId;
             _previousStateId = stateId;
         }
+
         public string Name { get; private set; }
+
         // public NetworkRunner Runner { get; private set; } //FIXME: 被強迫network了!
 
         public bool? EnableLogging { get; set; }
@@ -80,7 +83,8 @@ namespace Fusion.Addons.FSM
 
                 state.StateId = i;
 
-                if (state is IOwnedState<TState> ownedState) ownedState.Machine = this;
+                if (state is IOwnedState<TState> ownedState)
+                    ownedState.Machine = this;
             }
         }
 
@@ -155,7 +159,8 @@ namespace Fusion.Addons.FSM
             return _states[stateId];
         }
 
-        public T GetState<T>() where T : TState
+        public T GetState<T>()
+            where T : TState
         {
             for (var i = 0; i < _stateCount; i++)
                 if (_states[i] is T state)
@@ -201,7 +206,7 @@ namespace Fusion.Addons.FSM
         void IStateMachine.Initialize(StateMachineLogic logic, ITickProvider tickProvider)
         {
             _tickProvider = tickProvider;
-            Debug.Log("tickProvider"+tickProvider);
+            Debug.Log("tickProvider" + tickProvider);
             _logic = logic;
 
             for (var i = 0; i < _stateCount; i++)
@@ -220,7 +225,8 @@ namespace Fusion.Addons.FSM
             if (IsPaused == true)
                 return;
 
-            if (_activeStateId < 0) ChangeState(_defaultStateId);
+            if (_activeStateId < 0)
+                ChangeState(_defaultStateId);
 
             // Active state could be changed in state's fixed update
             // Do not update its child machines in that case
@@ -228,7 +234,6 @@ namespace Fusion.Addons.FSM
 
             ActiveState.OnFixedUpdate();
 
-          
             // if (updateStateId == _activeStateId)
             //     for (var i = 0; i < ActiveState.ChildMachines.Length; i++)
             //         ActiveState.ChildMachines[i].FixedUpdateNetwork();
@@ -239,7 +244,10 @@ namespace Fusion.Addons.FSM
             if (IsPaused == true)
                 return;
 
-            if (_lastRenderStateId != _activeStateId || _lastRenderStateChangeTick != _stateChangeTick)
+            if (
+                _lastRenderStateId != _activeStateId
+                || _lastRenderStateChangeTick != _stateChangeTick
+            )
             {
                 LogRenderStateChange();
 
@@ -256,7 +264,8 @@ namespace Fusion.Addons.FSM
                     //         lastRenderState.ChildMachines[i].Render();
                 }
 
-                if (_activeStateId >= 0) ActiveState.OnEnterStateRender();
+                if (_activeStateId >= 0)
+                    ActiveState.OnEnterStateRender();
 
                 _lastRenderStateId = _activeStateId;
                 _lastRenderStateChangeTick = _stateChangeTick;
@@ -293,7 +302,10 @@ namespace Fusion.Addons.FSM
 
             var nextState = _states[stateId];
 
-            if (ActiveState != null && ActiveState.CanExitState(nextState, isExplicitDeactivation) == false)
+            if (
+                ActiveState != null
+                && ActiveState.CanExitState(nextState, isExplicitDeactivation) == false
+            )
                 return false;
 
             if (nextState.CanEnterState() == false)
@@ -306,19 +318,22 @@ namespace Fusion.Addons.FSM
         private void ChangeState(int stateId)
         {
             if (stateId >= _stateCount)
-                throw new InvalidOperationException($"State with ID {stateId} not present in the state machine {Name}");
+                throw new InvalidOperationException(
+                    $"State with ID {stateId} not present in the state machine {Name}"
+                );
 
             // Assert.Check(_tickProvider.Stage != default, "State changes are not allowed from Render calls");
             // Assert.Check(_tickProvider.IsStage, "State changes are not allowed from Render calls");
 
             _previousStateId = _activeStateId;
             _activeStateId = stateId;
-
+            Debug.Log("activeStateId" + _activeStateId);
             if (RuntimeDebugSetting.IsDebugMode)
                 LogStateChange();
 
             Profiler.BeginSample("Exit State");
-            if (_previousStateId >= 0) PreviousState.OnExitState();
+            if (_previousStateId >= 0)
+                PreviousState.OnExitState();
             Profiler.EndSample();
             // for (var i = 0; i < PreviousState.ChildMachines.Length; i++)
             //     // When parent state is deactivated, all child states are deactivated as well
@@ -326,7 +341,8 @@ namespace Fusion.Addons.FSM
             _stateChangeTick = _tickProvider.Tick;
 
             Profiler.BeginSample("Enter State");
-            if (_activeStateId >= 0) ActiveState.OnEnterState();
+            if (_activeStateId >= 0)
+                ActiveState.OnEnterState();
             Profiler.EndSample();
             // for (var i = 0; i < ActiveState.ChildMachines.Length; i++)
             // {
@@ -340,9 +356,10 @@ namespace Fusion.Addons.FSM
 
         private int GetStateTicks()
         {
-            var currentTick = _tickProvider.IsStage == false && _interpolationTick != 0f
-                ? (int)_interpolationTick
-                : _tickProvider.Tick;
+            var currentTick =
+                _tickProvider.IsStage == false && _interpolationTick != 0f
+                    ? (int)_interpolationTick
+                    : _tickProvider.Tick;
             return currentTick - StateChangeTick;
         }
 
@@ -362,10 +379,11 @@ namespace Fusion.Addons.FSM
             if (_logic == null)
             {
                 Debug.LogError(
-                    $"{nameof(StateMachine<TState>)}: Logic is null for state machine {Name}. This should not happen.");
+                    $"{nameof(StateMachine<TState>)}: Logic is null for state machine {Name}. This should not happen."
+                );
                 return;
             }
-                
+
             if (EnableLogging.HasValue == false && _logic.EnableLogging == false)
                 return; // Global controller logging is disabled
 
@@ -376,7 +394,8 @@ namespace Fusion.Addons.FSM
             var previousStateName = PreviousState != null ? PreviousState.Name : "None";
             Debug.Log(
                 $"{_logic.gameObject.name} - <color=#F04C4C>State Machine <b>{Name}</b>: Change State to <b>{activeStateName}</b></color> - Previous: {previousStateName}, Tick: {_tickProvider.Tick}",
-                _logic);
+                _logic
+            );
         }
 
         [Conditional("DEBUG")]
@@ -393,7 +412,8 @@ namespace Fusion.Addons.FSM
 
             Debug.Log(
                 $"{_logic.gameObject.name} - <color=#F04C4C>State Machine <b>{Name}</b>: Machine <b>RESET</b></color> - Tick: {_tickProvider.Tick}",
-                _logic);
+                _logic
+            );
         }
 
         [Conditional("DEBUG")]
@@ -406,10 +426,12 @@ namespace Fusion.Addons.FSM
                 return; // Logging is specifically disabled for this machine
 
             var activeStateName = ActiveState != null ? ActiveState.Name : "None";
-            var previousStateName = _lastRenderStateId >= 0 ? _states[_lastRenderStateId].Name : "None";
+            var previousStateName =
+                _lastRenderStateId >= 0 ? _states[_lastRenderStateId].Name : "None";
             Debug.Log(
                 $"{_logic.gameObject.name} - <color=#467DE7>State Machine <b>{Name}</b>: Change RENDER State to <b>{activeStateName}</b></color> - Previous: {previousStateName}, StateChangeTick: {_stateChangeTick}, RenderFrame: {Time.frameCount}",
-                _logic);
+                _logic
+            );
         }
     }
 }

@@ -21,7 +21,7 @@ namespace MonoFSM_Physics.Runtime
                 rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRot, 0.2f)); // 0.2f 可調
             }
 
-            Debug.Log("RigidbodyDirFollowVelocity set rot: " + v, this);
+            // Debug.Log("RigidbodyDirFollowVelocity set rot: " + v, this);
         }
     }
 }

@@ -56,8 +56,8 @@ namespace MonoFSM_Physics.Runtime.Interact.SpatialDetection
                 if (!_lastFrameColliders.Contains(hit.collider))
                 {
                     // QueueEnterEvent(hit.collider.gameObject);
-                    Debug.Log("Raycast enter: Detector Hit" + hit.collider.gameObject, this);
-                    Debug.Log("Raycast enter: hitPoint " + hit.collider, hit.collider);
+                    // Debug.Log("Raycast enter: Detector Hit" + hit.collider.gameObject, this);
+                    // Debug.Log("Raycast enter: hitPoint " + hit.collider, hit.collider);
 
                     //Note: Detectable必須在 rigidbody上面？
                     //FIXME: 都遇hit.collider就好？
@@ -69,7 +69,7 @@ namespace MonoFSM_Physics.Runtime.Interact.SpatialDetection
                         hit.point,
                         hit.normal
                     );
-                    Debug.Log("Detect:" + hit.collider + result, this);
+                    // Debug.Log("Detect:" + hit.collider + result, this);
                 }
 
             foreach (var col in _lastFrameColliders)

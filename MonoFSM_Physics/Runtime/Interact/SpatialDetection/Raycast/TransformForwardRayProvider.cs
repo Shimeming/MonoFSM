@@ -5,7 +5,7 @@ using UnityEngine;
 namespace MonoFSM.PhysicsWrapper
 {
     [Serializable]
-    public class TransformForwardRayProvider : IRayProvider
+    public class TransformForwardRayProvider : AbstractRayProvider
     {
         [SerializeField]
         private Transform _transform;
@@ -17,8 +17,8 @@ namespace MonoFSM.PhysicsWrapper
             if (_transform == null)
                 _transform = transform; // Use the current GameObject's transform if not set
             var ray = new Ray(_transform.position, _transform.forward);
-            if (Application.isPlaying)
-                Debug.Log($"Ray Origin: {ray.origin}, Direction: {ray.direction}", this);
+            // if (Application.isPlaying)
+            //     Debug.Log($"Ray Origin: {ray.origin}, Direction: {ray.direction}", this);
             return ray;
         }
     }

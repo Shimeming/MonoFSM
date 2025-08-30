@@ -19,6 +19,7 @@ namespace MonoFSM.Core.Simulate
         void AfterUpdate();
 
         bool isActiveAndEnabled { get; }
+        bool IsValid => isActiveAndEnabled;
 
         GameObject gameObject { get; }
     }

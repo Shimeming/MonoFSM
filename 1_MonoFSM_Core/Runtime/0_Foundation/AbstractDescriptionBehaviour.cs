@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
 using MonoFSM.EditorExtension;
@@ -15,32 +16,55 @@ using Debug = UnityEngine.Debug;
 namespace MonoFSM.Foundation
 {
     // [InfoBox("$_errorMessage", InfoMessageType.Error, "$HasError")]
-    public abstract class AbstractDescriptionBehaviour : MonoBehaviour, IBeforePrefabSaveCallbackReceiver,
-        IAfterPrefabStageOpenCallbackReceiver, IDrawHierarchyBackGround
+    public abstract class AbstractDescriptionBehaviour
+        : MonoBehaviour,
+            IBeforePrefabSaveCallbackReceiver,
+            IAfterPrefabStageOpenCallbackReceiver,
+            IDrawHierarchyBackGround
     {
+#if UNITY_EDITOR
+        [TextArea]
+        private string _note;
+#endif
+
+        /// <summary>
+        ///     想要自己命名，又要帶有description tag的話就把Description改用這個
+        /// </summary>
+        protected string ReformatedName => FormatName(name);
+
+        public string FormatName(string str)
+        {
+            return Regex.Replace(str, @"\[.*?\]", "").Trim();
+        }
+
         // Cache for required fields per type (serialized only)
-        private static readonly Dictionary<Type, FieldInfo[]>
-            _requiredFieldsCache = new();
+        private static readonly Dictionary<Type, FieldInfo[]> _requiredFieldsCache = new();
 
         // Cache for required fields per type (including non-serialized)
-        private static readonly Dictionary<Type, FieldInfo[]>
-            _requiredFieldsCacheWithNonSerialized = new();
+        private static readonly Dictionary<
+            Type,
+            FieldInfo[]
+        > _requiredFieldsCacheWithNonSerialized = new();
 
         // Track if we're in prefab stage mode for more detailed error checking
         private bool _isPrefabStageMode = false;
 
         //沒有做AutoComponent下會顯示error? 還是應該讓prefab openstage時做一次，scene上跳過這個判定，雖然稍嫌trivial
-        private static FieldInfo[] GetRequiredHierarchyValidateFields(Type type,
-            bool includeNonSerialized = false)
+        private static FieldInfo[] GetRequiredHierarchyValidateFields(
+            Type type,
+            bool includeNonSerialized = false
+        )
         {
-            var cache = includeNonSerialized ? _requiredFieldsCacheWithNonSerialized : _requiredFieldsCache;
+            var cache = includeNonSerialized
+                ? _requiredFieldsCacheWithNonSerialized
+                : _requiredFieldsCache;
 
             if (cache.TryGetValue(type, out var cachedFields))
                 return cachedFields;
 
-            var fields = type.GetFields(BindingFlags.Instance |
-                                        BindingFlags.NonPublic |
-                                        BindingFlags.Public);
+            var fields = type.GetFields(
+                BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public
+            );
 
             // Find all fields with [Required] or [DropDownRef] attributes that are not "interfaces"
             //interface在組合component就會看到了, 也比較不會在refactor之後掉reference
@@ -48,17 +72,29 @@ namespace MonoFSM.Foundation
 
             if (includeNonSerialized)
                 // Include all fields with required attributes, regardless of serialization
-                requiredFields = Array.FindAll(fields,
-                    f => (f.GetCustomAttributes(typeof(RequiredAttribute), false).Length > 0 ||
-                          f.GetCustomAttributes(typeof(DropDownRefAttribute), false).Length > 0)
-                         && !f.FieldType.IsInterface);
+                requiredFields = Array.FindAll(
+                    fields,
+                    f =>
+                        (
+                            f.GetCustomAttributes(typeof(RequiredAttribute), false).Length > 0
+                            || f.GetCustomAttributes(typeof(DropDownRefAttribute), false).Length > 0
+                        ) && !f.FieldType.IsInterface
+                );
             else
                 // Only include public or SerializeField attributes (original behavior)
-                requiredFields = Array.FindAll(fields,
-                    f => (f.GetCustomAttributes(typeof(RequiredAttribute), false).Length > 0 ||
-                          f.GetCustomAttributes(typeof(DropDownRefAttribute), false).Length > 0)
-                         && !f.FieldType.IsInterface
-                         && (f.IsPublic || f.GetCustomAttributes(typeof(SerializeField), false).Length > 0));
+                requiredFields = Array.FindAll(
+                    fields,
+                    f =>
+                        (
+                            f.GetCustomAttributes(typeof(RequiredAttribute), false).Length > 0
+                            || f.GetCustomAttributes(typeof(DropDownRefAttribute), false).Length > 0
+                        )
+                        && !f.FieldType.IsInterface
+                        && (
+                            f.IsPublic
+                            || f.GetCustomAttributes(typeof(SerializeField), false).Length > 0
+                        )
+                );
 
             cache[type] = requiredFields;
 
@@ -105,12 +141,16 @@ namespace MonoFSM.Foundation
                 var value = field.GetValue(this);
                 if (value == null)
                 {
-                    _errorMessage = $"Required field '{field.Name}' is null in {gameObject.name} (Prefab Stage Check)";
+                    _errorMessage =
+                        $"Required field '{field.Name}' is null in {gameObject.name} (Prefab Stage Check)";
                     //FIXME: 一打開prefab想log?
 
                     if (isShowError)
                     {
-                        Debug.LogError($"Required field '{field.Name}' is null in {gameObject.name}", this);
+                        Debug.LogError(
+                            $"Required field '{field.Name}' is null in {gameObject.name}",
+                            this
+                        );
                         EditorGUIUtility.PingObject(this);
                     }
 
@@ -129,27 +169,35 @@ namespace MonoFSM.Foundation
         {
             // 獲取欄位上的 ValueTypeValidateAttribute
             var validateAttribute = field.GetCustomAttribute<ValueTypeValidateAttribute>();
-            if (validateAttribute == null || string.IsNullOrEmpty(validateAttribute.ConditionalMethod))
+            if (
+                validateAttribute == null
+                || string.IsNullOrEmpty(validateAttribute.ConditionalMethod)
+            )
                 return true; // 沒有條件方法，總是驗證
 
             try
             {
                 // 嘗試調用條件方法
-                var method = GetType().GetMethod(validateAttribute.ConditionalMethod,
-                    BindingFlags.Instance |
-                    BindingFlags.Public |
-                    BindingFlags.NonPublic);
+                var method = GetType()
+                    .GetMethod(
+                        validateAttribute.ConditionalMethod,
+                        BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
+                    );
 
                 if (method == null)
                 {
-                    Debug.LogWarning($"找不到條件方法 '{validateAttribute.ConditionalMethod}' 在型別 {GetType().Name} 中，欄位 '{field.Name}'");
+                    Debug.LogWarning(
+                        $"找不到條件方法 '{validateAttribute.ConditionalMethod}' 在型別 {GetType().Name} 中，欄位 '{field.Name}'"
+                    );
                     return true; // 找不到方法時預設為驗證
                 }
 
                 // 檢查方法返回型別是否為 bool
                 if (method.ReturnType != typeof(bool))
                 {
-                    Debug.LogWarning($"條件方法 '{validateAttribute.ConditionalMethod}' 必須返回 bool 型別，欄位 '{field.Name}'");
+                    Debug.LogWarning(
+                        $"條件方法 '{validateAttribute.ConditionalMethod}' 必須返回 bool 型別，欄位 '{field.Name}'"
+                    );
                     return true;
                 }
 
@@ -159,18 +207,20 @@ namespace MonoFSM.Foundation
             }
             catch (Exception ex)
             {
-                Debug.LogError($"執行條件方法 '{validateAttribute.ConditionalMethod}' 時發生錯誤: {ex.Message}，欄位 '{field.Name}'");
+                Debug.LogError(
+                    $"執行條件方法 '{validateAttribute.ConditionalMethod}' 時發生錯誤: {ex.Message}，欄位 '{field.Name}'"
+                );
                 return true; // 發生錯誤時預設為驗證
             }
         }
 
-        [AutoParent] protected MonoEntity _self;
+        [AutoParent]
+        protected MonoEntity _self;
 
         //介面上也顯示？textarea?
-        public virtual string Description => $"{GetType().Name}";
+        public virtual string Description => GetType().Name;
 
-        protected virtual string DescriptionPreprocess(string text)
-            => text;
+        protected virtual string DescriptionPreprocess(string text) => text;
 
         protected abstract string DescriptionTag { get; }
 
@@ -187,25 +237,28 @@ namespace MonoFSM.Foundation
                 // Debug.Log(
                 //     $"Description of {GetType()}: Description:{Description} process:{DescriptionPreprocess(Description)}",
                 //     this);
-                gameObject.name = $"[{DescriptionTag}] {DescriptionPreprocess(Description)}";
+                if (IsBracketsNeededForTag)
+                    gameObject.name = $"[{DescriptionTag}] {DescriptionPreprocess(Description)}";
+                else
+                    gameObject.name = $"{DescriptionTag} {DescriptionPreprocess(Description)}";
                 EditorUtility.SetDirty(gameObject);
             }
             catch (Exception e)
-
             {
-                Debug.LogError($"Error renaming gameObject: {gameObject.name} to [{DescriptionTag}]", this);
+                Debug.LogError(
+                    $"Error renaming gameObject: {gameObject.name} to [{DescriptionTag}]",
+                    this
+                );
             }
 
 #endif
         }
 
-        protected virtual void Awake()
-        {
-        }
+        protected virtual bool IsBracketsNeededForTag => true;
 
-        protected virtual void Start()
-        {
-        }
+        protected virtual void Awake() { }
+
+        protected virtual void Start() { }
 
         public virtual void OnBeforePrefabSave()
         {
@@ -231,8 +284,8 @@ namespace MonoFSM.Foundation
 
 #if UNITY_EDITOR
             // Double-check using Unity's API for more reliability
-            if (PrefabStageUtility.GetCurrentPrefabStage() != null) isInPrefabStage = true;
-
+            if (PrefabStageUtility.GetCurrentPrefabStage() != null)
+                isInPrefabStage = true;
 
             if (isInPrefabStage)
                 return CheckNullOfRequiredFieldsForPrefabStage();
@@ -241,16 +294,15 @@ namespace MonoFSM.Foundation
 #else
             return false;
 #endif
-
         }
 
         [InfoBox("$_errorMessage", InfoMessageType.Error, "$HasError")]
-        [PreviewInInspector] protected string _errorMessage;
+        [PreviewInInspector]
+        protected string _errorMessage;
 
         public Color BackgroundColor => new(1.0f, 0f, 0f, 0.3f);
 
         [ShowInDebugMode]
-        public bool IsDrawGUIHierarchyBackground => !Application.isPlaying &&
-                                                    HasError(); //還是用icon?
+        public bool IsDrawGUIHierarchyBackground => !Application.isPlaying && HasError(); //還是用icon?
     }
 }

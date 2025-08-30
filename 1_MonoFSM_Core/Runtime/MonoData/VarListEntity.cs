@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MonoFSM.Core.Attributes;
+using MonoFSM.Core.DataProvider;
 using MonoFSM.Runtime;
 using MonoFSM.Variable;
+using MonoFSM.Variable.Attributes;
 using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -17,6 +19,12 @@ namespace MonoFSM.Core.Variable
 
     public class VarList<T> : AbstractVarList, ISerializationCallbackReceiver, IResetStateRestore
     {
+        [CompRef]
+        [AutoChildren(DepthOneOnly = true)]
+        private IValueProvider<List<T>> _valueSourceProvider;
+
+        public bool IsReadOnly => _valueSourceProvider != null;
+
         public enum CollectionStorageType
         {
             List,
@@ -37,7 +45,7 @@ namespace MonoFSM.Core.Variable
         [ShowInPlayMode]
         private object _activeCollection; // Runtime instance: List<T>, Queue<T>, or HashSet<T>
 
-        public int _currentIndex = -1; //FIXME: save? var int?
+        public int _currentIndex; //FIXME: save? var int?
         public int _lastIndex = -1; //FIXME: save? var int?
         public int _defaultIndex;
 
@@ -83,6 +91,8 @@ namespace MonoFSM.Core.Variable
 
         public T GetFirstOrDefault()
         {
+            if (IsReadOnly)
+                return _valueSourceProvider.Value.FirstOrDefault();
             EnsureActiveCollectionInitialized();
             if (_activeCollection is List<T> list && list.Count > 0)
                 return list[0];
@@ -93,7 +103,8 @@ namespace MonoFSM.Core.Variable
             return default;
         }
 
-        public T LastListItem
+        [ShowInPlayMode]
+        public T LastItem //list內容如果會變動的話，這個感覺蠻有問題的？ConstCollection?...
         {
             get
             {
@@ -105,6 +116,7 @@ namespace MonoFSM.Core.Variable
             }
         }
 
+        [ShowInPlayMode]
         public T CurrentListItem //不是object... current ListItem
         {
             get
@@ -152,7 +164,7 @@ namespace MonoFSM.Core.Variable
             }
         }
 
-        public override T1 GetValue<T1>()
+        public override T1 GetValue<T1>() //希望這個用不到？
         {
             if (typeof(T1) == typeof(List<T>))
             {
@@ -166,6 +178,8 @@ namespace MonoFSM.Core.Variable
 
         public List<T> GetList()
         {
+            if (IsReadOnly)
+                return _valueSourceProvider.Get<List<T>>();
             EnsureActiveCollectionInitialized();
             if (_activeCollection is List<T> list)
                 return list;
@@ -200,6 +214,8 @@ namespace MonoFSM.Core.Variable
 
         private void EnsureActiveCollectionInitialized()
         {
+            if (IsReadOnly)
+                return;
             if (
                 _activeCollection != null
                 && GetCollectionTypeFromInstance(_activeCollection) == _storageType
@@ -277,6 +293,8 @@ namespace MonoFSM.Core.Variable
         //給list? queue的話我Provider根本吃不到？ realtime type還會變...乾
         public override void ResetStateRestore()
         {
+            if (IsReadOnly)
+                return;
             EnsureActiveCollectionInitialized();
 
             // 清空當前集合
@@ -344,6 +362,13 @@ namespace MonoFSM.Core.Variable
 
         public void Add(T item)
         {
+            if (IsReadOnly)
+            {
+                Debug.LogError(
+                    "Cannot add item directly when a value source provider is set. The collection is read-only."
+                );
+                return;
+            }
             EnsureActiveCollectionInitialized();
             if (_activeCollection is List<T> list)
                 list.Add(item);
@@ -360,6 +385,13 @@ namespace MonoFSM.Core.Variable
 
         public void Remove(T item)
         {
+            if (IsReadOnly)
+            {
+                Debug.LogError(
+                    "Cannot add item directly when a value source provider is set. The collection is read-only."
+                );
+                return;
+            }
             EnsureActiveCollectionInitialized();
             if (_activeCollection is List<T> list)
                 list.Remove(item);
@@ -378,6 +410,13 @@ namespace MonoFSM.Core.Variable
 
         public override void Clear()
         {
+            if (IsReadOnly)
+            {
+                Debug.LogError(
+                    "Cannot add item directly when a value source provider is set. The collection is read-only."
+                );
+                return;
+            }
             EnsureActiveCollectionInitialized();
             if (_activeCollection is List<T> list)
                 list.Clear();
@@ -399,6 +438,9 @@ namespace MonoFSM.Core.Variable
         {
             get
             {
+                if (IsReadOnly)
+                    return _valueSourceProvider.Value.Count;
+
                 EnsureActiveCollectionInitialized();
                 if (_activeCollection is List<T> list)
                     return list.Count;
