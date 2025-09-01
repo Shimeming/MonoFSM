@@ -24,7 +24,7 @@ namespace MonoFSM.Variable
     {
         [CompRef]
         [AutoChildren(DepthOneOnly = true)]
-        protected IValueProvider<T>[] _valueSources;
+        protected IValueProvider<T>[] _valueSources; //FIXME: 好像可以改成AbstractValueProvider<T>?
 
         protected IValueProvider<T> valueSource => GetActiveTypedValueSource();
 

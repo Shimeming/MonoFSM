@@ -45,8 +45,12 @@ namespace MonoFSM.Core.Variable
         [ShowInPlayMode]
         private object _activeCollection; // Runtime instance: List<T>, Queue<T>, or HashSet<T>
 
-        public int _currentIndex; //FIXME: save? var int?
-        public int _lastIndex = -1; //FIXME: save? var int?
+        //FIXME: 這個要弄成Field嗎...比較好reset?
+        [PreviewInInspector]
+        private int _currentIndex; //FIXME: save? var int?
+
+        [PreviewInInspector]
+        private int _lastIndex = -1; //FIXME: save? var int?
         public int _defaultIndex;
 
         public override void SetIndex(int index)
@@ -293,6 +297,8 @@ namespace MonoFSM.Core.Variable
         //給list? queue的話我Provider根本吃不到？ realtime type還會變...乾
         public override void ResetStateRestore()
         {
+            _currentIndex = _defaultIndex;
+            _lastIndex = -1;
             if (IsReadOnly)
                 return;
             EnsureActiveCollectionInitialized();

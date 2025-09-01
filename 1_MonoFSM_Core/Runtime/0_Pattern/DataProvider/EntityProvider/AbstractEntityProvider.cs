@@ -24,10 +24,10 @@ namespace MonoFSM.Core.Runtime
         [Required]
         [FormerlySerializedAs("_monoEntityTag")]
         [HideIf(nameof(monoEntity))]
-        [TypeRestrictDropdown(typeof(MonoEntityTag), true, "請選擇 MonoEntity 類型的 EntityTag")]
+        [SOTypeDropdown(typeof(MonoEntityTag), true, "請選擇 MonoEntity 類型的 EntityTag")]
         public MonoEntityTag _expectedEntityTag; //這個是用來在Editor上顯示的，實際上會從HitDataProvider拿到
 
-        [ShowInDebugMode]
+        [PreviewInInspector]
         public abstract MonoEntity monoEntity { get; }
 
         [PreviewInDebugMode]

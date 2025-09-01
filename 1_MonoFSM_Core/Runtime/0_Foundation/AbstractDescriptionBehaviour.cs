@@ -260,6 +260,7 @@ namespace MonoFSM.Foundation
 
         protected virtual void Start() { }
 
+        [Button("Save Process")]
         public virtual void OnBeforePrefabSave()
         {
 #if UNITY_EDITOR

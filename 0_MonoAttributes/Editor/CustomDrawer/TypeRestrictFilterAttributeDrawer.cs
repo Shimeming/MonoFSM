@@ -18,8 +18,7 @@ namespace MonoFSM.Core.Editor
     /// 用於過濾帶有 RestrictType 屬性的欄位下拉選項
     /// 支援任何 ScriptableObject 類型
     /// </summary>
-    public class TypeRestrictFilterAttributeDrawer
-        : OdinAttributeDrawer<TypeRestrictDropdownAttribute>
+    public class TypeRestrictFilterAttributeDrawer : OdinAttributeDrawer<SOTypeDropdownAttribute>
     {
         protected override bool CanDrawAttributeProperty(InspectorProperty property)
         {
@@ -89,9 +88,10 @@ namespace MonoFSM.Core.Editor
                 Property.ValueEntry.TypeOfValue,
                 false
             );
-            // Debug.Log("New Object Selected: " + newObj, newObj);
             Property.ValueEntry.WeakSmartValue = newObj;
+            // CallNextDrawer(label);
             GUI.backgroundColor = Color.white;
+            //需要call next drawer嗎？
         }
 
         private void DrawFilteredSelector(GUIContent label, Object currentValue)
@@ -136,12 +136,12 @@ namespace MonoFSM.Core.Editor
     /// </summary>
     public class TypeRestrictFilteredSelector : OdinSelector<ScriptableObject>
     {
-        private readonly TypeRestrictDropdownAttribute _filterAttribute;
+        private readonly SOTypeDropdownAttribute _filterAttribute;
         private readonly Type _propertyType;
         private readonly Type _restrictInstanceType;
 
         public TypeRestrictFilteredSelector(
-            TypeRestrictDropdownAttribute filterAttribute,
+            SOTypeDropdownAttribute filterAttribute,
             Type propertyType,
             Type restrictInstanceType = null
         )

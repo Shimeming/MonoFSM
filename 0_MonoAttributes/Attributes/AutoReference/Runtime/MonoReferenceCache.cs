@@ -62,8 +62,7 @@ namespace Auto_Attribute.Runtime
                 if (v == null)
                     continue;
 
-                //FIXME: 沒有處理AutoNested?
-                //不是 IAutoFamily
+                //檢查是否為 Auto 屬性（包含 AutoNestedAttribute）
                 if (FieldCache.IsAutoAttribute(field) == false)
                 {
                     continue;
@@ -113,6 +112,16 @@ namespace Auto_Attribute.Runtime
             targetName = targetMb.name;
             typeName = targetMb.GetType().Name;
             fieldName = field.Name;
+
+            // 檢查是否為 AutoNestedAttribute，如果是則跳過（不需要序列化嵌套物件本身）
+            var autoNestedAttr = field.GetCustomAttribute<AutoNestedAttribute>();
+            if (autoNestedAttr != null)
+            {
+                // AutoNestedAttribute 處理的是嵌套物件內部的 Auto 屬性，
+                // 嵌套物件本身不需要被快取，因為它會在 runtime 時被重新處理
+                return false;
+            }
+
             if (v.GetType().IsArray)
             {
                 var array = v as object[];

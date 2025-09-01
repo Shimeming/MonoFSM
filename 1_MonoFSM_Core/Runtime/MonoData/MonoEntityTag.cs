@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using _1_MonoFSM_Core.Runtime._1_States;
+using _1_MonoFSM_Core.Runtime._3_FlagData;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Variable;
 using MonoFSM.Variable.TypeTag;
@@ -20,7 +20,7 @@ namespace MonoFSM.Runtime.Mono
     //MonoEntityDef?
     //VarDef
     [CreateAssetMenu(menuName = "Assets/MonoFSM/MonoEntityTag", fileName = "NewMonoEntityTag")]
-    public class MonoEntityTag : ScriptableObject, IStringKey
+    public class MonoEntityTag : AbstractSOConfig, IStringKey
     {
         //
         public MySerializedType<MonoEntity> _entityType;
@@ -121,5 +121,10 @@ namespace MonoFSM.Runtime.Mono
         [TextArea]
         public string Note;
 #endif
+
+        public List<MonoEntity> Filter(List<MonoEntity> entities)
+        {
+            return entities.Where(e => e != null && e.DefaultTag == this).ToList();
+        }
     }
 }

@@ -12,9 +12,9 @@ using UnityEditor;
 [CreateAssetMenu(fileName = "GameFlagCollection", menuName = "System/FlagCollection", order = 1)]
 [Serializable]
 [Searchable]
-public class GameFlagCollection : MonoSOConfig, ISelfValidator //要改成MonoSOConfig?
+public class GameFlagCollection : AbstractSOConfig, ISelfValidator //要改成MonoSOConfig?
 {
-#if UNITY_EDITOR 
+#if UNITY_EDITOR
     [Button("Clear")]
     public void Clear() //這個不太對
     {
@@ -28,7 +28,7 @@ public class GameFlagCollection : MonoSOConfig, ISelfValidator //要改成MonoSO
     //     // AddressableAssetSettings settings = AddressableAssetSettingsDefaultObject.Settings;
     //     // settings.CreateAssetReference(flag);
     //     EditorUtility.DisplayCancelableProgressBar("UpgradeForAllGameFlagDescriptable", "UpgradeForAllGameFlagDescriptable", 0);
-    //     
+    //
     //     float progress = 0;
     //     foreach (var flag in Flags)
     //     {
@@ -61,9 +61,6 @@ public class GameFlagCollection : MonoSOConfig, ISelfValidator //要改成MonoSO
             AssetDatabase.RenameAsset(AssetDatabase.GetAssetPath(obj), name);
             EditorUtility.SetDirty(obj);
         }
-
-
-        
     }
 
     [Button]
@@ -117,19 +114,17 @@ public class GameFlagCollection : MonoSOConfig, ISelfValidator //要改成MonoSO
             var path = AssetDatabase.GUIDToAssetPath(allProjectFlags[i]);
             var flag = AssetDatabase.LoadAssetAtPath<GameFlagBase>(path);
             Flags.Add(flag);
-
         }
         EditorUtility.SetDirty(this);
     }
 #endif
 
-// #if UNITY_EDITOR
-//     [NonSerialized] [ShowInInspector]
-// #endif
+    // #if UNITY_EDITOR
+    //     [NonSerialized] [ShowInInspector]
+    // #endif
     public List<GameFlagBase> Flags = new();
 
     public Dictionary<string, GameFlagBase> flagDict = new();
-
 
     public Dictionary<string, GameFlagBase> FlagDict
     {
@@ -183,7 +178,8 @@ public class GameFlagCollection : MonoSOConfig, ISelfValidator //要改成MonoSO
         }
         // Debug.Log("All Game Flag Loaded" + name);
     }
-// [text](https://youtrack.jetbrains.com/)
+
+    // [text](https://youtrack.jetbrains.com/)
     public void Reset()
     {
         // foreach (var flag in Flags)
@@ -240,8 +236,10 @@ public class GameFlagCollection : MonoSOConfig, ISelfValidator //要改成MonoSO
         //check if flags in the list are equal to the flags in the folder
         var myPath = AssetDatabase.GetAssetPath(this);
         // FindAllFlags();
-        var allProjectFlags =
-            AssetDatabase.FindAssets("t:GameFlagBase", new[] { Path.GetDirectoryName(myPath) });
+        var allProjectFlags = AssetDatabase.FindAssets(
+            "t:GameFlagBase",
+            new[] { Path.GetDirectoryName(myPath) }
+        );
         // Debug.Log("allProjectFlags:" + allProjectFlags.Length);
         //find not in Flags
         for (var i = 0; i < allProjectFlags.Length; i++)
@@ -250,11 +248,13 @@ public class GameFlagCollection : MonoSOConfig, ISelfValidator //要改成MonoSO
             var flag = AssetDatabase.LoadAssetAtPath<GameFlagBase>(path);
             if (!Flags.Contains(flag))
             {
-                result.AddError("Not in Flags:" + flag.name).WithFix(() =>
-                {
-                    Flags.Add(flag);
-                    EditorUtility.SetDirty(this);
-                });
+                result
+                    .AddError("Not in Flags:" + flag.name)
+                    .WithFix(() =>
+                    {
+                        Flags.Add(flag);
+                        EditorUtility.SetDirty(this);
+                    });
             }
         }
 #endif

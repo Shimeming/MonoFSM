@@ -6,7 +6,7 @@ namespace MonoFSM.Core.Attributes
 {
     [EditorOnly]
     [IncludeMyAttributes]
-    [TypeRestrictDropdown] //FIXME: 好像要可以過濾對應的型別, list失敗
+    [SOTypeDropdown] //FIXME: 好像要可以過濾對應的型別, list失敗
     // [ShowDrawerChain]
     [ListDrawerSettings(ShowFoldout = false)]
     public class SOConfigAttribute : Attribute

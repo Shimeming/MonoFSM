@@ -9,9 +9,11 @@ using UnityEngine.Serialization;
 
 namespace MonoFSM.Core
 {
-    public abstract class DynamicScriptableCollection : MonoSOConfig
+    public abstract class DynamicScriptableCollection : AbstractSOConfig
     {
-        [Header("目標類型設定")] [PropertyOrder(-1)] public MySerializedType<ScriptableObject> targetType = new();
+        [Header("目標類型設定")]
+        [PropertyOrder(-1)]
+        public MySerializedType<ScriptableObject> targetType = new();
 
         protected virtual void OnValidate()
         {
@@ -26,7 +28,8 @@ namespace MonoFSM.Core
         /// <summary>
         ///     取得指定類型的集合項目
         /// </summary>
-        public List<T> GetCollectionAs<T>() where T : ScriptableObject
+        public List<T> GetCollectionAs<T>()
+            where T : ScriptableObject
         {
             var result = new List<T>();
             foreach (var item in collection)
@@ -35,6 +38,7 @@ namespace MonoFSM.Core
 
             return result;
         }
+
 #if UNITY_EDITOR
         [Button("Clear")]
         public void Clear()
@@ -42,7 +46,7 @@ namespace MonoFSM.Core
             collection.Clear();
             EditorUtility.SetDirty(this);
         }
-        
+
         [Button("Find Under Folder With OverrideTypeName")]
         public void FindUnderFolder()
         {
@@ -57,7 +61,9 @@ namespace MonoFSM.Core
             EditorUtility.SetDirty(this);
         }
 
-        [TextArea] public string note;
+        [TextArea]
+        public string note;
+
         [Button("FindAllFlags")]
         public void FindAllFlags()
         {
@@ -67,7 +73,7 @@ namespace MonoFSM.Core
                 Debug.LogError("請先設定目標類型");
                 return;
             }
-            
+
             collection.Clear();
             var myPath = AssetDatabase.GetAssetPath(this);
             var dirPath = Path.GetDirectoryName(myPath);
@@ -78,24 +84,34 @@ namespace MonoFSM.Core
                 var path = AssetDatabase.GUIDToAssetPath(guid);
                 var obj = AssetDatabase.LoadAssetAtPath<ScriptableObject>(path);
 
-                if (obj != null && type.IsAssignableFrom(obj.GetType()) && FlagBelongThisCollection(obj))
+                if (
+                    obj != null
+                    && type.IsAssignableFrom(obj.GetType())
+                    && FlagBelongThisCollection(obj)
+                )
                     collection.Add(obj);
             }
 
             EditorUtility.SetDirty(this);
         }
 #endif
-        [FormerlySerializedAs("data")] [FormerlySerializedAs("gameFlagDataList")] [InlineEditor()] [SerializeField]
+
+        [FormerlySerializedAs("data")]
+        [FormerlySerializedAs("gameFlagDataList")]
+        [InlineEditor()]
+        [SerializeField]
         public List<ScriptableObject> collection = new();
     }
 
     // 保持向後兼容性的原始泛型版本
-    public abstract class ScriptableCollection<T> : ScriptableObject where T : ScriptableObject
+    public abstract class ScriptableCollection<T> : ScriptableObject
+        where T : ScriptableObject
     {
         protected virtual bool FlagBelongThisCollection(T t) //用一些條件去篩掉特定flag, 例如要做百科分類
         {
             return true;
         }
+
 #if UNITY_EDITOR
         [Button("Clear")]
         public void Clear()
@@ -111,14 +127,19 @@ namespace MonoFSM.Core
             EditorUtility.SetDirty(this);
         }
 
-        [TextArea] public string note;
+        [TextArea]
+        public string note;
+
         [Button("FindAllFlags")]
         public void FindAllFlags()
         {
             collection.Clear();
             var myPath = AssetDatabase.GetAssetPath(this);
             var dirPath = Path.GetDirectoryName(myPath);
-            var scriptables = AssetDatabase.FindAssets("t:" + typeof(T).FullName, new[] { dirPath });
+            var scriptables = AssetDatabase.FindAssets(
+                "t:" + typeof(T).FullName,
+                new[] { dirPath }
+            );
 
             foreach (var t in scriptables)
             {
@@ -132,7 +153,11 @@ namespace MonoFSM.Core
             EditorUtility.SetDirty(this);
         }
 #endif
-        [FormerlySerializedAs("data")] [FormerlySerializedAs("gameFlagDataList")] [InlineEditor] [SerializeField]
+
+        [FormerlySerializedAs("data")]
+        [FormerlySerializedAs("gameFlagDataList")]
+        [InlineEditor]
+        [SerializeField]
         public List<T> collection = new();
     }
 }

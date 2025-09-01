@@ -40,7 +40,7 @@ namespace MonoFSM.Variable.TypeTag
         }
     }
 
-    public abstract class AbstractTypeTag : MonoSOConfig
+    public abstract class AbstractTypeTag : AbstractSOConfig
     {
         public abstract Type Type { get; }
     }

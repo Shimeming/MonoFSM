@@ -433,25 +433,4 @@ public class AutoAttributeManager : MonoBehaviour
         // Debug.Log("Add Field Tuple:" + t + field.Name);
         return fieldsWithAuto;
     }
-
-    // private static IEnumerable<PropertyInfo> GetPropertiesWithAuto(MonoBehaviour mb)
-    // {
-    //     ReflectionHelperMethods rhm = new ReflectionHelperMethods();
-    //
-    //     return mb.GetType()
-    //         .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-    //         .Where(prop => prop.PropertyType.IsPrimitive == false)
-    //         .Where(prop => Attribute.IsDefined(prop, typeof(AutoAttribute)) ||
-    //                 Attribute.IsDefined(prop, typeof(AutoChildrenAttribute)) ||
-    //                 Attribute.IsDefined(prop, typeof(AutoParentAttribute))
-    //         )
-    //         .Concat(
-    //             rhm.GetNonPublicPropertiesInBaseClasses(mb.GetType())
-    //             .Where(prop => prop.PropertyType.IsPrimitive == false)
-    //             .Where(prop => Attribute.IsDefined(prop, typeof(AutoAttribute)) ||
-    //                     Attribute.IsDefined(prop, typeof(AutoChildrenAttribute)) ||
-    //                     Attribute.IsDefined(prop, typeof(AutoParentAttribute))
-    //             )
-    //         );
-    // }
 }

@@ -6,13 +6,13 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using _1_MonoFSM_Core.Runtime._3_FlagData;
-//using Newtonsoft.Json;
-//using Newtonsoft.Json.Linq;
 using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
 using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEngine;
+//using Newtonsoft.Json;
+//using Newtonsoft.Json.Linq;
 using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 
@@ -126,7 +126,7 @@ public interface INativeDataConsumer
 }
 
 //最基礎的GameFlag元件
-public abstract class GameFlagBase : MonoSOConfig, ISerializable, ISelfValidator, INativeData
+public abstract class GameFlagBase : AbstractSOConfig, ISerializable, ISelfValidator, INativeData
 {
     public IEnumerable<string> GetAllFlagFieldNames<T>()
     {
@@ -393,7 +393,7 @@ public abstract class GameFlagBase : MonoSOConfig, ISerializable, ISelfValidator
             var flagPath = AssetDatabase.GUIDToAssetPath(flag);
             // Debug.Log("Flag:" + flagPath);
             //check if the path is in the parent folder of the flag
-            var folderPath = System.IO.Path.GetDirectoryName(flagPath);
+            var folderPath = Path.GetDirectoryName(flagPath);
             if (path.Contains(folderPath))
             {
                 // Debug.Log("folderPath:" + folderPath + " Path:" + path);

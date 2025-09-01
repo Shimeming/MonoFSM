@@ -1,9 +1,3 @@
-#if UNITY_EDITOR
-using System;
-using _1_MonoFSM_Core.Runtime._3_FlagData;
-using UnityEditor;
-using UnityEditor.SceneManagement;
-#endif
 using System.Collections.Generic;
 using System.Reflection;
 using MonoFSM.Core;
@@ -11,7 +5,12 @@ using MonoFSM.Foundation;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
-
+#if UNITY_EDITOR
+using System;
+using _1_MonoFSM_Core.Runtime._3_FlagData;
+using UnityEditor;
+using UnityEditor.SceneManagement;
+#endif
 
 //實作ISceneSaving, 就可以在存檔前，把資料寫出去之類的(AutoGen When Save)
 namespace EditorTool
@@ -20,8 +19,8 @@ namespace EditorTool
     {
         //public static bool IsBuilding = false;
 #if UNITY_EDITOR
-        
-    
+
+
 
         [InitializeOnLoadMethod]
         private static void Init()
@@ -43,11 +42,7 @@ namespace EditorTool
             // Listen for prefab stage closed events
             PrefabStage.prefabStageClosing -= OnPrefabStageClosing;
             PrefabStage.prefabStageClosing += OnPrefabStageClosing;
-            
-           
         }
-        
-       
 
         // public static async UniTask ScanSceneAndBuildCache(RCGBuildConfig config, bool isTinyBuild = false)
         // {
@@ -114,7 +109,12 @@ namespace EditorTool
             //要存？
             //但play的時候不會觸發，只能仰賴手動存
             //Debug Setting設說我不想要管這件事？
-            EditorUtility.DisplayDialog("Exit Scene: ValidateBeforeSave", "Call OnBefore Scene Save?", "ok", "cancel");
+            EditorUtility.DisplayDialog(
+                "Exit Scene: ValidateBeforeSave",
+                "Call OnBefore Scene Save?",
+                "ok",
+                "cancel"
+            );
         }
 
         [MenuItem("MonoFSM/檢查式存檔 Save Scene with BeforeSave Callback #_S")] //Shift + S
@@ -132,7 +132,7 @@ namespace EditorTool
                 FindAllSOAndProcessSceneSave();
                 return;
             }
-            
+
             Debug.Log("OnSceneSaving");
             CustomFindSceneSavingAndProcess();
             EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
@@ -159,7 +159,7 @@ namespace EditorTool
             savingObjs.Reverse();
             foreach (var savingObj in savingObjs)
             {
-                if(savingObj != null)
+                if (savingObj != null)
                     savingObj.OnBeforePrefabSave();
             }
 
@@ -192,13 +192,14 @@ namespace EditorTool
                 if (component != null)
                 {
                     // Reset prefab stage mode via reflection (since _isPrefabStageMode is private)
-                    var field = typeof(AbstractDescriptionBehaviour).GetField("_isPrefabStageMode",
-                        BindingFlags.NonPublic | BindingFlags.Instance);
+                    var field = typeof(AbstractDescriptionBehaviour).GetField(
+                        "_isPrefabStageMode",
+                        BindingFlags.NonPublic | BindingFlags.Instance
+                    );
                     if (field != null)
                         field.SetValue(component, false);
                 }
         }
-
 
         //原本的Save監聽
         private static void OnSceneSaving(Scene scene, string path)
@@ -208,48 +209,45 @@ namespace EditorTool
             var rootGameObjects = SceneManager.GetActiveScene().GetRootGameObjects();
             foreach (var obj in rootGameObjects)
             {
-                
                 //TODO:IOnBuildSceneSavingCallbackReceiver 跟ISceneSavingCallbackReceiver 是不是沒差？
-                var receivers =
-                    obj.GetComponentsInChildren<IOnBuildSceneSavingCallbackReceiver>(true);
+                var receivers = obj.GetComponentsInChildren<IOnBuildSceneSavingCallbackReceiver>(
+                    true
+                );
                 foreach (var r in receivers)
                     try
                     {
                         r.OnBeforeBuildSceneSave();
                     }
-                    catch (Exception e)
-                    {
-                        
-                    }
-                
-                var receiversold =
-                    obj.GetComponentsInChildren<ISceneSavingCallbackReceiver>(true);
+                    catch (Exception e) { }
+
+                var receiversold = obj.GetComponentsInChildren<ISceneSavingCallbackReceiver>(true);
                 foreach (var r in receiversold)
                     try
                     {
                         r.OnBeforeSceneSave();
                     }
-                    catch (Exception e)
-                    {
-                    }
+                    catch (Exception e) { }
             }
-
 
             var startTime = Time.realtimeSinceStartup;
             var sceneCacheManager = Object.FindObjectOfType<AutoAttributeManager>();
             sceneCacheManager.monoReferenceCache.SaveReferenceCache();
             var endTime = Time.realtimeSinceStartup;
-            Debug.Log("OnPostprocessScene:" + SceneManager.GetActiveScene().name + " take:" +
-                      (endTime - startTime));
+            Debug.Log(
+                "OnPostprocessScene:"
+                    + SceneManager.GetActiveScene().name
+                    + " take:"
+                    + (endTime - startTime)
+            );
             EditorUtility.ClearProgressBar();
         }
 
         public static void StoreReferenceCacheOfScene()
         {
             var autoAttributeManager = Object.FindObjectOfType<AutoAttributeManager>();
-            if (autoAttributeManager != null) autoAttributeManager.monoReferenceCache.SaveReferenceCache();
+            if (autoAttributeManager != null)
+                autoAttributeManager.monoReferenceCache.SaveReferenceCache();
         }
-
 
         public static void FindAllSOAndProcessSceneSave() //ProcessCustomHeavySave?
         {
@@ -266,22 +264,25 @@ namespace EditorTool
             {
                 var path = AssetDatabase.GUIDToAssetPath(allProjectFlags[i]);
                 //這步驟感覺有點貴...只弄一個folder?或是篩選一層類別？
-                var flag = AssetDatabase.LoadAssetAtPath<MonoSOConfig>(path);
+                var flag = AssetDatabase.LoadAssetAtPath<AbstractSOConfig>(path);
                 if (flag is ISceneSavingCallbackReceiver sceneSavingCallbackReceiver)
                     sceneSavingCallbackReceiver.OnBeforeSceneSave();
                 if (flag is ISceneSavingAfterCallbackReceiver sceneSavingAfterCallbackReceiver)
                     sceneSavingAfterCallbackReceiver.OnAfterSceneSave();
-                if (flag is ICustomHeavySceneSavingCallbackReceiver heavySceneSavingCallbackReceiver)
+                if (
+                    flag is ICustomHeavySceneSavingCallbackReceiver heavySceneSavingCallbackReceiver
+                )
                 {
-                    Debug.Log("OnHeavySceneSaving called in" + heavySceneSavingCallbackReceiver,
-                        heavySceneSavingCallbackReceiver as Object);
+                    Debug.Log(
+                        "OnHeavySceneSaving called in" + heavySceneSavingCallbackReceiver,
+                        heavySceneSavingCallbackReceiver as Object
+                    );
                     heavySceneSavingCallbackReceiver.OnHeavySceneSaving();
                 }
-                    
+
                 // soList.Add(flag);
             }
         }
-
 
         private static void CustomFindSceneSavingAndProcess()
         {
@@ -308,7 +309,6 @@ namespace EditorTool
                             // Debug.LogError(e, heavyObj as MonoBehaviour);
                         }
 
-
                     var savingObjs = new List<ISceneSavingCallbackReceiver>();
 
                     gobj.GetComponentsInChildren(true, savingObjs);
@@ -322,8 +322,13 @@ namespace EditorTool
                     foreach (var savingObj in savingObjs)
                     {
                         i++;
-                        if (EditorUtility.DisplayCancelableProgressBar("Scene Saving", "OnBeforeSceneSave" + i,
-                                (float)i / total))
+                        if (
+                            EditorUtility.DisplayCancelableProgressBar(
+                                "Scene Saving",
+                                "OnBeforeSceneSave" + i,
+                                (float)i / total
+                            )
+                        )
                             return;
 
                         try
@@ -353,8 +358,13 @@ namespace EditorTool
                     foreach (var afterSaving in afterSavingObjs)
                     {
                         i++;
-                        if (EditorUtility.DisplayCancelableProgressBar("Scene Saving", "OnAfterSceneSave" + i,
-                                (float)i / total))
+                        if (
+                            EditorUtility.DisplayCancelableProgressBar(
+                                "Scene Saving",
+                                "OnAfterSceneSave" + i,
+                                (float)i / total
+                            )
+                        )
                             return;
 
                         try
@@ -377,7 +387,6 @@ namespace EditorTool
                 //show panel
                 EditorUtility.DisplayDialog("Error", e.Message, "ok");
             }
-
 
             EditorUtility.ClearProgressBar();
         }

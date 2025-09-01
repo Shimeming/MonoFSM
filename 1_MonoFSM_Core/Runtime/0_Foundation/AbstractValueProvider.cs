@@ -1,5 +1,6 @@
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.DataProvider;
+using MonoFSM.Runtime;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -21,6 +22,12 @@ namespace MonoFSM.Foundation
 
     public abstract class AbstractValueProvider<T> : AbstractGetter, IValueProvider<T> //提供數值
     {
+        [AutoParent]
+        private MonoEntity _monoEntity;
+
+        public MonoEntity ParentEntity =>
+            _monoEntity ? _monoEntity : _monoEntity = GetComponentInParent<MonoEntity>(true);
+
         [ShowInInspector]
         public abstract T Value { get; }
     }

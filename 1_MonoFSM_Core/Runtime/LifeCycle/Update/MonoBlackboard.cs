@@ -88,7 +88,7 @@ namespace MonoFSM.Runtime.Variable
         //FIXME: 好像不用多個耶，錯了，多個schema就好，一個物體對一個entity比較好想
         public List<MonoEntityTag> DescriptableTags => _descriptableTags;
 
-        //FIXME: 可以多個tag? runtime
+        //FIXME: 可以多個tag? runtime -> schema
         public MonoEntityTag DefaultTag =>
             _entityTag ?? (DescriptableTags?.Count > 0 ? DescriptableTags[0] : null);
 
