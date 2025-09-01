@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using MonoFSM.Core.DataProvider;
 using MonoFSM.Foundation;
 using MonoFSM.Runtime;
 using MonoFSM.Runtime.Interact.EffectHit;
@@ -7,9 +6,10 @@ using UnityEngine;
 
 namespace _1_MonoFSM_Core.Runtime.EffectHit.ValueGetter
 {
-    public class ListEntityFromEffectDealer
-        : AbstractDescriptionBehaviour,
-            IValueProvider<List<MonoEntity>>
+    /// <summary>
+    ///     目前被這個Dealer偵測到的Receiver的Entity (list)
+    /// </summary>
+    public class ListEntityFromEffectDealer : AbstractValueProvider<List<MonoEntity>>
     {
         [SerializeField]
         [DropDownRef]
@@ -21,6 +21,6 @@ namespace _1_MonoFSM_Core.Runtime.EffectHit.ValueGetter
                 : "No EffectDealer";
 
         protected override string DescriptionTag => "GetList";
-        public List<MonoEntity> Value => _effectDealer.GetHittingEntities();
+        public override List<MonoEntity> Value => _effectDealer.GetHittingEntities();
     }
 }

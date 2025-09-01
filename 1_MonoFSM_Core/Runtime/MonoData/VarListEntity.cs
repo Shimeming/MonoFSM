@@ -298,7 +298,7 @@ namespace MonoFSM.Core.Variable
             EnsureActiveCollectionInitialized();
 
             // 清空當前集合
-            Clear();
+            ClearValue();
 
             // 如果 backing list 有內容，恢復這些內容
             if (_backingListForSerialization != null && _backingListForSerialization.Count > 0)
@@ -408,7 +408,7 @@ namespace MonoFSM.Core.Variable
             OnValueChanged();
         }
 
-        public override void Clear()
+        public override void ClearValue()
         {
             if (IsReadOnly)
             {
@@ -552,6 +552,6 @@ namespace MonoFSM.Core.Variable
 
         public abstract void Remove(object item);
 
-        public abstract void Clear();
+        // public abstract void Clear();
     }
 }

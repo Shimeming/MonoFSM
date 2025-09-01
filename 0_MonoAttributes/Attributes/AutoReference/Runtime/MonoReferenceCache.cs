@@ -62,6 +62,7 @@ namespace Auto_Attribute.Runtime
                 if (v == null)
                     continue;
 
+                //FIXME: 沒有處理AutoNested?
                 //不是 IAutoFamily
                 if (FieldCache.IsAutoAttribute(field) == false)
                 {

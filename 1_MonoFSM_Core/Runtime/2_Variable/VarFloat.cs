@@ -13,7 +13,7 @@ namespace MonoFSM.Variable
     /// across the application.
     /// </summary>
     public class VarFloat
-        : GenericMonoVariable<GameDataFloat, FlagFieldFloat, float>,
+        : AbstractFieldVariable<GameDataFloat, FlagFieldFloat, float>,
             ISerializedFloatValue,
             IHierarchyValueInfo
     {

@@ -1,8 +1,6 @@
 using System;
 using MonoFSM.Core.Attributes;
-using MonoFSM.Core.DataProvider;
 using MonoFSM.EditorExtension;
-using MonoFSM.Variable.Attributes;
 using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -11,53 +9,53 @@ using Object = UnityEngine.Object;
 namespace MonoFSM.Variable
 {
     [Searchable]
-    public abstract class AbstractObjectVariable : AbstractMonoVariable
-    {
-        //FIXME: 這個是多的嗎？
-        [PreviewInDebugMode]
-        public abstract Object RawValue { get; } //不一定有Object可以returnㄅ？
-        public abstract void ClearValue();
-        // protected void SetValueExecution();
-    }
+    // public abstract class AbstractObjectVariable : AbstractMonoVariable
+    // {
+    //     //FIXME: 這個是多的嗎？
+    //     [PreviewInDebugMode]
+    //     public abstract Object RawValue { get; } //不一定有Object可以returnㄅ？
+    //
+    //     // protected void SetValueExecution();
+    // }
 
     public abstract class GenericUnityObjectVariable<TValueType>
-        : AbstractObjectVariable,
+        : TypedMonoVariable<TValueType>,
             ISettable<TValueType>,
             IResetStateRestore,
             IHierarchyValueInfo
         where TValueType : Object
     {
-        [CompRef]
-        [AutoChildren(DepthOneOnly = true)]
-        private IValueProvider<TValueType>[] _valueSources; //FIXME: 可能會有多個耶...還要一層resolver嗎？
-
-        private bool IsUsingValueSource => _valueSources is { Length: > 0 }; //要cached bool? 這塊絕對是config而已
-
-        [ShowInPlayMode]
-        private IValueProvider<TValueType> valueSource
-        {
-            get
-            {
-                if (!IsUsingValueSource)
-                    return null;
-                foreach (var valueProvider in _valueSources)
-                    if (valueProvider.IsValid)
-                        return valueProvider;
-
-                //[]: 多個的話要怎麼辦？還是說不允許多個？
-                Debug.LogWarning(
-                    "condition not met, use default? (last)" + _valueSources[^1],
-                    this
-                );
-                return _valueSources[^1];
-            }
-        }
+        // [CompRef]
+        // [AutoChildren(DepthOneOnly = true)]
+        // private IValueProvider<TValueType>[] _valueSources; //FIXME: 可能會有多個耶...還要一層resolver嗎？
+        //
+        // private bool IsUsingValueSource => _valueSources is { Length: > 0 }; //要cached bool? 這塊絕對是config而已
+        //
+        // [ShowInPlayMode]
+        // private IValueProvider<TValueType> valueSource
+        // {
+        //     get
+        //     {
+        //         if (!IsUsingValueSource)
+        //             return null;
+        //         foreach (var valueProvider in _valueSources)
+        //             if (valueProvider.IsValid)
+        //                 return valueProvider;
+        //
+        //         //[]: 多個的話要怎麼辦？還是說不允許多個？
+        //         Debug.LogWarning(
+        //             "condition not met, use default? (last)" + _valueSources[^1],
+        //             this
+        //         );
+        //         return _valueSources[^1];
+        //     }
+        // }
 
         public override bool IsValueExist => _currentValue != null;
 
         //FIXME: 繼承時想要加更多attribute
         // [Header("預設值")] [HideIf(nameof(_siblingDefaultValue))]
-        [HideIf(nameof(IsUsingValueSource))]
+        [HideIf(nameof(HasValueProvider))]
         [SOConfig("10_Flags/GameData", useVarTagRestrictType: true)] //痾，只有SO類才需要ㄅ
         [SerializeField]
         [Required]
@@ -80,7 +78,7 @@ namespace MonoFSM.Variable
         {
             get
             {
-                if (IsUsingValueSource)
+                if (HasValueProvider)
                     return valueSource.Value;
 
                 if (!Application.isPlaying)
@@ -89,7 +87,7 @@ namespace MonoFSM.Variable
             }
         }
 
-        public override Object RawValue => Value; //FIXME: 用Object?
+        // public override Object RawValue => Value; //FIXME: 用Object?
 
         // public T Value => _currentValue;
         //green
@@ -106,19 +104,19 @@ namespace MonoFSM.Variable
         [PreviewInDebugMode]
         private TValueType _lastNonNullValue;
 
-        public void CommitValue()
+        public override void CommitValue()
         {
             _lastValue = _currentValue;
             if (_currentValue != null)
                 _lastNonNullValue = _currentValue;
         }
 
-        public void SetValue(object value, MonoBehaviour byWho)
+        public override void SetValue(object value, MonoBehaviour byWho)
         {
             SetValue<TValueType>((TValueType)value, byWho);
         }
 
-        public void SetValue(TValueType value, MonoBehaviour byWho)
+        public override void SetValue(TValueType value, MonoBehaviour byWho)
         {
             SetValue<TValueType>(value, byWho);
         }
@@ -191,7 +189,7 @@ namespace MonoFSM.Variable
         public bool _isConst; //
 
         //避免reset restore?
-        public string ValueInfo => Value != null ? Value.name : "null";
+        public virtual string ValueInfo => Value != null ? Value.name : "null";
         public bool IsDrawingValueInfo => true;
     }
 }

@@ -327,7 +327,7 @@ namespace Fusion.Addons.FSM
 
             _previousStateId = _activeStateId;
             _activeStateId = stateId;
-            Debug.Log("activeStateId" + _activeStateId);
+            // Debug.Log("activeStateId" + _activeStateId);
             if (RuntimeDebugSetting.IsDebugMode)
                 LogStateChange();
 

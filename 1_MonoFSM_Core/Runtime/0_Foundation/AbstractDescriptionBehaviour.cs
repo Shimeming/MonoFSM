@@ -24,7 +24,7 @@ namespace MonoFSM.Foundation
     {
 #if UNITY_EDITOR
         [TextArea]
-        private string _note;
+        public string _note; //這個應該要有另外的地方可以draw? 多component還會打架...
 #endif
 
         /// <summary>
@@ -297,7 +297,7 @@ namespace MonoFSM.Foundation
         }
 
         [InfoBox("$_errorMessage", InfoMessageType.Error, "$HasError")]
-        [PreviewInInspector]
+        [PreviewInDebugMode]
         protected string _errorMessage;
 
         public Color BackgroundColor => new(1.0f, 0f, 0f, 0.3f);

@@ -1,4 +1,6 @@
 using System;
+using MonoFSM.Core.Attributes;
+using MonoFSM.Variable.TypeTag;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -10,6 +12,14 @@ namespace MonoFSM.Variable
     //沒用的東西！
     public class VarComp : GenericUnityObjectVariable<Component>
     {
+        //FIXME: typeRestrict
+
+        [Header("類型限制")]
+        [SerializeField]
+        [Tooltip("限定 Component 的類型")]
+        [SOConfig("TypeTag")]
+        private CompTypeTag _componentTypeTag;
+
         //FIXME: isConst時要Required? 怎麼在 AbstractDescriptionBehaviour 檢查？
         [FormerlySerializedAs("_siblingValue")]
         [Header("預設值")]
@@ -20,6 +30,11 @@ namespace MonoFSM.Variable
         // [SerializeField] private Type _type;
         Type SiblingValueFilter()
         {
+            // 優先使用 MonoTypeTag 的類型限制
+            if (_componentTypeTag != null && _componentTypeTag.Type != null)
+                return _componentTypeTag.Type;
+
+            // 退回到使用 _varTag 的類型限制
             if (_varTag == null)
                 return typeof(Component);
             // Debug.Log("RestrictType is " + _varTag.ValueFilterType, _varTag);

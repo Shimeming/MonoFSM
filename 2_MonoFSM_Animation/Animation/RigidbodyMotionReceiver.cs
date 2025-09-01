@@ -3,9 +3,17 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 
 // [RequireComponent(typeof(Rigidbody))]
-public class RigidbodyMotionReceiver : MonoBehaviour, IRootMotionReceiver, IOverrideHierarchyIcon, IDrawHierarchyBackGround, IHierarchyValueInfo
+public class RigidbodyMotionReceiver
+    : MonoBehaviour,
+        IRootMotionReceiver,
+        IOverrideHierarchyIcon,
+        IDrawHierarchyBackGround,
+        IHierarchyValueInfo
 {
-    [Required] [ShowInInspector] [SerializeField][Auto]
+    [Required]
+    [ShowInInspector]
+    [AutoParent]
+    [SerializeField]
     private Rigidbody rb;
     private Vector3 pendingPosition;
     private Quaternion pendingRotation = Quaternion.identity;
@@ -35,7 +43,7 @@ public class RigidbodyMotionReceiver : MonoBehaviour, IRootMotionReceiver, IOver
             rb.linearVelocity = targetVelocity;
             pendingPosition = Vector3.zero;
         }
-        
+
         if (pendingRotation != Quaternion.identity)
         {
             rb.MoveRotation(rb.rotation * pendingRotation);

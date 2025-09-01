@@ -20,6 +20,6 @@ namespace MonoFSM.Core
         protected override bool IsValid => _fsmLogic.IsCurrentState(_targetState);
 
         //_owner.FsmContext.currentStateType == _targetState;
-        public override string Description => $"{GetType().Name}({_targetState?.name})";
+        public override string Description => $"Is {_targetState?.name}";
     }
 }

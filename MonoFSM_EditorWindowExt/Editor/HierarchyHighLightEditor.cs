@@ -5,6 +5,7 @@ using MonoFSM_EditorWindowExt.EditorWindowExt;
 using Sirenix.Utilities;
 using UnityEditor;
 using UnityEditor.SceneManagement;
+using UnityEditor.Search;
 using UnityEngine;
 
 namespace HierarchyIDEWindow.MonoFSM_HierarchyDrawer.Editor
@@ -183,13 +184,27 @@ namespace HierarchyIDEWindow.MonoFSM_HierarchyDrawer.Editor
             var allObjects = PrefabStageUtility
                 .GetCurrentPrefabStage()
                 .prefabContentsRoot.GetComponentsInChildren<Transform>(true);
+
+            var matchIndexesList = new List<int>();
+
             foreach (var obj in allObjects)
             {
-                if (obj.name.ToLower().Contains(token))
+                long score = 0;
+                matchIndexesList.Clear();
+
+                // 使用 FuzzyMatch 進行模糊匹配
+                bool isMatch = FuzzySearch.FuzzyMatch(
+                    token,
+                    obj.name.ToLower(),
+                    ref score,
+                    matchIndexesList
+                );
+
+                if (isMatch)
                 {
                     _highlightedObjects.Add(obj.gameObject);
                     EditorWindowKeyboardNavigate.ExpandItem(obj.gameObject);
-                    // Debug.Log("found object" + obj.gameObject);
+                    // Debug.Log("found object" + obj.gameObject + " with score: " + score);
                 }
             }
 

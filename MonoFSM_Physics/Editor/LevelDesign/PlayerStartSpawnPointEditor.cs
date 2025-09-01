@@ -101,7 +101,10 @@ public static class StartPointSelector
 
     private static void FocusOnScene()
     {
-        if (EditorWindow.focusedWindow != null && EditorWindow.focusedWindow.titleContent.text == "Game")
+        if (
+            EditorWindow.focusedWindow != null
+            && EditorWindow.focusedWindow.titleContent.text == "Game"
+        )
             // Debug.Log("Game Window is focused");
             return;
 
@@ -116,7 +119,8 @@ public static class StartPointSelector
     // 靜態方法來獲取所有SpawnPoint並按名稱排序
     public static PlayerStartSpawnPoint[] GetAllSpawnPoints()
     {
-        return Object.FindObjectsByType<PlayerStartSpawnPoint>(FindObjectsSortMode.None)
+        return Object
+            .FindObjectsByType<PlayerStartSpawnPoint>(FindObjectsSortMode.None)
             .OrderBy(sp => sp.name)
             .ToArray();
     }
@@ -125,7 +129,8 @@ public static class StartPointSelector
     public static PlayerStartSpawnPoint GetCurrentSpawnPoint()
     {
         var spawnPoints = GetAllSpawnPoints();
-        if (spawnPoints.Length == 0) return null;
+        if (spawnPoints.Length == 0)
+            return null;
 
         // 確保索引在有效範圍內
         _currentSpawnPointIndex = Mathf.Clamp(_currentSpawnPointIndex, 0, spawnPoints.Length - 1);
@@ -136,7 +141,8 @@ public static class StartPointSelector
     public static PlayerStartSpawnPoint SwitchToNextSpawnPoint()
     {
         var spawnPoints = GetAllSpawnPoints();
-        if (spawnPoints.Length == 0) return null;
+        if (spawnPoints.Length == 0)
+            return null;
 
         _currentSpawnPointIndex = (_currentSpawnPointIndex + 1) % spawnPoints.Length;
         return spawnPoints[_currentSpawnPointIndex];
@@ -153,6 +159,9 @@ public static class StartPointSelector
     // [MenuItem("RCGMaker/SpawnPoint/Select SpawnPoint  _`", false, 0)]
     private static void DoSelectSpawnPoint()
     {
+        //FIXME:Application.isplaying才跑這個？
+        if (Application.isPlaying)
+            return;
         FocusOnScene();
         // Debug.Log("DoSelectSpawnPoint: 1" + EditorWindow.focusedWindow);
         var spawnPoint = GetCurrentSpawnPoint();
@@ -164,7 +173,9 @@ public static class StartPointSelector
         if (spawnPoint)
         {
             Selection.activeGameObject = spawnPoint.gameObject;
-            Debug.Log($"Selected SpawnPoint: {spawnPoint.name} (Current Index: {GetCurrentSpawnPointIndex()})");
+            Debug.Log(
+                $"Selected SpawnPoint: {spawnPoint.name} (Current Index: {GetCurrentSpawnPointIndex()})"
+            );
         }
         else
         {
@@ -181,7 +192,9 @@ public static class StartPointSelector
         if (spawnPoint)
         {
             Selection.activeGameObject = spawnPoint.gameObject;
-            Debug.Log($"Switched to SpawnPoint: {spawnPoint.name} (Current Index: {GetCurrentSpawnPointIndex()})");
+            Debug.Log(
+                $"Switched to SpawnPoint: {spawnPoint.name} (Current Index: {GetCurrentSpawnPointIndex()})"
+            );
         }
         else
         {
@@ -229,7 +242,7 @@ public static class StartPointSelector
 public class PlayerStartSpawnPointEditor
 {
     // private Vector3 mousePos;
-//FIXME: GIZMO壞掉也會壞掉？
+    //FIXME: GIZMO壞掉也會壞掉？
     // [InitializeOnLoad] // Makes the static constructor be called as soon as the scripts are initialized in the editor
     // public class EditorMousePosition
     // {
@@ -252,7 +265,8 @@ public class PlayerStartSpawnPointEditor
         get
         {
             var playerStartSpawnPoint = _target;
-            if (!playerStartSpawnPoint) playerStartSpawnPoint = Object.FindFirstObjectByType<PlayerStartSpawnPoint>();
+            if (!playerStartSpawnPoint)
+                playerStartSpawnPoint = Object.FindFirstObjectByType<PlayerStartSpawnPoint>();
             return playerStartSpawnPoint;
         }
     }
@@ -274,7 +288,9 @@ public class PlayerStartSpawnPointEditor
                     {
                         Selection.activeGameObject = nextSpawnPoint.gameObject;
                         _target = nextSpawnPoint;
-                        Debug.Log($"Switched to SpawnPoint: {nextSpawnPoint.name} (Current Index: {StartPointSelector.GetCurrentSpawnPointIndex()})");
+                        Debug.Log(
+                            $"Switched to SpawnPoint: {nextSpawnPoint.name} (Current Index: {StartPointSelector.GetCurrentSpawnPointIndex()})"
+                        );
                     }
                 }
                 else
@@ -285,7 +301,9 @@ public class PlayerStartSpawnPointEditor
                     {
                         Selection.activeGameObject = currentSpawnPoint.gameObject;
                         _target = currentSpawnPoint;
-                        Debug.Log($"Selected SpawnPoint: {currentSpawnPoint.name} (Current Index: {StartPointSelector.GetCurrentSpawnPointIndex()})");
+                        Debug.Log(
+                            $"Selected SpawnPoint: {currentSpawnPoint.name} (Current Index: {StartPointSelector.GetCurrentSpawnPointIndex()})"
+                        );
                     }
 
                     // Debug.Log("OnSceneGUI keycode:" + Event.current.keyCode + " pos:" + Event.current.mousePosition);
@@ -325,7 +343,8 @@ public class PlayerStartSpawnPointEditor
     private static void MoveSpawnPointToMousePos(Vector3 mousePos)
     {
         var playerStartSpawnPoint = _target;
-        if (!playerStartSpawnPoint) playerStartSpawnPoint = Object.FindFirstObjectByType<PlayerStartSpawnPoint>();
+        if (!playerStartSpawnPoint)
+            playerStartSpawnPoint = Object.FindFirstObjectByType<PlayerStartSpawnPoint>();
 
         if (!playerStartSpawnPoint)
             return;

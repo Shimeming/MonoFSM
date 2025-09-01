@@ -21,6 +21,7 @@ namespace MonoFSM.Foundation
 
     public abstract class AbstractValueProvider<T> : AbstractGetter, IValueProvider<T> //提供數值
     {
+        [ShowInInspector]
         public abstract T Value { get; }
     }
 

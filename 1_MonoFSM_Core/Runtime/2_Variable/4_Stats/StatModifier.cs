@@ -1,23 +1,20 @@
-using UnityEngine;
-using UnityEngine.Serialization;
-
-using Sirenix.OdinInspector;
-
-using MonoFSM.Core.DataProvider;
+using System;
 using MonoFSM.Variable;
+using Sirenix.OdinInspector;
+using Object = UnityEngine.Object;
 
 public enum StatModType
 {
     Flat = 0,
     PercentAdd = 1,
     PercentMult = 2,
-    Overwrite = 3
+    Overwrite = 3,
 }
 
 public enum StatModDurationType
 {
     Permanent = 0, //
-    Temporary = 1
+    Temporary = 1,
 }
 
 public interface IStatModifierOwner //是誰改數值的
@@ -52,17 +49,21 @@ public interface IStatModifer
     public bool IsDirty { get; } //這個是用來判斷是否需要重新計算的？還是說每次都要計算？ ///可是這樣要重新resolve?
 }
 
-[System.Serializable]
+[Serializable]
 public class StatModifier : IStatModifer //以前是給Characterstat用的
 {
     public VariableTag statTag;
+
+    [GUIColor(0.8f, 1f, 0.8f)]
     public float Value;
     public StatModType _statModType;
     public StatModDurationType DurationType; //FIXME: 重點是啥？
     public int Order;
+
     // public readonly object Source;
 
-    [ShowInInspector] public Object _source;
+    [ShowInInspector]
+    public Object _source;
     public Object Source => _source;
     public bool IsValid => true;
     public bool IsDirty => false; //不可能會變
@@ -80,9 +81,8 @@ public class StatModifier : IStatModifer //以前是給Characterstat用的
         _source = source as Object; //TODO: 一定要有source嗎？
     }
 
-    public StatModifier(float value, StatModType type, IStatModifierOwner source) : this(value, type, (int)type, source)
-    {
-    }
+    public StatModifier(float value, StatModType type, IStatModifierOwner source)
+        : this(value, type, (int)type, source) { }
 
     public VariableTag targetStatTag => statTag;
     public int GetOrder => Order;

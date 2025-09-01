@@ -4,7 +4,7 @@ using UnityEngine;
 namespace MonoFSM.Variable
 {
     public class VarVector3
-        : GenericMonoVariable<GameDataVector3, FlagFieldVector3, Vector3>,
+        : AbstractFieldVariable<GameDataVector3, FlagFieldVector3, Vector3>,
             IHierarchyValueInfo
     {
         public string ValueInfo => CurrentValue.ToString();

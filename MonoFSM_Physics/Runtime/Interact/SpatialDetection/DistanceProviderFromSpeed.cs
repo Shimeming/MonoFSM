@@ -1,8 +1,9 @@
+using MonoFSM.Foundation;
 using UnityEngine;
 
 namespace MonoFSM_Physics.Runtime.Interact.SpatialDetection
 {
-    public class DistanceProviderFromSpeed : MonoBehaviour
+    public class DistanceProviderFromSpeed : AbstractValueProvider<float>
     {
         public Rigidbody _rigidbody;
 
@@ -11,5 +12,6 @@ namespace MonoFSM_Physics.Runtime.Interact.SpatialDetection
         //FIXME: init speed?
         //要用上個frame的速度嗎? 最好是把它記下來？
         public float Distance => _rigidbody.linearVelocity.magnitude + _minDis;
+        public override float Value => Distance;
     }
 }

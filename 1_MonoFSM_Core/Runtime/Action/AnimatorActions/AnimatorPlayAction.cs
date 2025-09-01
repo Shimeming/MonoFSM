@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using _1_MonoFSM_Core.Runtime.Action.AnimatorActions;
 using _1_MonoFSM_Core.Runtime.FSMCore.Core.StateBehaviour;
 using MonoFSM.AnimatorControl;
 using MonoFSM.AnimatorUtility;
@@ -11,6 +12,7 @@ using MonoFSM.Foundation;
 using MonoFSM.Variable.Attributes;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Serialization;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.Animations;
@@ -37,7 +39,7 @@ namespace MonoFSM.Animation
     {
         public override string Description =>
             animator
-                ? " " + animator.gameObject.name + ": " + "_" + StateName + stateLayer
+                ? " " + animator.gameObject.name + ": " + "_" + StateName + " L:" + stateLayer
                 : "NO ANIMATOR";
         protected override string DescriptionTag => "Anim";
 
@@ -60,13 +62,27 @@ namespace MonoFSM.Animation
             return provider?.ChildAnimators;
         }
 
+        [HideIf(nameof(_animatorRefProvider))]
         [TitleGroup("Animator")]
         [BoxGroup("Animator/Animator")]
         [Required]
         // [InlineEditor]
         // [ValueDropdown(nameof(GetAnimatorsInChildren), IsUniqueList = true, NumberOfItemsBeforeEnablingSearch = 3)]
         [DropDownRef]
-        public Animator animator;
+        [FormerlySerializedAs("animator")]
+        public Animator _animator;
+
+        [ShowInInspector]
+        private Animator animator =>
+            _animatorRefProvider != null ? _animatorRefProvider.Value : _animator;
+
+        //加一個AnimatorValueProvider?
+        [TitleGroup("Animator")]
+        [BoxGroup("Animator/Animator")]
+        [SerializeField]
+        [CompRef]
+        [AutoChildren(DepthOneOnly = true)]
+        private AnimatorRefProvider _animatorRefProvider;
 
         // bool IsAnimatorNoControl()
         // {
@@ -216,6 +232,8 @@ namespace MonoFSM.Animation
                 //         return;
                 // }
 
+                if (animator == null)
+                    return;
                 if (animator.runtimeAnimatorController == null)
                     return;
 
@@ -624,7 +642,7 @@ namespace MonoFSM.Animation
             var stateInfo = animator.GetCurrentAnimatorStateInfo(layer);
 
             //Cross fade 這邊一定會叫
-            if (animatorEnterCrossFade <= 0)
+            if (animatorEnterCrossFade <= 0) //原本這樣寫，會有問題？
                 if (IsStatePlaying(layer) == false && stateInfo.normalizedTime > 0) //正在播別的state
                 {
 #if UNITY_EDITOR
@@ -682,42 +700,12 @@ namespace MonoFSM.Animation
             return result;
         }
 
-        public bool IsPlayDone => IsPlayingCurrentClip() && CurrentPlayingNormalizedTime >= 1;
-
-        //TODO:
-        // protected override void OnSpriteUpdateImplement()
-        // {
-        //     OnRender();
-        // }
-
-        // public Action OnAnimationDone;
-
-        // [Obsolete]
-        // private void AnimationDone()
-        // {
-        //     // TransitionTarget.OnTransitionCheck();
-        //     //FIXME: 還是應該用condition...hmm
-        //     doneEventTransition.IsTransitionCheckNeeded = true;
-        //     OnAnimationDone?.Invoke(); //事件驅動，不太好
-        //     // doneEventTransition.EventReceived("AnimationDone");
-        // }
-
-        // private void OnDestroy()
-        // {
-        //     OnAnimationDone = null;
-        // }
-
         private bool NoDoneEventTransition()
         {
             return GetComponentsInChildren<TransitionBehaviour>() == null;
         }
 
-        // [HideIf(nameof(NoDoneEventTransition))] [TitleGroup("Animator")] [PreviewInInspector] [Component]
-        [CompRef]
-        [AutoChildren]
-        private TransitionBehaviour doneEventTransition; //寫成condition更好？
-
-        private IEventReceiver _ircgArgEventReceiverImplementation;
+        // private IEventReceiver _ircgArgEventReceiverImplementation;
 
         [CompRef]
         [AutoChildren(DepthOneOnly = true)]
@@ -932,29 +920,59 @@ namespace MonoFSM.Animation
 
             // FIXME: 不要update 0就不會造成這個onenable了？
             // 是什麼情境一定要OnEnable?
-            animator.Update(0);
+            // animator.Update(0);
             // animator.Update(RCGTime.deltaTime);
             // Debug.Break();
         }
 
+        [Tooltip("跳過OnRender的檢查")]
+        public bool _isSkipOnRenderCheck;
+
         public void OnRender()
         {
-            // Debug.Log("time:" + animator.GetCurrentAnimatorStateInfo(0).normalizedTime);
+            if (_isSkipOnRenderCheck)
+                return;
             if (!IsValid)
                 return;
-            // if (doneEventTransition == null)
-            //     return;
-
             if (animator.runtimeAnimatorController == null)
             {
                 enabled = false;
                 return;
             }
 
-            //FIXME: 完全知道動畫多久，可以預判播完的時間然後去下一個state，就可以functional?
             //包子 Cross Fade 不能一直跑 （議會小電梯）
-            if (animator.isActiveAndEnabled && animatorEnterCrossFade <= 0)
-                animator.Play(StateHash, stateLayer);
+            // if (animator.isActiveAndEnabled && animatorEnterCrossFade <= 0)
+            //上面這行，會導致RenderUpdate沒有辦法進來切斷？
+            var currentState = animator.GetCurrentAnimatorStateInfo(stateLayer);
+            var nextState = animator.GetNextAnimatorStateInfo(stateLayer);
+
+            if (currentState.shortNameHash == StateHash)
+                return;
+            // Debug.Log("Current State:" + currentState.shortNameHash + ", want state:" + StateHash,
+            //     this);
+            //FIXME: 很失敗QQ
+            // if (IsPlayingCurrentClip()) return;
+            //
+
+            // animator.Play(StateHash, stateLayer, float.NegativeInfinity);
+            if (animatorEnterCrossFade <= 0)
+            {
+                Debug.Log("Play Animation Again:" + StateName + "layer:" + stateLayer, this);
+                animator.Play(StateHash, stateLayer, float.NegativeInfinity);
+            }
+            else
+            {
+                if (nextState.shortNameHash == StateHash)
+                    return;
+                Debug.Log("CrossFade Animation Again:" + StateName + "layer:" + stateLayer, this);
+                animator.CrossFade(
+                    StateHash,
+                    animatorEnterCrossFade,
+                    stateLayer,
+                    float.NegativeInfinity
+                // runtimeStartNormalizedTimeOffset
+                );
+            }
 
             // var info = animator.GetCurrentAnimatorStateInfo(doneEventLayer);
 
@@ -969,23 +987,6 @@ namespace MonoFSM.Animation
             //                       info.normalizedTime + "," +
             //                       info.shortNameHash);
             // if (IsPlayingCurrentClip() && CurrentPlayingNormalizedTime >= 1)
-            //     //TODO: AnimationDone
-            //     //Done;
-            //     // GetComponentInParent<GeneralState>().TransitionCheck();
-            //     if (doneEventTransition)
-            //     {
-            //         this.Log(
-            //             "AnimatorPlayAction > 1:" + CurrentPlayingNormalizedTime + "state:" +
-            //             StateName,
-            //             gameObject);
-            //         // Debug.Break();
-            //         AnimationDone();
-            //     }
-            // if (TryGetComponent<EventReceiveTransition>(out var transition))
-            // {
-            //     Debug.Log("AnimatorPlayAction > 1" + animator.GetCurrentAnimatorStateInfo(0).normalizedTime + "state:", gameObject);
-            //     transition.EventReceived("AnimationDone");
-            // }
         }
 
         public override void OnBeforePrefabSave()

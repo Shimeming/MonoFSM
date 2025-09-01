@@ -3,10 +3,10 @@ namespace MonoFSM.Variable.Condition
     //FIXME: 並沒有註冊唷
     public class IsUnityObjectVariableNullCondition : AbstractConditionBehaviour
     {
-        [DropDownRef] public AbstractObjectVariable unityObjectVariable;
+        [DropDownRef]
+        public AbstractMonoVariable unityObjectVariable;
 
         //FIXME: Variable Tag？
-        protected override bool IsValid 
-            => unityObjectVariable.RawValue == null;
+        protected override bool IsValid => unityObjectVariable.objectValue == null;
     }
 }

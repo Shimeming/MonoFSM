@@ -67,7 +67,7 @@ namespace MonoFSM.Runtime.Vote
             voteDict = new Dictionary<Object, VoteRecord>();
         }
 
-        public void Reset()
+        public void ClearValue()
         {
             voteDict.Clear();
             _currentResult = GetDefaultValue();

@@ -1,7 +1,7 @@
 using System.Linq;
 using MonoFSM.Core;
-using MonoFSM.Core.DataProvider;
 using MonoFSM.Core.Runtime.Action;
+using MonoFSM.Core.Simulate;
 using MonoFSM.PhysicsWrapper;
 using MonoFSM.Variable.Attributes;
 using MonoFSMCore.Runtime.LifeCycle;
@@ -10,7 +10,12 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 //Editor Debug用
-public class PlayerStartSpawnPoint : MonoBehaviour, IBeforeBuildProcess, IActionParent, IResetStart
+public class PlayerStartSpawnPoint
+    : MonoBehaviour,
+        IUpdateSimulate,
+        IBeforeBuildProcess,
+        IActionParent,
+        IResetStart
 {
     private void Start()
     {
@@ -100,10 +105,39 @@ public class PlayerStartSpawnPoint : MonoBehaviour, IBeforeBuildProcess, IAction
     [SerializeField]
     LayerMask _teleportHitLayerMask;
 
-    [SerializeField]
-    private ValueProvider _currentPlayerEntityProvider;
+    // [SerializeField]
+    // private ValueProvider _currentPlayerEntityProvider;
 
-    private void Update()
+    // private void Update()
+    // {
+    //
+    // }
+
+    private void ProcessTeleport(Vector3 point)
+    {
+        // _currentPlayerEntityProvider.GetSchema<Player>()
+        _playerTeleporter?.ArgEventReceived(point);
+    }
+
+    [Required]
+    [CompRef]
+    [Auto]
+    private IRaycastProcessor _raycastProcessor;
+
+    public void EventReceived(Vector3 arg)
+    {
+        // _onPlayerSpawn.EventReceived(arg);
+        if (editorPlayerRef)
+            editorPlayerRef.position = arg;
+    }
+
+    public void ResetStart()
+    {
+        //Network player都還沒生成
+        // _onPlayerSpawn?.ArgEventReceived(transform.position);
+    }
+
+    public void Simulate(float deltaTime)
     {
         //Debug用，按`鍵，把player移到這個位置
         var keyboard = Keyboard.current;
@@ -115,7 +149,7 @@ public class PlayerStartSpawnPoint : MonoBehaviour, IBeforeBuildProcess, IAction
             var ray = _camera.ScreenPointToRay(Mouse.current.position.ReadValue());
             if (Cursor.lockState == CursorLockMode.Locked)
             {
-                Vector3 screenCenter = new Vector3(Screen.width * 0.5f, Screen.height * 0.5f, 0f);
+                var screenCenter = new Vector3(Screen.width * 0.5f, Screen.height * 0.5f, 0f);
                 // Create ray from camera through screen center
                 ray = _camera.ScreenPointToRay(screenCenter);
 
@@ -151,27 +185,5 @@ public class PlayerStartSpawnPoint : MonoBehaviour, IBeforeBuildProcess, IAction
         }
     }
 
-    private void ProcessTeleport(Vector3 point)
-    {
-        // _currentPlayerEntityProvider.GetSchema<Player>()
-        _playerTeleporter?.ArgEventReceived(point);
-    }
-
-    [Required]
-    [CompRef]
-    [Auto]
-    private IRaycastProcessor _raycastProcessor;
-
-    public void EventReceived(Vector3 arg)
-    {
-        // _onPlayerSpawn.EventReceived(arg);
-        if (editorPlayerRef)
-            editorPlayerRef.position = arg;
-    }
-
-    public void ResetStart()
-    {
-        //Network player都還沒生成
-        // _onPlayerSpawn?.ArgEventReceived(transform.position);
-    }
+    public void AfterUpdate() { }
 }

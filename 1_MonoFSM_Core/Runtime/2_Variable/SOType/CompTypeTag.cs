@@ -1,9 +1,9 @@
-using System.ComponentModel;
+using UnityEngine;
 
 namespace MonoFSM.Variable.TypeTag
 {
-    //什麼意思？
-    public class CompTypeTag : AbstractTypeTag<Component>
-    {
-    }
+    /// <summary>
+    ///     UnityEngine的Component類型標籤
+    /// </summary>
+    public class CompTypeTag : AbstractTypeTag<Component> { }
 }

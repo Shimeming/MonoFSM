@@ -78,6 +78,8 @@ namespace MonoFSM.Core.Runtime.Action
 
         private bool _delay; //FIXME:
 
+        protected virtual bool ForceExecuteInValid => false;
+
         //FIXME: 不會走這了？
         public async void OnActionExecute()
         {
@@ -88,7 +90,7 @@ namespace MonoFSM.Core.Runtime.Action
 
             // _delay = false;
             //TODO: conditions
-            if (!IsValid)
+            if (!IsValid && !ForceExecuteInValid)
                 return; //not valid也要用字串？
 
             _delay = true;

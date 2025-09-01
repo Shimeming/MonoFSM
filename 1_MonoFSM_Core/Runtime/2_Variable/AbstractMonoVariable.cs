@@ -68,6 +68,8 @@ namespace MonoFSM.Variable
 
         private HashSet<IVarChangedListener> _dataChangedListeners; //有誰有用我，binder綁一下
 
+        public abstract void ClearValue();
+
         //fuck!?
 
         //倒著，事件鏈超難trace

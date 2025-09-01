@@ -75,7 +75,7 @@ namespace MonoFSM.Variable
                 if (currentType.IsGenericType)
                 {
                     var genericTypeDef = currentType.GetGenericTypeDefinition();
-                    if (genericTypeDef == typeof(GenericMonoVariable<,,>))
+                    if (genericTypeDef == typeof(AbstractFieldVariable<,,>))
                     {
                         tValueType = currentType.GetGenericArguments()[2];
                         break;

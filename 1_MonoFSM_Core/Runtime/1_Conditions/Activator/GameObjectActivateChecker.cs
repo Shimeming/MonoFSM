@@ -6,11 +6,13 @@ namespace _1_MonoFSM_Core.Runtime._1_Conditions.Activator
 {
     public class GameObjectActivateChecker : AbstractConditionActivateTarget
     {
-        [PropertyOrder(-1)] [Required] public GameObject _target;
+        [PropertyOrder(-1)]
+        [Required]
+        public GameObject _target;
 
-        public override void ActivateCheck()
+        protected override void ActivateCheckImplement(bool isValid)
         {
-            _target.SetActive(result);
+            _target.SetActive(isValid);
         }
     }
 }

@@ -384,7 +384,7 @@ public class FlagField<T> : FlagFieldBase, IVariableField // where T : IComparab
     // }
 
     /// <summary>
-    /// <seealso cref="GenericMonoVariable.EnterSceneStart"/> variable會做監聽
+    /// <seealso cref="AbstractFieldVariable{TScriptableData,TField,TType}.EnterSceneStart"/> variable會做監聽
     /// </summary>
     /// <param name="action"></param>
     /// <param name="owner"></param>
@@ -607,6 +607,11 @@ public class FlagField<T> : FlagFieldBase, IVariableField // where T : IComparab
         _currentValue = ProductionValue;
         // Debug.Log("FlagField Init: " + _currentValue + " Mode: " + DebugSetting.IsDebugMode, owner);
         //沒有register耶？
+    }
+
+    public void ClearValue()
+    {
+        _currentValue = default;
     }
 }
 

@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
-
-using UnityEngine;
-
-using MonoFSM.EditorExtension;
 using MonoFSM.Core.Attributes;
+using MonoFSM.EditorExtension;
+using UnityEngine;
 
 namespace MonoFSM.Variable
 {
@@ -19,11 +17,11 @@ namespace MonoFSM.Variable
         void SetBindingTarget(IRebindable rebindable);
     }
 
-
     public interface IVarValueSettingProcessor<in T>
     {
         public void BeforeSetValue(T value);
     }
+
     /// <summary>
     /// A MonoBehaviour representation of a boolean variable that can be bound to scriptable data.
     /// This class provides functionality for boolean values that can be accessed, modified, and tracked
@@ -35,8 +33,14 @@ namespace MonoFSM.Variable
     /// - IBoolProvider: Provides boolean value accessor
     /// - IRebindable: Supports runtime rebinding of data sources
     /// </remarks>
-    public class VarBool : GenericMonoVariable<GameDataBool, FlagFieldBool, bool>, ICondition,
-        IBoolProvider, IRebindable, IDrawDetail, IOverrideHierarchyIcon, IHierarchyValueInfo
+    public class VarBool
+        : AbstractFieldVariable<GameDataBool, FlagFieldBool, bool>,
+            ICondition,
+            IBoolProvider,
+            IRebindable,
+            IDrawDetail,
+            IOverrideHierarchyIcon,
+            IHierarchyValueInfo
     {
         public static implicit operator bool(VarBool v)
         {
@@ -55,7 +59,7 @@ namespace MonoFSM.Variable
                 if (_bindData && value != CurrentValue) //值有改才送事件
                 {
                     // Debug.Log("Variable Bool Changed " + ScriptableData.name);
-                    //[]: 灌tracker...   
+                    //[]: 灌tracker...
                     // _trackValue["data"] = ScriptableData.name;
                     // _trackValue["value"] = value;
                     //FIXME:如果要tracking要有集中管理處
@@ -69,14 +73,16 @@ namespace MonoFSM.Variable
             }
         }
 #if MIXPANEL
-    private readonly Value _trackValue = new();
+        private readonly Value _trackValue = new();
 #endif
 
         public bool IsTrue => CurrentValue;
 
+        [ShowInPlayMode]
+        private Component source; //單一來源
 
-        [ShowInPlayMode] private Component source; //單一來源
-        [ShowInPlayMode] private List<Component> overridingTargets = new(); //多個來源
+        [ShowInPlayMode]
+        private List<Component> overridingTargets = new(); //多個來源
 
         public void SetBindingTarget(IRebindable rebindable)
         {

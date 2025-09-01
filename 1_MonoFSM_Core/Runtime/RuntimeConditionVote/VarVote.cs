@@ -23,6 +23,11 @@ namespace MonoFSM.Runtime.Vote
         // }
 
 
+        public override void ClearValue()
+        {
+            _vote.ClearValue();
+        }
+
         public override Type ValueType => typeof(bool);
         public override object objectValue => _vote.Result;
 
@@ -35,7 +40,7 @@ namespace MonoFSM.Runtime.Vote
 
         public override void ResetStateRestore()
         {
-            _vote.Reset();
+            _vote.ClearValue();
         }
 
         [PreviewInInspector]
