@@ -3,17 +3,27 @@ using MonoFSM.Variable.Attributes;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-public class RootMotionRelay : MonoBehaviour, IOverrideHierarchyIcon, IDrawHierarchyBackGround, IHierarchyValueInfo
+public class RootMotionRelay
+    : MonoBehaviour,
+        IOverrideHierarchyIcon,
+        IDrawHierarchyBackGround,
+        IHierarchyValueInfo
 {
-    [ReadOnly][CompRef][Required][Auto][ShowInInspector]
+    [ReadOnly]
+    [CompRef]
+    [Required]
+    [Auto]
     private IRootMotionReceiver _rootMotionReceiver;
 
-    [ReadOnly][Required][Auto][ShowInInspector]
+    [ReadOnly]
+    [Required]
+    [Auto]
+    [ShowInInspector]
     private Animator _animator = null;
 
     private void OnAnimatorMove()
     {
-        _rootMotionReceiver.OnProcessRootMotion( _animator.deltaPosition,  _animator.deltaRotation);
+        _rootMotionReceiver.OnProcessRootMotion(_animator.deltaPosition, _animator.deltaRotation);
     }
 
 #if UNITY_EDITOR
@@ -57,7 +67,7 @@ public class RootMotionRelay : MonoBehaviour, IOverrideHierarchyIcon, IDrawHiera
             else
                 receiverType = _rootMotionReceiver.GetType().Name;
 
-            return $"Motion→{receiverType}";
+            return "RootMotion→";
         }
     }
     public bool IsDrawingValueInfo => true;

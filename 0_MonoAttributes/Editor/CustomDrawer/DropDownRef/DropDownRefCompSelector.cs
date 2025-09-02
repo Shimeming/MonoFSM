@@ -63,7 +63,7 @@ namespace MonoFSM.Core
             //2. scene裏找所有 _parentType(IVariableOwner) 下的所有_filterType component
             else
             {
-                // Debug.Log("ParentType is " + parentType+" filterType is " + _filterType);
+                Debug.Log("ParentType is " + parentType + " filterType is " + _filterType);
                 comps = _forComp.GetComponentsOfSiblingAll(parentType, _filterType);
             }
 

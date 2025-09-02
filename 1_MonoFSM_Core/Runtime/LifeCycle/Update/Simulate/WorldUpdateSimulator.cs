@@ -132,8 +132,7 @@ namespace MonoFSM.Core.Simulate
             if (obj == null)
                 return;
             // Unregister the object from the world update simulator
-            UnregisterMonoObject(obj);
-            obj.ResetStateRestore();
+            UnregisterMonoObject(obj); //Fusion那邊直接despawn的咧？...
             // Return the object to the pool
             //FIXME: 要先做事？OnReturnPool? OnDespawn
             _spawnProcessor.Despawn(obj); //看實作
@@ -168,8 +167,11 @@ namespace MonoFSM.Core.Simulate
 
         public void UnregisterMonoObject(MonoObj target)
         {
-            _monoObjectSet.Remove(target);
-            target.WorldUpdateSimulator = null; //清除引用
+            if (_monoObjectSet.Remove(target))
+            {
+                target.ResetStateRestore(); //FIXME: 需要這行嗎？OnReturnToPool?
+                target.WorldUpdateSimulator = null; //清除引用
+            }
         }
 
         private void SceneAwake()
@@ -287,6 +289,11 @@ namespace MonoFSM.Core.Simulate
             {
                 if (mono == null)
                 {
+                    Debug.LogError(
+                        "A MonoPoolObj in the WorldUpdateSimulator set is null. It might have been destroyed without unregistering. Removing it from the set.",
+                        this
+                    );
+                    //FIXME: 不能這樣，要有個toRemove list
                     _monoObjectSet.Remove(mono);
                 }
             }

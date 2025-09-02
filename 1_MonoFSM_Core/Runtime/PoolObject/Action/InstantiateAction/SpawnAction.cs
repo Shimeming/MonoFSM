@@ -14,28 +14,40 @@ namespace MonoFSM.Core.LifeCycle
 {
     public interface IAfterSpawnProcess //action在Spawn之後執行 也有種event的概念？AfterSpawnEventHandler?
     {
-        public void AfterSpawn(MonoObj obj, Vector3 position, Quaternion rotation,
-            [CanBeNull] GeneralEffectHitData hitData); //對著某個東西spawn?
+        public void AfterSpawn(
+            MonoObj obj,
+            Vector3 position,
+            Quaternion rotation,
+            [CanBeNull] GeneralEffectHitData hitData
+        ); //對著某個東西spawn?
     }
+
     //重寫FXPlayer
-    public class
-        SpawnAction : AbstractArgEventHandler<GeneralEffectHitData>,
-        IMonoObjectProvider //ICompProvider<MonoPoolObj>
+    public class SpawnAction : AbstractArgEventHandler<GeneralEffectHitData>, IMonoObjectProvider //ICompProvider<MonoPoolObj>
     {
         //FIXME: 下面要有各種preProcess action?
-        [Required] [CompRef] [AutoChildren(DepthOneOnly = true)] [ValueTypeValidate(typeof(MonoObj))]
+        [Required]
+        [CompRef]
+        [AutoChildren(DepthOneOnly = true)]
+        [ValueTypeValidate(typeof(MonoObj))]
         private ValueProvider _poolObjProvider; //使用VarPoolObj來存儲目標物件
 
-        [CompRef] [AutoChildren] private IAfterSpawnProcess[] _preSpawnActions;
+        [CompRef]
+        [AutoChildren]
+        private IAfterSpawnProcess[] _preSpawnActions;
+
         //檢查？SerializeClass的話？
 
         //型別篩選 vs attribute篩選？
         //FIXME: 應該要分ConfigPrefabProvider, 不可以都用ICompProvider，因為會有Runtime的Prefab
         //Prefab特殊，不該runtime去Instantiate對ㄅ，都應該從prefab來，就算要也是複製狀態
 
-        [PreviewInDebugMode] private MonoObj Prefab => _poolObjProvider?.Get<MonoObj>();
+        [PreviewInDebugMode]
+        private MonoObj Prefab => _poolObjProvider?.Get<MonoObj>();
 
-        [CompRef] [AutoChildren] private SpawnEventHandler _spawnEventHandler;
+        [CompRef]
+        [AutoChildren]
+        private SpawnEventHandler _spawnEventHandler;
 
         //FIXME: preview scale & rotation
         protected override void OnActionExecuteImplement()
@@ -46,10 +58,19 @@ namespace MonoFSM.Core.LifeCycle
         }
 
         public bool _isUsingSpawnTransformScale;
-        [PreviewInInspector] private MonoObj _lastSpawnedObj;
 
-        private void Spawn(MonoObj prefab, Vector3 position, Quaternion rotation,
-            [CanBeNull] GeneralEffectHitData hitData)
+        [PreviewInInspector]
+        private MonoObj _lastSpawnedObj;
+
+        [AutoParent]
+        private MonoObj _parentObj;
+
+        private void Spawn(
+            MonoObj prefab,
+            Vector3 position,
+            Quaternion rotation,
+            [CanBeNull] GeneralEffectHitData hitData
+        )
         {
             //FIXME: canspawn?
             if (prefab == null)
@@ -58,22 +79,22 @@ namespace MonoFSM.Core.LifeCycle
                 return;
             }
 
-            var parentObj = GetComponentInParent<MonoObj>();
-            if (parentObj == null)
+            if (_parentObj == null)
             {
                 Debug.LogError("SpawnAction: No MonoPoolObj found in parent", this);
                 return;
             }
 
-            if (parentObj.WorldUpdateSimulator == null)
+            if (_parentObj.WorldUpdateSimulator == null)
             {
-                Debug.LogError("SpawnAction: No WorldUpdateSimulator found in MonoPoolObj",
-                    parentObj);
+                Debug.LogError(
+                    "SpawnAction: No WorldUpdateSimulator found in MonoPoolObj",
+                    _parentObj
+                );
                 return;
             }
 
-            var newObj =
-                parentObj.WorldUpdateSimulator.Spawn(prefab, position, rotation); //Runner.spawn?
+            var newObj = _parentObj.WorldUpdateSimulator.Spawn(prefab, position, rotation); //Runner.spawn?
             if (newObj == null)
                 return;
             //用目前這個action的transform的scale,fixme; 可能需要別種？物件本身的scale?還是應該避免
@@ -104,7 +125,10 @@ namespace MonoFSM.Core.LifeCycle
             var receiverTrans = arg.Receiver.transform;
 
             var pos = arg.hitPoint ?? receiverTrans.position; //如果沒有hitPoint，就用Receiver的位置
-            Debug.Log("SpawnAction EventReceived, pos: " + pos + ", hitPoint: " + arg.hitPoint, this);
+            Debug.Log(
+                "SpawnAction EventReceived, pos: " + pos + ", hitPoint: " + arg.hitPoint,
+                this
+            );
 
             //FIXME: arg是EffectHitData...point和normal都放過來嗎？
             var rotation = receiverTrans.rotation;
@@ -152,10 +176,10 @@ namespace MonoFSM.Core.LifeCycle
 
         public Type ValueType => typeof(MonoObj);
 
-
         public MonoObj Get()
         {
-            if (!Application.isPlaying) return Prefab;
+            if (!Application.isPlaying)
+                return Prefab;
             if (_lastSpawnedObj != null)
             {
                 return _lastSpawnedObj;

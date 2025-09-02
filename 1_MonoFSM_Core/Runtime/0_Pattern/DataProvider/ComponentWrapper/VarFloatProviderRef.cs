@@ -1,3 +1,4 @@
+using System;
 using MonoFSM.Variable;
 
 namespace MonoFSM.Core.DataProvider
@@ -5,11 +6,12 @@ namespace MonoFSM.Core.DataProvider
     /// <summary>
     /// Provide a reference to a VarFloat.
     /// </summary>
+    [Obsolete]
     public class VarFloatProviderRef : VariableProviderRef<VarFloat, float> //不該是IFloatProvider?
     {
         //直接在這選Field?
         //如果要string呢？
-        
+
         //FIXME: 蛤？
         //可以拿field?
         // [CompRef] [Auto] private AbstractFieldOfVarProvider
