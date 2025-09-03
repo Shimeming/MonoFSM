@@ -1,9 +1,7 @@
 using System;
-
-using UnityEngine;
 using MonoFSM.Core;
-using MonoFSM.Core.Attributes;
 using MonoFSM.Variable;
+using UnityEngine;
 
 public abstract class AbstractFolder : MonoBehaviour
 {
@@ -16,6 +14,7 @@ public abstract class AbstractFolder : MonoBehaviour
 public class VariableFolder : MonoDict<VariableTag, AbstractMonoVariable>
 {
     protected override bool IsStringDictEnable => true;
+
     // [ReadOnly] [Component( AddComponentAt.Children, "[Variable]")]
     // public AbstractVariable flag;
 
@@ -39,12 +38,14 @@ public class VariableFolder : MonoDict<VariableTag, AbstractMonoVariable>
         return Get(varName);
     }
 
-    public TVariable GetVariable<TVariable>(VariableTag type) where TVariable : AbstractMonoVariable
+    public TVariable GetVariable<TVariable>(VariableTag type)
+        where TVariable : AbstractMonoVariable
     {
         return Get(type) as TVariable;
     }
 
-    public TVariable GetVariable<TVariable>(string varName) where TVariable : AbstractMonoVariable
+    public TVariable GetVariable<TVariable>(string varName)
+        where TVariable : AbstractMonoVariable
     {
         return Get(varName) as TVariable;
     }
@@ -70,6 +71,8 @@ public class VariableFolder : MonoDict<VariableTag, AbstractMonoVariable>
     //     variables = GetComponentsInChildren<AbstractVariable>(true);
     //     foreach (var variable in variables) variable.transform.localPosition = Vector3.zero;
     // }
+
+    #region EditorOnly
 #if UNITY_EDITOR
 
     // [Button]
@@ -85,13 +88,14 @@ public class VariableFolder : MonoDict<VariableTag, AbstractMonoVariable>
     /// <typeparam name="TVariable">變數類型，必須繼承自 AbstractMonoVariable</typeparam>
     /// <param name="tagName">變數的標籤名稱</param>
     /// <returns>創建的變數實例</returns>
-    public TVariable CreateVariable<TVariable>(string tagName) where TVariable : AbstractMonoVariable
+    public TVariable CreateVariable<TVariable>(string tagName)
+        where TVariable : AbstractMonoVariable
     {
         var variable = gameObject.AddChildrenComponent<TVariable>($"[Var] {tagName}");
-        
+
         // 這裡可以進一步設定 VariableTag，如果有需要的話
         // variable._varTag = FindOrCreateVariableTag(tagName);
-        
+
         return variable;
     }
 
@@ -101,22 +105,22 @@ public class VariableFolder : MonoDict<VariableTag, AbstractMonoVariable>
     /// <param name="variableType">變數類型</param>
     /// <param name="tagName">變數的標籤名稱</param>
     /// <returns>創建的變數實例</returns>
-    public AbstractMonoVariable CreateVariable(System.Type variableType, string tagName)
+    public AbstractMonoVariable CreateVariable(Type variableType, string tagName)
     {
         if (!typeof(AbstractMonoVariable).IsAssignableFrom(variableType))
         {
             Debug.LogError($"類型 {variableType} 不是 AbstractMonoVariable 的子類別");
             return null;
         }
-        
+
         var childGameObject = new GameObject($"[Var] {tagName}");
         childGameObject.transform.SetParent(transform);
-        
+
         var variable = childGameObject.AddComponent(variableType) as AbstractMonoVariable;
-        
+
         // 這裡可以進一步設定 VariableTag，如果有需要的話
         // variable._varTag = FindOrCreateVariableTag(tagName);
-        
+
         return variable;
     }
 
@@ -126,7 +130,8 @@ public class VariableFolder : MonoDict<VariableTag, AbstractMonoVariable>
     /// <typeparam name="TVariable">變數類型，必須繼承自 AbstractMonoVariable</typeparam>
     /// <param name="tag">要綁定的 VariableTag</param>
     /// <returns>創建的變數實例</returns>
-    public TVariable CreateVariableWithTag<TVariable>(VariableTag tag) where TVariable : AbstractMonoVariable
+    public TVariable CreateVariableWithTag<TVariable>(VariableTag tag)
+        where TVariable : AbstractMonoVariable
     {
         if (tag == null)
         {
@@ -135,12 +140,15 @@ public class VariableFolder : MonoDict<VariableTag, AbstractMonoVariable>
         }
 
         var variable = gameObject.AddChildrenComponent<TVariable>($"[Var] {tag.name}");
-        
+
         // 設定變數的 tag
         variable._varTag = tag;
-        
-        Debug.Log($"已創建變數 {typeof(TVariable).Name} 並綁定到 VariableTag: {tag.name}", variable);
-        
+
+        Debug.Log(
+            $"已創建變數 {typeof(TVariable).Name} 並綁定到 VariableTag: {tag.name}",
+            variable
+        );
+
         return variable;
     }
 
@@ -150,41 +158,40 @@ public class VariableFolder : MonoDict<VariableTag, AbstractMonoVariable>
     /// <param name="variableType">變數類型</param>
     /// <param name="tag">要綁定的 VariableTag</param>
     /// <returns>創建的變數實例</returns>
-    public AbstractMonoVariable CreateVariableWithTag(System.Type variableType, VariableTag tag)
+    public AbstractMonoVariable CreateVariableWithTag(Type variableType, VariableTag tag)
     {
+        //只有Editor可以用對吧？有包了
         if (!typeof(AbstractMonoVariable).IsAssignableFrom(variableType))
         {
             Debug.LogError($"類型 {variableType} 不是 AbstractMonoVariable 的子類別");
             return null;
         }
-        
+
         if (tag == null)
         {
             Debug.LogError("VariableTag 不能為 null");
             return null;
         }
-        
+
         var childGameObject = new GameObject($"[Var] {tag.name}");
         childGameObject.transform.SetParent(transform);
-        
-        var variable = childGameObject.AddComponent(variableType) as AbstractMonoVariable;
-        
+
+        var variable = childGameObject.AddComp(variableType) as AbstractMonoVariable;
+
         // 設定變數的 tag
         variable._varTag = tag;
-        
+
         Debug.Log($"已創建變數 {variableType.Name} 並綁定到 VariableTag: {tag.name}", variable);
-        
+
         return variable;
     }
 #endif
-    protected override void AddImplement(AbstractMonoVariable item)
-    {
-        
-    }
 
-    protected override void RemoveImplement(AbstractMonoVariable item)
-    {
-    }
+    #endregion
+
+    protected override void AddImplement(AbstractMonoVariable item) { }
+
+    protected override void RemoveImplement(AbstractMonoVariable item) { }
 
     protected override bool CanBeAdded(AbstractMonoVariable item)
     {

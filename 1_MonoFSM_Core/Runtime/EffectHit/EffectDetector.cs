@@ -102,10 +102,7 @@ namespace MonoFSM.Core.Detection
             // OnDisableImplement();
         }
 
-        // protected abstract void OnDisableImplement();
-
-        // [AutoParent] private StateMachineOwner owner;
-        // public StateMachineOwner Owner => owner;
+        [RequiredListLength(MinLength = 1)]
         [CompRef]
         [AutoChildren]
         private GeneralEffectDealer[] dealers;
@@ -310,7 +307,7 @@ namespace MonoFSM.Core.Detection
             Dictionary<GeneralEffectDealer, (bool lastState, bool currentState)> dealerStateChanges
         )
         {
-            Debug.Log("Processing dealer state changes for detectable", detectable);
+            // Debug.Log("Processing dealer state changes for detectable", detectable);
 
             foreach (var kvp in dealerStateChanges)
             {
@@ -320,7 +317,7 @@ namespace MonoFSM.Core.Detection
                 if (currentState)
                 {
                     // dealer 剛變有效，觸發 enter 事件
-                    Debug.Log("Dealer state changed to valid, triggering enter event", dealer);
+                    // Debug.Log("Dealer state changed to valid, triggering enter event", dealer);
                     TriggerEnterForDealerAndDetectable(dealer, detectable);
                 }
                 else

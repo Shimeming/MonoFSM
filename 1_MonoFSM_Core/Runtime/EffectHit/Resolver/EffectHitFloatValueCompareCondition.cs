@@ -1,10 +1,5 @@
-using System;
-using MonoFSM.Core.Attributes;
-using MonoFSM.Core.DataProvider;
-using MonoFSM.Variable;
+using MonoFSM.Foundation;
 using Sirenix.OdinInspector;
-using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace MonoFSM.Runtime.Interact.EffectHit.Resolver
 {
@@ -13,12 +8,15 @@ namespace MonoFSM.Runtime.Interact.EffectHit.Resolver
     //EffectSystem, 但實際上要執行的function會是Data決定，像是扣某些數值就是Dealer決定
     //這個要Effect打過來的瞬間才可以拿到
     //目前是掛在Dealer下，拿到一個遠端的Receiver
-    public abstract class AbstractEffectHitCondition : MonoBehaviour
+    public abstract class AbstractEffectHitCondition : AbstractDescriptionBehaviour
     {
-        [PropertyOrder(-1)] protected abstract string description { get; }
+        protected override string DescriptionTag => "EffectHitCondition";
+
+        [PropertyOrder(-1)]
+        protected abstract string description { get; }
 
         public abstract bool IsEffectHitValid(GeneralEffectReceiver receiver);
-        //FIXME: 
+        //FIXME:
         // VariableProvider<float> _provider;
         // public GeneralEffectDealer dealer;
         // public VariableTag tag;

@@ -29,9 +29,11 @@ namespace MonoFSM.Variable
     [Serializable]
     public class VarListEntityWrapper : VarWrapper<VarListEntity, List<MonoEntity>> { }
 
+    public abstract class AbstractVarWrapper { }
+
     //FIXME: 真的有需要wrapper嗎？
     [Serializable]
-    public class VarWrapper<TVar, TValue>
+    public class VarWrapper<TVar, TValue> : AbstractVarWrapper
         where TVar : AbstractMonoVariable
     {
         [SOConfig("VariableType")]

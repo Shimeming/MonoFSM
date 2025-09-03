@@ -78,11 +78,10 @@ namespace MonoFSM.Variable
         {
             get
             {
-                if (HasValueProvider)
-                    return valueSource.Value;
-
                 if (!Application.isPlaying)
                     return DefaultValue;
+                if (HasValueProvider)
+                    return valueSource.Value;
                 return _currentValue;
             }
         }

@@ -105,7 +105,8 @@ namespace MonoFSM.Core.Editor
 
             using (new GUILayout.HorizontalScope())
             {
-                EditorGUILayout.PrefixLabel(label);
+                if (label != null)
+                    EditorGUILayout.PrefixLabel(label);
 
                 if (
                     SirenixEditorGUI.SDFIconButton(

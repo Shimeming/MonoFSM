@@ -18,6 +18,7 @@ namespace MonoFSM.Foundation
         public ConditionGroup _conditionGroup;
 
         public virtual bool IsValid => _conditionGroup.IsValid;
+        public abstract bool HasValue { get; }
     }
 
     public abstract class AbstractValueProvider<T> : AbstractGetter, IValueProvider<T> //提供數值
@@ -25,11 +26,13 @@ namespace MonoFSM.Foundation
         [AutoParent]
         private MonoEntity _monoEntity;
 
-        public MonoEntity ParentEntity =>
-            _monoEntity ? _monoEntity : _monoEntity = GetComponentInParent<MonoEntity>(true);
+        // public MonoEntity ParentEntity =>
+        //     _monoEntity ? _monoEntity : _monoEntity = GetComponentInParent<MonoEntity>(true);
 
         [ShowInInspector]
         public abstract T Value { get; }
+
+        public override bool HasValue => Value != null;
     }
 
     public static class ValueResolver

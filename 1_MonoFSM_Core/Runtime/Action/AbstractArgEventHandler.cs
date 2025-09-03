@@ -1,13 +1,4 @@
-using System;
-using System.Threading;
-using Cysharp.Threading.Tasks;
-using MonoFSM.Core.Attributes;
 using MonoFSM.EditorExtension;
-using MonoFSM.Foundation;
-using MonoFSM.Runtime;
-using MonoFSM.Runtime.Vote;
-using MonoFSMCore.Runtime.LifeCycle;
-using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace MonoFSM.Core.Runtime.Action
@@ -30,7 +21,7 @@ namespace MonoFSM.Core.Runtime.Action
         }
 
         protected abstract void OnArgEventReceived(T arg);
-        public string ValueInfo => _lastEventReceivedTime.ToString("F2");
+        public string ValueInfo => "evt:" + _lastEventReceivedTime.ToString("F2");
         public bool IsDrawingValueInfo => _lastEventReceivedTime != -1f;
     }
 }

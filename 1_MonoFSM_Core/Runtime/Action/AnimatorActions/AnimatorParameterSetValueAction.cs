@@ -84,6 +84,8 @@ namespace MonoFSM.Animation
 
         private void SetValue()
         {
+            if (!animator.isActiveAndEnabled)
+                return;
             if (_floatValueSource != null)
             {
                 if (_interpolate == 0)

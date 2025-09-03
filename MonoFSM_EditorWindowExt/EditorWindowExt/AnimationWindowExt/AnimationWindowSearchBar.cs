@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using MonoFSM.Core;
 using UnityEditor;
@@ -14,12 +13,11 @@ namespace MonoFSM.Editor.AnimationWindow
     /// </summary>
     public static class AnimationWindowSearchBar
     {
-
         private static IAnimatorPlayAction _lastEditState;
+
         [MenuItem("MonoFSM/Edit Animation of State %_E")]
         static void OpenAnimationWindow()
         {
-
             EditorApplication.ExecuteMenuItem("Window/Animation/Animation");
             if (Application.isPlaying)
                 return;
@@ -77,15 +75,16 @@ namespace MonoFSM.Editor.AnimationWindow
             EditorApplication.update -= CheckForAnimationWindows;
             EditorApplication.update += CheckForAnimationWindows;
 
-            EditorApplication.delayCall -= DelayCallLoop;
-            EditorApplication.delayCall += DelayCallLoop;
+            // EditorApplication.delayCall -= DelayCallLoop;
+            // EditorApplication.delayCall += DelayCallLoop;
         }
 
         private static void CheckForAnimationWindows()
         {
-            var animationWindows = Resources
-                .FindObjectsOfTypeAll(t_AnimationWindow)
-                .Cast<EditorWindow>();
+            var animationWindows = UnityEditor.AnimationWindow.GetAllAnimationWindows();
+            // var animationWindows = Resources
+            //     .FindObjectsOfTypeAll(t_AnimationWindow)
+            //     .Cast<EditorWindow>();
 
             foreach (var window in animationWindows)
             {
@@ -96,23 +95,21 @@ namespace MonoFSM.Editor.AnimationWindow
             }
         }
 
-        private static void DelayCallLoop()
-        {
-            var animationWindows = Resources
-                .FindObjectsOfTypeAll(t_AnimationWindow)
-                .Cast<EditorWindow>();
-
-            foreach (var window in animationWindows)
-            {
-                if (window != null)
-                {
-                    UpdateGUIWrapping(window);
-                }
-            }
-
-            EditorApplication.delayCall -= DelayCallLoop;
-            EditorApplication.delayCall += DelayCallLoop;
-        }
+        // private static void DelayCallLoop()
+        // {
+        //     var animationWindows = UnityEditor.AnimationWindow.GetAllAnimationWindows();
+        //
+        //     foreach (var window in animationWindows)
+        //     {
+        //         if (window != null)
+        //         {
+        //             UpdateGUIWrapping(window);
+        //         }
+        //     }
+        //
+        //     EditorApplication.delayCall -= DelayCallLoop;
+        //     EditorApplication.delayCall += DelayCallLoop;
+        // }
 
         private static void WrappedGUI(EditorWindow window)
         {

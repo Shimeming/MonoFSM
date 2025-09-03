@@ -4,6 +4,7 @@ using Auto.Utils;
 using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Simulate;
+using MonoFSM.CustomAttributes;
 using MonoFSM.Runtime;
 using MonoFSM.Variable.FieldReference;
 using Sirenix.OdinInspector;
@@ -53,7 +54,7 @@ namespace MonoFSMCore.Runtime.LifeCycle
     [ScriptTiming(-20000)]
     [DisallowMultipleComponent]
     [FormerlyNamedAs("MonoPoolObj")]
-    public sealed class MonoObj : MonoBehaviour, IPrefabSerializeCacheOwner
+    public sealed class MonoObj : MonoBehaviour, IPrefabSerializeCacheOwner, IDropdownRoot
     {
         [field: Auto]
         public MonoEntity Entity { get; }

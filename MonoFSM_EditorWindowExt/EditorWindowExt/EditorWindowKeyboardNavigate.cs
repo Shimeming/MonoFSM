@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEditor.SceneManagement;
+using UnityEditor.ShortcutManagement;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -436,6 +437,45 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
             else
             {
                 // Debug.Log($"Unknown view type: {view.GetType().Name}");
+            }
+        }
+
+        [Shortcut("Transform/MoveUp", KeyCode.LeftBracket, ShortcutModifiers.Alt)]
+        private static void MoveUp()
+        {
+            Debug.Log("MoveUp triggered");
+            var go = Selection.activeGameObject;
+            if (go == null)
+                return;
+            var parent = go.transform.parent;
+            if (parent == null)
+                return;
+            var index = go.transform.GetSiblingIndex();
+            if (index > 0)
+            {
+                Undo.SetTransformParent(go.transform, parent, "Move Up");
+                go.transform.SetSiblingIndex(index - 1);
+                EditorUtility.SetDirty(go);
+                // Debug.Log($"Moved {go.name} up to index {index - 1}");
+            }
+        }
+
+        [Shortcut("Transform/MoveDown", KeyCode.RightBracket, ShortcutModifiers.Alt)]
+        private static void MoveDown()
+        {
+            var go = Selection.activeGameObject;
+            if (go == null)
+                return;
+            var parent = go.transform.parent;
+            if (parent == null)
+                return;
+            var index = go.transform.GetSiblingIndex();
+            if (index < parent.childCount - 1)
+            {
+                Undo.SetTransformParent(go.transform, parent, "Move Down");
+                go.transform.SetSiblingIndex(index + 1);
+                EditorUtility.SetDirty(go);
+                // Debug.Log($"Moved {go.name} down to index {index + 1}");
             }
         }
 

@@ -97,10 +97,14 @@ namespace MonoFSM.Core
                 for (var i = parents.Length - 1; i >= 0; i--) // 从最远的父级开始，构建层级路径
                     ownerNames[parents.Length - 1 - i] = parents[i].name;
                 var ownerPath = string.Join("/", ownerNames);
-                tree.Add(ownerPath + "/" + comp.name + " (" + comp.GetType().Name + ")", comp);
+                var items = tree.Add(
+                    ownerPath + "/" + comp.name + " (" + comp.GetType().Name + ")",
+                    comp
+                );
+                foreach (var item in items)
+                    item.DefaultToggledState = false;
                 // Debug.Log("Add type " + comp.GetType() + " ownerName is " + ownerName);
             }
-
             tree.Config.SelectMenuItemsOnMouseDown = true;
             tree.Config.ConfirmSelectionOnDoubleClick = true;
         }
@@ -139,6 +143,7 @@ namespace MonoFSM.Core
             obj.Select();
             // Debug.Log("ConfirmSelection" + obj.Name);
             obj.MenuTree.Selection.ConfirmSelection();
+
             Event.current.Use();
         }
     }

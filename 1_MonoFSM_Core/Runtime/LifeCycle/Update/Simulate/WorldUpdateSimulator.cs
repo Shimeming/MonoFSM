@@ -82,10 +82,10 @@ namespace MonoFSM.Core.Simulate
         public static WorldUpdateSimulator GetWorldUpdateSimulator(GameObject me)
         {
             //這個是用來獲取當前的WorldUpdateSimulator
-            var monoPoolObj = me.GetComponentInParent<MonoObj>();
+            var monoPoolObj = me.GetComponentInParent<MonoObj>(true);
             if (monoPoolObj == null)
             {
-                Debug.LogError("MonoPoolObj not found on the GameObject.", me);
+                Debug.LogError("MonoObj not found on the GameObject.", me);
                 return null;
             }
             if (monoPoolObj.WorldUpdateSimulator == null)
@@ -94,6 +94,24 @@ namespace MonoFSM.Core.Simulate
                 return null;
             }
             return monoPoolObj.WorldUpdateSimulator;
+        }
+
+        public static GameObject SpawnObj(GameObject gobj, MonoBehaviour fromWho)
+        {
+            var simulator = GetWorldUpdateSimulator(fromWho.gameObject);
+            if (simulator == null)
+            {
+                Debug.LogError("WorldUpdateSimulator not found on the GameObject.", gobj);
+                return null;
+            }
+
+            //沒有的話要...加一個？
+            var obj = simulator.Spawn(
+                gobj.GetComponent<MonoObj>(),
+                gobj.transform.position,
+                gobj.transform.rotation
+            );
+            return obj?.gameObject;
         }
 
         //全世界都該透過這個spawn?

@@ -215,7 +215,9 @@ namespace MonoFSM.Foundation
         }
 
         [AutoParent]
-        protected MonoEntity _self;
+        protected MonoEntity _self; //FIXME: 每個都要嗎？
+
+        public MonoEntity ParentEntity => _self;
 
         //介面上也顯示？textarea?
         public virtual string Description => GetType().Name;

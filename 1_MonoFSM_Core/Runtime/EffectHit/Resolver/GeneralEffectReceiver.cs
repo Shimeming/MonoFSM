@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Detection;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -54,14 +56,21 @@ namespace MonoFSM.Runtime.Interact.EffectHit
             this.Log("OnHitEnter");
             _currentHitData = data as GeneralEffectHitData;
             _enterNode?.EventHandle(data as GeneralEffectHitData);
+            _dealers.Add(data.Dealer as GeneralEffectDealer);
 #if UNITY_EDITOR
             _lastHitData = data;
 #endif
         }
 
+        public bool HasDealerOverlap => _dealers.Count > 0;
+
+        [PreviewInInspector]
+        private HashSet<GeneralEffectDealer> _dealers = new();
+
         public void OnEffectHitExit(IEffectHitData data)
         {
             this.Log("OnHitExit");
+            _dealers.Remove(data.Dealer as GeneralEffectDealer);
             _exitNode?.EventHandle(data as GeneralEffectHitData);
             _currentHitData = null;
         }

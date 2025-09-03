@@ -3,7 +3,6 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Foundation;
-using MonoFSM.Runtime;
 using MonoFSM.Runtime.Vote;
 using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
@@ -27,7 +26,8 @@ namespace MonoFSM.Core.Runtime.Action
     // IArgEventReceiver<GeneralEffectHitData>
     {
         // public MonoEntity ParentEntity => GetComponentInParent<MonoEntity>();
-        public MonoEntity ParentEntity => bindingState.ParentEntity;
+        // public MonoEntity ParentEntity => bindingState.ParentEntity;
+        public float DeltaTime => bindingState.DeltaTime;
 
         protected override bool HasError()
         {

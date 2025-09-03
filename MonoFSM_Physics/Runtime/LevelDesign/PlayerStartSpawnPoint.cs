@@ -164,7 +164,8 @@ public class PlayerStartSpawnPoint
                     ray.direction,
                     out var hit,
                     1000,
-                    _teleportHitLayerMask
+                    _teleportHitLayerMask,
+                    QueryTriggerInteraction.Ignore
                 )
             )
             {
