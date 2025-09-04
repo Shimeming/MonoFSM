@@ -22,18 +22,20 @@ namespace MonoFSM.Core.DataProvider
     }
 
     //負責提供一個MonoVar，需要一個BlackboardProvider
-    
+
     //TODO: FIXME: drag drop reference後，自動填入tag/monoTag
     //隱含有Parent VariableOwner的概念是不是不太好？
     //動態提取？不用type? 讓我pathField選到string就有string的能力？ any IValueProvider然後Get<TType>看看？
     //A.B.Variable, 用tag來找variable
     //單純版好像不想要這麼複雜？ localRef
-    [Obsolete]
-    public abstract class VariableProviderRef<TVarMonoType, TValueType> : AbstractVariableProviderRef,
-        IVariableProvider, IValueProvider<TValueType> //, IStringProvider,IValueProvider<TValueType>
+    // [Obsolete]
+    public abstract class VariableProviderRef<TVarMonoType, TValueType>
+        : AbstractVariableProviderRef,
+            IVariableProvider,
+            IValueProvider<TValueType> //, IStringProvider,IValueProvider<TValueType>
         where TVarMonoType : AbstractMonoVariable
     {
-        public override Type GetObjectType 
+        public override Type GetObjectType
         {
             get
             {
@@ -42,26 +44,27 @@ namespace MonoFSM.Core.DataProvider
                 {
                     return VarRaw.ValueType;
                 }
-                
+
                 return typeof(TVarMonoType);
             }
         }
-        
+
         /// <summary>
         /// 檢查變數是否支援動態型別（目前僅VarGameData）
         /// </summary>
         private bool HasDynamicValueType(AbstractMonoVariable variable)
         {
             // 檢查是否為VarGameData或其他支援動態型別的變數
-            return variable.GetType().Name.Contains("VarGameData") && 
-                   variable._varTag?.ValueFilterType != null;
+            return variable.GetType().Name.Contains("VarGameData")
+                && variable._varTag?.ValueFilterType != null;
         }
 
         [OnValueChanged(nameof(OnVarOwnerChange))]
-        [TabGroup("Owner Setting")] public GetFromType _getFromType = GetFromType.ParentVarOwner;
+        [TabGroup("Owner Setting")]
+        public GetFromType _getFromType = GetFromType.ParentVarOwner;
 
         // public override Type GetValueType => typeof(TValueType);
-        
+
         [ShowInDebugMode]
         private MonoBehaviour CurrentTarget
         {
@@ -77,8 +80,10 @@ namespace MonoFSM.Core.DataProvider
 
         private bool TypeCheckFail()
         {
-            if (_varTag == null) return false;
-            return typeof(TValueType).IsAssignableFrom(_varTag._valueFilterType.RestrictType) == false;
+            if (_varTag == null)
+                return false;
+            return typeof(TValueType).IsAssignableFrom(_varTag._valueFilterType.RestrictType)
+                == false;
         }
 
         // [ValueDropdown(nameof(GetGlobalMonoTags))] [OnValueChanged(nameof(OnGlobalMonoTagChange))]
@@ -86,7 +91,9 @@ namespace MonoFSM.Core.DataProvider
         //globalTag
         //a(object).b(variable)
         //VariableOwner的話就可以往parent找，不是的話可以從asset找？ auto assign? 或是根本不需要
-        [FormerlySerializedAs("_parentMonoTag")] [TabGroup("Owner Setting")] [HideIf(nameof(IsFromParentOwner))]
+        [FormerlySerializedAs("_parentMonoTag")]
+        [TabGroup("Owner Setting")]
+        [HideIf(nameof(IsFromParentOwner))]
         public MonoEntityTag _blackboardTag; //空的話就是自己
 
         private bool IsFromParentOwner()
@@ -95,14 +102,14 @@ namespace MonoFSM.Core.DataProvider
                 return true;
             return false;
         }
-        
+
         [BoxGroup("varTag")]
         [ShowInInspector]
         [ValueDropdown(nameof(GetParentVariableTags), NumberOfItemsBeforeEnablingSearch = 5)]
         private VariableTag DropDownVarTag
         {
-            set 
-            { 
+            set
+            {
                 _varTag = value;
                 // 當變數標籤改變時，重新更新路徑條目的型別
                 OnPathEntriesChanged();
@@ -132,7 +139,6 @@ namespace MonoFSM.Core.DataProvider
         [Required]
         public VariableTag _varTag;
 
-        
         private void OnVarOwnerChange()
         {
             var _ = owner;
@@ -149,38 +155,46 @@ namespace MonoFSM.Core.DataProvider
         [TabGroup("Owner Setting")]
         [Required]
         //開prefab
-        //FIXME: 這個required會造成誤會嗎？有showif的情況
-        public IEntityProvider _entityProvider; 
+        public IEntityProvider entityProvider;
+
+        public MonoEntity entity =>
+            _varEntity != null ? _varEntity.Value : entityProvider.monoEntity;
+
+        public VarEntity _varEntity;
 
         private IEnumerable<ValueDropdownItem<VariableTag>> GetParentVariableTags() //editor time?
         {
-            
             var tagDropdownItems = new List<ValueDropdownItem<VariableTag>>();
             switch (_getFromType)
             {
                 case GetFromType.VariableOwnerProvider:
 
-                    if (_entityProvider == null)
+                    if (entity == null)
                         return tagDropdownItems;
                     if (Application.isPlaying)
                     {
-                        var variables = _entityProvider.monoEntity.VariableFolder.GetValues;
+                        var variables = entity.VariableFolder.GetValues;
                         foreach (var variable in variables)
                             if (variable is TVarMonoType)
                                 tagDropdownItems.Add(
-                                    new ValueDropdownItem<VariableTag>(variable.name, variable._varTag));
+                                    new ValueDropdownItem<VariableTag>(
+                                        variable.name,
+                                        variable._varTag
+                                    )
+                                );
                     }
                     else
                     {
 #if UNITY_EDITOR
                         var tags = _blackboardTag.containsVariableTypeTags;
                         foreach (var varTag in tags)
-                            tagDropdownItems.Add(new ValueDropdownItem<VariableTag>(varTag.name, varTag));
+                            tagDropdownItems.Add(
+                                new ValueDropdownItem<VariableTag>(varTag.name, varTag)
+                            );
 #endif
                     }
 
                     break;
-
 
                 case GetFromType.GlobalInstance:
 
@@ -191,14 +205,27 @@ namespace MonoFSM.Core.DataProvider
                         //從MonoDescriptableTag找到varTag (schema一定會一致嗎？不一定)
                         var parentMonoVarTags = _blackboardTag.containsVariableTypeTags;
                         //FIXME: 有 null 要清掉
-              
+
                         foreach (var parentVarTag in parentMonoVarTags)
                         {
-                            Debug.Log("TValueType: " + typeof(TValueType) +
-                                      " restrictType: " + parentVarTag._valueFilterType.RestrictType, this);
-                            if (typeof(TValueType).IsAssignableFrom(parentVarTag._valueFilterType.RestrictType))
+                            Debug.Log(
+                                "TValueType: "
+                                    + typeof(TValueType)
+                                    + " restrictType: "
+                                    + parentVarTag._valueFilterType.RestrictType,
+                                this
+                            );
+                            if (
+                                typeof(TValueType).IsAssignableFrom(
+                                    parentVarTag._valueFilterType.RestrictType
+                                )
+                            )
                                 tagDropdownItems.Add(
-                                    new ValueDropdownItem<VariableTag>(parentVarTag.name, parentVarTag));
+                                    new ValueDropdownItem<VariableTag>(
+                                        parentVarTag.name,
+                                        parentVarTag
+                                    )
+                                );
                         }
                         return tagDropdownItems;
                     }
@@ -208,11 +235,11 @@ namespace MonoFSM.Core.DataProvider
                     //從instance直接找variable
                     foreach (var variable in instance.VariableFolder.GetValues)
                     {
-                   
                         if (variable is TVarMonoType)
-                            tagDropdownItems.Add(new ValueDropdownItem<VariableTag>(variable.name, variable._varTag));
+                            tagDropdownItems.Add(
+                                new ValueDropdownItem<VariableTag>(variable.name, variable._varTag)
+                            );
                     }
-                        
 
                     break;
                 case GetFromType.ParentVarOwner:
@@ -226,11 +253,15 @@ namespace MonoFSM.Core.DataProvider
                             Debug.LogError("Parent VariableFolder is null", parent);
                             continue;
                         }
-                            
 
                         foreach (var variable in parent.VariableFolder.GetValues)
                             if (variable is TVarMonoType)
-                                tagDropdownItems.Add(new ValueDropdownItem<VariableTag>(variable.name, variable._varTag));
+                                tagDropdownItems.Add(
+                                    new ValueDropdownItem<VariableTag>(
+                                        variable.name,
+                                        variable._varTag
+                                    )
+                                );
                     }
 
                     if (tagDropdownItems.Count == 0)
@@ -238,14 +269,16 @@ namespace MonoFSM.Core.DataProvider
                         Debug.LogError("All Parent VariableFolder has no Variable", CurrentTarget);
                         foreach (var parent in parents)
                             Debug.LogError(
-                                $"Parent {parent} has no Variable?" + parent.VariableFolder +
-                                parent.VariableFolder.GetValues.Count, parent);
+                                $"Parent {parent} has no Variable?"
+                                    + parent.VariableFolder
+                                    + parent.VariableFolder.GetValues.Count,
+                                parent
+                            );
                     }
 
                     break;
                 }
             }
-
 
             return tagDropdownItems;
         }
@@ -262,7 +295,8 @@ namespace MonoFSM.Core.DataProvider
 
 
         [ShowInDebugMode]
-        [PreviewInInspector] private Type variableValueType => typeof(TValueType);
+        [PreviewInInspector]
+        private Type variableValueType => typeof(TValueType);
 
         [ShowInDebugMode]
         public MonoBlackboard owner
@@ -288,26 +322,27 @@ namespace MonoFSM.Core.DataProvider
 
             if (_getFromType == GetFromType.VariableOwnerProvider)
             {
-                _entityProvider = GetComponent<IEntityProvider>();
-                if (_entityProvider == null)
-                    // Debug.LogError("VariableOwnerProvider is null", this);
-                    return null;
-                if (_entityProvider.monoEntity == null)
+                entityProvider = GetComponent<IEntityProvider>();
+                // if (_entityProvider == null)
+                //     // Debug.LogError("VariableOwnerProvider is null", this);
+                //     return null;
+                if (entity == null)
                 {
                     if (Application.isPlaying)
                         Debug.LogError("VariableOwnerProvider.GetVariableOwner is null", this);
                     return null;
                 }
 
-                return _entityProvider.monoEntity;
+                return entity;
             }
 
             if (_blackboardTag != null)
             {
                 //FIXME:  不對
                 var monoCompInParent = target.GetMonoCompInParent(_blackboardTag);
-                if (monoCompInParent == null) return null;
-             
+                if (monoCompInParent == null)
+                    return null;
+
                 return monoCompInParent;
             }
 
@@ -331,7 +366,7 @@ namespace MonoFSM.Core.DataProvider
         {
             return VarRaw as TMonoVar;
         }
-        
+
         public override AbstractMonoVariable VarRaw
         {
             get
@@ -340,26 +375,27 @@ namespace MonoFSM.Core.DataProvider
                 if (_getFromType == GetFromType.GlobalInstance)
                 {
                     var descriptable = CurrentTarget.GetGlobalInstance(_blackboardTag);
-                    if (descriptable == null) return null;
+                    if (descriptable == null)
+                        return null;
                     return descriptable.GetVar(_varTag);
                 }
-                
+
                 if (_getFromType == GetFromType.VariableOwnerProvider)
                 {
                     if (Application.isPlaying == false)
                         return null;
-                    
-                    Debug.Log("_getFromType == GetFromType.VariableOwnerProvider",this);
 
-                    if (_entityProvider == null)
-                        return null;
-                    if (_entityProvider.monoEntity == null)
+                    Debug.Log("_getFromType == GetFromType.VariableOwnerProvider", this);
+
+                    // if (_entityProvider == null)
+                    //     return null;
+                    if (entity == null)
                     {
-                        Debug.LogError("_blackboardProvider.Board null", this);
+                        Debug.LogError("entity null", this);
                         return null;
                     }
 
-                    return _entityProvider.monoEntity.GetVar(_varTag);
+                    return entity.GetVar(_varTag);
                 }
 
                 if (owner == null)
@@ -376,7 +412,6 @@ namespace MonoFSM.Core.DataProvider
                     return null;
                 }
 
-
                 var variable = owner.GetVar(_varTag);
                 if (Application.isPlaying)
                     if (variable == null)
@@ -389,7 +424,8 @@ namespace MonoFSM.Core.DataProvider
         public override T1 Get<T1>() //原本interface就做掉了，但是
         {
             var value = Value;
-            if (value is T1 t1Value) return t1Value;
+            if (value is T1 t1Value)
+                return t1Value;
 
             // 嘗試轉型
             try
@@ -401,7 +437,8 @@ namespace MonoFSM.Core.DataProvider
                 if (Application.isPlaying)
                     Debug.LogError(
                         $"無法將欄位值 {value} (型別: {value.GetType()}) 轉換為 {typeof(T1)}: {e.Message}",
-                        this);
+                        this
+                    );
                 return default;
             }
         }
@@ -412,15 +449,22 @@ namespace MonoFSM.Core.DataProvider
         {
             get
             {
-                if (VarRaw == null) return default;
+                if (VarRaw == null)
+                    return default;
 
                 // 如果沒有設定欄位路徑，直接回傳變數值
-                if (!HasFieldPath) return VarRaw.GetValue<TValueType>();
+                if (!HasFieldPath)
+                    return VarRaw.GetValue<TValueType>();
 
                 // 使用欄位路徑存取特定欄位值
-                var fieldValue = ReflectionUtility.GetFieldValueFromPath(VarRaw, _pathEntries, gameObject);
+                var fieldValue = ReflectionUtility.GetFieldValueFromPath(
+                    VarRaw,
+                    _pathEntries,
+                    gameObject
+                );
 
-                if (fieldValue is TValueType tValue) return tValue;
+                if (fieldValue is TValueType tValue)
+                    return tValue;
 
                 // 嘗試轉型
                 if (fieldValue != null)
@@ -433,7 +477,8 @@ namespace MonoFSM.Core.DataProvider
                         if (Application.isPlaying)
                             Debug.LogError(
                                 $"無法將欄位值 {fieldValue} (型別: {fieldValue.GetType()}) 轉換為 {typeof(TValueType)}: {e.Message}",
-                                this);
+                                this
+                            );
                     }
 
                 return default;
@@ -441,6 +486,7 @@ namespace MonoFSM.Core.DataProvider
         }
 
         public override VariableTag varTag => _varTag;
+
         // set => _varTag = value;
         // public object GetValue()
         // {
@@ -484,9 +530,11 @@ namespace MonoFSM.Core.DataProvider
             get
             {
                 var str = string.Empty;
-                if (_blackboardTag) str = _blackboardTag.name + ".";
+                if (_blackboardTag)
+                    str = _blackboardTag.name + ".";
                 str += varTag?.name;
-                if (HasFieldPath) str += "." + string.Join(".", _pathEntries.Select(e => e._propertyName));
+                if (HasFieldPath)
+                    str += "." + string.Join(".", _pathEntries.Select(e => e._propertyName));
                 return str;
             }
         }

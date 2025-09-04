@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e71863d6a014827a715566dd5c5af2f, type: 3}
   m_Name: Player
   m_EditorClassIdentifier: 
+  _note: 
   _entityType:
     _bindObject: {fileID: 0}
     _baseFilterTypeName: 
@@ -57,6 +58,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ec42a4d876c244039b9522ce3f558f93, type: 2}
   - {fileID: 11400000, guid: ffbfd9a10616c49aca7b62194ea461a2, type: 2}
   - {fileID: 11400000, guid: 55ff7118d02244e70b9a6ac83aa89715, type: 2}
+  - {fileID: 11400000, guid: 3fccd2bba26084d2ba72ba0c8ef134a7, type: 2}
   containsSchemaTypeTags:
   - {fileID: 11400000, guid: df3fb43cb23784bb6a12c6ec2f9cf673, type: 2}
   - {fileID: 11400000, guid: 70087acafd7f1494c8d5f40d8718ccae, type: 2}

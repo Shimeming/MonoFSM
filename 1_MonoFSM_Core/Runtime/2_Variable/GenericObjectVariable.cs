@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Threading;
 using MonoFSM.Core.Attributes;
 using MonoFSM.EditorExtension;
 using MonoFSMCore.Runtime.LifeCycle;
@@ -25,31 +27,14 @@ namespace MonoFSM.Variable
             IHierarchyValueInfo
         where TValueType : Object
     {
-        // [CompRef]
-        // [AutoChildren(DepthOneOnly = true)]
-        // private IValueProvider<TValueType>[] _valueSources; //FIXME: 可能會有多個耶...還要一層resolver嗎？
-        //
-        // private bool IsUsingValueSource => _valueSources is { Length: > 0 }; //要cached bool? 這塊絕對是config而已
-        //
-        // [ShowInPlayMode]
-        // private IValueProvider<TValueType> valueSource
-        // {
-        //     get
-        //     {
-        //         if (!IsUsingValueSource)
-        //             return null;
-        //         foreach (var valueProvider in _valueSources)
-        //             if (valueProvider.IsValid)
-        //                 return valueProvider;
-        //
-        //         //[]: 多個的話要怎麼辦？還是說不允許多個？
-        //         Debug.LogWarning(
-        //             "condition not met, use default? (last)" + _valueSources[^1],
-        //             this
-        //         );
-        //         return _valueSources[^1];
-        //     }
-        // }
+        // 遞迴檢查相關的靜態成員
+        private static readonly ThreadLocal<int> _recursionDepth = new(() => 0);
+
+        private static readonly ThreadLocal<
+            HashSet<GenericUnityObjectVariable<TValueType>>
+        > _visitedVariables = new(() => new HashSet<GenericUnityObjectVariable<TValueType>>());
+
+        private const int MAX_RECURSION_DEPTH = 10;
 
         public override bool IsValueExist => _currentValue != null;
 
@@ -72,27 +57,122 @@ namespace MonoFSM.Variable
         /// <summary>
         /// 保持原有的強型別Value屬性，但使用動態轉型
         /// </summary>
-        [PreviewInDebugMode]
+        [GUIColor(0.2f, 0.8f, 0.2f)]
+        [PreviewInInspector]
         [DynamicType] // 標示此屬性的型別會根據VarTag動態決定
         public TValueType Value //動態？ varTag的RestrictType 才決定型別？
         {
             get
             {
-                if (!Application.isPlaying)
-                    return DefaultValue;
-                if (HasValueProvider)
-                    return valueSource.Value;
-                return _currentValue;
+                // 檢查遞迴深度
+                if (_recursionDepth.Value >= MAX_RECURSION_DEPTH)
+                {
+                    Debug.LogError(
+                        $"[Stack Overflow Protection] Maximum recursion depth ({MAX_RECURSION_DEPTH}) reached in variable: {name}",
+                        this
+                    );
+                    Debug.Break();
+                    return null;
+                }
+
+                // 檢查循環引用
+                if (_visitedVariables.Value.Contains(this))
+                {
+                    Debug.LogError(
+                        $"[Circular Reference Protection] Circular reference detected in variable: {name}",
+                        this
+                    );
+                    Debug.Break();
+                    return null;
+                }
+
+                // 進入遞迴保護區域
+                _recursionDepth.Value++;
+                _visitedVariables.Value.Add(this);
+
+                try
+                {
+                    return GetValueInternal();
+                }
+                finally
+                {
+                    // 確保清理狀態，即使發生異常也要執行
+                    _recursionDepth.Value--;
+                    _visitedVariables.Value.Remove(this);
+
+                    // 如果回到最頂層，清理 visited set
+                    if (_recursionDepth.Value == 0)
+                        _visitedVariables.Value.Clear();
+                }
             }
+        }
+
+        /// <summary>
+        ///     實際的 Value 獲取邏輯，從原本的 Value getter 分離出來
+        /// </summary>
+        private TValueType GetValueInternal()
+        {
+            if (!Application.isPlaying)
+                return DefaultValue;
+            if (HasValueProvider) //FIXME: 和field 分開寫很鳥?
+            {
+                if (_parentVarEntity != null) //FIXME:整理一下？
+                {
+                    if (_parentVarEntity.Value == null)
+                        return null; //還沒有entity, 過掉？
+
+                    // 檢查自我引用（保留原有檢查）
+                    if (_parentVarEntity == this || _parentVarEntity.Value.GetVar(_varTag) == this)
+                    {
+                        Debug.LogError("ParentVarEntity cannot be self", this);
+                        Debug.Break();
+                        return null;
+                    }
+                    else
+                    {
+                        var targetVar = _parentVarEntity.Value.GetVar(_varTag);
+                        if (targetVar == null)
+                        {
+                            Debug.LogError(
+                                $"{name}'s ParentVarEntity has no var: '{_varTag}'",
+                                this
+                            );
+                            Debug.Break();
+                            return null;
+                        }
+
+                        // 額外的循環引用檢查
+                        if (targetVar is GenericUnityObjectVariable<TValueType> targetGenericVar)
+                            if (_visitedVariables.Value.Contains(targetGenericVar))
+                            {
+                                Debug.LogError(
+                                    $"[Circular Reference Protection] Detected circular reference through ParentVarEntity chain: {name} -> {targetVar.name}",
+                                    this
+                                );
+                                Debug.Break();
+                                return null;
+                            }
+
+                        return targetVar.GetValue<TValueType>();
+                    }
+                }
+
+                if (valueSource == null) //有可能resolve後是null
+                    return null;
+
+                return valueSource.Value;
+            }
+
+            return _currentValue;
         }
 
         // public override Object RawValue => Value; //FIXME: 用Object?
 
         // public T Value => _currentValue;
         //green
-        [GUIColor(0.2f, 0.8f, 0.2f)]
-        [PreviewInInspector]
+        //FIXME: 不該？
         // [InlineEditor]
+        [ShowInDebugMode]
         protected TValueType _currentValue; //要用ObjectField? 這樣才統一？ Object不可能做成GameFlag/Data?
 
         //所有人都不該set這個
@@ -110,13 +190,15 @@ namespace MonoFSM.Variable
                 _lastNonNullValue = _currentValue;
         }
 
-        public override void SetValue(object value, MonoBehaviour byWho)
+        public override void SetValue(object value, MonoBehaviour byWho) //這好蠢？
         {
+            //這個trace好討厭...又跑下去，然後再上來internal
             SetValue<TValueType>((TValueType)value, byWho);
         }
 
         public override void SetValue(TValueType value, MonoBehaviour byWho)
         {
+            //這個trace好討厭...又跑下去，然後再上來internal
             SetValue<TValueType>(value, byWho);
         }
 
@@ -127,7 +209,6 @@ namespace MonoFSM.Variable
             //沒有ObjectField...
             // Debug.Log("Set value to " + value, this);
             //FIXME: 這需要分開嗎？在寫啥
-
             _currentValue = value as TValueType;
             RecordSetbyWho(_currentValue, byWho as MonoBehaviour);
             // OnValueChanged?.Invoke(_currentValue); //多一個參數的版本
@@ -188,7 +269,23 @@ namespace MonoFSM.Variable
         public bool _isConst; //
 
         //避免reset restore?
-        public virtual string ValueInfo => Value != null ? Value.name : "null";
+        public virtual string ValueInfo
+        {
+            get
+            {
+                // ValueInfo 也需要保護，因為它會呼叫 Value
+                try
+                {
+                    var value = Value;
+                    return value != null ? value.name : "null";
+                }
+                catch (Exception ex)
+                    when (ex.Message.Contains("recursion") || ex.Message.Contains("circular"))
+                {
+                    return "[Recursion Error]";
+                }
+            }
+        }
         public bool IsDrawingValueInfo => true;
     }
 }

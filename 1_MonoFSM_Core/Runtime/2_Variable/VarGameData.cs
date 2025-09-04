@@ -1,6 +1,4 @@
-using MonoFSM.Core.Attributes;
 using MonoFSM.Variable.FieldReference;
-using Sirenix.OdinInspector;
 
 namespace MonoFSM.Variable
 {
@@ -109,13 +107,11 @@ namespace MonoFSM.Variable
         //     return _varTag?.ValueFilterType == typeof(T);
         // }
 
-        [ShowInInspector]
-        [SOConfig("10_Flags/GameData", useVarTagRestrictType: true)] //已經有了
-        private GameData CreateDefault
-        {
-            set => _defaultValue = value;
-        }
-
+        // [ShowInInspector]
+        // [SOConfig("10_Flags/GameData", useVarTagRestrictType: true)] //已經有了
+        // private GameData CreateDefault
+        // {
+        //     set => _defaultValue = value;
+        // }
     }
-
 }

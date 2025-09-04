@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
 using MonoFSM.Condition;
-using UnityEngine;
-using UnityEngine.Events;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Variable.Attributes;
 using Sirenix.OdinInspector;
+using UnityEngine;
 
 namespace MonoFSM.Variable
 {
@@ -19,17 +18,20 @@ namespace MonoFSM.Variable
         private float _lastBaseValue;
         private float _value;
 
-        [ShowInPlayMode] public float ToBaseValueRatio => CurrentValue / BaseValue;
+        [ShowInPlayMode]
+        public float ToBaseValueRatio => CurrentValue / BaseValue;
 
         //FIXME: 有可能用ScriptableObject? 混用？還是monobehaviour比較好
-        [CompRef] [AutoChildren] private VariableStatModifier[] _localStatModifiers; //原本就放在下面..這是不是反而不會有太多用處
-        
-        
+        [CompRef]
+        [AutoChildren]
+        private VariableStatModifier[] _localStatModifiers; //原本就放在下面..這是不是反而不會有太多用處
+
         // ValueChangedListener<float> listener;
         // [PreviewInInspector] List<VariableStatModifier> statModifiers = new();
 
-        
-        [ShowInInspector] private List<IStatModifer> _statModifiers = new();
+
+        [ShowInInspector]
+        private List<IStatModifer> _statModifiers = new();
 
         // private bool ModifiersDirtyCheck()
         // {
@@ -48,10 +50,11 @@ namespace MonoFSM.Variable
         protected override void RegisterValueChange()
         {
             base.RegisterValueChange();
-            if (_localStatModifiers == null) return;
-            foreach (var statModifier in _localStatModifiers) RegisterModifier(statModifier);
+            if (_localStatModifiers == null)
+                return;
+            foreach (var statModifier in _localStatModifiers)
+                RegisterModifier(statModifier);
         }
-        
 
         protected override void Awake()
         {
@@ -88,7 +91,9 @@ namespace MonoFSM.Variable
             {
                 //FIXME: bound還要管嗎？
                 // ModifiersDirtyCheck();
-                // if (_isDirty) 
+                // if (_isDirty)
+                if (!isActiveAndEnabled)
+                    return _value;
                 ForceCalValues();
                 return _value;
             }
@@ -102,7 +107,8 @@ namespace MonoFSM.Variable
         private float ValueAfterApplyModifier()
         {
             // Debug.Log("Cal Value:" + BaseValue + "," + statModifiers.Count);
-            if (Application.isPlaying == false) return CalValueAfterModifier(_localStatModifiers);
+            if (Application.isPlaying == false)
+                return CalValueAfterModifier(_localStatModifiers);
 
             _statModifiers?.Sort(_modifierOrder);
             return CalValueAfterModifier(_statModifiers);
@@ -110,7 +116,7 @@ namespace MonoFSM.Variable
 
         ///最重要的！
         [Button]
-        private float ForceCalValues() 
+        private float ForceCalValues()
         {
             _isDirty = false;
             _lastValue = _value;
@@ -121,7 +127,8 @@ namespace MonoFSM.Variable
                     tempValue = modifier.AfterGetValueModifyCheck(tempValue);
             _value = tempValue;
 
-            if (_lastValue != _value) OnValueChanged();
+            if (_lastValue != _value)
+                OnValueChanged();
 
             //所有人polling ecs?
             return _value;
@@ -137,7 +144,8 @@ namespace MonoFSM.Variable
             {
                 var mod = statModifiers[i];
                 // Debug.Log("Stat Modifier:" + mod.GetValue + mod.GetModType + " mod.IsValid:" + mod.IsValid);
-                if (mod.IsValid == false) continue;
+                if (mod.IsValid == false)
+                    continue;
                 switch (mod.GetModType)
                 {
                     case StatModType.Flat:
@@ -148,7 +156,10 @@ namespace MonoFSM.Variable
                     {
                         sumPercentAdd += mod.GetValue;
 
-                        if (i + 1 >= statModifiers.Count || statModifiers[i + 1].GetModType != StatModType.PercentAdd)
+                        if (
+                            i + 1 >= statModifiers.Count
+                            || statModifiers[i + 1].GetModType != StatModType.PercentAdd
+                        )
                         {
                             finalValue *= 1 + sumPercentAdd;
                             sumPercentAdd = 0;
@@ -171,9 +182,6 @@ namespace MonoFSM.Variable
             // Workaround for float calculation errors, like displaying 12.00001 instead of 12
             return (float)Math.Round(finalValue, 4);
         }
-
-
-
 
         // public void AddListener(UnityAction<float> action, MonoBehaviour owner)
         // {
@@ -247,6 +255,7 @@ namespace MonoFSM.Variable
 
             return false;
         }
+
         public bool RemoveModifier(VariableStatModifier mod)
         {
             if (_statModifiers.Remove(mod))
@@ -288,8 +297,10 @@ namespace MonoFSM.Variable
             _isDirty = true;
         }
 
-        private readonly Comparison<IStatModifer> _modifierOrder =
-            (a, b) => a.GetOrder < b.GetOrder ? -1 : a.GetOrder > b.GetOrder ? 1 : 0;
+        private readonly Comparison<IStatModifer> _modifierOrder = (a, b) =>
+            a.GetOrder < b.GetOrder ? -1
+            : a.GetOrder > b.GetOrder ? 1
+            : 0;
 
         public void OnConditionChanged()
         {

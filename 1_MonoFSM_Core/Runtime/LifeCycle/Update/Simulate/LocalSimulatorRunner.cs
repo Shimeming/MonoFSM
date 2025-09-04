@@ -66,7 +66,7 @@ namespace MonoFSM.Core.Simulate
 
         private void FixedUpdate()
         {
-            _world.BeforeSimulate(Time.fixedDeltaTime);
+            _world.BeforeSimulate(Time.fixedDeltaTime, Time.frameCount);
             _world.Simulate(WorldUpdateSimulator.DeltaTime);
         }
 

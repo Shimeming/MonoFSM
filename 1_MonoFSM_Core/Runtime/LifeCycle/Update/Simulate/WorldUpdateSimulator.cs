@@ -282,13 +282,16 @@ namespace MonoFSM.Core.Simulate
         private static float _deltaTime;
         public static float DeltaTime => _deltaTime * TimeScale;
 
-        public void BeforeSimulate(float deltaTime)
+        public void BeforeSimulate(float deltaTime, int tick)
         {
+            CurrentTick = tick;
             _deltaTime = deltaTime;
             foreach (var monoObject in _currentUpdatingObjs)
                 if (monoObject is { isActiveAndEnabled: true })
                     monoObject.BeforeSimulate(deltaTime);
         }
+
+        public static int CurrentTick { get; private set; }
 
         /// <summary>
         /// 需要依照環境決定怎麼simulate

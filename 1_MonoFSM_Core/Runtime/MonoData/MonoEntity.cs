@@ -212,6 +212,7 @@ namespace MonoFSM.Runtime
 
         // private HashSet<GeneralEffectType> _dealerTypeSet = new HashSet<GeneralEffectType>(); //可以被互動的性質
 
+        //FIXME: 好像不需要喔？
         private readonly Dictionary<GeneralEffectType, GeneralEffectDealer> _dealerTypeMap = new(); //keys?
 #if UNITY_EDITOR
 
@@ -397,29 +398,19 @@ namespace MonoFSM.Runtime
         {
             // _receiverTypeSet = new HashSet<GeneralEffectType>();
             // Debug.Log("EnterSceneAwake: " +name,this); //跑兩次？
-            if (_receivers != null)
-                foreach (var receiver in _receivers)
-                {
-                    // _receiverTypeSet.Add(receiver.EffectType);
-                    if (!_receiverTypeMap.TryAdd(receiver._effectType, receiver))
-                    {
-                        Debug.Log("Receiver type already exists" + receiver._effectType, receiver);
-                    }
-                }
-
-            foreach (var dealer in _dealers)
-                if (_dealerTypeMap.TryAdd(dealer._effectType, dealer) == false)
-                    Debug.LogWarning($"Dealer {dealer._effectType} already exists", dealer);
-
-            // _dealerTypeMap = _dealers.ToDictionary(dealer => dealer.EffectType);
-
-            // _dealerTypeSet = new HashSet<GeneralEffectType>();
-            // if (_dealers != null)
-            //     foreach (var dealer in _dealers)
+            // if (_receivers != null)
+            //     foreach (var receiver in _receivers)
             //     {
-            //         // _dealerTypeSet.Add(dealer.EffectType);
-            //         _dealerTypeMap[dealer.EffectType] = dealer;
+            //         // _receiverTypeSet.Add(receiver.EffectType);
+            //         if (!_receiverTypeMap.TryAdd(receiver._effectType, receiver))
+            //         {
+            //             Debug.Log("Receiver type already exists" + receiver._effectType, receiver);
+            //         }
             //     }
+            //
+            // foreach (var dealer in _dealers)
+            //     if (_dealerTypeMap.TryAdd(dealer._effectType, dealer) == false)
+            //         Debug.LogWarning($"Dealer {dealer._effectType} already exists", dealer);
         }
 
         public IEnumerable<ValueDropdownItem<VariableTag>> GetVarTagOptions()

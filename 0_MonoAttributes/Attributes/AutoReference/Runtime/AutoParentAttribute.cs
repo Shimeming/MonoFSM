@@ -26,12 +26,20 @@ using UnityEngine;
 [AttributeUsage(AttributeTargets.All, AllowMultiple = false, Inherited = false)]
 public class AutoParentAttribute : AutoFamilyAttribute
 {
-    public AutoParentAttribute(bool getMadIfMissing = true)
-        : base(getMadIfMissing) { }
+    public AutoParentAttribute(bool getMadIfMissing = true, bool includeSelf = true)
+        : base(getMadIfMissing)
+    {
+        _includeSelf = includeSelf;
+    }
+
+    public readonly bool _includeSelf;
 
     protected override object[] GetComponents(MonoBehaviour mb, GameObject go, Type componentType)
     {
-        var results = mb.GetComponentsInParent(LimitedType ?? componentType, true) as object[];
+        var start = mb.transform;
+        if (!_includeSelf)
+            start = start.parent;
+        var results = start.GetComponentsInParent(LimitedType ?? componentType, true) as object[];
         var destinationArray = Array.CreateInstance(componentType, results.Length);
         Array.Copy(results, destinationArray, results.Length);
         return destinationArray as object[]; //Array.ConvertAll(results, item => Convert.ChangeType(item, componentType));
@@ -51,6 +59,9 @@ public class AutoParentAttribute : AutoFamilyAttribute
     public override object GetTheSingleComponent(MonoBehaviour mb, Type componentType)
     {
         // Debug.Log("[AutoParent] GetTheSingleComponent" + mb.gameObject + mb.name, mb.gameObject);
-        return mb.GetComponentInParent(LimitedType ?? componentType, true);
+        var start = mb.transform;
+        if (!_includeSelf)
+            start = start.parent;
+        return start.GetComponentInParent(LimitedType ?? componentType, true);
     }
 }

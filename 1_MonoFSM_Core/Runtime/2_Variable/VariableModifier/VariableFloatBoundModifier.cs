@@ -1,6 +1,7 @@
 using System;
 using MonoFSM.Core.Attributes;
-using MonoFSM.Core.DataProvider;
+using MonoFSM.Foundation;
+using MonoFSM.Variable.Attributes;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Events;
@@ -26,6 +27,7 @@ namespace MonoFSM.Variable
 
     /// <summary>
     /// Function: 限制VariableFloat的最小最大值
+    /// //FIXME: 直接塞兩個VarFloat比較對？
     /// </summary>
     public class VariableFloatBoundModifier : MonoBehaviour, AbstractVariableModifier<float>
     {
@@ -49,19 +51,21 @@ namespace MonoFSM.Variable
         //FIXME: simple bound怎麼設計？
         [Component]
         [AutoChildren]
-        IFloatProvider[] _floatProviderArray = Array.Empty<IFloatProvider>();
+        private AbstractValueProvider<float>[] _floatProviderArray = Array.Empty<
+            AbstractValueProvider<float>
+        >();
 
         [PreviewInInspector]
-        [Component]
-        IFloatProvider _minValueProvider =>
+        [CompRef]
+        private AbstractValueProvider<float> _minValueProvider =>
             _floatProviderArray.Length > 0 ? _floatProviderArray[0] : null;
 
         [PreviewInInspector]
-        [Component]
-        IFloatProvider _maxValueProvider =>
+        [CompRef]
+        private AbstractValueProvider<float> _maxValueProvider =>
             _floatProviderArray.Length > 1 ? _floatProviderArray[1] : null;
 
-        //FIXME: Editor time沒有...哭了
+        //FIXME: 直接塞兩個VarFloat比較對？
 
         [ShowInInspector]
         public float MinValue => _minValueProvider?.Value ?? Mathf.NegativeInfinity; //MaxVar != null ? MaxVar.CurrentValue : max;
@@ -95,7 +99,7 @@ namespace MonoFSM.Variable
         {
             if (_floatProviderArray == null || _floatProviderArray.Length == 0)
             {
-                _floatProviderArray = GetComponents<IFloatProvider>(); //FIXME 好煩喔，editor code還是需要自己寫
+                _floatProviderArray = GetComponents<AbstractValueProvider<float>>(); //FIXME 好煩喔，editor code還是需要自己寫
                 return;
             }
 

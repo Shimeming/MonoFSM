@@ -8,6 +8,7 @@ using MonoFSM.Core.Runtime;
 using MonoFSM.CustomAttributes;
 using MonoFSM.EditorExtension;
 using MonoFSM.Foundation;
+using MonoFSM.Runtime.Variable;
 using MonoFSM.Variable.Attributes;
 using MonoFSM.Variable.VariableBinder;
 using MonoFSM.VarRefOld;
@@ -30,10 +31,11 @@ namespace MonoFSM.Variable
 
         protected IValueProvider<T> GetActiveTypedValueSource()
         {
-            return ValueResolver.GetActiveValueSource(_valueSources);
+            return ValueResolver.GetActiveValueSource(_valueSources, this);
         }
 
-        protected bool HasValueProvider => ValueResolver.HasValueProvider(_valueSources);
+        protected bool HasValueProvider =>
+            ValueResolver.HasValueProvider(_valueSources) || _parentVarEntity != null;
 
         public abstract void SetValue(T value, MonoBehaviour byWho);
         public abstract void SetValue(object value, MonoBehaviour byWho);
@@ -53,6 +55,9 @@ namespace MonoFSM.Variable
             IConfigTypeProvider,
             IResetStateRestore
     {
+        [PreviewInInspector]
+        [AutoParent(includeSelf: false)] //不可以抓到自己！
+        protected VarEntity _parentVarEntity; //我的parent如果有VarEntity, 去跟這個entity拿？
         //FIXME: 應該把ResetToDefault做掉？
 #if UNITY_EDITOR
         public string IconName { get; }
@@ -252,6 +257,46 @@ namespace MonoFSM.Variable
 
         public void SetValue<T>(T value, Object byWho)
         {
+            if (_parentVarEntity != null) //用proxy
+            {
+                if (_parentVarEntity != this)
+                {
+                    Debug.Log("Proxy SetValue to parent entity", _parentVarEntity);
+                    var targetVar = _parentVarEntity.Value.GetVar(_varTag);
+                    if (targetVar == null)
+                    {
+                        Debug.LogError(
+                            $"Parent entity {_parentVarEntity.name} has no var {_varTag.name}",
+                            this
+                        );
+                        return;
+                    }
+
+                    if (targetVar == this)
+                    {
+                        Debug.LogError(
+                            "Variable's parent entity is self, possible misconfiguration.",
+                            this
+                        );
+                        Debug.Break();
+                        return;
+                    }
+
+                    // targetVar.SetValue(value, byWho);
+
+                    return;
+                }
+                else
+                {
+                    Debug.LogError(
+                        "Variable's parent entity is self, possible misconfiguration.",
+                        this
+                    );
+                }
+
+                Debug.Break();
+            }
+
             SetValueInternal(value, byWho);
             OnValueChanged();
 
@@ -479,7 +524,11 @@ namespace MonoFSM.Variable
 
         // [HideInInlineEditors] [Header("Flag Setting")]
         // public FlagTypeScriptable typeScriptable;
-        protected virtual void Awake() { } //FIXME: 好像盡量不要亂用awake喔
+        protected virtual void Awake()
+        {
+            if (_parentVarEntity != null)
+                Debug.Log("Variable has parent entity: " + _parentVarEntity.name, this);
+        } //FIXME: 好像盡量不要亂用awake喔
 
         //FIXME: virtual variable?
         // [FormerlySerializedAs("VariableSource")]
@@ -507,14 +556,23 @@ namespace MonoFSM.Variable
         //
         // }
 
+        [Button("Save")]
         public virtual void OnBeforePrefabSave()
         {
             // base.OnBeforePrefabSave();
             UpdateTag();
             if (_varTag == null)
+            {
                 Debug.LogError("No VarTag: " + this, this);
-            else
-                name = _varTag.name;
+                return;
+            }
+
+            var str = _varTag.name;
+            if (_parentVarEntity != null)
+                str = _parentVarEntity.name + "_" + str;
+
+            name = str;
+            //FIXME: 怎麼更好的取名？
         }
 
         public Type GetRestrictType()

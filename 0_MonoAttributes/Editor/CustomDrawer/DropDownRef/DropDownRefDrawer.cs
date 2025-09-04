@@ -197,13 +197,17 @@ public class DropDownRefAttributeDrawer : OdinAttributeDrawer<DropDownRefAttribu
 
         var newObj = SirenixEditorFields.UnityObjectField(
             Property.ValueEntry.WeakSmartValue as Object,
-            Property.ValueEntry.TypeOfValue,
+            Property.ValueEntry.BaseValueType,
             true
         ); //GUILayout.Width(EditorGUIUtility.currentViewWidth) 這個會太肥噴掉
+
+        // Debug.Log("Property.ValueEntry.BaseValueType:" + Property.ValueEntry.BaseValueType);
+        // Debug.Log("Property.ValueEntry.TypeOfValue:" + Property.ValueEntry.TypeOfValue);
         if (newObj == _bindComp)
-            // Debug.Log("newObj == Property.ParentValues[0]");
             Debug.LogError(
-                "newObj == Property.ParentValues[0], this should not happen, please check your code."
+                "newObj == Property.ParentValues[0], this should not happen, please check your code. member:"
+                    + Property.NiceName,
+                _bindComp
             );
         else
             Property.ValueEntry.WeakSmartValue = newObj;

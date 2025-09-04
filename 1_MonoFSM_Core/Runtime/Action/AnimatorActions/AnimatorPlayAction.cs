@@ -853,7 +853,7 @@ namespace MonoFSM.Animation
         //
         // }
         // public ITransitionCheckingTarget ValueChangedTarget => doneEventTransition;
-        private bool IsValid => _conditions.IsAllValid();
+        private bool IsValid => animator.isActiveAndEnabled && _conditions.IsAllValid();
 
         public void OnEnterRender() //transition更早就判定？導致done錯了？
         {
@@ -939,7 +939,6 @@ namespace MonoFSM.Animation
                 enabled = false;
                 return;
             }
-
             //包子 Cross Fade 不能一直跑 （議會小電梯）
             // if (animator.isActiveAndEnabled && animatorEnterCrossFade <= 0)
             //上面這行，會導致RenderUpdate沒有辦法進來切斷？

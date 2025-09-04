@@ -8,6 +8,8 @@ namespace MonoFSM.Core.Variable.Providers
 
     public class AbstractCurrentItemOfListProvider<T> : AbstractValueProvider<T>
     {
+        public override string Description => "Get Current Item " + _varList?.name;
+
         [DropDownRef]
         [SerializeField]
         private VarList<T> _varList;

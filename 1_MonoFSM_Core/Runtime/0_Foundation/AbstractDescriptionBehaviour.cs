@@ -24,7 +24,8 @@ namespace MonoFSM.Foundation
     {
 #if UNITY_EDITOR
         [TextArea]
-        public string _note; //這個應該要有另外的地方可以draw? 多component還會打架...
+        [SerializeField]
+        protected string _note; //這個應該要有另外的地方可以draw? 多component還會打架...
 #endif
 
         /// <summary>

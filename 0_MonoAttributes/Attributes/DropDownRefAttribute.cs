@@ -16,6 +16,7 @@ public class DropDownRefAttribute : Attribute
     {
         _parentType = parentType;
         _dynamicTypeGetter = dynamicTypeGetter;
+        //這要做啥？
         _findFromParentTransform = findFromParentTransform;
     }
 

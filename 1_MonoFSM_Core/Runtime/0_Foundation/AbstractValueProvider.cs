@@ -37,7 +37,10 @@ namespace MonoFSM.Foundation
 
     public static class ValueResolver
     {
-        public static IValueProvider<T> GetActiveValueSource<T>(IValueProvider<T>[] sources)
+        public static IValueProvider<T> GetActiveValueSource<T>(
+            IValueProvider<T>[] sources,
+            MonoBehaviour context
+        )
         {
             if (sources == null || sources.Length == 0)
                 return null;
@@ -46,8 +49,8 @@ namespace MonoFSM.Foundation
                 if (provider.IsValid)
                     return provider;
 
-            Debug.LogWarning("condition not met, use default? (last)" + sources[^1]);
-            return sources[^1];
+            // Debug.LogWarning("condition not met, use default? (last)" + sources[^1], context);
+            return null;
         }
 
         public static bool HasValueProvider<T>(IValueProvider<T>[] sources)
