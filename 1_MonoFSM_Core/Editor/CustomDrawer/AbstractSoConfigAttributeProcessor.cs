@@ -6,7 +6,6 @@ using _1_MonoFSM_Core.Runtime.Attributes;
 using JetBrains.Annotations;
 using MonoFSM.Core.Attributes;
 using Sirenix.OdinInspector.Editor;
-using UnityEngine;
 
 namespace _1_MonoFSM_Core.Editor.CustomDrawer
 {
@@ -21,16 +20,23 @@ namespace _1_MonoFSM_Core.Editor.CustomDrawer
             List<Attribute> attributes
         )
         {
-            var memberInfo = property.Info.GetMemberInfo();
-            if (memberInfo is PropertyInfo)
+            if (property.IsTreeRoot)
                 return;
+            var backend = property.ValueEntry?.SerializationBackend ?? SerializationBackend.None;
+            var isSerialized = backend != SerializationBackend.None; // Unity 或 Odin 都算序列化
+            if (!isSerialized)
+                return;
+
+            var memberInfo = property.Info.GetMemberInfo();
+            // if (memberInfo is PropertyInfo)
+            //     return;
 
             // 如果是字段，檢查是否為public或有SerializeField特性
             if (memberInfo is FieldInfo fieldInfo)
             {
-                var hasSerializeField = property.Info.GetAttribute<SerializeField>() != null;
-                if (!fieldInfo.IsPublic && !hasSerializeField)
-                    return;
+                // var hasSerializeField = property.Info.GetAttribute<SerializeField>() != null;
+                // if (!fieldInfo.IsPublic && !hasSerializeField)
+                //     return;
 
                 if (property.Info.GetAttribute<SOConfigAttribute>() != null)
                     return;
