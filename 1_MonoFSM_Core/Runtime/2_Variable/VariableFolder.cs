@@ -15,6 +15,13 @@ public class VariableFolder : MonoDict<VariableTag, AbstractMonoVariable>
 {
     protected override bool IsStringDictEnable => true;
 
+    protected override bool IsAddValid(AbstractMonoVariable value)
+    {
+        if (value.HasParentVarEntity)
+            return false;
+        return true;
+    }
+
     // [ReadOnly] [Component( AddComponentAt.Children, "[Variable]")]
     // public AbstractVariable flag;
 

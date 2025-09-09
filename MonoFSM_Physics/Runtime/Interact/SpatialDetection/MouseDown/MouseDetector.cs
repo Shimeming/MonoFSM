@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace MonoFSM.Runtime.Interact
 {
-    public class MouseDetector : IDetectionSource
+    public class MouseDetector : AbstractDetectionSource
     {
         static MouseDetector _instance;
         private GameObject _clickedObject;
@@ -37,10 +37,11 @@ namespace MonoFSM.Runtime.Interact
                 {
                     _clickedObject = hit.collider.gameObject;
                     _mouseClicked = true;
+
+                    // 報告點擊事件給 EffectDetector
+                    ReportEnterEvent(_clickedObject, hit.point, hit.normal);
                 }
             }
-
-            ProcessEnterExitEvents();
         }
     }
 }

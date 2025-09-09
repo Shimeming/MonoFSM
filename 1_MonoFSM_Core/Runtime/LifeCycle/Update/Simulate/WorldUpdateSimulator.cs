@@ -149,11 +149,11 @@ namespace MonoFSM.Core.Simulate
         {
             if (obj == null)
                 return;
-            // Unregister the object from the world update simulator
-            UnregisterMonoObject(obj); //Fusion那邊直接despawn的咧？...
             // Return the object to the pool
             //FIXME: 要先做事？OnReturnPool? OnDespawn
             _spawnProcessor.Despawn(obj); //看實作
+            // Unregister the object from the world update simulator
+            UnregisterMonoObject(obj); //Fusion那邊直接despawn的咧？...
         }
 
         public void RegisterMonoObject(MonoObj target)
@@ -164,7 +164,7 @@ namespace MonoFSM.Core.Simulate
                 //     $"Registering MonoPoolObj: {target.name} in WorldUpdateSimulator.",
                 //     target
                 // );
-                target.WorldUpdateSimulator = this;
+                target.SetWorldUpdateSimulator(this);
                 //重置狀態
                 // target.ResetStateRestore();
                 // target.ResetStart();
@@ -187,8 +187,19 @@ namespace MonoFSM.Core.Simulate
         {
             if (_monoObjectSet.Remove(target))
             {
+                Debug.Log(
+                    $"Unregistering MonoPoolObj: {target.name} from WorldUpdateSimulator.",
+                    target
+                );
                 target.ResetStateRestore(); //FIXME: 需要這行嗎？OnReturnToPool?
-                target.WorldUpdateSimulator = null; //清除引用
+                target.SetWorldUpdateSimulator(null); //清除引用
+            }
+            else
+            {
+                Debug.LogError(
+                    $"Attempted to unregister MonoPoolObj: {target.name}, but it was not found in the WorldUpdateSimulator set.",
+                    target
+                );
             }
         }
 

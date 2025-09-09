@@ -9,13 +9,18 @@ using UnityEngine;
 namespace MonoFSM.Core.Detection
 {
     //事件要從rigidbody來QQ
-    public class CollisionDetectorSource : IDetectionSource
+    public class CollisionDetectorSource : AbstractDetectionSource
     {
-        [Auto] [CompRef] private Collider _collider;
+        [Auto]
+        [CompRef]
+        private Collider _collider;
 
-        [AutoParent] [SerializeField] private Rigidbody _rigidbody;
+        [AutoParent]
+        [SerializeField]
+        private Rigidbody _rigidbody;
 
-        [PreviewInInspector] [AutoParent]
+        [PreviewInInspector]
+        [AutoParent]
         public CollisionEventListener _collisionEventListener; //用overlap? cast?
 
         [ShowIf("@_collisionEventListener == null")]
@@ -27,17 +32,15 @@ namespace MonoFSM.Core.Detection
                     _rigidbody.gameObject.TryGetCompOrAdd<CollisionEventListener>();
         }
 
-
         protected override void Awake() //Start? 摸別人
         {
             base.Awake();
             _collisionEventListener.RegisterDetector(this);
         }
 
-
-        [CompRef] [AutoChildren(DepthOneOnly = true)]
+        [CompRef]
+        [AutoChildren(DepthOneOnly = true)]
         private CollisionEventNode _enterNode;
-
 
         public void OnCollisionStay(Collision collision)
         {
@@ -72,7 +75,8 @@ namespace MonoFSM.Core.Detection
             base.UpdateDetection();
         }
 
-        [ShowInDebugMode] private GameObject _lastCollisionEnterObj;
+        [ShowInDebugMode]
+        private GameObject _lastCollisionEnterObj;
 
         public override IEnumerable<DetectionResult> GetCurrentDetections()
         {

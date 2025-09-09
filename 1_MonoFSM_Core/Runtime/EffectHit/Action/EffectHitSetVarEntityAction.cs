@@ -47,9 +47,6 @@ namespace _1_MonoFSM_Core.Runtime.EffectHit.Action
 
         protected override void OnArgEventReceived(GeneralEffectHitData arg)
         {
-            // base.OnArgEventReceived(arg);
-            // 把被撞擊的實體設定到目標變數中
-            _lastEventReceivedTime = Time.time;
             //FIXME: 不一定是Receiver啊...
             var monoEntity =
                 _effectHitTarget == EffectHitTarget.Receiver

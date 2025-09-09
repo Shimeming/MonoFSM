@@ -16,12 +16,12 @@ namespace MonoFSM.Core.Runtime.Action
     {
         void IArgEventReceiver<T>.ArgEventReceived(T arg)
         {
-            _lastEventReceivedTime = Time.time;
+            AddEventTime(Time.time);
             OnArgEventReceived(arg);
         }
 
         protected abstract void OnArgEventReceived(T arg);
-        public string ValueInfo => "evt:" + _lastEventReceivedTime.ToString("F2");
-        public bool IsDrawingValueInfo => _lastEventReceivedTime != -1f;
+        public string ValueInfo => "evt:" + lastEventReceivedTime.ToString("F2");
+        public bool IsDrawingValueInfo => lastEventReceivedTime != -1f;
     }
 }

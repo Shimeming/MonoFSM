@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using MonoFSM.Core.Attributes;
@@ -115,9 +117,9 @@ namespace MonoFSM.Core.Runtime.Action
 
             _delay = false;
             // this.AddTask(OnStateEnterImplement, delayActionModifier.delayTime);
-            _lastEventReceivedTime = Time.time;
+            AddEventTime(Time.time);
             OnActionExecuteImplement();
-            Debug.Log($"Action Executed: {name} {renamePostfix} at {_lastEventReceivedTime}", this);
+            Debug.Log($"Action Executed: {name} {renamePostfix} at {lastEventReceivedTime}", this);
         }
 
         protected abstract void OnActionExecuteImplement();
@@ -160,13 +162,19 @@ namespace MonoFSM.Core.Runtime.Action
         //     OnActionExecuteImplement();
         // }
 #if UNITY_EDITOR
-        [PreviewInInspector]
-        protected float _lastEventReceivedTime = -1f;
+        [PreviewInDebugMode]
+        protected Queue<float> _lastEventReceivedTimes = new();
+
+        [PreviewInDebugMode]
+        protected float lastEventReceivedTime =>
+            _lastEventReceivedTimes.Count > 0 ? _lastEventReceivedTimes.Last() : -1f;
+
+        private const int MaxEventTimeRecords = 10;
 #endif
 
         public void EventReceived()
         {
-            _lastEventReceivedTime = Time.time;
+            AddEventTime(Time.time);
             // if (!isActiveAndEnabled)
             // if (enabled == false)
             //     Debug.LogError("not enabled", this);
@@ -188,8 +196,26 @@ namespace MonoFSM.Core.Runtime.Action
 
         public virtual void ResetStateRestore()
         {
-            _lastEventReceivedTime = -1f;
+#if UNITY_EDITOR
+            _lastEventReceivedTimes.Clear();
+#endif
             _delay = false;
         }
+
+#if UNITY_EDITOR
+        protected void AddEventTime(float time)
+        {
+            _lastEventReceivedTimes.Enqueue(time);
+
+            // 保持最多10個記錄
+            while (_lastEventReceivedTimes.Count > MaxEventTimeRecords)
+                _lastEventReceivedTimes.Dequeue();
+        }
+#else
+        protected void AddEventTime(float time)
+        {
+            // Release模式下不記錄時間
+        }
+#endif
     }
 }

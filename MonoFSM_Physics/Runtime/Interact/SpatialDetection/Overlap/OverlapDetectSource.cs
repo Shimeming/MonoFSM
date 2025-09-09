@@ -8,7 +8,7 @@ using UnityEngine.Serialization;
 
 namespace MonoFSM_Physics.Runtime.Interact.SpatialDetection
 {
-    public class OverlapDetectSource : IDetectionSource
+    public class OverlapDetectSource : AbstractDetectionSource
     {
         [FormerlySerializedAs("_myOverlap")]
         [DropDownRef]

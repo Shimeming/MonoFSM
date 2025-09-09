@@ -32,7 +32,9 @@ namespace MonoFSM.Core.Detection
     //好像還是要可以拖拉耶，結構不定 FIXME: 直接和BaseDetectProcessor合併?
 
     // public interface IDetectionSource //AbstractComponent
-    public abstract class IDetectionSource : AbstractDescriptionBehaviour, IHierarchyValueInfo
+    public abstract class AbstractDetectionSource
+        : AbstractDescriptionBehaviour,
+            IHierarchyValueInfo
     {
         protected override string DescriptionTag => "DetectionSource";
 
@@ -41,12 +43,7 @@ namespace MonoFSM.Core.Detection
         public EffectDetector _detector;
         public virtual bool IsEnabled => enabled;
 
-        //trigger類？
-        [ShowInDebugMode]
-        protected List<GameObject> _toEnter = new();
-
-        [ShowInDebugMode]
-        protected List<GameObject> _toExit = new();
+        //統一由 EffectDetector 管理 enter/exit 事件
 
         //FIXME: 要有thisFrameHitData?
         //FIXME: 已經打死是Collider了，感覺要抽象掉一層，3D間共用？傳T?
@@ -68,35 +65,44 @@ namespace MonoFSM.Core.Detection
 
         public virtual void UpdateDetection()
         {
-            ProcessEnterExitEvents();
+            // DetectionSource 只負責檢測，事件處理由 EffectDetector 統一管理
         }
 
-        protected void ProcessEnterExitEvents()
+        /// <summary>
+        ///     向 EffectDetector 報告物件進入事件
+        /// </summary>
+        protected void ReportEnterEvent(
+            GameObject obj,
+            Vector3? hitPoint = null,
+            Vector3? hitNormal = null
+        )
         {
-            //測試enter的部分
-            //現在是以 Detector,Detectable為單位，不能只key Dealer/Receiver 就觸發？
-            foreach (var obj in _toEnter)
-            {
-                var result = _detector.OnDetectEnterCheck(obj);
-            }
-
-            _toEnter.Clear();
-
-            foreach (var obj in _toExit)
-                _detector.OnDetectExitCheck(obj);
-
-            _toExit.Clear();
+            this.Log("ReportEnterEvent: " + obj.name, obj);
+            _detector.OnDetectEnterCheck(obj, hitPoint, hitNormal);
         }
 
-        protected void QueueEnterEvent(GameObject obj) //fixme 現在沒有管 hit data那些耶
+        /// <summary>
+        ///     向 EffectDetector 報告物件離開事件
+        /// </summary>
+        protected void ReportExitEvent(GameObject obj)
         {
-            // Debug.Log("QueueEnterEvent: " + obj.name, obj);
-            _toEnter.Add(obj);
+            _detector.OnDetectExitCheck(obj);
         }
 
+        /// <summary>
+        ///     向後相容的方法，內部調用新的 ReportEnterEvent
+        /// </summary>
+        protected void QueueEnterEvent(GameObject obj)
+        {
+            ReportEnterEvent(obj);
+        }
+
+        /// <summary>
+        ///     向後相容的方法，內部調用新的 ReportExitEvent
+        /// </summary>
         protected void QueueExitEvent(GameObject obj)
         {
-            _toExit.Add(obj);
+            ReportExitEvent(obj);
         }
 
         public string ValueInfo => "L:" + LayerMask.LayerToName(gameObject.layer);

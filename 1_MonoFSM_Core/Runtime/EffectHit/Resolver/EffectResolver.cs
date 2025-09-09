@@ -80,7 +80,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         //     name = "[" + TypeTag + "]" + _effectType.name.Replace("[EffectType]", "");
         // }
 
-        public override string Description => FormatName(_effectType.name) + _note; //要包含Detector的名字嗎？ 遠距離 的 player
+        public override string Description => FormatName(_effectType?.name) + _note; //要包含Detector的名字嗎？ 遠距離 的 player
 
         protected abstract string TypeTag { get; }
 

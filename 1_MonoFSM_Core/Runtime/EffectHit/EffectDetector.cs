@@ -70,16 +70,14 @@ namespace MonoFSM.Core.Detection
         [Required]
         [CompRef]
         [AutoChildren(DepthOneOnly = true)]
-        private IDetectionSource[] _detectionSources; //想要手動拉？不好？還是裝下面嗎？
+        private AbstractDetectionSource[] _detectionSources; //想要手動拉？不好？還是裝下面嗎？
 
-        [Required]
-        [CompRef]
-        [AutoChildren(DepthOneOnly = true)]
-        private IDetectionSource _detectionSource;
+        // [Required]
+        // [CompRef]
+        // [AutoChildren(DepthOneOnly = true)]
+        // private AbstractDetectionSource _detectionSource;
 
-        private readonly List<EffectDetectable> _toRemove = new();
-        private readonly Dictionary<GameObject, EffectDetectable> _currentDetections = new();
-        private readonly HashSet<EffectDetectable> _processedThisFrame = new();
+        private readonly List<EffectDetectable> _toRemove = new(); // 用於 OnDisable 清理
 
         // 追蹤 dealer 狀態以檢測變化
         private readonly Dictionary<GeneralEffectDealer, bool> _dealerLastStates = new();
@@ -94,7 +92,7 @@ namespace MonoFSM.Core.Detection
             _toRemove.AddRange(_detectedObjects);
             foreach (var detectable in _toRemove)
                 // Debug.Log("OnDisable of detectable",detectable);
-                OnDetectExitCheck(detectable.gameObject);
+                TriggerExitEventsForDetectable(detectable);
 
             _toRemove.Clear();
             _detectedObjects.Clear();
@@ -105,7 +103,7 @@ namespace MonoFSM.Core.Detection
         [RequiredListLength(MinLength = 1)]
         [CompRef]
         [AutoChildren]
-        private GeneralEffectDealer[] dealers;
+        private GeneralEffectDealer[] _dealers;
 
         //GameObject必定要在Detector的layer
         // [FormerlySerializedAs("hittingLayer")]
@@ -135,110 +133,60 @@ namespace MonoFSM.Core.Detection
 
         //fixme:可以有直接傳過來的版本？
         //FIXME: return (bool & string)
+        /// <summary>
+        /// 向後相容方法 - 現在由 DetectCheck 統一管理，此方法僅作調試用途
+        /// </summary>
+        [System.Obsolete(
+            "Use DetectCheck() instead. This method is for backward compatibility only."
+        )]
         public string OnDetectEnterCheck(
             GameObject other,
             Vector3? point = null,
             Vector3? normal = null
-        ) //可能需要帶其他額外參數？像是collision的資訊
+        )
         {
-            if (IsValid == false) //條件不符合
+            // 向後相容：仍然支援手動觸發，但建議使用新的統一管理機制
+            if (IsValid == false)
                 return "Detector is not valid";
-            //理論上不該打到別的東西，layer就擋掉了才對 (有分layer的話)
 
             var detectable = GetEffectDetectable(other);
             if (detectable == null)
-            {
                 return "not a EffectDetectable";
-            }
 
-            // 檢查這個EffectDetectable是否已經在這個frame處理過了
-            if (!_processedThisFrame.Add(detectable))
-                return "EffectDetectable already processed this frame";
-
-            // 標記為已處理
-
-            var detectData = new DetectData(this, detectable);
-
-            if (point != null)
-                detectData.SetCustomHitPoint(point.Value);
-            if (normal != null)
-                detectData.SetCustomNormal(normal.Value);
-
-            //FIXME: 物理的想要繞掉，另外做condition?
-            // if (spatialDetectable.Owner == Owner) return; //自己身上的不算
+            // 手動加入到檢測列表（用於向後相容）
             _detectedObjects.Add(detectable);
+
 #if UNITY_EDITOR
             _lastDetectedObjects.Add(detectable);
-            detectable._debugDetectors.Add(this); //FIXME: 有點醜？
+            detectable._debugDetectors.Add(this);
 #endif
-            // Debug.Log("OnSpatialEnter dealers:"+dealers.Length+" receivers:"+effectCollider.EffectReceivers.Length, this);
-            //FIXME: 用update撈起來等等再判？
-            if (dealers == null)
-            {
-                Debug.LogError("Dealers is null", this);
-                return "Dealers is null";
-            }
 
-            foreach (var dealer in dealers)
-            {
-                if (!dealer.IsValid)
-                {
-                    dealer.SetFailReason("Dealer is not valid");
-                    continue;
-                }
-
-                //FIXME: receiver有可能同個frame已經處理過了，不同的物理進入點？
-                foreach (var receiver in detectable.EffectReceivers) //condition會錯？因為一直打？
-                {
-                    //FIXME: proxy的判定
-                    if (!dealer.CanHitReceiver(receiver))
-                        continue; //不會打到的不算
-                    //移到System?
-                    //互動雙方的條件描述
-                    //每個receiver都一個？多餘嗎？
-                    var hitData = receiver.GenerateEffectHitData(dealer);
-
-                    hitData.hitNormal = normal;
-                    hitData.hitPoint = point;
-
-                    if (point != null)
-                        Debug.Log("HitPoint is set to: " + hitData.hitPoint + point, this);
-                    if (normal != null)
-                        Debug.Log("HitNormal is set to: " + hitData.hitNormal, this);
-
-                    dealer.OnHitEnter(hitData, detectData);
-                    receiver.OnEffectHitEnter(hitData, detectData);
-                }
-            }
+            // 直接觸發進入事件
+            TriggerEnterEventsForDetectable(detectable, point, normal);
             return "Detection successful";
         }
 
+        /// <summary>
+        /// 向後相容方法 - 現在由 DetectCheck 統一管理，此方法僅作調試用途
+        /// </summary>
+        [System.Obsolete(
+            "Use DetectCheck() instead. This method is for backward compatibility only."
+        )]
         public void OnDetectExitCheck(GameObject other)
         {
             var detectable = GetEffectDetectable(other);
             if (detectable == null)
                 return;
 
+            // 手動從檢測列表移除（用於向後相容）
             _detectedObjects.Remove(detectable);
+
 #if UNITY_EDITOR
             detectable._debugDetectors.Remove(this);
 #endif
 
-            if (dealers != null)
-            {
-                foreach (var dealer in dealers)
-                {
-                    foreach (var receiver in detectable.EffectReceivers)
-                    {
-                        if (!dealer.IsEnteredReceiver(receiver))
-                            continue;
-
-                        var hitData = receiver.GenerateEffectHitData(dealer);
-                        dealer.OnHitExit(hitData);
-                        receiver.OnEffectHitExit(hitData);
-                    }
-                }
-            }
+            // 直接觸發離開事件
+            TriggerExitEventsForDetectable(detectable);
         }
 
         //需要debug是誰改的嗎？
@@ -252,33 +200,54 @@ namespace MonoFSM.Core.Detection
             DetectCheck();
         }
 
-        public void DetectCheck() //關掉就沒檢查了...不就導致沒辦法判斷exit了嗎？ 最後還是要OnDisable處理喔？
+        public void DetectCheck()
         {
-            // 每frame開始時清空已處理的集合
-            _processedThisFrame.Clear();
+            // 每frame重建檢測列表
 
-            // 1. 檢查 dealer 狀態變化，如果有變化才重新評估
-            if (CheckDealerStateChanges())
-                ReevaluateExistingDetections();
+            // 1. 記錄上一幀的檢測狀態
+            var previousDetected = new HashSet<EffectDetectable>(_detectedObjects);
 
-            // 2. 讓 DetectionSource 更新空間檢測（現有邏輯）
+            // 2. 清空當前檢測列表，準備重建
+            _detectedObjects.Clear();
+
+            // 3. 收集所有 DetectionSource 的當前檢測結果
             foreach (var detectionSource in _detectionSources)
             {
                 if (!detectionSource.IsEnabled)
                     continue;
-                detectionSource.UpdateDetection(); // 這會呼叫 OnDetectEnterCheck
+
+                // 讓 DetectionSource 更新其內部狀態
+                detectionSource.UpdateDetection();
+
+                // 收集當前檢測到的物件
+                foreach (var result in detectionSource.GetCurrentDetections())
+                {
+                    if (!result.isValidHit)
+                        continue;
+
+                    var detectable = GetEffectDetectable(result.targetObject);
+                    if (detectable != null && IsValid)
+                    {
+                        _detectedObjects.Add(detectable);
+                    }
+                }
             }
+
+            // 4. 檢查 dealer 狀態變化
+            if (CheckDealerStateChanges())
+                HandleDealerStateChanges();
+
+            // 5. 比較前後差異，觸發 Enter/Exit 事件
+            ProcessDetectionChanges(previousDetected, _detectedObjects);
         }
 
-        private void ReevaluateExistingDetections()
+        private void HandleDealerStateChanges()
         {
-            // Debug.Log("Reevaluating existing detections due to dealer state changes", this);
-
             // 先收集所有狀態變化
             var dealerStateChanges =
                 new Dictionary<GeneralEffectDealer, (bool lastState, bool currentState)>();
 
-            foreach (var dealer in dealers)
+            foreach (var dealer in _dealers)
             {
                 var currentState = dealer.IsValid;
                 var lastState = _dealerLastStates.GetValueOrDefault(dealer, false);
@@ -286,14 +255,9 @@ namespace MonoFSM.Core.Detection
                     dealerStateChanges[dealer] = (lastState, currentState);
             }
 
-            // 對每個 detectable 處理狀態變化
+            // 對每個當前檢測到的 detectable 處理狀態變化
             foreach (var detectable in _detectedObjects)
             {
-                // 檢查是否這個 frame 已經處理過了（避免和 DetectionSource 重複）
-                if (!_processedThisFrame.Add(detectable))
-                    continue;
-
-                // 處理狀態變化
                 ProcessDealerStateChangesForDetectable(detectable, dealerStateChanges);
             }
 
@@ -364,21 +328,114 @@ namespace MonoFSM.Core.Detection
 
         public void AfterUpdate() { }
 
+        private void ProcessDetectionChanges(
+            HashSet<EffectDetectable> previousDetected,
+            HashSet<EffectDetectable> currentDetected
+        )
+        {
+            // 找出新進入的物件（在current但不在previous）
+            var newlyEntered = new HashSet<EffectDetectable>(currentDetected);
+            newlyEntered.ExceptWith(previousDetected);
+
+            // 找出離開的物件（在previous但不在current）
+            var newlyExited = new HashSet<EffectDetectable>(previousDetected);
+            newlyExited.ExceptWith(currentDetected);
+
+            // 觸發進入事件
+            foreach (var detectable in newlyEntered)
+            {
+                TriggerEnterEventsForDetectable(detectable);
+#if UNITY_EDITOR
+                _lastDetectedObjects.Add(detectable);
+                detectable._debugDetectors.Add(this);
+#endif
+            }
+
+            // 觸發離開事件
+            foreach (var detectable in newlyExited)
+            {
+                TriggerExitEventsForDetectable(detectable);
+#if UNITY_EDITOR
+                detectable._debugDetectors.Remove(this);
+#endif
+            }
+        }
+
+        private void TriggerEnterEventsForDetectable(
+            EffectDetectable detectable,
+            Vector3? point = null,
+            Vector3? normal = null
+        )
+        {
+            if (_dealers == null)
+            {
+                Debug.LogError("Dealers is null", this);
+                return;
+            }
+
+            var detectData = new DetectData(this, detectable);
+            if (point != null)
+                detectData.SetCustomHitPoint(point.Value);
+            if (normal != null)
+                detectData.SetCustomNormal(normal.Value);
+
+            foreach (var dealer in _dealers)
+            {
+                if (!dealer.IsValid)
+                {
+                    dealer.SetFailReason("Dealer is not valid");
+                    continue;
+                }
+
+                foreach (var receiver in detectable.EffectReceivers)
+                {
+                    if (!dealer.CanHitReceiver(receiver))
+                        continue;
+
+                    var hitData = receiver.GenerateEffectHitData(dealer);
+                    hitData.hitNormal = normal;
+                    hitData.hitPoint = point;
+
+                    dealer.OnHitEnter(hitData, detectData);
+                    receiver.OnEffectHitEnter(hitData, detectData);
+                }
+            }
+        }
+
+        private void TriggerExitEventsForDetectable(EffectDetectable detectable)
+        {
+            if (_dealers == null)
+                return;
+
+            foreach (var dealer in _dealers)
+            {
+                foreach (var receiver in detectable.EffectReceivers)
+                {
+                    if (!dealer.IsEnteredReceiver(receiver))
+                        continue;
+
+                    var hitData = receiver.GenerateEffectHitData(dealer);
+                    dealer.OnHitExit(hitData);
+                    receiver.OnEffectHitExit(hitData);
+                }
+            }
+        }
+
         private bool CheckDealerStateChanges()
         {
-            if (dealers == null)
+            if (_dealers == null)
                 return false;
 
             var hasChanges = false;
 
-            foreach (var dealer in dealers)
+            foreach (var dealer in _dealers)
             {
                 var currentState = dealer.IsValid;
                 var lastState = _dealerLastStates.GetValueOrDefault(dealer, false);
 
                 if (currentState != lastState)
                     hasChanges = true;
-                // 不在這裡更新狀態，留給 ProcessDealerStateChangesForDetectable 處理後再更新
+                // 不在這裡更新狀態，留給 HandleDealerStateChanges 處理後再更新
             }
 
             return hasChanges;

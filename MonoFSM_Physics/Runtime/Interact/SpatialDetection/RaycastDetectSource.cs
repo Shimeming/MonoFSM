@@ -7,7 +7,7 @@ using UnityEngine.Serialization;
 
 namespace MonoFSM_Physics.Runtime.Interact.SpatialDetection
 {
-    public class RaycastDetectSource : IDetectionSource
+    public class RaycastDetectSource : AbstractDetectionSource
     {
         //FIXME: 應該用他的 layerMask
         [FormerlySerializedAs("_raycastDetector")]

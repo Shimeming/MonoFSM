@@ -206,7 +206,9 @@ public class DropDownRefAttributeDrawer : OdinAttributeDrawer<DropDownRefAttribu
         if (newObj == _bindComp)
             Debug.LogError(
                 "newObj == Property.ParentValues[0], this should not happen, please check your code. member:"
-                    + Property.NiceName,
+                    + Property.NiceName
+                    + " type:"
+                    + Property.ValueEntry.TypeOfValue,
                 _bindComp
             );
         else

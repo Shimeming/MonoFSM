@@ -67,12 +67,22 @@ namespace MonoFSMCore.Runtime.LifeCycle
             nameof(RuntimeCheckNoWorldUpdateSimulator)
         )]
         [ShowInDebugMode]
-        public WorldUpdateSimulator WorldUpdateSimulator { get; set; }
+        public WorldUpdateSimulator WorldUpdateSimulator => _worldUpdateSimulator;
+
+        // set => _worldUpdateSimulator = value;
+        public void SetWorldUpdateSimulator(WorldUpdateSimulator world)
+        {
+            Debug.Log("SetWorldUpdateSimulator" + name, this);
+            _worldUpdateSimulator = world;
+        }
+
         bool RuntimeCheckNoWorldUpdateSimulator =>
             WorldUpdateSimulator == null && Application.isPlaying;
 
         public void Despawn()
         {
+            //會跑兩次嗎？
+            Debug.Log("Despawn" + name, this);
             if (WorldUpdateSimulator == null)
             {
                 Debug.LogError(
@@ -82,7 +92,15 @@ namespace MonoFSMCore.Runtime.LifeCycle
                 return;
             }
 
-            WorldUpdateSimulator.Despawn(this);
+            //回傳root mono Obj
+            WorldUpdateSimulator.Despawn(GetMonoObjRoot());
+        }
+
+        private MonoObj GetMonoObjRoot()
+        {
+            if (HasParent)
+                return _parentObj.GetMonoObjRoot();
+            return this;
         }
 
         private void OnDestroy()
@@ -127,12 +145,17 @@ namespace MonoFSMCore.Runtime.LifeCycle
         //FIXME: PoolBeforeReturnToPool? OnReturnPool?
 
         [ShowInDebugMode]
-        private readonly List<MonoObj> _parentObjs = new(2); //會拿到自己？
-        public bool HasParent => _parentObjs.Count > 1; //有_parentObj就表示是nested的pool object，不作用，交給parent處理
+        private MonoObj _parentObj;
+
+        [SerializeField]
+        private WorldUpdateSimulator _worldUpdateSimulator;
+
+        public bool HasParent => _parentObj != null; //有_parentObj就表示是nested的pool object，不作用，交給parent處理
 
         private void Awake()
         {
-            GetComponentsInParent(true, _parentObjs);
+            if (transform.parent != null)
+                _parentObj = transform.parent.GetComponentInParent<MonoObj>(true);
             if (HasParent)
                 return;
 #if UNITY_EDITOR
@@ -150,7 +173,7 @@ namespace MonoFSMCore.Runtime.LifeCycle
 
         public void SceneAwake(WorldUpdateSimulator world) //可以自己sceneＡwake吧？
         {
-            WorldUpdateSimulator = world;
+            SetWorldUpdateSimulator(world);
             if (HasParent)
                 return;
             HandleIAwake();

@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace MonoFSM.Core.Detection
 {
-    public class TriggerDetector : IDetectionSource
+    public class TriggerDetector : AbstractDetectionSource
     {
         [Required]
         [CompRef]
@@ -39,10 +39,13 @@ namespace MonoFSM.Core.Detection
                 if (!_thisFrameColliders.Contains(col))
                 {
                     if (col == null)
+                    {
+                        //已經回收了，應該要先觸發事件才可以回收？
                         Debug.LogError(
                             "TriggerDetector: Found a null collider in lastFrameColliders, this may cause issues.",
                             this
                         );
+                    }
                     else
                         QueueExitEvent(col.gameObject);
                 }

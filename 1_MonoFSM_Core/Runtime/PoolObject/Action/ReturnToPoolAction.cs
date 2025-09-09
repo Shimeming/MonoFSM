@@ -7,9 +7,14 @@ using UnityEngine;
 namespace MonoFSM.Runtime.ObjectPool
 {
     //FIXME: Despawn action?
+    /// <summary>
+    ///     把自己回收掉
+    /// </summary>
     public class ReturnToPoolAction : AbstractStateAction
     {
-        [Required] [PreviewInInspector] [AutoParent]
+        [Required]
+        [PreviewInInspector]
+        [AutoParent]
         private MonoObj _object;
 
         protected override void OnActionExecuteImplement()

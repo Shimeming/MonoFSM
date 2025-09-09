@@ -58,6 +58,8 @@ namespace MonoFSM.Variable
         [PreviewInInspector]
         [AutoParent(includeSelf: false)] //不可以抓到自己！
         protected VarEntity _parentVarEntity; //我的parent如果有VarEntity, 去跟這個entity拿？
+
+        public bool HasParentVarEntity => _parentVarEntity != null;
         //FIXME: 應該把ResetToDefault做掉？
 #if UNITY_EDITOR
         public string IconName { get; }
@@ -230,7 +232,7 @@ namespace MonoFSM.Variable
         [Serializable]
         public struct SetValueExecutionData
         {
-            public object _value;
+            public object _value; //可能被attribute processor給處理到，好像有點太過侵入？
             public Object _byWho;
             public float _time;
         }
@@ -282,7 +284,7 @@ namespace MonoFSM.Variable
                         return;
                     }
 
-                    // targetVar.SetValue(value, byWho);
+                    targetVar.SetValue(value, byWho);
 
                     return;
                 }

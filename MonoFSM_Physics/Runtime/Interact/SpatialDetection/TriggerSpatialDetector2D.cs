@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace MonoFSM.Core.Detection
 {
-    public class TriggerSpatialDetector2D : IDetectionSource
+    public class TriggerSpatialDetector2D : AbstractDetectionSource
     {
         [CompRef]
         [Auto]
