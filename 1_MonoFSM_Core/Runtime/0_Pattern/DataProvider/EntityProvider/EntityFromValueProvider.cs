@@ -7,10 +7,13 @@ namespace MonoFSM.Core.Runtime
 {
     // [Obsolete]
     //EntityRefFromValueProvider
+    //FIXME: 不該用這個？用VarEntity?
     public class EntityFromValueProvider : AbstractEntityProvider
     {
         public override string SuggestDeclarationName => "entity:";
-        public override MonoEntity monoEntity => _monoEntityProvider?.Get<MonoEntity>();
+
+        public override MonoEntity monoEntity =>
+            _monoEntityProvider != null ? _monoEntityProvider.Get<MonoEntity>() : null;
 
         [ValueTypeValidate(typeof(MonoEntity))]
         [SerializeField]

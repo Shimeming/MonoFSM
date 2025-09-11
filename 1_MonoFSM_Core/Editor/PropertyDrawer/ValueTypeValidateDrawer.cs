@@ -37,11 +37,15 @@ namespace MonoFSM.Core.Editor
                 return;
             }
 
-            var provider = Property.ValueEntry?.WeakSmartValue as IValueProvider;
-            // Debug.Log("provider" + Property.Name + (provider == null) + provider.ValueType);
-            if (provider == null || provider.ValueType == null)
+            var provider = Property.ValueEntry?.WeakSmartValue as ValueProvider;
+            if (provider == null)
             {
-
+                DisplayErrorAndCallNextDrawer(GetProviderErrorMessage(), label);
+                return;
+            }
+            // Debug.Log("provider" + Property.Name + (provider == null) + provider.ValueType);
+            if (provider.ValueType == null)
+            {
                 DisplayErrorAndCallNextDrawer(GetProviderErrorMessage(), label);
                 return;
             }
@@ -71,9 +75,7 @@ namespace MonoFSM.Core.Editor
                     .GetType()
                     .GetMethod(
                         Attribute.ConditionalMethod,
-                        BindingFlags.Instance
-                        | BindingFlags.Public
-                        | BindingFlags.NonPublic
+                        BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
                     );
 
                 if (method == null)

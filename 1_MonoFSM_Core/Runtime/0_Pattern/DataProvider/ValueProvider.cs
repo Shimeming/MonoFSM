@@ -4,10 +4,10 @@ using System.Reflection;
 using _1_MonoFSM_Core.Runtime._1_States;
 using Cysharp.Text;
 using MonoFSM.Core.Attributes;
-using MonoFSM.Core.Runtime;
 using MonoFSM.Core.Utilities;
 using MonoFSM.EditorExtension;
 using MonoFSM.Runtime;
+using MonoFSM.Runtime.Variable;
 using MonoFSM.Variable;
 using MonoFSM.Variable.FieldReference;
 using MonoFSM.Variable.TypeTag;
@@ -17,14 +17,10 @@ using UnityEngine;
 
 namespace MonoFSM.Core.DataProvider
 {
-    public class ValueProvider<T> : ValueProvider
+    public class ValueProvider<T> : ValueProvider, IValueProvider<T>
     {
+        public T Value => Get<T>();
         public override Type ValueType => typeof(T);
-
-        public T Get()
-        {
-            return Get<T>();
-        }
     }
 
     //EntityTag可以拿到Schema的話更好？這樣寫什麼都可以了
@@ -33,15 +29,21 @@ namespace MonoFSM.Core.DataProvider
     public class ValueProvider
         : AbstractVariableProviderRef,
             IOverrideHierarchyIcon,
-            IHierarchyValueInfo
+            IHierarchyValueInfo,
+            IFieldPathRootTypeProvider
     {
         //自引用？
         // [SerializeField] ValueProvider _valueProviderRef;
         //Entity?
         // [DropDownRef] [SerializeField] private ValueProvider _valueProviderRef; //還是是entity想要Ref?
 
-        [PropertyOrder(-1)]
-        [BoxGroup("varTag")]
+        //FIXME: 要檢查目前選到的有沒有在dropdown的選項內容裡(換VarEntity後就會錯)
+        [Required]
+        [PropertyOrder(0)]
+        [BoxGroup("Field Path", ShowLabel = true)]
+        public VarEntity _varEntity;
+
+        [BoxGroup("Field Path", ShowLabel = true)]
         [ShowInInspector]
         [ValueDropdown(nameof(GetVarTagsFromEntity), NumberOfItemsBeforeEnablingSearch = 5)]
         public VariableTag DropDownVarTag
@@ -65,23 +67,40 @@ namespace MonoFSM.Core.DataProvider
 
         public IEnumerable<ValueDropdownItem<VariableTag>> GetVarTagsFromEntity()
         {
-            //FIXME: 不看Parent entity的entity tag嗎？
-            if (entityProvider != null)
-                if (entityProvider.entityTag == null)
+            if (_varEntity != null)
+            {
+                if (_varEntity.Value != null)
+                    return _varEntity.Value.GetVariableTagDropdownItems<AbstractMonoVariable>();
+                if (_varEntity.EntityTag != null)
                 {
-                    return entityProvider.GetVariableTagDropdownItems<AbstractMonoVariable>();
-                    // Debug.LogError("EntityProvider has no entity tag, returning empty variable tags.", this);
-                    return new List<ValueDropdownItem<VariableTag>>();
+                    return _varEntity.EntityTag.GetVariableTagItems();
                 }
+            }
 
-            return entityProvider?.entityTag?.GetVariableTagItems()
-                ?? ParentEntity?.GetVarTagOptions();
+            return new List<ValueDropdownItem<VariableTag>>();
+            // //FIXME: 不看Parent entity的entity tag嗎？
+            // if (entityProvider != null)
+            //     if (entityProvider.entityTag == null)
+            //     {
+            //         return entityProvider.GetVariableTagDropdownItems<AbstractMonoVariable>();
+            //         // Debug.LogError("EntityProvider has no entity tag, returning empty variable tags.", this);
+            //         return new List<ValueDropdownItem<VariableTag>>();
+            //     }
+            //
+            // return entityProvider?.entityTag?.GetVariableTagItems()
+            //     ?? ParentEntity?.GetVarTagOptions();
         }
 
         public IEnumerable<ValueDropdownItem<AbstractTypeTag>> GetSchemaTypeTagsFromEntity()
         {
-            if (entityProvider != null && entityProvider.entityTag != null)
-                return entityProvider.entityTag.GetSchemaTypeTagItems();
+            if (_varEntity != null)
+                // if (_varEntity.Value != null)
+                //     return _varEntity.Value.GetSchemaTypeTagItems();
+                if (_varEntity.EntityTag != null)
+                    return _varEntity.EntityTag.GetSchemaTypeTagItems();
+
+            // if (entityProvider != null && entityProvider.entityTag != null)
+            //     return entityProvider.entityTag.GetSchemaTypeTagItems();
 
             // 如果沒有 entityProvider，可以考慮從 ParentEntity 獲取
             // 或者返回空列表
@@ -89,7 +108,6 @@ namespace MonoFSM.Core.DataProvider
         }
 
         [ShowInDebugMode]
-        [BoxGroup("varTag")]
         // [Required]
         [SerializeField]
         private VariableTag _varTag;
@@ -120,8 +138,10 @@ namespace MonoFSM.Core.DataProvider
         {
             get
             {
-                if (entityProvider != null) //這個可以是null...hmmm
-                    return entityProvider?.monoEntity?.GetVar(_varTag);
+                if (_varEntity != null)
+                    return _varEntity.Value?.GetVar(_varTag);
+                // if (entityProvider != null) //這個可以是null...hmmm
+                //     return entityProvider?.monoEntity?.GetVar(_varTag);
 
                 // if (_monoVariable != null)
                 //     return _monoVariable;
@@ -143,8 +163,11 @@ namespace MonoFSM.Core.DataProvider
         {
             get
             {
-                if (_entityProvider != null)
-                    return _entityProvider.monoEntity;
+                if (_varEntity != null)
+                    return _varEntity.Value;
+
+                // if (_entityProvider != null)
+                //     return _entityProvider.monoEntity;
                 return ParentEntity;
             }
         }
@@ -154,26 +177,30 @@ namespace MonoFSM.Core.DataProvider
 
         //可auto? 有ref就不覆蓋？還是身上的比較大？
         //自己也是？
-        [DropDownRef]
-        [SerializeField]
-        public AbstractEntityProvider _entityProvider;
+        // [Required]
+        // [DropDownRef]
+        // [PropertyOrder(0)]
+        // [BoxGroup("Field Path", ShowLabel = true)]
+        // // [SerializeField]
+        // public AbstractEntityProvider _entityProvider;
+        //
+        // private AbstractEntityProvider entityProvider
+        // {
+        //     get
+        //     {
+        //         this.EnsureComponent(ref _entityProvider, false); //不一定需要這個物件
+        //         return _entityProvider;
+        //     }
+        // }
 
-        private AbstractEntityProvider entityProvider
-        {
-            get
-            {
-                this.EnsureComponent(ref _entityProvider, false); //不一定需要這個物件
-                return _entityProvider;
-            }
-        }
 
         public string _declarationName; //可以有default name?
 
         // Schema selection related fields
         [PropertyOrder(0)]
-        [BoxGroup("schema")]
+        [BoxGroup("Field Path", ShowLabel = true)]
         [ShowInInspector]
-        [ValueDropdown(nameof(GetSchemaTypeTagsFromEntity), NumberOfItemsBeforeEnablingSearch = 5)]
+        [ValueDropdown(nameof(GetSchemaTypeTagsFromEntity), NumberOfItemsBeforeEnablingSearch = 5)] //這個dropdown改成attirubet Drawer?
         public AbstractTypeTag DropDownSchemaTypeTag
         {
             set
@@ -193,7 +220,7 @@ namespace MonoFSM.Core.DataProvider
         }
 
         [ShowInDebugMode]
-        [BoxGroup("schema")]
+        [HideInInspector]
         [SerializeField]
         private AbstractTypeTag _schemaTypeTag;
 
@@ -203,8 +230,9 @@ namespace MonoFSM.Core.DataProvider
             {
                 if (!_declarationName.IsNullOrWhitespace())
                     return _declarationName;
-                if (entityProvider?.SuggestDeclarationName != null)
-                    return entityProvider?.SuggestDeclarationName;
+                //FIXME: 參考VarEntity的Tag?
+                // if (entityProvider?.SuggestDeclarationName != null)
+                //     return entityProvider?.SuggestDeclarationName;
                 // Debug.Log($"VarRef: Using entityProvider declaration name: {_declarationName}", this);
                 return _declarationName;
             }
@@ -221,16 +249,28 @@ namespace MonoFSM.Core.DataProvider
                     stringBuilder.Append(DeclarationName);
                     // stringBuilder.Append(".");
                 }
-                if (entityProvider != null && entityProvider.entityTag != null)
+
+                if (_varEntity != null && _varEntity.EntityTag != null)
                 {
                     //world Entity => world.player
                     //parentEntity => this(Player)
                     // stringBuilder.Append(entityProvider.GetType());
                     // Debug.Log($"VarRef: EntityProvider found: {entityProvider.entityTag}", this);
                     stringBuilder.Append("(");
-                    stringBuilder.Append(entityProvider.entityTag.name.Split("_")[^1]);
+                    stringBuilder.Append(_varEntity.EntityTag.name.Split("_")[^1]);
                     stringBuilder.Append(")");
                 }
+
+                // if (entityProvider != null && entityProvider.entityTag != null)
+                // {
+                //     //world Entity => world.player
+                //     //parentEntity => this(Player)
+                //     // stringBuilder.Append(entityProvider.GetType());
+                //     // Debug.Log($"VarRef: EntityProvider found: {entityProvider.entityTag}", this);
+                //     stringBuilder.Append("(");
+                //     stringBuilder.Append(entityProvider.entityTag.name.Split("_")[^1]);
+                //     stringBuilder.Append(")");
+                // }
 
                 // stringBuilder.Append('.');
                 if (varTag != null)
@@ -253,6 +293,7 @@ namespace MonoFSM.Core.DataProvider
 
         // public override AbstractMonoVariable VarRaw => _monoVariable;
 
+        [LabelText("最終資料型別")]
         [PreviewInInspector]
         public override Type ValueType =>
             HasFieldPath ? lastPathEntryType : GetValueTypeFromSource();
@@ -268,23 +309,27 @@ namespace MonoFSM.Core.DataProvider
                 return _schemaTypeTag.Type;
 
             // 優先級 3: Entity Type
-            return entityProvider?.entityTag?.RestrictType ?? typeof(MonoEntity);
+            return _varEntity?.EntityTag?.RestrictType ?? typeof(MonoEntity);
+
+            // return entityProvider?.entityTag?.RestrictType ?? typeof(MonoEntity);
         }
 
-        [PreviewInInspector]
+        [PreviewInDebugMode]
         public string ValueTypeSourceFrom
         {
             get
             {
                 if (HasFieldPath)
                     return "Field Path";
-                else if (_varTag != null)
+                if (_varTag != null)
                     return "Var Tag";
-                else if (_schemaTypeTag != null)
+                if (_schemaTypeTag != null)
                     return "Schema Type";
-                else if (entityProvider != null && entityProvider.entityTag != null)
+                if (_varEntity != null && _varEntity.EntityTag != null)
                     return "Entity Tag";
-                else if (ParentEntity != null)
+                // else if (entityProvider != null && entityProvider.entityTag != null)
+                //     return "Entity Tag";
+                if (ParentEntity != null)
                     return "Parent Entity";
                 return "Unknown";
             }
@@ -293,6 +338,7 @@ namespace MonoFSM.Core.DataProvider
         //FIXME: 型別有可能和實際不符合嗎？
         //選了VarRaw.Value後反而變成原本的type...這樣外面就沒有提示了
 
+        //FIXME: 拔掉？
         private IValueProvider GetTarget()
         {
             // 優先級 1: VarTag（如果有選擇 Variable）
@@ -303,15 +349,18 @@ namespace MonoFSM.Core.DataProvider
 
             // 優先級 2 & 3: Schema 模式下不能使用 IValueProvider，返回 Entity
             // Schema 會在 Get<T>() 方法中特殊處理
-            if (entityProvider != null)
-                return entityProvider.monoEntity;
+
+            if (_varEntity != null)
+                return _varEntity.Value;
+            // if (entityProvider != null)
+            //     return entityProvider.monoEntity;
             return ParentEntity;
         }
 
         // public override Type GetValueType =>
         [PropertyOrder(-1)]
         [PreviewInInspector]
-        public override Type GetObjectType //FIXME:
+        public override Type GetObjectType
         {
             get
             {
@@ -324,9 +373,8 @@ namespace MonoFSM.Core.DataProvider
                     return _schemaTypeTag.Type;
 
                 // 優先級 3: Entity Type (from tag)
-                if (entityProvider != null)
-                    return entityProvider.entityTag?._entityType?.RestrictType
-                        ?? typeof(MonoEntity);
+                if (_varEntity != null)
+                    return _varEntity.EntityTag?._entityType?.RestrictType ?? typeof(MonoEntity);
 
                 // 優先級 4: Parent Entity Type (from instance)
                 if (ParentEntity != null)
@@ -355,8 +403,10 @@ namespace MonoFSM.Core.DataProvider
 
         public MonoEntity GetMonoEntity()
         {
-            if (entityProvider != null)
-                return entityProvider.monoEntity;
+            // if (entityProvider != null)
+            //     return entityProvider.monoEntity;
+            if (_varEntity != null)
+                return _varEntity.Value;
             return ParentEntity;
         }
 
@@ -378,7 +428,8 @@ namespace MonoFSM.Core.DataProvider
             var entity = GetMonoEntity();
             if (entity == null)
             {
-                Debug.LogError("ValueProvider: No target entity found for schema.", this);
+                if (Application.isPlaying)
+                    Debug.LogError("ValueProvider: No target entity found for schema.", this);
                 return null;
             }
 
@@ -611,7 +662,8 @@ namespace MonoFSM.Core.DataProvider
                 var schemaInstance = GetSelectedSchema();
                 if (schemaInstance == null)
                 {
-                    Debug.LogError("ValueProvider: 無法獲取 Schema 實例。", this);
+                    if (Application.isPlaying)
+                        Debug.LogError("ValueProvider: 無法獲取 Schema 實例。", this);
                     return default;
                 }
 
@@ -721,10 +773,15 @@ namespace MonoFSM.Core.DataProvider
                     return "Var";
                 if (_schemaTypeTag != null)
                     return "Schema";
-                if (entityProvider != null)
+                if (_varEntity != null)
                     return "Entity";
                 return "Unknown";
             }
+        }
+
+        public Type GetFieldPathRootType(string fieldName)
+        {
+            return GetObjectType;
         }
     }
 }

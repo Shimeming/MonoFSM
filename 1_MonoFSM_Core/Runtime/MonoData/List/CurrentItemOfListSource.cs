@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace MonoFSM.Core.Variable.Providers
 {
-    public class CurrentItemOfListProvider : AbstractCurrentItemOfListProvider<MonoEntity> { }
+    public class CurrentItemOfListSource : AbstractCurrentItemOfListSource<MonoEntity> { }
 
-    public class AbstractCurrentItemOfListProvider<T> : AbstractValueProvider<T>
+    public class AbstractCurrentItemOfListSource<T> : AbstractValueSource<T>
     {
         public override string Description => "Get Current Item " + _varList?.name;
 

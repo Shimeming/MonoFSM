@@ -1,10 +1,11 @@
 using System;
 using JetBrains.Annotations;
 using MonoFSM.Core.Attributes;
-using MonoFSM.Core.DataProvider;
 using MonoFSM.Core.Runtime.Action;
-using MonoFSM.Runtime.Attributes;
+using MonoFSM.Core.Variable;
+using MonoFSM.Runtime;
 using MonoFSM.Runtime.Interact.EffectHit;
+using MonoFSM.Runtime.Variable;
 using MonoFSM.Variable.Attributes;
 using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
@@ -26,11 +27,16 @@ namespace MonoFSM.Core.LifeCycle
     public class SpawnAction : AbstractArgEventHandler<GeneralEffectHitData>, IMonoObjectProvider //ICompProvider<MonoPoolObj>
     {
         //FIXME: 下面要有各種preProcess action?
+        // [Required]
+        // [CompRef]
+        // [AutoChildren(DepthOneOnly = true)]
+        // [ValueTypeValidate(typeof(MonoObj))]
+        // private ValueProvider _poolObjProvider; //使用VarPoolObj來存儲目標物件
+
+        // [Required] [SerializeField] private VarEntity _poolObjVar; //用來存取剛spawn的物件
         [Required]
-        [CompRef]
-        [AutoChildren(DepthOneOnly = true)]
-        [ValueTypeValidate(typeof(MonoObj))]
-        private ValueProvider _poolObjProvider; //使用VarPoolObj來存儲目標物件
+        [SerializeField]
+        private VarMonoObj _poolObjVar;
 
         [CompRef]
         [AutoChildren]
@@ -43,7 +49,7 @@ namespace MonoFSM.Core.LifeCycle
         //Prefab特殊，不該runtime去Instantiate對ㄅ，都應該從prefab來，就算要也是複製狀態
 
         [PreviewInDebugMode]
-        private MonoObj Prefab => _poolObjProvider?.Get<MonoObj>();
+        private MonoObj Prefab => _poolObjVar?.Value; // _poolObjProvider?.Get<MonoObj>();
 
         [CompRef]
         [AutoChildren]
@@ -64,6 +70,11 @@ namespace MonoFSM.Core.LifeCycle
 
         [AutoParent]
         private MonoObj _parentObj;
+
+        // [Required] [SerializeField] private VarMonoObj _spawnedObjVar; //用來存取剛spawn的物件
+        [Required]
+        [SerializeField]
+        private VarEntity _spawnedEntityVar;
 
         private void Spawn(
             MonoObj prefab,
@@ -103,7 +114,7 @@ namespace MonoFSM.Core.LifeCycle
                 newObj.transform.localScale = transform.lossyScale;
 
             newObj.gameObject.SetActive(true);
-
+            _spawnedEntityVar.SetValue(newObj.GetComponent<MonoEntity>(), this); //更新變數
             //Rotation呢？
             _lastSpawnedObj = newObj;
             _spawnEventHandler?.OnSpawn(newObj, position, rotation);
@@ -111,12 +122,6 @@ namespace MonoFSM.Core.LifeCycle
             foreach (var preSpawnAction in _preSpawnActions)
                 preSpawnAction.AfterSpawn(newObj, position, rotation, hitData);
         }
-
-        // private void OnEnable()
-        // {
-        //     OnStateEnterImplement();
-        // }
-
 
         protected override void OnArgEventReceived(GeneralEffectHitData arg)
         {

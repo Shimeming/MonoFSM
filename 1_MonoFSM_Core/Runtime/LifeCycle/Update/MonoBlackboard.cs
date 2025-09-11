@@ -11,6 +11,7 @@ using UnityEngine;
 
 namespace MonoFSM.Runtime.Variable
 {
+    //FIXME: 不需要這個吧？
     [DisallowMultipleComponent]
     public class MonoBlackboard : MonoBehaviour, IMonoEntity, IUpdateSimulate //FIXME: 沒有必要用介面？
     {

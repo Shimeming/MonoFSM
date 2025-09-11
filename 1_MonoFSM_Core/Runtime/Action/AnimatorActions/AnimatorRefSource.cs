@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace _1_MonoFSM_Core.Runtime.Action.AnimatorActions
 {
-    public class AnimatorRefProvider : AbstractValueProvider<Animator>
+    public class AnimatorRefSource : AbstractValueSource<Animator>
     {
         [SerializeField]
         [DropDownRef]

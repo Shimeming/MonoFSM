@@ -62,7 +62,7 @@ namespace MonoFSM.Animation
             return provider?.ChildAnimators;
         }
 
-        [HideIf(nameof(_animatorRefProvider))]
+        [HideIf(nameof(_animatorRefSource))]
         [TitleGroup("Animator")]
         [BoxGroup("Animator/Animator")]
         [Required]
@@ -74,15 +74,16 @@ namespace MonoFSM.Animation
 
         [ShowInInspector]
         private Animator animator =>
-            _animatorRefProvider != null ? _animatorRefProvider.Value : _animator;
+            _animatorRefSource != null ? _animatorRefSource.Value : _animator;
 
         //加一個AnimatorValueProvider?
+        [FormerlySerializedAs("_animatorRefProvider")]
         [TitleGroup("Animator")]
         [BoxGroup("Animator/Animator")]
         [SerializeField]
         [CompRef]
         [AutoChildren(DepthOneOnly = true)]
-        private AnimatorRefProvider _animatorRefProvider;
+        private AnimatorRefSource _animatorRefSource;
 
         // bool IsAnimatorNoControl()
         // {

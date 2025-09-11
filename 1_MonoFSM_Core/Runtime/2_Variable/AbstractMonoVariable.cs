@@ -4,7 +4,6 @@ using System.Reflection;
 using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.DataProvider;
-using MonoFSM.Core.Runtime;
 using MonoFSM.CustomAttributes;
 using MonoFSM.EditorExtension;
 using MonoFSM.Foundation;
@@ -24,7 +23,7 @@ namespace MonoFSM.Variable
     public abstract class TypedMonoVariable<T> : AbstractMonoVariable, ISettable<T>
     {
         [CompRef]
-        [AutoChildren(DepthOneOnly = true)]
+        [AutoChildren]
         protected IValueProvider<T>[] _valueSources; //FIXME: 好像可以改成AbstractValueProvider<T>?
 
         protected IValueProvider<T> valueSource => GetActiveTypedValueSource();
@@ -34,8 +33,8 @@ namespace MonoFSM.Variable
             return ValueResolver.GetActiveValueSource(_valueSources, this);
         }
 
-        protected bool HasValueProvider =>
-            ValueResolver.HasValueProvider(_valueSources) || _parentVarEntity != null;
+        protected override bool HasValueProvider =>
+            ValueResolver.HasValueProvider(_valueSources) || base.HasValueProvider;
 
         public abstract void SetValue(T value, MonoBehaviour byWho);
         public abstract void SetValue(object value, MonoBehaviour byWho);
@@ -55,12 +54,13 @@ namespace MonoFSM.Variable
             IConfigTypeProvider,
             IResetStateRestore
     {
+        //FIXME: 什麼case需要parentVarEntity? 忘記了XD
+        [ShowIf(nameof(_parentVarEntity))] //有才顯示就好
         [PreviewInInspector]
         [AutoParent(includeSelf: false)] //不可以抓到自己！
         protected VarEntity _parentVarEntity; //我的parent如果有VarEntity, 去跟這個entity拿？
 
         public bool HasParentVarEntity => _parentVarEntity != null;
-        //FIXME: 應該把ResetToDefault做掉？
 #if UNITY_EDITOR
         public string IconName { get; }
         public bool IsDrawingIcon => CustomIcon != null;
@@ -103,7 +103,7 @@ namespace MonoFSM.Variable
             _dataChangedListeners.Remove(target);
         }
 
-        [Button]
+        // [Button]
         private void UpdateTag()
         {
             if (_varTag != null)
@@ -127,56 +127,59 @@ namespace MonoFSM.Variable
 #endif
         }
 
-        [Button("建立 ValueProvider Reference")]
-        private void CreateValueProvider()
-        {
-#if UNITY_EDITOR
-            if (_varTag == null)
-            {
-                Debug.LogError("請先設定變數標籤 (VarTag) 才能建立 ValueProvider", this);
-                return;
-            }
+        //         [Button("建立 ValueProvider Reference")]
+        //         private void CreateValueProvider()
+        //         {
+        // #if UNITY_EDITOR
+        //             if (_varTag == null)
+        //             {
+        //                 Debug.LogError("請先設定變數標籤 (VarTag) 才能建立 ValueProvider", this);
+        //                 return;
+        //             }
+        //
+        //             // 加入 ValueProvider 組件
+        //             var valueProvider = gameObject.TryGetCompOrAdd<ValueProvider>();
+        //
+        //             valueProvider.DropDownVarTag = _varTag; //直接設定
+        //
+        //             // 設定 ValueProvider 的 EntityProvider
+        //             valueProvider._entityProvider = GetComponentInParent<ParentEntityProvider>();
+        //             // 標記為 dirty 以確保儲存
+        //             EditorUtility.SetDirty(valueProvider);
+        //
+        // #else
+        //             Debug.LogWarning("此功能僅在編輯器模式下可用");
+        // #endif
+        //         }
 
-            // 加入 ValueProvider 組件
-            var valueProvider = gameObject.TryGetCompOrAdd<ValueProvider>();
+        //         [Button("建立 ValueProvider Reference In Children")]
+        //         private void CreateValueProviderInChildren()
+        //         {
+        // #if UNITY_EDITOR
+        //             if (_varTag == null)
+        //             {
+        //                 Debug.LogError("請先設定變數標籤 (VarTag) 才能建立 ValueProvider", this);
+        //                 return;
+        //             }
+        //
+        //             // 加入 ValueProvider 組件
+        //             var valueProvider = gameObject.AddChildrenComponent<ValueProvider>("provider");
+        //
+        //             valueProvider.DropDownVarTag = _varTag; //直接設定
+        //
+        //             // 設定 ValueProvider 的 EntityProvider
+        //             valueProvider._entityProvider = GetComponentInParent<ParentEntityProvider>();
+        //             // 標記為 dirty 以確保儲存
+        //             EditorUtility.SetDirty(valueProvider);
+        //
+        // #else
+        //             Debug.LogWarning("此功能僅在編輯器模式下可用");
+        // #endif
+        //         }
 
-            valueProvider.DropDownVarTag = _varTag; //直接設定
+        protected bool IsHidingVarTag => HasParentVarEntity;
 
-            // 設定 ValueProvider 的 EntityProvider
-            valueProvider._entityProvider = GetComponentInParent<ParentEntityProvider>();
-            // 標記為 dirty 以確保儲存
-            EditorUtility.SetDirty(valueProvider);
-
-#else
-            Debug.LogWarning("此功能僅在編輯器模式下可用");
-#endif
-        }
-
-        [Button("建立 ValueProvider Reference In Children")]
-        private void CreateValueProviderInChildren()
-        {
-#if UNITY_EDITOR
-            if (_varTag == null)
-            {
-                Debug.LogError("請先設定變數標籤 (VarTag) 才能建立 ValueProvider", this);
-                return;
-            }
-
-            // 加入 ValueProvider 組件
-            var valueProvider = gameObject.AddChildrenComponent<ValueProvider>("provider");
-
-            valueProvider.DropDownVarTag = _varTag; //直接設定
-
-            // 設定 ValueProvider 的 EntityProvider
-            valueProvider._entityProvider = GetComponentInParent<ParentEntityProvider>();
-            // 標記為 dirty 以確保儲存
-            EditorUtility.SetDirty(valueProvider);
-
-#else
-            Debug.LogWarning("此功能僅在編輯器模式下可用");
-#endif
-        }
-
+        [HideIf(nameof(HasValueProvider))]
         [FormerlySerializedAs("varTag")]
         // [MCPExtractable]
         [OnValueChanged(nameof(UpdateTag))]
@@ -513,7 +516,8 @@ namespace MonoFSM.Variable
         }
 
 #if UNITY_EDITOR
-        [Header("GameState 功能說明")]
+        // [Header("GameState 功能說明")]
+        //FIXME: 整合 AbstractDescriptable??
         [TextArea(1, 4)]
         public string description;
 
@@ -537,8 +541,8 @@ namespace MonoFSM.Variable
         // [ShowIf("VariableSource")]
         // [InlineEditor] public AbstractMonoVariable VariableSource; //用別人的值 //FIXME: 什麼時候會用到這個？
 
-        [ReadOnly]
-        public List<AbstractVariableConsumer> consumers; //有誰有用我，binder綁一下
+        // [ReadOnly]
+        // public List<AbstractVariableConsumer> consumers; //有誰有用我，binder綁一下
 
         //FIXME: 這個是錯的，要改成用scriptableData的 (flagFlied的？
         // public UnityEvent ValueChangedEvent => valueChangedEvent;
@@ -547,6 +551,8 @@ namespace MonoFSM.Variable
         public string Name => gameObject.name;
         public VariableTag Key => _varTag;
         public abstract bool IsValueExist { get; }
+        protected virtual bool HasValueProvider => false;
+        protected virtual bool HasProxyValue => HasValueProvider || HasParentVarEntity;
 
         public VariableTag[] GetKeys()
         {
@@ -563,6 +569,13 @@ namespace MonoFSM.Variable
         {
             // base.OnBeforePrefabSave();
             UpdateTag();
+            //FIXME: 不知道怎麼做比較好的自動取名
+            // if (HasValueProvider)
+            // {
+            //     name = "=>"; //hmm多個怎麼辦...
+            //     return;
+            // }
+
             if (_varTag == null)
             {
                 Debug.LogError("No VarTag: " + this, this);

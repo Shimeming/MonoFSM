@@ -30,7 +30,7 @@ namespace MonoFSM.Animation
         public ValueType valueType;
         public bool IsUpdateSet = false;
 
-        [HideIf(nameof(_animatorRefProvider))]
+        [HideIf(nameof(_animatorRefSource))]
         [TitleGroup("Animator")]
         [BoxGroup("Animator/Animator")]
         [Required]
@@ -40,14 +40,15 @@ namespace MonoFSM.Animation
 
         [ShowInInspector]
         private Animator animator =>
-            _animatorRefProvider != null ? _animatorRefProvider.Value : _animator;
+            _animatorRefSource != null ? _animatorRefSource.Value : _animator;
 
+        [FormerlySerializedAs("_animatorRefProvider")]
         [TitleGroup("Animator")]
         [BoxGroup("Animator/Animator")]
         [SerializeField]
         [CompRef]
         [AutoChildren(DepthOneOnly = true)]
-        private AnimatorRefProvider _animatorRefProvider;
+        private AnimatorRefSource _animatorRefSource;
 
         [ValueDropdown(nameof(GetParameterNames))]
         public string ParameterName;

@@ -9,7 +9,7 @@ namespace _1_MonoFSM_Core.Runtime.EffectHit.ValueGetter
     /// <summary>
     ///     目前被這個Dealer偵測到的Receiver的Entity (list)
     /// </summary>
-    public class ListEntityFromEffectDealer : AbstractValueProvider<List<MonoEntity>>
+    public class ListEntityFromEffectDealer : AbstractValueSource<List<MonoEntity>>
     {
         [SerializeField]
         [DropDownRef]

@@ -17,7 +17,10 @@ namespace MonoFSM.Core.Runtime
     /// FIXME: 依照parent就能決定要用Dealer還是Receiver的Blackboard
     /// FIXME: 應該叫做EntityRef?
     /// 這個要自帶改名能力嗎？
-    public abstract class AbstractEntityProvider : MonoBehaviour, IEntityProvider
+    public abstract class AbstractEntityProvider
+        : MonoBehaviour,
+            IEntityProvider,
+            IValueProvider<MonoEntity>
     {
         public abstract string SuggestDeclarationName { get; }
 
@@ -44,6 +47,9 @@ namespace MonoFSM.Core.Runtime
         [CompRef]
         [AutoChildren]
         private ValueProvider[] _valueProviders;
+
         // public abstract string NickName { get; }
+        public string Description => $"{SuggestDeclarationName}({entityTag})";
+        public MonoEntity Value => monoEntity;
     }
 }

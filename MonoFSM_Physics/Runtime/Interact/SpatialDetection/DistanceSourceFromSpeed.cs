@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace MonoFSM_Physics.Runtime.Interact.SpatialDetection
 {
-    public class DistanceProviderFromSpeed : AbstractValueProvider<float>
+    public class DistanceSourceFromSpeed : AbstractValueSource<float>
     {
         public Rigidbody _rigidbody;
 

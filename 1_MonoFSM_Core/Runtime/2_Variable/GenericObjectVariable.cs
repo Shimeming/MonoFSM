@@ -40,11 +40,11 @@ namespace MonoFSM.Variable
 
         //FIXME: 繼承時想要加更多attribute
         // [Header("預設值")] [HideIf(nameof(_siblingDefaultValue))]
-        [HideIf(nameof(HasValueProvider))]
+        [HideIf(nameof(HasProxyValue))]
         [SOConfig("10_Flags/GameData", useVarTagRestrictType: true)] //痾，只有SO類才需要ㄅ
         [SerializeField]
         [Required]
-        protected TValueType _defaultValue;
+        protected TValueType _defaultValue; //ConfigSettingValue?
 
         protected virtual TValueType DefaultValue
         {
@@ -112,51 +112,48 @@ namespace MonoFSM.Variable
         /// </summary>
         private TValueType GetValueInternal()
         {
-            if (!Application.isPlaying)
-                return DefaultValue;
-            if (HasValueProvider) //FIXME: 和field 分開寫很鳥?
+            //要擋掉嗎？那Editor Time就都不要顯示？
+            // if (!Application.isPlaying)
+            //     return DefaultValue;
+            if (HasParentVarEntity)
             {
-                if (_parentVarEntity != null) //FIXME:整理一下？
-                {
-                    if (_parentVarEntity.Value == null)
-                        return null; //還沒有entity, 過掉？
+                if (_parentVarEntity.Value == null)
+                    return null; //還沒有entity, 過掉？
 
-                    // 檢查自我引用（保留原有檢查）
-                    if (_parentVarEntity == this || _parentVarEntity.Value.GetVar(_varTag) == this)
+                // 檢查自我引用（保留原有檢查）
+                if (_parentVarEntity == this || _parentVarEntity.Value.GetVar(_varTag) == this)
+                {
+                    Debug.LogError("ParentVarEntity cannot be self", this);
+                    Debug.Break();
+                    return null;
+                }
+                else
+                {
+                    var targetVar = _parentVarEntity.Value.GetVar(_varTag);
+                    if (targetVar == null)
                     {
-                        Debug.LogError("ParentVarEntity cannot be self", this);
+                        Debug.LogError($"{name}'s ParentVarEntity has no var: '{_varTag}'", this);
                         Debug.Break();
                         return null;
                     }
-                    else
-                    {
-                        var targetVar = _parentVarEntity.Value.GetVar(_varTag);
-                        if (targetVar == null)
+
+                    // 額外的循環引用檢查
+                    if (targetVar is GenericUnityObjectVariable<TValueType> targetGenericVar)
+                        if (_visitedVariables.Value.Contains(targetGenericVar))
                         {
                             Debug.LogError(
-                                $"{name}'s ParentVarEntity has no var: '{_varTag}'",
+                                $"[Circular Reference Protection] Detected circular reference through ParentVarEntity chain: {name} -> {targetVar.name}",
                                 this
                             );
                             Debug.Break();
                             return null;
                         }
 
-                        // 額外的循環引用檢查
-                        if (targetVar is GenericUnityObjectVariable<TValueType> targetGenericVar)
-                            if (_visitedVariables.Value.Contains(targetGenericVar))
-                            {
-                                Debug.LogError(
-                                    $"[Circular Reference Protection] Detected circular reference through ParentVarEntity chain: {name} -> {targetVar.name}",
-                                    this
-                                );
-                                Debug.Break();
-                                return null;
-                            }
-
-                        return targetVar.GetValue<TValueType>();
-                    }
+                    return targetVar.GetValue<TValueType>();
                 }
-
+            }
+            if (HasValueProvider) //FIXME: 和field 分開寫很鳥?
+            {
                 if (valueSource == null) //有可能resolve後是null
                     return null;
 
@@ -190,6 +187,7 @@ namespace MonoFSM.Variable
                 _lastNonNullValue = _currentValue;
         }
 
+        //FIXME: 不該留這個API
         public override void SetValue(object value, MonoBehaviour byWho) //這好蠢？
         {
             //這個trace好討厭...又跑下去，然後再上來internal

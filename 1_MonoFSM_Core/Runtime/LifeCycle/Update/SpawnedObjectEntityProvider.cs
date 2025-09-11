@@ -11,12 +11,17 @@ namespace MonoFSMCore.Runtime.LifeCycle
 {
     //FIXME: 好像很trivial, 不好懂
     //剛被Spawn的物件
-    public class SpawnedObjectEntityProvider : AbstractEntityProvider, IEntityProvider, ICompProvider<MonoEntity>
+    public class SpawnedObjectEntityProvider
+        : AbstractEntityProvider,
+            IEntityProvider,
+            ICompProvider<MonoEntity>
     {
-        [Required] [ShowInInspector] [AutoParent]
+        [Required]
+        [ShowInInspector]
+        [AutoParent]
         private IMonoObjectProvider _monoObjectProvider; //FIXME: 怪怪的，還是應該統一進入點SpawnAction就好？還有可能有別種嗎？
 
-        public override string SuggestDeclarationName =>"spawned";
+        public override string SuggestDeclarationName => "spawned";
 
         [PreviewInInspector]
         public override MonoEntity monoEntity
@@ -29,11 +34,10 @@ namespace MonoFSMCore.Runtime.LifeCycle
                     _monoObjectProvider = GetComponentInParent<IMonoObjectProvider>(true);
 #endif
                 // return _monoObjectProvider.
-                
+
                 return _monoObjectProvider?.Get()?.GetComponent<MonoEntity>();
             }
         }
-
 
         //FIXME: Editor 不一定有啊..runtime才有？
         // [Required]
@@ -53,9 +57,9 @@ namespace MonoFSMCore.Runtime.LifeCycle
             return monoEntity;
         }
 
-        public object GetValue()
+        public T1 Get<T1>()
         {
-            return monoEntity;
+            return (T1)(object)monoEntity;
         }
 
         public Type ValueType => typeof(MonoBlackboard);

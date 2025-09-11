@@ -12,6 +12,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
+using Object = UnityEngine.Object;
 
 namespace MonoFSM.Foundation
 {
@@ -87,13 +88,13 @@ namespace MonoFSM.Foundation
                     fields,
                     f =>
                         (
-                            f.GetCustomAttributes(typeof(RequiredAttribute), false).Length > 0
-                            || f.GetCustomAttributes(typeof(DropDownRefAttribute), false).Length > 0
+                            f.GetCustomAttribute(typeof(RequiredAttribute), false) != null
+                            || f.GetCustomAttribute(typeof(DropDownRefAttribute), false) != null
                         )
                         && !f.FieldType.IsInterface
                         && (
                             f.IsPublic
-                            || f.GetCustomAttributes(typeof(SerializeField), false).Length > 0
+                            || f.GetCustomAttribute(typeof(SerializeField), false) != null
                         )
                 );
 
@@ -102,6 +103,7 @@ namespace MonoFSM.Foundation
             return requiredFields;
         }
 
+        //FIXME: 應該改成required attribute processor, 然後配合interface做drawHierarchy?
         //用reflection找到所有[Required]的field，然後檢查是否有null
         private bool CheckNullOfRequiredFields()
         {
@@ -113,7 +115,7 @@ namespace MonoFSM.Foundation
                     continue;
 
                 // Debug.Log($"Checking required field: {field.Name} in {gameObject.name}", this);
-                var value = field.GetValue(this);
+                var value = field.GetValue(this) as Object;
                 if (value == null)
                 {
                     _errorMessage = $"Required field '{field.Name}' is null in {gameObject.name}";
@@ -132,14 +134,18 @@ namespace MonoFSM.Foundation
         // Prefab stage specific error checking that includes non-serialized fields
         private bool CheckNullOfRequiredFieldsForPrefabStage(bool isShowError = false)
         {
-            var requiredFields = GetRequiredHierarchyValidateFields(GetType(), true);
+            // var requiredFields = GetRequiredHierarchyValidateFields(GetType(), true);
+            var requiredFields = GetRequiredHierarchyValidateFields(GetType());
             foreach (var field in requiredFields)
             {
+                // Debug.Log(
+                //     $"Prefab Stage Checking required field: {field.Name} in {gameObject.name}",
+                // this);
                 // 檢查是否應該驗證此欄位（根據條件方法）
                 if (!ShouldValidateField(field))
                     continue;
 
-                var value = field.GetValue(this);
+                var value = field.GetValue(this) as Object;
                 if (value == null)
                 {
                     _errorMessage =
@@ -291,10 +297,9 @@ namespace MonoFSM.Foundation
             if (PrefabStageUtility.GetCurrentPrefabStage() != null)
                 isInPrefabStage = true;
 
-            if (isInPrefabStage)
-                return CheckNullOfRequiredFieldsForPrefabStage();
-            else
-                return CheckNullOfRequiredFields();
+            return isInPrefabStage
+                ? CheckNullOfRequiredFieldsForPrefabStage()
+                : CheckNullOfRequiredFields();
 #else
             return false;
 #endif

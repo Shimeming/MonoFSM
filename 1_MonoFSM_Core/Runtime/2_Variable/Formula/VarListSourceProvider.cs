@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MonoFSM.Core.Variable;
@@ -7,9 +8,12 @@ using UnityEngine;
 
 namespace MonoFSM.Core.Formula
 {
+    [Obsolete]
     public class VarListSourceProvider : MonoBehaviour, IMonoDescriptableListProvider
     {
-        [DropDownRef] [SerializeField] [Required]
+        [DropDownRef]
+        [SerializeField]
+        [Required]
         private VarListEntity _sourceList;
 
         public IEnumerable<MonoEntity> GetDescriptables()

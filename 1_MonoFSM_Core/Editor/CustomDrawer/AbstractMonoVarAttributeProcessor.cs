@@ -7,6 +7,7 @@ using Sirenix.OdinInspector.Editor;
 
 namespace _1_MonoFSM_Core.Editor.CustomDrawer
 {
+    //FIXME: 一定需要Required?
     /// <summary>
     ///     自動幫 AbstractMonoVariable 加上 DropDownRefAttribute 和 ShowDrawerChainAttribute
     /// </summary>

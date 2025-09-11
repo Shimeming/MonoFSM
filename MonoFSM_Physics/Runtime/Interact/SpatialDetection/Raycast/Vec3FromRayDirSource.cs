@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace MonoFSM.PhysicsWrapper
 {
-    public class Vec3FromRayDirProvider : AbstractValueProvider<Vector3>
+    public class Vec3FromRayDirSource : AbstractValueSource<Vector3>
     {
         [DropDownRef]
         [SerializeField]

@@ -1,10 +1,12 @@
 using MonoFSM.Core.Attributes;
-using MonoFSM.Core.Runtime;
+using MonoFSM.Core.DataProvider;
 using MonoFSM.EditorExtension;
 using MonoFSM.Runtime.Mono;
 using MonoFSM.Variable;
+using MonoFSM.Variable.Attributes;
 using MonoFSM.Variable.FieldReference;
 using Sirenix.OdinInspector;
+using UnityEngine;
 using UnityEngine.Serialization;
 
 namespace MonoFSM.Runtime.Variable
@@ -17,21 +19,42 @@ namespace MonoFSM.Runtime.Variable
     [FormerlyNamedAs("VarBlackboard")]
     public class VarEntity : GenericUnityObjectVariable<MonoEntity>, IHierarchyValueInfo
     {
+        [HideIf(nameof(HasValueProvider))]
         [FormerlySerializedAs("_MonoDescriptableTag")]
         [SOConfig("10_Flags/VarMono")]
         [BoxGroup("定義型別")]
         //FIXME: 這用了感覺就...沒彈性了？，限定schema如何？感覺在做差不多的事？[PropertyOrder(-1)]
-        public MonoEntityTag _monoEntityTag; //FIXME: Expected MonoEntityTag, but can be null?
+        [SerializeField]
+        private MonoEntityTag _monoEntityTag; //FIXME: Expected MonoEntityTag, but can be null?
 
-        [BoxGroup("定義型別")]
-        [PropertyOrder(-1)]
+        //FIXME: 好像會需要getter喔，從source來的話
+
         [PreviewInInspector]
-        public GameData SampleData
-#if UNITY_EDITOR
-            => _monoEntityTag ? _monoEntityTag.SamepleData : null;
-#else
-            => null;
-#endif
+        public MonoEntityTag EntityTag
+        {
+            get
+            {
+                if (HasValueProvider && valueSource is IEntityValueProvider entityValueSource)
+                    return entityValueSource.entityTag;
+                // return valueSource.EntityTag; //hmm 怎麼額外定義QQ
+                return _monoEntityTag;
+            }
+        }
+
+        [PreviewInInspector]
+        [AutoChildren(DepthOneOnly = true)]
+        [CompRef]
+        private IEntityValueProvider _entityValueSource;
+
+        //         [BoxGroup("定義型別")]
+        //         [PropertyOrder(-1)]
+        //         [PreviewInInspector]
+        //         public GameData SampleData
+        // #if UNITY_EDITOR
+        //             => _monoEntityTag ? _monoEntityTag.SamepleData : null;
+        // #else
+        //             => null;
+        // #endif
 
         //FIXME: 要用T? VarComponent?
 
@@ -69,10 +92,12 @@ namespace MonoFSM.Runtime.Variable
         // public string ValueInfo => Value != null ? Value.name : "null";
         // public bool IsDrawingValueInfo => true;
 
-        [Button]
-        private void AddEntityFromVarEntityProvider()
-        {
-            this.AddChildrenComponent<EntityFromVarEntityProvider>("entityProvider");
-        }
+        // [Button]
+        // private void AddEntityFromVarEntityProvider()
+        // {
+        //     this.AddChildrenComponent<EntityFromVarEntityProvider>("entityProvider");
+        // }
+
+        //來源需要強型別嗎？
     }
 }

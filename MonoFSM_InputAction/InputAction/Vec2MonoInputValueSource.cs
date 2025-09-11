@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Fusion.Addons.KCC.ECM2.Examples.Networking.Fusion_v2.Characters.Scripts.Input
 {
-    public class Vec2MonoInputValueSource : AbstractValueProvider<Vector2>
+    public class Vec2MonoInputValueSource : AbstractValueSource<Vector2>
     {
         //怎麼寫一個很容易拿到action的ValueSource? Condition,,,,
         [SerializeField]

@@ -1,6 +1,7 @@
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.DataProvider;
 using MonoFSM.Runtime;
+using MonoFSM.Runtime.Mono;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -21,8 +22,19 @@ namespace MonoFSM.Foundation
         public abstract bool HasValue { get; }
     }
 
-    public abstract class AbstractValueProvider<T> : AbstractGetter, IValueProvider<T> //提供數值
+    //FIXME: 感覺還是很容易會繼承錯...
+    public abstract class AbstractEntitySource
+        : AbstractValueSource<MonoEntity>,
+            IEntityValueProvider //只有我需要特別寫對吧？
     {
+        //FIXME: 需要提供EntityTag!
+        public abstract MonoEntityTag entityTag { get; }
+    }
+
+    public abstract class AbstractValueSource<T> : AbstractGetter, IValueProvider<T> //提供數值
+    {
+        protected override string DescriptionTag => "=> (" + typeof(T).Name + ")";
+
         [AutoParent]
         private MonoEntity _monoEntity;
 
@@ -44,6 +56,9 @@ namespace MonoFSM.Foundation
         {
             if (sources == null || sources.Length == 0)
                 return null;
+
+            if (!Application.isPlaying)
+                return sources[0];
 
             foreach (var provider in sources)
                 if (provider.IsValid)

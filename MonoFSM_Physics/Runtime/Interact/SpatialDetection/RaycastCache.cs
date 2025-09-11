@@ -44,16 +44,17 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
         [HideIf("@_distanceProvider != null")]
         public float _distance = 30; //要依照速度來決定distance...distance provider?
 
+        [FormerlySerializedAs("_distanceProvider")]
         [CompRef]
         [Auto]
         [SerializeField]
-        private DistanceProviderFromSpeed _distanceProvider;
+        private DistanceSourceFromSpeed _distanceSource;
 
         [ShowInInspector]
         private float GetDistance()
         {
-            if (_distanceProvider != null)
-                return _distanceProvider.Distance * _deltaTime;
+            if (_distanceSource != null)
+                return _distanceSource.Distance * _deltaTime;
             return _distance;
         }
 

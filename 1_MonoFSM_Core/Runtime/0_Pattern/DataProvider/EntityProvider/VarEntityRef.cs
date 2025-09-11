@@ -8,9 +8,10 @@ using UnityEngine;
 namespace MonoFSM.Core.Runtime
 {
     //FIXME: 好像可以留著喔？重寫？
+    //FIXME: 哪裡需要用到？
     //provider是從variable拿到的MonoEntity，這個MonoEntity是
     // [Obsolete]
-    public class VarEntityRef : AbstractValueProvider<MonoEntity>
+    public class VarEntityRef : AbstractValueSource<MonoEntity>
     {
         public override string Description => $"Var Entity: {_varEntity?.name ?? "None"}";
 
@@ -23,7 +24,7 @@ namespace MonoFSM.Core.Runtime
         public MonoEntity monoEntity => _varEntity?.Value;
 
         [ShowInInspector]
-        public MonoEntityTag entityTag => monoEntity?.DefaultTag ?? _varEntity?._monoEntityTag; //FIXME: monoEntity是null, 這樣 _varEntity要先知道有什麼tag?
+        public MonoEntityTag entityTag => monoEntity?.DefaultTag ?? _varEntity?.EntityTag; //FIXME: monoEntity是null, 這樣 _varEntity要先知道有什麼tag?
 
         public override MonoEntity Value => monoEntity;
     }

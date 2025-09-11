@@ -1,9 +1,7 @@
 using System;
 using MonoFSM.Core.Attributes;
-using MonoFSM.Variable;
-using Sirenix.OdinInspector;
-using UnityEngine.Scripting.APIUpdating;
-using UnityEngine.Serialization;
+using MonoFSM.Runtime;
+using MonoFSM.Runtime.Mono;
 
 namespace MonoFSM.Core.DataProvider
 {
@@ -21,6 +19,11 @@ namespace MonoFSM.Core.DataProvider
         // public bool IsDirty { get; }
     }
 
+    public interface IEntityValueProvider : IValueProvider<MonoEntity>
+    {
+        MonoEntityTag entityTag { get; }
+    }
+
     public interface IValueProvider<out T> : IValueProvider
     {
         [ShowInDebugMode]
@@ -36,7 +39,6 @@ namespace MonoFSM.Core.DataProvider
         }
 
         Type IValueProvider.ValueType => typeof(T);
-
         //FIXME: valuechange?
     }
 

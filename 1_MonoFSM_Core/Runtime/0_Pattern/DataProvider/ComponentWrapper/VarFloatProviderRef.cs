@@ -6,7 +6,7 @@ namespace MonoFSM.Core.DataProvider
     /// <summary>
     /// Provide a reference to a VarFloat.
     /// </summary>
-    [Obsolete]
+    // [Obsolete]
     public class VarFloatProviderRef : VariableProviderRef<VarFloat, float> //不該是IFloatProvider?
     {
         //直接在這選Field?
