@@ -63,11 +63,11 @@ namespace MonoFSM.Core
             Type componentType
         )
         {
-            if (valueEntry.WeakSmartValue != null && !valueEntry.TypeOfValue.IsArray)
-            {
-                // Debug.Log("ValueEntry already set, no need to set again: " + valueEntry.WeakSmartValue, mb);
-                return; //already set, no need to set again
-            }
+            // if (valueEntry.WeakSmartValue != null && !valueEntry.TypeOfValue.IsArray)
+            // {
+            //     // Debug.Log("ValueEntry already set, no need to set again: " + valueEntry.WeakSmartValue, mb);
+            //     return; //already set, no need to set again
+            // }
 
             //array必定需要？
             valueEntry.WeakSmartValue = valueEntry.TypeOfValue.IsArray
@@ -139,6 +139,15 @@ namespace MonoFSM.Core
                 AutoUtils.SetSerialized(Property.ValueEntry, Attribute, mb, componentType);
             else
                 AutoUtils.SetPrivate(field, belongObj, Property, Attribute, mb, componentType);
+            // Debug.Log(
+            //     "AutoFamily Set: "
+            //     + Property.Name
+            //     + " to "
+            //     + Property.ValueEntry.WeakSmartValue
+            //     + " in "
+            //     + mb,
+            //     mb
+            // );
         }
 
         protected override void DrawPropertyLayout(GUIContent label)

@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e71863d6a014827a715566dd5c5af2f, type: 3}
   m_Name: Foo
   m_EditorClassIdentifier: 
+  _note: 
   _entityType:
     _bindObject: {fileID: 0}
     _baseFilterTypeName: 
@@ -32,6 +33,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 02cf875545f8a44e6ab6500afc5d346a, type: 2}
   - {fileID: 11400000, guid: 944ac56177d1944029d21e05db319614, type: 2}
   - {fileID: 11400000, guid: e2491fb40028e41838bbb8399b05e7eb, type: 2}
+  - {fileID: 11400000, guid: 2d3344ffc1d284a6baa63bfc62c513e4, type: 2}
   containsSchemaTypeTags:
   - {fileID: 11400000, guid: cae70b72fb5af4c4cbcfddd29843275f, type: 2}
   IsCollectionTag: 0

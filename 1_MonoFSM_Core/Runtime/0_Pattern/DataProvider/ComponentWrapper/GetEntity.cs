@@ -1,3 +1,4 @@
+using System;
 using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Runtime;
@@ -7,9 +8,11 @@ using UnityEngine;
 namespace _1_MonoFSM_Core.Runtime._0_Pattern.DataProvider.ComponentWrapper
 {
     //EntityRef?
+    [Obsolete] //FIXME: 應該用VarEntity就好了？
     public class GetEntity : MonoBehaviour, ICompProvider<MonoEntity>
     {
-        [CompRef] [AutoChildren(DepthOneOnly = true)]
+        [CompRef]
+        [AutoChildren(DepthOneOnly = true)]
         private ICompProvider _compProvider; //會拿到自己？
 
         public string Description => "Get " + Get().name;

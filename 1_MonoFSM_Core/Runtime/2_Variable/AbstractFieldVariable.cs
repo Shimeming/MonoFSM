@@ -302,7 +302,7 @@ public abstract class AbstractFieldVariable<TScriptableData, TField, TType>
                 return EditorValue;
 
             if (valueSource != null) //用外部source getter, 這樣原本一坨都不需要了吧？
-                return valueSource.Value;
+                return valueSource.Get<TType>();
 
             Profiler.BeginSample("Variable GetValue");
             var tempValue = _localField.CurrentValue;

@@ -7,6 +7,7 @@ using UnityEngine;
 namespace _1_MonoFSM_Core.Runtime.Action.TransformAction
 {
     //FIXME: state exit要收回 (對稱性)
+    //FIXME: 改用VarTransform?
     public class SetTransformParentAction : AbstractStateLifeCycleHandler
     {
         private Transform _oriParent; //FIXME: 不對..

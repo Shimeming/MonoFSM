@@ -30,9 +30,11 @@ namespace MonoFSM.Core
         protected override string DescriptionTag => "Event";
 
         public override string Description => GetType().Name.Replace("Handler", "");
+
         // GetType().Name.Replace("Handler", ""); //要都叫做 OnXXX ?
 
-        [CompRef] [AutoChildren(DepthOneOnly = true)]
+        [CompRef]
+        [AutoChildren(DepthOneOnly = true)]
         protected IEventReceiver[] _eventReceivers; //IActions
 
         [InfoBox("目前不是所有EntityProvider都是合法的喔")]
@@ -40,6 +42,7 @@ namespace MonoFSM.Core
         [AutoChildren(DepthOneOnly = true)]
         //FIXME: 要有篩選機制？靠Drawer去找囉？
         private AbstractEntityProvider[] _entityProviders;
+
         /// <summary>
         /// Call all event receivers' <see cref="IEventReceiver.EventReceived"/> method.
         /// </summary>
@@ -55,20 +58,13 @@ namespace MonoFSM.Core
             }
         }
 
-        [PreviewInInspector] private float _lastEventHandledTime = -1f;
+        [PreviewInInspector]
+        private float _lastEventHandledTime = -1f;
 
-        /// <summary>
-        /// Call all event receivers' <see cref="IEventReceiver{T}.EventReceived"/> method with the given argument.
-        /// </summary>
-        /// <typeparam name="T">The type of the argument.</typeparam>
-        /// <param name="arg">The argument to pass to the event receivers.</param>
-        public virtual void EventHandle<T>(T arg)
+        protected virtual void EventHandleImplement<T>(T arg)
         {
-            if (!isActiveAndEnabled)
-                return;
             _lastEventHandledTime = Time.time;
             foreach (var eventReceiver in _eventReceivers)
-            {
                 //有參數的介面時
                 if (eventReceiver is IArgEventReceiver<T> argEventReceiver)
                 {
@@ -79,8 +75,20 @@ namespace MonoFSM.Core
                 {
                     eventReceiver.EventReceived();
                 }
-            }
+        }
 
+        /// <summary>
+        /// Call all event receivers' <see cref="IEventReceiver{T}.EventReceived"/> method with the given argument.
+        /// </summary>
+        /// <typeparam name="T">The type of the argument.</typeparam>
+        /// <param name="arg">The argument to pass to the event receivers.</param>
+        public void EventHandle<T>(T arg)
+        {
+            //FIXME:會需要condition嗎?
+            if (!isActiveAndEnabled)
+                return;
+
+            EventHandleImplement(arg);
         }
     }
 }

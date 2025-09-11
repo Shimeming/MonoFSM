@@ -14,6 +14,7 @@ using MonoFSM.Variable.TypeTag;
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;
 using UnityEngine;
+using Object = System.Object;
 
 namespace MonoFSM.Core.DataProvider
 {
@@ -37,15 +38,26 @@ namespace MonoFSM.Core.DataProvider
         //Entity?
         // [DropDownRef] [SerializeField] private ValueProvider _valueProviderRef; //還是是entity想要Ref?
 
+        private Color GetVarTagColor()
+        {
+            if (!IsDropDownVarTagValid())
+                return new Color(0.9f, 0.2f, 0.3f, 0.5f);
+            return Color.white;
+        }
+
         //FIXME: 要檢查目前選到的有沒有在dropdown的選項內容裡(換VarEntity後就會錯)
         [Required]
         [PropertyOrder(0)]
         [BoxGroup("Field Path", ShowLabel = true)]
         public VarEntity _varEntity;
 
+        [ShowInDebugMode]
+        public MonoEntity debugEntity => _varEntity?.Value;
+
         [BoxGroup("Field Path", ShowLabel = true)]
         [ShowInInspector]
         [ValueDropdown(nameof(GetVarTagsFromEntity), NumberOfItemsBeforeEnablingSearch = 5)]
+        [GUIColor(nameof(GetVarTagColor))] //FIXME: 整合成attribute drawer? 很接近DropdownRef, 不確定泛用嗎
         public VariableTag DropDownVarTag
         {
             set
@@ -70,13 +82,22 @@ namespace MonoFSM.Core.DataProvider
             if (_varEntity != null)
             {
                 if (_varEntity.Value != null)
+                {
+                    // Debug.Log("ValueProvider: Getting variable tags from assigned entity.", this);
                     return _varEntity.Value.GetVariableTagDropdownItems<AbstractMonoVariable>();
+                }
+
                 if (_varEntity.EntityTag != null)
                 {
+                    // Debug.Log("ValueProvider: Getting variable tags from assigned entity tag.",
+                    // this);
                     return _varEntity.EntityTag.GetVariableTagItems();
                 }
             }
 
+            // Debug.Log(
+            //     "ValueProvider: No assigned entity or entity tag, returning empty variable tags.",
+            //     this);
             return new List<ValueDropdownItem<VariableTag>>();
             // //FIXME: 不看Parent entity的entity tag嗎？
             // if (entityProvider != null)
@@ -150,7 +171,7 @@ namespace MonoFSM.Core.DataProvider
             }
         }
 
-        private MonoEntity ParentEntity //fixme; 避免這個？ fsm結構裡一定要放this.(ParentEntity)嗎？
+        private new MonoEntity ParentEntity //fixme; 避免這個？ fsm結構裡一定要放this.(ParentEntity)嗎？
         {
             get
             {
@@ -339,7 +360,7 @@ namespace MonoFSM.Core.DataProvider
         //選了VarRaw.Value後反而變成原本的type...這樣外面就沒有提示了
 
         //FIXME: 拔掉？
-        private IValueProvider GetTarget()
+        private Object GetTarget()
         {
             // 優先級 1: VarTag（如果有選擇 Variable）
             if (_varTag != null)
@@ -539,7 +560,7 @@ namespace MonoFSM.Core.DataProvider
                 if (target == null)
                     return null;
 
-                object currentObj = target; // 明確宣告為 object 型別
+                var currentObj = target; // 明確宣告為 object 型別
                 for (var i = 0; i < _pathEntries.Count - 1; i++)
                 {
                     var entry = _pathEntries[i];
@@ -642,6 +663,52 @@ namespace MonoFSM.Core.DataProvider
             ReflectionUtility.SetFieldValueFromPath(target, _pathEntries, settingValue, gameObject);
         }
 
+        [ShowInDebugMode]
+        private object previewObject => Get<object>();
+
+        /// <summary>
+        ///     驗證當前選擇的 DropDownVarTag 是否在可用選項中
+        /// </summary>
+        private bool IsDropDownVarTagValid()
+        {
+            if (_varTag == null)
+                return true; // 沒有選擇任何 VarTag，不算錯誤
+
+            var availableOptions = GetVarTagsFromEntity();
+            if (availableOptions == null)
+                return false;
+
+            foreach (var option in availableOptions)
+                if (option.Value == _varTag)
+                    return true;
+            _errorMessage =
+                $"選擇的變數標籤 '{_varTag?.name}' 不在當前實體的可用選項中。請重新選擇正確的變數標籤或是 assign var entity。";
+            return false; // VarTag 不在可用選項中
+        }
+
+        // private string _validationErrorMessage;
+
+        /// <summary>
+        ///     檢查並更新驗證錯誤訊息
+        /// </summary>
+        // private bool HasValidationError()
+        // {
+        //     if (!IsDropDownVarTagValid())
+        //     {
+        //         _errorMessage = $"選擇的變數標籤 '{_varTag?.name}' 不在當前實體的可用選項中。請重新選擇正確的變數標籤。";
+        //         return true;
+        //     }
+        //
+        //     // _validationErrorMessage = "";
+        //     return false;
+        // }
+        protected override bool HasError()
+        {
+            if (!IsDropDownVarTagValid())
+                return true;
+            return base.HasError();
+        }
+
         public override T1 Get<T1>() //GetAs?
         {
             if (ValueType == null)
@@ -717,7 +784,14 @@ namespace MonoFSM.Core.DataProvider
             if (!HasFieldPath)
             {
                 // Debug.Log($"VarRef: 直接從變數取得值: {target}", this);
-                return target.Get<T1>();
+
+                if (target is AbstractMonoVariable targetVar)
+                    return targetVar.GetValue<T1>();
+
+                //FIXME: 需要這個嗎？
+                if (target is T1 tObj)
+                    return tObj;
+                return default;
             }
 
             // 不選varTag的話就用Entity?

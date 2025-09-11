@@ -41,7 +41,8 @@ namespace MonoFSM.Core.Detection
         [Required]
         [AutoParent]
         public EffectDetector _detector;
-        public virtual bool IsEnabled => enabled;
+
+        public virtual bool IsEnabled => isActiveAndEnabled;
 
         //統一由 EffectDetector 管理 enter/exit 事件
 

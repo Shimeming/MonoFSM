@@ -1,3 +1,4 @@
+using System;
 using MonoFSM.Core.Runtime.Action;
 using MonoFSM.Runtime.Interact.EffectHit;
 using MonoFSM.Runtime.Variable;
@@ -9,7 +10,9 @@ namespace _1_MonoFSM_Core.Runtime.EffectHit.Action
     /// <summary>
     ///     想要把打到的目標設定到一個VarEntity變數裡面
     ///     //FIXME: EffectHit類的好像可以抽成一組Handler? 這樣EffectEnter和EffectExit都可以做事？
+    /// //FIXME: 應該讓EffectEnterNode做？
     /// </summary>
+    [Obsolete("應該讓EffectEnterNode做? 還是有成對的問題？不對是local應該可刪掉")]
     public class EffectHitSetVarEntityAction : AbstractArgEventHandler<GeneralEffectHitData>
     {
         [Required]

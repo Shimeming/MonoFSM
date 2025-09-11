@@ -13,7 +13,7 @@ namespace MonoFSM.Runtime
     public class MonoEntityBinder : MonoDict<MonoEntityTag, MonoEntity>, IModuleOwner
     {
         //FIXME: 同個tag可以有個list?
-//FIXME: 怎麼 runtime 註冊？ world update simulator的MonoObj通通都要？
+        //FIXME: 怎麼 runtime 註冊？ world update simulator的MonoObj通通都要？
         //network想要看authority來決定要不要加到字典裡...這個性質是什麼? 還是應該都加進去，但可以篩選authority?
         protected override bool IsAddValid(MonoEntity item)
         {
@@ -26,17 +26,14 @@ namespace MonoFSM.Runtime
             return true;
         }
 
-
         protected override bool isLog => false;
-        
+
         protected override void AddImplement(MonoEntity item)
         {
             // item.IsRegister = true;
         }
 
-        protected override void RemoveImplement(MonoEntity item)
-        {
-        }
+        protected override void RemoveImplement(MonoEntity item) { }
 
         protected override bool CanBeAdded(MonoEntity item)
         {
@@ -92,7 +89,8 @@ namespace MonoFSM.Runtime
         }
 
         //類似singleton, 但是可能有多個世界，因此可以從某個容器底下找到唯一即可
-        public static T GetGlobalInstance<T>(this MonoBehaviour mono) where T : MonoEntity, IGlobalInstance
+        public static T GetGlobalInstance<T>(this MonoBehaviour mono)
+            where T : MonoEntity, IGlobalInstance
         {
             var type = typeof(T);
             var monoObj = mono.GetComponentInParent<MonoObj>();
@@ -110,7 +108,7 @@ namespace MonoFSM.Runtime
         }
 
         /// <summary>
-        /// 從Binder找到GlobalInstance, 如果要特定Component (ex: MonoCharacter) 可以用GetComponent再拿看看 
+        /// 從Binder找到GlobalInstance, 如果要特定Component (ex: MonoCharacter) 可以用GetComponent再拿看看
         /// </summary>
         /// <param name="mono"></param>
         /// <param name="tag"></param>
@@ -127,6 +125,9 @@ namespace MonoFSM.Runtime
 
             //FIXME: 這個是從Binder往下找，可能有多個，不太好？
             var monoObj = mono.GetComponentInParent<MonoObj>();
+            if (monoObj.WorldUpdateSimulator == null) //Play後有一段空窗期，UI (odin)試圖抓值但是world還沒準備好
+                // Debug.LogError("WorldUpdateSimulator is not ready yet " + tag, mono);
+                return null;
             var binder = monoObj?.WorldUpdateSimulator?.GetComponent<MonoEntityBinder>();
             if (binder == null)
             {
@@ -135,7 +136,8 @@ namespace MonoFSM.Runtime
                 if (prefabStage != null)
                     return null;
 #endif
-                if(Application.isPlaying)
+                //FIXME: world還沒準備好？
+                if (Application.isPlaying)
                     Debug.LogError("No MonoDescriptableBinder found " + tag, mono);
                 return null;
             }
@@ -148,7 +150,8 @@ namespace MonoFSM.Runtime
                 if (Application.isPlaying)
                     Debug.LogError(
                         $"No MonoDescriptable found with tag: {tag} (MonoBehaviour: {mono?.name}, Binder: {binder?.name})",
-                        mono);
+                        mono
+                    );
                 // Debug.LogError("No MonoDescriptable found tag:" + tag, mono);
                 // Debug.LogError("No MonoDescriptable found of tag: " + tag, binder);
             }
@@ -172,7 +175,5 @@ namespace MonoFSM.Runtime
         //     var descriptable = binder.Get(tag);
         //     return descriptable;
         // }
-        
-       
     }
 }

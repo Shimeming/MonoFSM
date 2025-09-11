@@ -347,7 +347,8 @@ public class GameData
     {
         get
         {
-            if (_dataFunctionSet.TryGetValue(typeof(PickableData), out var dataFunction)) //editor還沒準備好？
+            //FIXME://editor還沒準備好？ 當數量不同時，重新建立？
+            if (_dataFunctionSet.TryGetValue(typeof(PickableData), out var dataFunction))
                 return ((PickableData)dataFunction).EntityPrefab;
             // Debug.LogError("No PickableData found in " + name, this);
             return null;

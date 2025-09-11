@@ -154,10 +154,13 @@ namespace MonoFSM.Variable
             }
             if (HasValueProvider) //FIXME: 和field 分開寫很鳥?
             {
-                if (valueSource == null) //有可能resolve後是null
-                    return null;
+                if (Application.isPlaying)
+                {
+                    if (valueSource == null) //有可能resolve後是null
+                        return null;
 
-                return valueSource.Value;
+                    return valueSource.Get<TValueType>();
+                }
             }
 
             return _currentValue;

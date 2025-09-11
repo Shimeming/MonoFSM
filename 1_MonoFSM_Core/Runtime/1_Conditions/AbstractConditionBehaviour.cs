@@ -2,7 +2,6 @@
 using System.Diagnostics.CodeAnalysis;
 using MonoDebugSetting;
 using MonoFSM.Core.Attributes;
-using MonoFSM.Core.DataProvider;
 using MonoFSM.EditorExtension;
 using MonoFSM.Foundation;
 using MonoFSM.Variable;
@@ -27,7 +26,7 @@ public abstract class AbstractConditionBehaviour
     : AbstractDescriptionBehaviour,
         IBoolProvider,
         IOverrideHierarchyIcon,
-        IValueProvider<bool>,
+        // IValueProvider<bool>, //FIXME: 不該作為ValueProvider? 要的話另外轉換好了？
         IHierarchyValueInfo
 {
 #if UNITY_EDITOR

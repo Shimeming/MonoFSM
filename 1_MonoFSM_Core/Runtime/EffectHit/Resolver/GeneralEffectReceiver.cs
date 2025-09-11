@@ -55,7 +55,10 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         {
             this.Log("OnHitEnter");
             _currentHitData = data as GeneralEffectHitData;
-            _enterNode?.EventHandle(data as GeneralEffectHitData);
+            var receiverEntity = _currentHitData.GeneralDealer.ParentEntity;
+            _enterNode?._hittingEntity?.SetValue(receiverEntity, this);
+            _enterNode?.EventHandle(_currentHitData);
+
             _dealers.Add(data.Dealer as GeneralEffectDealer);
 #if UNITY_EDITOR
             _lastHitData = data;
@@ -73,6 +76,8 @@ namespace MonoFSM.Runtime.Interact.EffectHit
             _dealers.Remove(data.Dealer as GeneralEffectDealer);
             _exitNode?.EventHandle(data as GeneralEffectHitData);
             _currentHitData = null;
+            //FIXME: 要清掉 _hittingEntity 嗎？那好像不要放在enterNODe耶...而且
+            //每個Dealer都要call好煩喔
         }
 
         // public float ReactValue => ValueSource?.FinalValue ?? 0;

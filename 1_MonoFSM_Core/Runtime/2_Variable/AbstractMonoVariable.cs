@@ -23,18 +23,25 @@ namespace MonoFSM.Variable
     public abstract class TypedMonoVariable<T> : AbstractMonoVariable, ISettable<T>
     {
         [CompRef]
-        [AutoChildren]
-        protected IValueProvider<T>[] _valueSources; //FIXME: 好像可以改成AbstractValueProvider<T>?
+        [AutoChildren] //fixme; 用interface的壞處？需要 ensurecomponent? 但不會髒掉？
+        protected IValueProvider[] _valueSources; //FIXME: 好像可以改成AbstractValueProvider<T>?
 
-        protected IValueProvider<T> valueSource => GetActiveTypedValueSource();
+        protected IValueProvider valueSource => GetActiveTypedValueSource();
 
-        protected IValueProvider<T> GetActiveTypedValueSource()
+        protected IValueProvider GetActiveTypedValueSource()
         {
+            this.EnsureComponentInChildren(ref _valueSources);
             return ValueResolver.GetActiveValueSource(_valueSources, this);
         }
 
-        protected override bool HasValueProvider =>
-            ValueResolver.HasValueProvider(_valueSources) || base.HasValueProvider;
+        protected override bool HasValueProvider
+        {
+            get
+            {
+                this.EnsureComponentsInChildren(ref _valueSources); //要避免Array?
+                return ValueResolver.HasValueProvider(_valueSources) || base.HasValueProvider;
+            }
+        }
 
         public abstract void SetValue(T value, MonoBehaviour byWho);
         public abstract void SetValue(object value, MonoBehaviour byWho);
@@ -49,18 +56,25 @@ namespace MonoFSM.Variable
             IName,
             IValueOfKey<VariableTag>,
             IOverrideHierarchyIcon,
-            IValueProvider,
             IBeforePrefabSaveCallbackReceiver,
             IConfigTypeProvider,
             IResetStateRestore
     {
         //FIXME: 什麼case需要parentVarEntity? 忘記了XD
-        [ShowIf(nameof(_parentVarEntity))] //有才顯示就好
+        // [ShowIf(nameof(_parentVarEntity))] //有才顯示就好, 或是debugMode?
         [PreviewInInspector]
         [AutoParent(includeSelf: false)] //不可以抓到自己！
         protected VarEntity _parentVarEntity; //我的parent如果有VarEntity, 去跟這個entity拿？
 
-        public bool HasParentVarEntity => _parentVarEntity != null;
+        public bool HasParentVarEntity
+        {
+            get
+            {
+                //如果是null這個會很白痴耶
+                this.EnsureComponentInParent(ref _parentVarEntity, false, false);
+                return _parentVarEntity != null;
+            }
+        }
 #if UNITY_EDITOR
         public string IconName { get; }
         public bool IsDrawingIcon => CustomIcon != null;

@@ -1,3 +1,4 @@
+using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.DataProvider;
 using MonoFSM.Runtime;
@@ -49,8 +50,8 @@ namespace MonoFSM.Foundation
 
     public static class ValueResolver
     {
-        public static IValueProvider<T> GetActiveValueSource<T>(
-            IValueProvider<T>[] sources,
+        public static IValueProvider GetActiveValueSource(
+            IValueProvider[] sources,
             MonoBehaviour context
         )
         {
@@ -68,7 +69,7 @@ namespace MonoFSM.Foundation
             return null;
         }
 
-        public static bool HasValueProvider<T>(IValueProvider<T>[] sources)
+        public static bool HasValueProvider(IValueProvider[] sources)
         {
             return sources is { Length: > 0 };
         }

@@ -142,10 +142,14 @@ namespace MonoFSM.Runtime.Interact.EffectHit
             }
             if (_proxyProvider != null)
                 proxyDealer.OnHitEnter(_currentHitData, detectData);
-            //兩邊可能都要做事，都判
+
+            var receiverEntity = _currentHitData.GeneralReceiver.ParentEntity;
+            _enterNode?._hittingEntity?.SetValue(receiverEntity, this); //要先做
             _enterNode?.EventHandle(_currentHitData);
+
             _receivers.Add(_currentHitData.Receiver);
-            _hittingEntities.Add(_currentHitData.GeneralReceiver.ParentEntity);
+            _hittingEntities.Add(receiverEntity);
+
             _lastReceiver = data.Receiver as GeneralEffectReceiver;
         }
 

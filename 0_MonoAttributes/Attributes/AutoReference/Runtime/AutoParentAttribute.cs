@@ -58,10 +58,11 @@ public class AutoParentAttribute : AutoFamilyAttribute
 
     public override object GetTheSingleComponent(MonoBehaviour mb, Type componentType)
     {
-        // Debug.Log("[AutoParent] GetTheSingleComponent" + mb.gameObject + mb.name, mb.gameObject);
         var start = mb.transform;
         if (!_includeSelf)
             start = start.parent;
+        // Debug.Log("[AutoParent] GetTheSingleComponent" + start.gameObject + start.name,
+        //     mb);
         return start.GetComponentInParent(LimitedType ?? componentType, true);
     }
 }

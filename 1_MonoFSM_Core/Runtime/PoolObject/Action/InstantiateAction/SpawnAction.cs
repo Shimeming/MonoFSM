@@ -13,6 +13,7 @@ using UnityEngine;
 
 namespace MonoFSM.Core.LifeCycle
 {
+    //FIXME: 還是走SpawnEventHandler的方式？ 但參數呢？
     public interface IAfterSpawnProcess //action在Spawn之後執行 也有種event的概念？AfterSpawnEventHandler?
     {
         public void AfterSpawn(
@@ -76,6 +77,7 @@ namespace MonoFSM.Core.LifeCycle
         [SerializeField]
         private VarEntity _spawnedEntityVar;
 
+        //FIXME: 寫死各種參數的介面不好！provdier?
         private void Spawn(
             MonoObj prefab,
             Vector3 position,
