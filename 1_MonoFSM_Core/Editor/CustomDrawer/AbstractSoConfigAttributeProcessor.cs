@@ -46,7 +46,7 @@ namespace _1_MonoFSM_Core.Editor.CustomDrawer
 
             //useVarTagRestrictType??
             attributes.Add(new SOConfigAttribute(propertyType.Name));
-            attributes.Add(new SOTypeDropdownAttribute());
+            attributes.Add(new SOTypeDropdownAttribute()); //需要再加一次，includeMyAttribute不會自動處理
         }
     }
 }

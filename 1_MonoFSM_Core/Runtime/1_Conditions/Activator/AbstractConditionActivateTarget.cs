@@ -1,4 +1,5 @@
 using MonoFSM.Core.Simulate;
+using MonoFSM.Foundation;
 using MonoFSMCore.Runtime.LifeCycle;
 using UnityEngine;
 
@@ -7,8 +8,10 @@ namespace MonoFSM.Core.Condition
     //這個要整個Panel OnEnable的時候才會檢查一遍，不會隨時檢查
     //ActivateChecker
     public abstract class //IReturnToPool? IDespawn?
-    AbstractConditionActivateTarget : MonoBehaviour, IUpdateSimulate, IResetStart //, ISelectedInstanceUpdater //ISubmitHandler
+    AbstractConditionActivateTarget : AbstractDescriptionBehaviour, IUpdateSimulate, IResetStart //, ISelectedInstanceUpdater //ISubmitHandler
     {
+        protected override string DescriptionTag => "Condition Activate";
+
         public void Simulate(float deltaTime)
         {
             ActivateCheck();

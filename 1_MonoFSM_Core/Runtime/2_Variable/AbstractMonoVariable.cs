@@ -117,6 +117,9 @@ namespace MonoFSM.Variable
             _dataChangedListeners.Remove(target);
         }
 
+        [AutoParent]
+        protected VariableFolder _variableFolder;
+
         // [Button]
         private void UpdateTag()
         {
@@ -132,9 +135,9 @@ namespace MonoFSM.Variable
 
             // Debug.Log("Tag Changed");
             //variable folder refresh
-            var variableFolder = GetComponentInParent<VariableFolder>();
-            if (variableFolder)
-                variableFolder.Refresh();
+            _variableFolder = GetComponentInParent<VariableFolder>();
+            if (_variableFolder)
+                _variableFolder.Refresh();
 #if UNITY_EDITOR
             if (_varTag)
                 EditorUtility.SetDirty(_varTag);
@@ -191,9 +194,14 @@ namespace MonoFSM.Variable
         // #endif
         //         }
 
-        protected bool IsHidingVarTag => HasParentVarEntity;
+        //proxy variable or local variable;
+        protected bool IsHidingVarTag => HasValueProvider || _variableFolder == null;
 
-        [HideIf(nameof(HasValueProvider))]
+        protected bool IsHidingDefaultValue =>
+            HasValueProvider || HasParentVarEntity || _variableFolder == null;
+
+        //是一種Object Member的概念？
+        [HideIf(nameof(IsHidingVarTag))]
         [FormerlySerializedAs("varTag")]
         // [MCPExtractable]
         [OnValueChanged(nameof(UpdateTag))]

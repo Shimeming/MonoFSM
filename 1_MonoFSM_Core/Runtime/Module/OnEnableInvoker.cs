@@ -16,12 +16,28 @@ using UnityEngine;
 
 public class OnEnableInvoker : MonoBehaviour, IUpdateSimulate
 {
-    [CompRef] [AutoChildren] private OnEnableNode _onEnableNode;
-    [CompRef] [AutoChildren] private OnDisableNode _onDisableNode;
+    [CompRef]
+    [AutoChildren]
+    private OnEnableNode _onEnableNode;
+
+    [CompRef]
+    [AutoChildren]
+    private OnDisableNode _onDisableNode;
 
     private bool _isCachedEnabled;
     private bool _isCachedDisabled;
-    private void OnEnable()
+
+    [CompRef]
+    [SerializeField]
+    EnableHandle _enableHandle;
+
+    private bool isTriggeringEnable =>
+        _enableHandle != null ? _enableHandle.isCachedEnabled : _isCachedEnabled;
+
+    private bool isTriggeringDisable =>
+        _enableHandle != null ? _enableHandle.isCachedDisabled : _isCachedDisabled;
+
+    private void OnEnable() //這個東西的事件反而不穩定？用update自己檢查？
     {
         this.Log("OnEnable");
         _isCachedEnabled = true;
@@ -31,14 +47,16 @@ public class OnEnableInvoker : MonoBehaviour, IUpdateSimulate
     {
         _isCachedDisabled = true;
         this.Log("OnDisable");
-
     }
 
     public void Simulate(float deltaTime)
     {
         //FIXME: 應該要下個frame做？ 先記下來？
-        if (_isCachedEnabled)
+        if (isTriggeringEnable && _onEnableNode != null)
         {
+            if (_enableHandle != null)
+                _enableHandle._isCachedEnabled = false;
+
             _isCachedEnabled = false;
             if (_onEnableNode.gameObject.activeSelf)
                 _onEnableNode.EventHandle();
@@ -48,6 +66,9 @@ public class OnEnableInvoker : MonoBehaviour, IUpdateSimulate
 
         if (_isCachedDisabled && _onDisableNode != null)
         {
+            if (_enableHandle != null)
+                _enableHandle._isCachedDisabled = false;
+
             _isCachedDisabled = false;
             if (_onDisableNode.gameObject.activeSelf)
                 _onDisableNode.EventHandle();
@@ -56,7 +77,5 @@ public class OnEnableInvoker : MonoBehaviour, IUpdateSimulate
         }
     }
 
-    public void AfterUpdate()
-    {
-    }
+    public void AfterUpdate() { }
 }

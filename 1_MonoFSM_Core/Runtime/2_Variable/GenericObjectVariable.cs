@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using _1_MonoFSM_Core.Runtime.Attributes;
 using MonoFSM.Core.Attributes;
 using MonoFSM.EditorExtension;
 using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Search;
 using Object = UnityEngine.Object;
 
 namespace MonoFSM.Variable
@@ -19,7 +21,6 @@ namespace MonoFSM.Variable
     //
     //     // protected void SetValueExecution();
     // }
-
     public abstract class GenericUnityObjectVariable<TValueType>
         : TypedMonoVariable<TValueType>,
             ISettable<TValueType>,
@@ -41,9 +42,11 @@ namespace MonoFSM.Variable
         //FIXME: 繼承時想要加更多attribute
         // [Header("預設值")] [HideIf(nameof(_siblingDefaultValue))]
         [HideIf(nameof(HasProxyValue))]
-        [SOConfig("10_Flags/GameData", useVarTagRestrictType: true)] //痾，只有SO類才需要ㄅ
-        [SerializeField]
+        // [SOConfig("10_Flags/GameData", useVarTagRestrictType: true)] //FIXME: 痾，只有SO類才需要ㄅ
         [Required]
+        [PrefabFilter(typeof(PoolObject))]
+        [SerializeField]
+        //required可以有condition?
         protected TValueType _defaultValue; //ConfigSettingValue?
 
         protected virtual TValueType DefaultValue
@@ -152,6 +155,7 @@ namespace MonoFSM.Variable
                     return targetVar.GetValue<TValueType>();
                 }
             }
+
             if (HasValueProvider) //FIXME: 和field 分開寫很鳥?
             {
                 if (Application.isPlaying)
@@ -163,6 +167,8 @@ namespace MonoFSM.Variable
                 }
             }
 
+            if (Application.isPlaying == false)
+                return DefaultValue;
             return _currentValue;
         }
 
@@ -287,6 +293,7 @@ namespace MonoFSM.Variable
                 }
             }
         }
+
         public bool IsDrawingValueInfo => true;
     }
 }

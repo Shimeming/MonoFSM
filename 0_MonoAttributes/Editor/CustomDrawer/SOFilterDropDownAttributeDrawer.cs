@@ -18,7 +18,7 @@ namespace MonoFSM.Core.Editor
     /// 用於過濾帶有 RestrictType 屬性的欄位下拉選項
     /// 支援任何 ScriptableObject 類型
     /// </summary>
-    public class TypeRestrictFilterAttributeDrawer : OdinAttributeDrawer<SOTypeDropdownAttribute>
+    public class SOFilterDropDownAttributeDrawer : OdinAttributeDrawer<SOTypeDropdownAttribute>
     {
         protected override bool CanDrawAttributeProperty(InspectorProperty property)
         {

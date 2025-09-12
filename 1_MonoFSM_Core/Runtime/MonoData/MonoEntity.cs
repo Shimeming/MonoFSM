@@ -27,6 +27,7 @@ namespace MonoFSM.Runtime
     }
 
     //FIXME: 必定需要MonoObj?
+    [SelectionBase]
     [RequireComponent(typeof(MonoObj))]
     [Searchable]
     [FormerlyNamedAs("MonoDescriptable")]
