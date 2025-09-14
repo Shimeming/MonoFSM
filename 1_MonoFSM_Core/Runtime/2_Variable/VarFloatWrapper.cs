@@ -21,6 +21,9 @@ namespace MonoFSM.Variable
     public class VarBoolWrapper : VarWrapper<VarBool, bool> { }
 
     [Serializable]
+    public class VarGameDataWrapper : VarWrapper<VarBool, bool> { }
+
+    [Serializable]
     public class VarFloatWrapper : VarWrapper<VarFloat, float> { }
 
     [Serializable]

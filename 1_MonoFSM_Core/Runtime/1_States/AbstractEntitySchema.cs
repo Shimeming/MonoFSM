@@ -17,25 +17,10 @@ using UnityEngine;
 
 namespace _1_MonoFSM_Core.Runtime._1_States
 {
-    //要有drawer去自己mapping?
-    // public class VarTagMappingAttribute : PropertyAttribute
-    // {
-    //     // This attribute can be used to filter variables by tag.
-    //     // It can be used to prevent mapping of certain variables in the schema.
-    //     public string TagName { get; }
-    //
-    //     public VarTagMappingAttribute(string tagName)
-    //     {
-    //         TagName = tagName;
-    //     }
-    // }
-
-
-    //FIXME: 和MonoEntity有沒有定位重疊？
-    // public class VarTagAttribute
     //一個entity應給要允許多個schema, 或是說多個variable folder?
     /// <summary>
     ///     定義 data structure 就好，不要寫邏輯, ECS?
+    ///  應該把variable和Schema包成一包?
     /// </summary>
     [Searchable]
     public abstract class AbstractEntitySchema
@@ -43,6 +28,7 @@ namespace _1_MonoFSM_Core.Runtime._1_States
             IStringKey,
             IValueOfKey<AbstractEntitySchema>
     {
+        //FIXME: 有需要用wrapper嗎？
         protected override string DescriptionTag => "Schema";
 
         // This class can be used to define a schema for MonoEntity,

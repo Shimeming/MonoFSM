@@ -200,9 +200,11 @@ public class VariableFolder : MonoDict<VariableTag, AbstractMonoVariable>
 
     protected override void RemoveImplement(AbstractMonoVariable item) { }
 
+    //FIXME: 關著的被key的variable？
     protected override bool CanBeAdded(AbstractMonoVariable item)
     {
-        return item.gameObject.activeSelf == true;
+        return true;
+        // return item.gameObject.activeSelf == true;
         //一定要可以加，還是用disable?
         // return true;
     }

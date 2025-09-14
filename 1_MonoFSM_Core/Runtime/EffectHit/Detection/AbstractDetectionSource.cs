@@ -51,15 +51,15 @@ namespace MonoFSM.Core.Detection
         [PreviewInInspector]
         protected readonly HashSet<Collider> _thisFrameColliders = new();
 
-        [PreviewInInspector]
-        protected readonly HashSet<Collider> _lastFrameColliders = new(); //ondisable也要清掉？
+        // [PreviewInDebugMode]
+        // protected readonly HashSet<Collider> _lastFrameColliders = new(); //ondisable也要清掉？
 
         private void OnDisable()
         {
             //FIXME: 要讓 EffectDetector handle就好？
             //TODO: Exit check?
             _thisFrameColliders.Clear();
-            _lastFrameColliders.Clear();
+            // _lastFrameColliders.Clear();
         }
 
         public abstract IEnumerable<DetectionResult> GetCurrentDetections();
@@ -69,42 +69,44 @@ namespace MonoFSM.Core.Detection
             // DetectionSource 只負責檢測，事件處理由 EffectDetector 統一管理
         }
 
+        public virtual void AfterDetection() { }
+
         /// <summary>
         ///     向 EffectDetector 報告物件進入事件
         /// </summary>
-        protected void ReportEnterEvent(
-            GameObject obj,
-            Vector3? hitPoint = null,
-            Vector3? hitNormal = null
-        )
-        {
-            this.Log("ReportEnterEvent: " + obj.name, obj);
-            _detector.OnDetectEnterCheck(obj, hitPoint, hitNormal);
-        }
-
-        /// <summary>
-        ///     向 EffectDetector 報告物件離開事件
-        /// </summary>
-        protected void ReportExitEvent(GameObject obj)
-        {
-            _detector.OnDetectExitCheck(obj);
-        }
+        // protected void ReportEnterEvent(
+        //     GameObject obj,
+        //     Vector3? hitPoint = null,
+        //     Vector3? hitNormal = null
+        // )
+        // {
+        //     this.Log("ReportEnterEvent: " + obj.name, obj);
+        //     _detector.OnDetectEnterCheck(obj, hitPoint, hitNormal);
+        // }
+        //
+        // /// <summary>
+        // ///     向 EffectDetector 報告物件離開事件
+        // /// </summary>
+        // protected void ReportExitEvent(GameObject obj)
+        // {
+        //     _detector.OnDetectExitCheck(obj);
+        // }
 
         /// <summary>
         ///     向後相容的方法，內部調用新的 ReportEnterEvent
         /// </summary>
-        protected void QueueEnterEvent(GameObject obj)
-        {
-            ReportEnterEvent(obj);
-        }
-
-        /// <summary>
-        ///     向後相容的方法，內部調用新的 ReportExitEvent
-        /// </summary>
-        protected void QueueExitEvent(GameObject obj)
-        {
-            ReportExitEvent(obj);
-        }
+        // protected void QueueEnterEvent(GameObject obj)
+        // {
+        //     ReportEnterEvent(obj);
+        // }
+        //
+        // /// <summary>
+        // ///     向後相容的方法，內部調用新的 ReportExitEvent
+        // /// </summary>
+        // protected void QueueExitEvent(GameObject obj)
+        // {
+        //     ReportExitEvent(obj);
+        // }
 
         public string ValueInfo => "L:" + LayerMask.LayerToName(gameObject.layer);
         public bool IsDrawingValueInfo => true;

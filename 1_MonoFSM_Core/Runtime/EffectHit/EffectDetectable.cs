@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Detection;
 using MonoFSM.Foundation;
@@ -29,33 +30,33 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         private EffectDetectable _detectable;
 
         public EffectDetectable Detectable => _detectable; //動態生成的沒有綁定到？
-        public GeneralEffectReceiver[] EffectReceivers => _detectable.EffectReceivers;
+        // public GeneralEffectReceiver[] EffectReceivers => _detectable.EffectReceivers;
     }
 
     [DisallowMultipleComponent]
     //空間中的物件，可以被偵測到, 基本上會有collider或是collider2D
     //從Detector過來
-    public class EffectDetectable : AbstractDescriptionBehaviour, IDefaultSerializable //關係
+    public class EffectDetectable
+        : MonoDict<GeneralEffectType, GeneralEffectReceiver>,
+            IDefaultSerializable //關係
     {
-        [Obsolete("只是拿來新增用的button？其實不一定需要？")]
+        //可能不只一個？
+        // [Obsolete("只是拿來新增用的button？其實不一定需要？")]
         [CompRef]
         [AutoChildren(DepthOneOnly = true)]
-        [Required]
-        private BaseEffectDetectTarget _effectDetectTarget; //FIXME:不該？
+        [SerializeField]
+        private BaseEffectDetectTarget[] _effectDetectTargets; //FIXME:不該？
 
         // [AutoParent] private StateMachineOwner owner;
         //
         // public StateMachineOwner Owner => owner;
 
 
-
         //FIXME: 確保layer有設定
-        [Component]
-        [AutoChildren(DepthOneOnly = true)]
-        private GeneralEffectReceiver[] _effectReceivers;
+        // [Component] [AutoChildren(DepthOneOnly = true)]
+        // private GeneralEffectReceiver[] _effectReceivers;
 
-        [ShowInInspector]
-        public GeneralEffectReceiver[] EffectReceivers => _effectReceivers;
+        // [ShowInInspector] public GeneralEffectReceiver[] EffectReceivers => _effectReceivers;
 
         public GameObject TargetObject => gameObject;
         public bool IsValidTarget => enabled && gameObject.activeInHierarchy;
@@ -69,6 +70,29 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         // List<SpatialDetector> fromDetectors;
         [PreviewInInspector]
         private HashSet<EffectDetector> toRemoves = new();
+
+        public void ProcessEffectHit(EffectDetector detector)
+        {
+            //FIXME: 在這邊new data...?
+            var detectData = new DetectData(detector, this);
+
+            foreach (var dealer in detector.Dealers)
+            {
+                var receiver = Get(dealer._effectType);
+                if (receiver == null)
+                    continue;
+                // foreach (var receiver in EffectReceivers)
+                // {
+                //
+                // }
+                if (!dealer.CanHitReceiver(receiver))
+                    continue;
+
+                var hitData = receiver.GenerateEffectHitData(dealer);
+                dealer.OnHitEnter(hitData, detectData);
+                receiver.OnEffectHitEnter(hitData, detectData);
+            }
+        }
 
         //         private void OnDisable() //FIXME: 這是TriggerDetectableTarget該做的事嗎？
         //         {
@@ -97,6 +121,14 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         //             toRemoves.Clear();
         //         }
 
-        protected override string DescriptionTag => "Detectable 接收";
+        // protected override string DescriptionTag => "Detectable 接收";
+        protected override void AddImplement(GeneralEffectReceiver item) { }
+
+        protected override void RemoveImplement(GeneralEffectReceiver item) { }
+
+        protected override bool CanBeAdded(GeneralEffectReceiver item)
+        {
+            return true;
+        }
     }
 }

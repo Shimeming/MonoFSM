@@ -214,9 +214,6 @@ public class DropDownRefAttributeDrawer : OdinAttributeDrawer<DropDownRefAttribu
         else
             Property.ValueEntry.WeakSmartValue = newObj;
         GUI.backgroundColor = Color.white;
-        // }
-
-        // }
         SirenixEditorGUI.EndBox();
     }
 }

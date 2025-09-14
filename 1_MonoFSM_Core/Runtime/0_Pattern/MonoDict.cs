@@ -14,17 +14,27 @@ using Object = UnityEngine.Object;
 namespace MonoFSM.Core
 {
     //AutoDict?
-    public abstract class
-        MonoDict<T, TU> : MonoBehaviour, ISceneAwake //FIXME: 原本T : IStringKey的，但Type就不行了
-        where TU : IValueOfKey<T> where T : IStringKey
+    public abstract class MonoDict<T, TU> : MonoBehaviour, ISceneAwake //FIXME: 原本T : IStringKey的，但Type就不行了
+        where TU : IValueOfKey<T>
+        where T : IStringKey
     {
         protected virtual bool isLog => false;
-
 
         //如果在autoReference 之前就不會進來...hmmm!?
         //有點討厭：spawned, player spawned (自己做reference & sceneAwake?), SceneAwake, SceneStart (並沒有拿到player)
         [CompRef]
-        [PreviewInInspector] [AutoChildren] protected TU[] _collections; //disable也會被加進來
+        [PreviewInInspector]
+        [AutoChildren]
+        protected TU[] _collections; //disable也會被加進來
+
+        public TU[] Collections
+        {
+            get
+            {
+                EditorPrepareCheck();
+                return _collections;
+            }
+        }
 
         protected virtual bool IsStringDictEnable => false;
 
@@ -87,7 +97,11 @@ namespace MonoFSM.Core
         public void Add(T key, TU value)
         {
             if (key == null)
+            {
+                // Debug.LogError($"Key is null, can't add {value} in {this}", value as Object);
                 return;
+            }
+
             if (Application.isPlaying && IsAddValid(value) == false)
             {
                 Debug.LogWarning($"Key:{key} can't be added in {this}", this);
@@ -138,7 +152,8 @@ namespace MonoFSM.Core
             return set != null ? set.FirstOrDefault() : default;
         }
 
-        public TT Get<TT>() where TT : class, TU
+        public TT Get<TT>()
+            where TT : class, TU
         {
             EditorPrepareCheck();
             return Get(typeof(TT)) as TT;
@@ -198,7 +213,6 @@ namespace MonoFSM.Core
                 Debug.LogError(e);
             }
 
-
             var result = _dict.Remove(key);
             return result;
         }
@@ -225,8 +239,11 @@ namespace MonoFSM.Core
         protected abstract void RemoveImplement(TU item); //FIXME:為什麼需要這個？
 
         [InfoBox("Variable 要有 varTag才會被加入到Dict中")]
-        [ShowInInspector] public List<string> GetStringKeys => new(_stringDict.Keys);
-        [ShowInInspector] public List<T> GetKeys => new(_dict.Keys);
+        [ShowInInspector]
+        public List<string> GetStringKeys => new(_stringDict.Keys);
+
+        [ShowInInspector]
+        public List<T> GetKeys => new(_dict.Keys);
 
         [ShowInInspector]
         public List<TU> GetValues //FIXME: 效能不好
@@ -237,7 +254,6 @@ namespace MonoFSM.Core
                 return new List<TU>(_dict.Values);
             }
         }
-
 
         [Button]
         public void Refresh()
@@ -250,7 +266,9 @@ namespace MonoFSM.Core
         private bool IsNotPrepared => _isPrepared == false;
 
         [InfoBox("還沒準備好", nameof(IsNotPrepared), InfoMessageType = InfoMessageType.Error)]
-        [NonSerialized] [PreviewInInspector] bool _isPrepared = false; //這個值 reload domain後，為什麼沒有清掉？
+        [NonSerialized]
+        [PreviewInInspector]
+        bool _isPrepared = false; //這個值 reload domain後，為什麼沒有清掉？
 
         private void PrepareDictCheck()
         {
@@ -264,14 +282,15 @@ namespace MonoFSM.Core
             if (Application.isPlaying == false) //reload domain完就空掉了...
             {
                 Clear();
-                // Debug.Log("PrepareDictCheck?", this);
+                Debug.Log("PrepareDictCheck?", this);
                 _isPrepared = true;
                 _collections = GetComponentsInChildren<TU>(true);
             }
 #endif
             _isPrepared = true;
             // Debug.Log("PrepareDictCheck" + name + collections.Length, this);
-            if (_collections == null) return;
+            if (_collections == null)
+                return;
             foreach (var item in _collections)
             {
                 if (CanBeAdded(item) == false)
@@ -286,6 +305,7 @@ namespace MonoFSM.Core
         }
 
         protected abstract bool CanBeAdded(TU item);
+
         public void EnterSceneAwake()
         {
             PrepareDictCheck();
@@ -304,6 +324,5 @@ namespace MonoFSM.Core
     }
 
     public interface IGlobalInstance //一個binder只能有一個instance
-    {
-    }
+    { }
 }

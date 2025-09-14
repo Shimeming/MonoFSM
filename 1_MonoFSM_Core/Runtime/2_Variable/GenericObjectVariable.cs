@@ -44,7 +44,7 @@ namespace MonoFSM.Variable
         [HideIf(nameof(HasProxyValue))]
         // [SOConfig("10_Flags/GameData", useVarTagRestrictType: true)] //FIXME: 痾，只有SO類才需要ㄅ
         [Required]
-        [PrefabFilter(typeof(PoolObject))]
+        [PrefabFilter(typeof(PoolObject))] //FIXME: 不一定是Prefab耶？VarEntity享用
         [SerializeField]
         //required可以有condition?
         protected TValueType _defaultValue; //ConfigSettingValue?
@@ -135,7 +135,10 @@ namespace MonoFSM.Variable
                     var targetVar = _parentVarEntity.Value.GetVar(_varTag);
                     if (targetVar == null)
                     {
-                        Debug.LogError($"{name}'s ParentVarEntity has no var: '{_varTag}'", this);
+                        Debug.LogError(
+                            $"{name}'s ParentVarEntity has no var: '{_varTag}' folder:{_parentVarEntity.Value.VariableFolder}",
+                            _parentVarEntity.Value
+                        );
                         Debug.Break();
                         return null;
                     }

@@ -206,7 +206,7 @@ namespace Fusion.Addons.FSM
         void IStateMachine.Initialize(StateMachineLogic logic, ITickProvider tickProvider)
         {
             _tickProvider = tickProvider;
-            Debug.Log("tickProvider" + tickProvider);
+            // Debug.Log("tickProvider" + tickProvider);
             _logic = logic;
 
             for (var i = 0; i < _stateCount; i++)

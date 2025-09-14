@@ -51,25 +51,25 @@ namespace MonoFSM.Core.Detection
         public override void UpdateDetection() //FIXME: 和trigger的長得根本一樣？
         {
             // 找出新碰撞的collider (在thisFrame但不在lastFrame)
-            foreach (var col in _thisFrameColliders)
-                if (!_lastFrameColliders.Contains(col))
-                {
-                    Debug.Log("OnCollisionEnter", col.gameObject);
-                    QueueEnterEvent(col.gameObject);
-                    _lastCollisionEnterObj = col.gameObject;
-                }
-
-            // 找出離開碰撞的collider (在lastFrame但不在thisFrame)
-            foreach (var col in _lastFrameColliders)
-                if (!_thisFrameColliders.Contains(col))
-                    QueueExitEvent(col.gameObject);
+            // foreach (var col in _thisFrameColliders)
+            //     if (!_lastFrameColliders.Contains(col))
+            //     {
+            //         Debug.Log("OnCollisionEnter", col.gameObject);
+            //         QueueEnterEvent(col.gameObject);
+            //         _lastCollisionEnterObj = col.gameObject;
+            //     }
+            //
+            // // 找出離開碰撞的collider (在lastFrame但不在thisFrame)
+            // foreach (var col in _lastFrameColliders)
+            //     if (!_thisFrameColliders.Contains(col))
+            //         QueueExitEvent(col.gameObject);
 
             // 更新lastFrame為thisFrame的資料
-            _lastFrameColliders.Clear();
-            _lastFrameColliders.UnionWith(_thisFrameColliders);
+            // _lastFrameColliders.Clear();
+            // _lastFrameColliders.UnionWith(_thisFrameColliders);
 
             // 清空thisFrame準備下一幀
-            _thisFrameColliders.Clear();
+            // _thisFrameColliders.Clear();
 
             // 處理排隊的進入/退出事件
             base.UpdateDetection();
@@ -80,9 +80,9 @@ namespace MonoFSM.Core.Detection
 
         public override IEnumerable<DetectionResult> GetCurrentDetections()
         {
-            foreach (var collider in _lastFrameColliders)
-                if (collider != null && collider.gameObject != null)
-                    yield return new DetectionResult(collider.gameObject);
+            foreach (var col in _thisFrameColliders)
+                if (col != null && col.gameObject != null)
+                    yield return new DetectionResult(col.gameObject);
         }
     }
 }

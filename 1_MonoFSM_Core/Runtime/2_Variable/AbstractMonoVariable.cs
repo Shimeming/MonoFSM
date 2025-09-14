@@ -117,6 +117,7 @@ namespace MonoFSM.Variable
             _dataChangedListeners.Remove(target);
         }
 
+        [ShowInDebugMode]
         [AutoParent]
         protected VariableFolder _variableFolder;
 

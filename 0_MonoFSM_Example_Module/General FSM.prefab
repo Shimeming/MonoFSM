@@ -644,7 +644,7 @@ GameObject:
   - component: {fileID: 5849249115696725527}
   - component: {fileID: 5010657810671805049}
   m_Layer: 0
-  m_Name: '[Anim]  Animator: _Idle0'
+  m_Name: '[Anim]  Animator: _Idle L:0'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

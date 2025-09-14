@@ -1,3 +1,4 @@
+using MonoFSM.Variable.Attributes;
 using UnityEngine;
 using UnityEngine.Internal;
 
@@ -79,6 +80,7 @@ namespace MonoFSM.PhysicsWrapper
     public class MyOverlap : MonoBehaviour
     {
         [Auto]
+        [CompRef]
         private IOverlapProcessor _overlapProcessor;
 
         /// <summary>

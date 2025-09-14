@@ -78,6 +78,15 @@ namespace MonoFSM.Runtime.Variable
 
         protected override MonoEntity DefaultValue => _defaultValue;
 
+        [Header("預設值")]
+        [DropDownRef]
+        [ShowInInspector]
+        MonoEntity SSiblingDefaultValue
+        {
+            set { _defaultValue = value; }
+            get { return _defaultValue; }
+        }
+
         // _siblingDefaultValue != null ? _siblingDefaultValue :
 
         //FIXME: 用Type更好嗎？

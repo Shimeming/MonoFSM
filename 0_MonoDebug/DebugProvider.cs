@@ -13,6 +13,8 @@ using UnityEditorInternal;
 
 public class DebugProvider : MonoBehaviour, IEditorOnly, IOverrideHierarchyIcon //往上找
 {
+    [ShowInInspector]
+    public int InstanceID => this.GetInstanceID();
 #if UNITY_EDITOR
 
     [MenuItem("RCGMaker/Debug/Toggle DebugProvider %#_L")]

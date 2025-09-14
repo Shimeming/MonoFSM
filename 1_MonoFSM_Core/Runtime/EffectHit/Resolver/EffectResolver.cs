@@ -87,7 +87,9 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         [FormerlySerializedAs("EffectType")]
         [Required]
         [SOConfig("GeneralEffectType")]
-        public GeneralEffectType _effectType;
+        public GeneralEffectType _effectType; //改成private?
+
+        public GeneralEffectType EffectType => _effectType;
 
         // public IEffectType getEffectType => EffectType;
 

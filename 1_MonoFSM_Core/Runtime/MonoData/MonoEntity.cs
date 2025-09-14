@@ -28,7 +28,7 @@ namespace MonoFSM.Runtime
 
     //FIXME: 必定需要MonoObj?
     [SelectionBase]
-    [RequireComponent(typeof(MonoObj))]
+    // [RequireComponent(typeof(MonoObj))]
     [Searchable]
     [FormerlyNamedAs("MonoDescriptable")]
     public class MonoEntity
@@ -69,7 +69,7 @@ namespace MonoFSM.Runtime
             _worldBinder = world.GetComponent<MonoEntityBinder>();
             if (_worldBinder)
             {
-                Debug.Log("Registering MonoEntity to WorldBinder: " + name, this);
+                // Debug.Log("Registering MonoEntity to WorldBinder: " + name, this);
                 _worldBinder.Add(DefaultTag, this); //註冊法
             }
             else
@@ -439,7 +439,7 @@ namespace MonoFSM.Runtime
             // 填充 Variable Tags
             if (VariableFolder != null)
             {
-                var variables = VariableFolder.GetValues;
+                var variables = VariableFolder.Collections;
                 foreach (var variable in variables)
                     if (!descriptableTag.containsVariableTypeTags.Contains(variable._varTag))
                     {

@@ -37,9 +37,9 @@ namespace MonoFSM.Runtime.Interact
                 {
                     _clickedObject = hit.collider.gameObject;
                     _mouseClicked = true;
-
+                    _thisFrameColliders.Add(_clickedObject.GetComponent<Collider>());
                     // 報告點擊事件給 EffectDetector
-                    ReportEnterEvent(_clickedObject, hit.point, hit.normal);
+                    // ReportEnterEvent(_clickedObject, hit.point, hit.normal);
                 }
             }
         }

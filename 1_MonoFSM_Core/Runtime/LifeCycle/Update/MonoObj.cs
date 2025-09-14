@@ -72,7 +72,7 @@ namespace MonoFSMCore.Runtime.LifeCycle
         // set => _worldUpdateSimulator = value;
         public void SetWorldUpdateSimulator(WorldUpdateSimulator world)
         {
-            Debug.Log("SetWorldUpdateSimulator" + name, this);
+            // Debug.Log("SetWorldUpdateSimulator" + name, this);
             _worldUpdateSimulator = world;
         }
 
@@ -107,7 +107,7 @@ namespace MonoFSMCore.Runtime.LifeCycle
         {
             //fixme: ??
             //play mode 被刪掉要怎麼處理？
-            Debug.Log("MonoObj OnDestroy" + name, this);
+            // Debug.Log("MonoObj OnDestroy" + name, this);
         }
 
         [PreviewInInspector]

@@ -64,7 +64,7 @@ namespace MonoFSM.Runtime.Variable
             return true;
         }
 
-        [InlineEditor]
+        // [InlineEditor] //InlineEditor就不會畫SOTypeDropdown Drawer hmm..QQ
         [Required]
         [SOConfig("MonoEntityTag")]
         [SerializeField]

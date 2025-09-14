@@ -36,6 +36,8 @@ namespace MonoFSM.Foundation
 
         public string FormatName(string str)
         {
+            if (string.IsNullOrEmpty(str))
+                return "";
             return Regex.Replace(str, @"\[.*?\]", "").Trim();
         }
 

@@ -7,14 +7,15 @@ using MonoFSM.Foundation;
 using MonoFSM.Runtime.Interact.EffectHit;
 using MonoFSM.Variable.Attributes;
 using Sirenix.OdinInspector;
+using Sirenix.Utilities;
 using UnityEngine;
 
 namespace MonoFSM.Core.Detection
 {
     // [Serializable]
-    public struct DetectData
+    public struct DetectData //分兩種，好像多餘？
     {
-        private EffectDetector _detector;
+        private EffectDetector _detector; //需要知道這個嗎？用dealer/receiver就好？
         private readonly EffectDetectable _detectable;
 
         //清掉
@@ -64,6 +65,7 @@ namespace MonoFSM.Core.Detection
         [AutoChildren(DepthOneOnly = true)]
         private AbstractConditionBehaviour[] _conditions;
 
+        [ShowInDebugMode]
         public bool IsValid => _conditions.IsAllValid();
 
         //FIXME: 多個會無法分辨誰造成的
@@ -89,13 +91,13 @@ namespace MonoFSM.Core.Detection
                 return;
             // Debug.Log("OnDisable of detector",this);
             //copy _detectedObjects to toRemove
-            _toRemove.AddRange(_detectedObjects);
+            _toRemove.AddRange(_thisFrameDetectedObjects);
             foreach (var detectable in _toRemove)
                 // Debug.Log("OnDisable of detectable",detectable);
                 TriggerExitEventsForDetectable(detectable);
 
             _toRemove.Clear();
-            _detectedObjects.Clear();
+            _thisFrameDetectedObjects.Clear();
 
             // OnDisableImplement();
         }
@@ -104,6 +106,8 @@ namespace MonoFSM.Core.Detection
         [CompRef]
         [AutoChildren]
         private GeneralEffectDealer[] _dealers;
+
+        public GeneralEffectDealer[] Dealers => _dealers;
 
         //GameObject必定要在Detector的layer
         // [FormerlySerializedAs("hittingLayer")]
@@ -115,7 +119,7 @@ namespace MonoFSM.Core.Detection
         // protected abstract void SetLayerOverride();
 
         [PreviewInInspector]
-        protected HashSet<EffectDetectable> _detectedObjects = new();
+        protected HashSet<EffectDetectable> _thisFrameDetectedObjects = new();
 #if UNITY_EDITOR
         // [PreviewInInspector] private List<EffectDetectable> currentDetectedObjects => _detectedObjects.ToList();
         [PreviewInInspector]
@@ -154,7 +158,7 @@ namespace MonoFSM.Core.Detection
                 return "not a EffectDetectable";
 
             // 手動加入到檢測列表（用於向後相容）
-            _detectedObjects.Add(detectable);
+            _thisFrameDetectedObjects.Add(detectable);
 
 #if UNITY_EDITOR
             _lastDetectedObjects.Add(detectable);
@@ -179,7 +183,7 @@ namespace MonoFSM.Core.Detection
                 return;
 
             // 手動從檢測列表移除（用於向後相容）
-            _detectedObjects.Remove(detectable);
+            _thisFrameDetectedObjects.Remove(detectable);
 
 #if UNITY_EDITOR
             detectable._debugDetectors.Remove(this);
@@ -200,21 +204,29 @@ namespace MonoFSM.Core.Detection
             DetectCheck();
         }
 
+        [ShowInDebugMode]
+        float _lastDetectCheckTime = 0f;
+
         public void DetectCheck()
         {
             // 每frame重建檢測列表
-
+            _lastDetectCheckTime = Time.time;
             // 1. 記錄上一幀的檢測狀態
-            var previousDetected = new HashSet<EffectDetectable>(_detectedObjects);
+            _lastDetectedObjects.Clear();
+            _lastDetectedObjects.AddRange(_thisFrameDetectedObjects);
+            // var previousDetected = new HashSet<EffectDetectable>(_detectedObjects);
 
             // 2. 清空當前檢測列表，準備重建
-            _detectedObjects.Clear();
+            _thisFrameDetectedObjects.Clear();
 
             // 3. 收集所有 DetectionSource 的當前檢測結果
             foreach (var detectionSource in _detectionSources)
             {
-                if (!detectionSource.IsEnabled)
+                if (!detectionSource.isActiveAndEnabled)
+                {
+                    detectionSource.AfterDetection();
                     continue;
+                }
 
                 // 讓 DetectionSource 更新其內部狀態
                 detectionSource.UpdateDetection();
@@ -222,15 +234,18 @@ namespace MonoFSM.Core.Detection
                 // 收集當前檢測到的物件
                 foreach (var result in detectionSource.GetCurrentDetections())
                 {
-                    if (!result.isValidHit)
-                        continue;
-
-                    var detectable = GetEffectDetectable(result.targetObject);
-                    if (detectable != null && IsValid)
+                    if (result.isValidHit)
                     {
-                        _detectedObjects.Add(detectable);
+                        var detectable = GetEffectDetectable(result.targetObject);
+                        if (detectable != null && IsValid)
+                        {
+                            _thisFrameDetectedObjects.Add(detectable);
+                        }
                     }
                 }
+
+                //放這OK嗎？ 小心上面的foreach?
+                detectionSource.AfterDetection();
             }
 
             // 4. 檢查 dealer 狀態變化
@@ -238,7 +253,7 @@ namespace MonoFSM.Core.Detection
                 HandleDealerStateChanges();
 
             // 5. 比較前後差異，觸發 Enter/Exit 事件
-            ProcessDetectionChanges(previousDetected, _detectedObjects);
+            ProcessDetectionChanges(_lastDetectedObjects, _thisFrameDetectedObjects);
         }
 
         private void HandleDealerStateChanges()
@@ -256,7 +271,7 @@ namespace MonoFSM.Core.Detection
             }
 
             // 對每個當前檢測到的 detectable 處理狀態變化
-            foreach (var detectable in _detectedObjects)
+            foreach (var detectable in _thisFrameDetectedObjects)
             {
                 ProcessDealerStateChangesForDetectable(detectable, dealerStateChanges);
             }
@@ -299,15 +314,17 @@ namespace MonoFSM.Core.Detection
         {
             var detectData = new DetectData(this, detectable);
 
-            foreach (var receiver in detectable.EffectReceivers)
-            {
-                if (!dealer.CanHitReceiver(receiver))
-                    continue;
+            // foreach (var receiver in detectable.EffectReceivers)
+            // {
+            //
+            // }
+            var receiver = detectable.Get(dealer._effectType);
+            if (!dealer.CanHitReceiver(receiver))
+                return;
 
-                var hitData = receiver.GenerateEffectHitData(dealer);
-                dealer.OnHitEnter(hitData, detectData);
-                receiver.OnEffectHitEnter(hitData, detectData);
-            }
+            var hitData = receiver.GenerateEffectHitData(dealer);
+            dealer.OnHitEnter(hitData, detectData);
+            receiver.OnEffectHitEnter(hitData, detectData);
         }
 
         private void TriggerExitForDealerAndDetectable(
@@ -315,15 +332,17 @@ namespace MonoFSM.Core.Detection
             EffectDetectable detectable
         )
         {
-            foreach (var receiver in detectable.EffectReceivers)
-            {
-                if (!dealer.IsEnteredReceiver(receiver))
-                    continue;
+            // foreach (var receiver in detectable.EffectReceivers)
+            // {
+            //
+            // }
+            var receiver = detectable.Get(dealer._effectType);
+            if (!dealer.IsEnteredReceiver(receiver))
+                return;
 
-                var hitData = receiver.GenerateEffectHitData(dealer);
-                dealer.OnHitExit(hitData);
-                receiver.OnEffectHitExit(hitData);
-            }
+            var hitData = receiver.GenerateEffectHitData(dealer);
+            dealer.OnHitExit(hitData);
+            receiver.OnEffectHitExit(hitData);
         }
 
         public void AfterUpdate() { }
@@ -334,6 +353,7 @@ namespace MonoFSM.Core.Detection
         )
         {
             // 找出新進入的物件（在current但不在previous）
+            //FIXME: 有new gc
             var newlyEntered = new HashSet<EffectDetectable>(currentDetected);
             newlyEntered.ExceptWith(previousDetected);
 
@@ -379,6 +399,7 @@ namespace MonoFSM.Core.Detection
             if (normal != null)
                 detectData.SetCustomNormal(normal.Value);
 
+            this.Log($"TriggerEnterEventsForDetectable: {detectable.name}");
             foreach (var dealer in _dealers)
             {
                 if (!dealer.IsValid)
@@ -387,18 +408,17 @@ namespace MonoFSM.Core.Detection
                     continue;
                 }
 
-                foreach (var receiver in detectable.EffectReceivers)
-                {
-                    if (!dealer.CanHitReceiver(receiver))
-                        continue;
+                this.Log($"Processing dealer: {dealer.name}");
+                var receiver = detectable.Get(dealer._effectType);
+                if (!dealer.CanHitReceiver(receiver))
+                    continue;
 
-                    var hitData = receiver.GenerateEffectHitData(dealer);
-                    hitData.hitNormal = normal;
-                    hitData.hitPoint = point;
+                var hitData = receiver.GenerateEffectHitData(dealer);
+                hitData.hitNormal = normal;
+                hitData.hitPoint = point;
 
-                    dealer.OnHitEnter(hitData, detectData);
-                    receiver.OnEffectHitEnter(hitData, detectData);
-                }
+                dealer.OnHitEnter(hitData, detectData);
+                receiver.OnEffectHitEnter(hitData, detectData);
             }
         }
 
@@ -409,15 +429,18 @@ namespace MonoFSM.Core.Detection
 
             foreach (var dealer in _dealers)
             {
-                foreach (var receiver in detectable.EffectReceivers)
-                {
-                    if (!dealer.IsEnteredReceiver(receiver))
-                        continue;
+                var receiver = detectable.Get(dealer._effectType);
 
-                    var hitData = receiver.GenerateEffectHitData(dealer);
-                    dealer.OnHitExit(hitData);
-                    receiver.OnEffectHitExit(hitData);
-                }
+                // foreach (var receiver in detectable.EffectReceivers)
+                // {
+                //
+                // }
+                if (!dealer.IsEnteredReceiver(receiver))
+                    continue;
+
+                var hitData = receiver.GenerateEffectHitData(dealer);
+                dealer.OnHitExit(hitData);
+                receiver.OnEffectHitExit(hitData);
             }
         }
 

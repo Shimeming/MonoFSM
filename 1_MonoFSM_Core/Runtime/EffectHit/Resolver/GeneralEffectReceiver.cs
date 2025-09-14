@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Detection;
 using Sirenix.OdinInspector;
@@ -7,7 +8,11 @@ using UnityEngine;
 namespace MonoFSM.Runtime.Interact.EffectHit
 {
     //FIXME: 應該要怎麼轉接比較好，我會有好幾種事件類型，幫每種事件類型定義類別，再讓下面的action去做事
-    public class GeneralEffectReceiver : EffectResolver, IEffectReceiver, IDetectDataProvider
+    public class GeneralEffectReceiver
+        : EffectResolver,
+            IEffectReceiver,
+            IDetectDataProvider,
+            IValueOfKey<GeneralEffectType>
     {
         private void OnValidate()
         {
@@ -55,8 +60,8 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         {
             this.Log("OnHitEnter");
             _currentHitData = data as GeneralEffectHitData;
-            var receiverEntity = _currentHitData.GeneralDealer.ParentEntity;
-            _enterNode?._hittingEntity?.SetValue(receiverEntity, this);
+            var dealerEntity = _currentHitData.GeneralDealer.ParentEntity;
+            _enterNode?._hittingEntity?.SetValue(dealerEntity, this);
             _enterNode?.EventHandle(_currentHitData);
 
             _dealers.Add(data.Dealer as GeneralEffectDealer);
@@ -94,5 +99,6 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         }
 
         protected override string DescriptionTag => "Receiver";
+        public GeneralEffectType Key => _effectType;
     }
 }

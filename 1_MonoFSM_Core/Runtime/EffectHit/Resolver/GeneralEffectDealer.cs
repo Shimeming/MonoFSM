@@ -71,20 +71,29 @@ namespace MonoFSM.Runtime.Interact.EffectHit
 
         public bool CanHitReceiver(IEffectReceiver receiver)
         {
+            if (receiver == null)
+            {
+                SetFailReason("Receiver is null");
+                return false;
+            }
             // if (!IsValid)
             // {
             //     return false;
             // }
             SetFailReason("Check");
-            if (!receiver.IsValid) //沒開的不算
-            {
-                SetFailReason("Receiver is not valid");
-                return false;
-            }
+
             var r = (GeneralEffectReceiver)receiver;
             if (r._effectType != _effectType)
             {
+                _candidateReceivers.Add(receiver); //什麼時候清掉？
                 SetFailReason("EffectType mismatch");
+                return false;
+            }
+
+            if (!receiver.IsValid) //沒開的不算
+            {
+                _candidateReceivers.Add(receiver); //什麼時候清掉？
+                SetFailReason("Receiver is not valid");
                 return false;
             }
 
@@ -128,6 +137,10 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         //FIXME: runtime receivers
         [PreviewInInspector]
         private HashSet<IEffectReceiver> _receivers = new();
+
+        [Header("Condition不符合的")]
+        [PreviewInDebugMode]
+        private HashSet<IEffectReceiver> _candidateReceivers = new();
 
         [PreviewInInspector]
         private GeneralEffectReceiver _lastReceiver;
