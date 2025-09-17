@@ -61,15 +61,10 @@ public abstract class AbstractFieldVariable<TScriptableData, TField, TType>
     //可以用abstract比較好？但目前只用到VarFloat
     protected virtual void ValueCommited(TType lastValue, TType currentValue) { }
 
-    public override void SetValue(object value, MonoBehaviour byWho)
-    {
-        SetValueInternal((TType)value, byWho);
-    }
-
-    public override void SetValue(TType value, MonoBehaviour byWho)
-    {
-        SetValueInternal(value, byWho);
-    }
+    // public override void SetValue(object value, MonoBehaviour byWho)
+    // {
+    //     SetValueInternal((TType)value, byWho);
+    // }
 
     [CompRef]
     [Auto]
@@ -544,6 +539,7 @@ public interface ISettable //FIXME: 有點蠢
     void CommitValue();
 
     //FIXME: 用T?
+    // void SetValue<T>(T value, MonoBehaviour byWho = null);
     void SetValue(object value, MonoBehaviour byWho = null);
 }
 

@@ -5,7 +5,7 @@ namespace MonoFSM.Core
 {
     public interface IValueProvider
     {
-        public object ValueRaw => Get<object>();
+        public object objectValue => Get<object>();
         public bool isActiveAndEnabled { get; }
         public bool IsValid => isActiveAndEnabled;
         public bool IsValueExist
@@ -33,7 +33,7 @@ namespace MonoFSM.Core
                 }
                 else
                 {
-                    return ValueRaw != null; // 其他類型只要不為null即視為存在
+                    return objectValue != null; // 其他類型只要不為null即視為存在
                 }
 
                 return true; // 如果沒有特殊處理，則視為存在

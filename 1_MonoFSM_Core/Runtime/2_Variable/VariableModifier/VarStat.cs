@@ -89,6 +89,11 @@ namespace MonoFSM.Variable
         {
             get
             {
+                if (Application.isPlaying == false)
+                {
+                    return Field.ProductionValue;
+                }
+
                 //FIXME: bound還要管嗎？
                 // ModifiersDirtyCheck();
                 // if (_isDirty)

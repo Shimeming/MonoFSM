@@ -41,7 +41,10 @@ namespace MonoFSM.Runtime.Mono
 #if UNITY_EDITOR
             var tags = containsVariableTypeTags;
             foreach (var tempTag in tags)
-                tagDropdownItems.Add(new ValueDropdownItem<VariableTag>(tempTag.name, tempTag));
+            {
+                if (tempTag != null)
+                    tagDropdownItems.Add(new ValueDropdownItem<VariableTag>(tempTag.name, tempTag));
+            }
 
 #endif
             return tagDropdownItems;

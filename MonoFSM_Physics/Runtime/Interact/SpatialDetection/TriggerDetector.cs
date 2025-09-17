@@ -70,9 +70,14 @@ namespace MonoFSM.Core.Detection
 
         public override IEnumerable<DetectionResult> GetCurrentDetections()
         {
+            _buffer.Clear();
             foreach (var col in _thisFrameColliders)
                 if (col != null && col.gameObject != null)
-                    yield return new DetectionResult(col.gameObject);
+                {
+                    _buffer.Add(new DetectionResult(col.gameObject));
+                }
+
+            return _buffer;
         }
 
         //FIXME: Gizmo?

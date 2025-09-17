@@ -28,7 +28,7 @@ namespace MonoFSM.Core.Formula
         // private IMonoDescriptableListProvider _inputProvider;
 
         [ValueTypeValidate(typeof(List<MonoEntity>))] //var -> VarListEntity, value-> MonoEntity
-        [Auto]
+        // [Auto]
         // [CompRef]
         [Required]
         [Tooltip("The MonoEntity list provider to use for aggregation.")]
@@ -54,9 +54,9 @@ namespace MonoFSM.Core.Formula
                 .GetVar<VarListEntity>()
                 .GetList()
                 .Select(GetFloatFromDescriptable)
-                .ToList();
+                .ToList(); //FIXME: 這個會GC
 
-            if (!values.Any())
+            if (values.Count == 0)
                 return 0f;
 
             switch (_operation)
@@ -78,6 +78,7 @@ namespace MonoFSM.Core.Formula
 
         private float GetFloatFromDescriptable(MonoEntity entity)
         {
+            return 0;
             if (entity == null)
             {
                 Debug.LogError("Entity is null, cannot get variable value.", this);

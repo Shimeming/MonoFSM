@@ -34,8 +34,13 @@ public class DropDownRefAttributeDrawer : OdinAttributeDrawer<DropDownRefAttribu
         rawGetterDynamicType = ValueResolver.Get<object>(Property, Attribute._dynamicTypeGetter);
         getterDynamicType = () =>
         {
-            object source = rawGetterDynamicType.GetValue();
-            return source as Type;
+            if (rawGetterDynamicType != null)
+            {
+                if (rawGetterDynamicType.GetValue() is Type dynamictype)
+                    return dynamictype;
+            }
+
+            return Property.ValueEntry.BaseValueType;
         };
 
         _isValueDropDownAttribute = Property.GetAttribute<ValueDropdownAttribute>() != null;
@@ -195,9 +200,12 @@ public class DropDownRefAttributeDrawer : OdinAttributeDrawer<DropDownRefAttribu
                 ? new Color(0.9f, 0.2f, 0.3f, 0.5f)
                 : new Color(0.35f, 0.3f, 0.1f, 0.2f);
 
+        // Debug.Log("getterDynamicType():" + getterDynamicType());
+        //FIXME: 最好能夠透過ComponentTypeTag來篩選type
         var newObj = SirenixEditorFields.UnityObjectField(
             Property.ValueEntry.WeakSmartValue as Object,
-            Property.ValueEntry.BaseValueType,
+            // Property.ValueEntry.BaseValueType
+            getterDynamicType(),
             true
         ); //GUILayout.Width(EditorGUIUtility.currentViewWidth) 這個會太肥噴掉
 

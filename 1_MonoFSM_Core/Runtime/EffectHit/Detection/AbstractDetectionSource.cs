@@ -49,7 +49,9 @@ namespace MonoFSM.Core.Detection
         //FIXME: 要有thisFrameHitData?
         //FIXME: 已經打死是Collider了，感覺要抽象掉一層，3D間共用？傳T?
         [PreviewInInspector]
-        protected readonly HashSet<Collider> _thisFrameColliders = new();
+        protected readonly HashSet<Collider> _thisFrameColliders = new(); //這個有用嗎？
+
+        protected List<DetectionResult> _buffer = new List<DetectionResult>();
 
         // [PreviewInDebugMode]
         // protected readonly HashSet<Collider> _lastFrameColliders = new(); //ondisable也要清掉？

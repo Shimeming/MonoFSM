@@ -27,6 +27,11 @@ namespace MonoFSM.Core.LifeCycle
         )
         {
             var projectileSchema = obj.Entity.GetSchema<ProjectileSchema>();
+            Debug.Log(
+                $"ShootWithDirectionAfterProcess AfterSpawn called, obj: {obj}, projectileSchema: {projectileSchema}, direction: {_directionVar?.Value}",
+                this
+            );
+            Debug.Log($"Modifier: {_modifier?.Value}, minModifier: {_minModifier}", this);
             var vel = _directionVar.Value * _speed * (_modifier.Value + _minModifier);
             //第一個frame的速度沒有給到？不可以直接給嗎？ 還是要過一層比較好，set到linearVelocity再給別人處理
             projectileSchema._initVel.SetValue(vel, this);

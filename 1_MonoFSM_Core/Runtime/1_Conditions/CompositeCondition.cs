@@ -10,7 +10,7 @@ namespace _1_MonoFSM_Core.Runtime._1_Conditions
         [LabelText("操作類型")]
         public CompositeOperationType _operationType = CompositeOperationType.And;
 
-        [AutoChildren(DepthOneOnly = true)]
+        [AutoChildren(DepthOneOnly = true, _isSelfInclude = false)]
         [CompRef]
         [RequiredListLength(2, null)]
         private AbstractConditionBehaviour[] _conditions;
@@ -27,13 +27,13 @@ namespace _1_MonoFSM_Core.Runtime._1_Conditions
                 switch (_operationType)
                 {
                     case CompositeOperationType.And:
-                        return _conditions.IsAllValid();
+                        return _conditions.IsAllValid(this);
 
                     case CompositeOperationType.Or:
-                        return _conditions.IsAnyValid();
+                        return _conditions.IsAnyValid(this);
 
                     default:
-                        return _conditions.IsAllValid();
+                        return _conditions.IsAllValid(this);
                 }
             }
         }

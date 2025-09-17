@@ -76,15 +76,15 @@ namespace MonoFSM.Runtime.Variable
         // protected Component _defaultValue;
 
 
-        protected override MonoEntity DefaultValue => _defaultValue;
+        // protected override MonoEntity DefaultValue => _defaultValue;
 
         [Header("預設值")]
         [DropDownRef]
         [ShowInInspector]
-        MonoEntity SSiblingDefaultValue
+        MonoEntity SiblingDefaultValue
         {
-            set { _defaultValue = value; }
-            get { return _defaultValue; }
+            set => _defaultValue = value;
+            get => _defaultValue;
         }
 
         // _siblingDefaultValue != null ? _siblingDefaultValue :

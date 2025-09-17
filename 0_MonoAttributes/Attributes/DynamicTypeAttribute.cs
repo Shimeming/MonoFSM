@@ -2,6 +2,7 @@ using System;
 
 namespace MonoFSM.Core.Attributes
 {
+    //FIXME: 要做什麼用？
     /// <summary>
     /// 標示該屬性或欄位的型別會根據VarTag的RestrictType動態決定
     /// </summary>

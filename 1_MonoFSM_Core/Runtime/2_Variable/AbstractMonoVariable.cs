@@ -22,15 +22,17 @@ namespace MonoFSM.Variable
 {
     public abstract class TypedMonoVariable<T> : AbstractMonoVariable, ISettable<T>
     {
+        //bound直接炸開...
         [CompRef]
-        [AutoChildren] //fixme; 用interface的壞處？需要 ensurecomponent? 但不會髒掉？
+        [AutoChildren(DepthOneOnly = true, _isSelfInclude = true)]
+        //fixme; 用interface的壞處？需要 ensurecomponent? 但不會髒掉？
         protected IValueProvider[] _valueSources; //FIXME: 好像可以改成AbstractValueProvider<T>?
 
         protected IValueProvider valueSource => GetActiveTypedValueSource();
 
         protected IValueProvider GetActiveTypedValueSource()
         {
-            this.EnsureComponentInChildren(ref _valueSources);
+            AutoAttributeManager.AutoReferenceFieldEditor(this, nameof(_valueSources));
             return ValueResolver.GetActiveValueSource(_valueSources, this);
         }
 
@@ -38,15 +40,39 @@ namespace MonoFSM.Variable
         {
             get
             {
-                this.EnsureComponentsInChildren(ref _valueSources); //要避免Array?
+                AutoAttributeManager.AutoReferenceFieldEditor(this, nameof(_valueSources));
                 return ValueResolver.HasValueProvider(_valueSources) || base.HasValueProvider;
             }
         }
 
-        public abstract void SetValue(T value, MonoBehaviour byWho);
-        public abstract void SetValue(object value, MonoBehaviour byWho);
+        public void SetValue(T value, MonoBehaviour byWho)
+        {
+            // Debug.Log($"SetValue {value} by {byWho}", this);
+            SetValueInternal(value, byWho);
+        }
+
+        // public abstract void SetValue(object value, MonoBehaviour byWho);
 
         public abstract void CommitValue();
+
+        public void SetValue(object value, MonoBehaviour byWho = null)
+        {
+            SetValue<T>((T)value, byWho);
+        }
+
+        public void SetValue<T1>(T1 value, MonoBehaviour byWho = null)
+        {
+            if (value is T tValue)
+            {
+                SetValue(tValue, byWho);
+            }
+            else
+            {
+                if (value == null)
+                    return;
+                Debug.LogError($"SetValue: Cannot cast {value} to {typeof(T)}", this);
+            }
+        }
     }
 
     //FIXME: 應該要繼承AbstractSourceValueRef
@@ -66,12 +92,16 @@ namespace MonoFSM.Variable
         [AutoParent(includeSelf: false)] //不可以抓到自己！
         protected VarEntity _parentVarEntity; //我的parent如果有VarEntity, 去跟這個entity拿？
 
+        [ShowIf(nameof(HasParentVarEntity))]
+        [ShowInInspector]
+        private AbstractMonoVariable proxyVar => _parentVarEntity?.Value?.GetVar(_varTag);
         public bool HasParentVarEntity
         {
             get
             {
                 //如果是null這個會很白痴耶
-                this.EnsureComponentInParent(ref _parentVarEntity, false, false);
+                AutoAttributeManager.AutoReferenceFieldEditor(this, nameof(_parentVarEntity));
+                // this.EnsureComponentInParent(ref _parentVarEntity, false, false);
                 return _parentVarEntity != null;
             }
         }
@@ -196,7 +226,7 @@ namespace MonoFSM.Variable
         //         }
 
         //proxy variable or local variable;
-        protected bool IsHidingVarTag => HasValueProvider || _variableFolder == null;
+        protected bool IsHidingVarTag => _variableFolder == null && HasParentVarEntity == false; //local var就失敗耶...hmm
 
         protected bool IsHidingDefaultValue =>
             HasValueProvider || HasParentVarEntity || _variableFolder == null;
@@ -273,6 +303,7 @@ namespace MonoFSM.Variable
             //這個最係最好，如果有包含原因會更好？直接用字串？
             var byWhoData = new SetValueExecutionData
             {
+                //這段會boxing, primitive -> object
                 _value = tempValue,
                 _byWho = byWho,
                 _time = Time.time,
@@ -283,6 +314,7 @@ namespace MonoFSM.Variable
 #endif
         }
 
+        //FIXME: 用Var來Set, 就可以實作Typing了耶？
         public void SetValue<T>(T value, Object byWho)
         {
             if (_parentVarEntity != null) //用proxy
@@ -546,8 +578,8 @@ namespace MonoFSM.Variable
 
         public string Description
         {
-            get => description;
-            set => description = value;
+            get => name;
+            // set => description = value;
         }
 #endif
 

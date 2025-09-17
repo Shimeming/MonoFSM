@@ -9,16 +9,21 @@ using UnityEngine;
 
 namespace MonoFSM.Runtime.Interact.EffectHit.Resolver.ApplyEffect
 {
- 
     // //最完整的應該用這個
     public class FloatMathAction : AbstractStateAction
     {
-        [AutoChildren] [CompRef] private TargetVarRef _targetVariableProvider; // }
+        public VarFloat _targetVar;
+        public VarFloat _source1Var;
 
-        [AutoChildren] [CompRef] private SourceValueRef _source1VariableProvider;
+        // [AutoChildren] [CompRef] private TargetVarRef _targetVariableProvider; // }
+        //
+        // [AutoChildren] [CompRef] private SourceValueRef _source1VariableProvider;
 
-        [ShowIf(nameof(IsSource2Needed))] [AutoChildren] [CompRef]
-        private SourceValue2Ref _source2VariableProvider;
+        [ShowIf(nameof(IsSource2Needed))]
+        public VarFloat _source2Var;
+
+        // [AutoChildren] [CompRef]
+        // private SourceValue2Ref _source2VariableProvider;
 
 
 
@@ -31,9 +36,10 @@ namespace MonoFSM.Runtime.Interact.EffectHit.Resolver.ApplyEffect
 
         private bool IsSource2Needed()
         {
-            if(_source1VariableProvider == null)
+            if (_source1Var == null)
                 return false;
-            return Arithmetic != ArithmeticType.AdditionAssign && Arithmetic != ArithmeticType.SubtractionAssign;
+            return Arithmetic != ArithmeticType.AdditionAssign
+                && Arithmetic != ArithmeticType.SubtractionAssign;
         }
 
         // public OperandType _setter;
@@ -46,37 +52,40 @@ namespace MonoFSM.Runtime.Interact.EffectHit.Resolver.ApplyEffect
         // private VariableTag op2 =>
         //     _operator2 == OperandType.Dealer ? dealerVariableProvider?._varTag : receiverVariableProvider?._varTag;
 
-        private AbstractMonoVariable setterVariable => _targetVariableProvider?.VarRaw;
+        // private AbstractMonoVariable setterVariable => _targetVar?.VarRaw;
         // _setter == OperandType.Dealer
         //     ? dealerVariableProvider?.GetVarRaw()
         //     : receiverVariableProvider?.GetVarRaw();
 
-        private string ArithmeticString => Arithmetic switch
-        {
-            ArithmeticType.Add => "+",
-            ArithmeticType.Subtract => "-",
-            ArithmeticType.Multiply => "*",
-            ArithmeticType.Divide => "/",
-            ArithmeticType.Modulo => "%",
-            _ => "+"
-        };
+        private string ArithmeticString =>
+            Arithmetic switch
+            {
+                ArithmeticType.Add => "+",
+                ArithmeticType.Subtract => "-",
+                ArithmeticType.Multiply => "*",
+                ArithmeticType.Divide => "/",
+                ArithmeticType.Modulo => "%",
+                _ => "+",
+            };
 
         [PreviewInInspector]
         public override string Description
         {
             get
             {
-                var targetDesc = _targetVariableProvider?.Description;
-                var source1Desc = _source1VariableProvider?.ToString();
-                
+                var targetDesc = _targetVar?.Description;
+                var source1Desc = _source1Var?.Description;
+
                 return Arithmetic switch
                 {
                     ArithmeticType.AdditionAssign => $"{targetDesc} += {source1Desc}",
                     ArithmeticType.SubtractionAssign => $"{targetDesc} -= {source1Desc}",
-                    _ => $"{targetDesc} = {source1Desc} {ArithmeticString} {_source2VariableProvider}"
+                    _ =>
+                        $"{targetDesc} = {source1Desc} {ArithmeticString} {_source2Var?.Description}",
                 };
             }
         }
+
         // $"{setterVariable?.name} = {_operator1}.{op1?.name} {ArithmeticString} {_operator2}.{op2?.name}";
         //要用entry?
 
@@ -94,28 +103,24 @@ namespace MonoFSM.Runtime.Interact.EffectHit.Resolver.ApplyEffect
             Divide,
             Modulo,
             AdditionAssign,
-            SubtractionAssign
+            SubtractionAssign,
             //+=,-=?
         }
 
         // protected override void ApplyEffect(GeneralEffectDealer dealer, GeneralEffectReceiver receiver)
         protected override void OnActionExecuteImplement()
         {
-            if (_targetVariableProvider == null || _source1VariableProvider == null)
+            if (_targetVar == null || _source1Var == null)
             {
-                Debug.LogError("EffectHitFloatArithmeticAction: Target or Source1 variable provider is not set.", this);
+                Debug.LogError(
+                    "EffectHitFloatArithmeticAction: Target or Source1 variable provider is not set.",
+                    this
+                );
                 return;
             }
 
-            var targetVar = _targetVariableProvider.GetVar<VarFloat>();
-            if (targetVar == null)
-            {
-                Debug.LogError("EffectHitFloatArithmeticAction: Target variable is not a VarFloat.", this);
-                return;
-            }
-
-            var targetValue = targetVar.Value;
-            var value1 = _source1VariableProvider.GetValue<float>();
+            var targetValue = _targetVar.Value;
+            var value1 = _source1Var.Value;
             float result = 0;
             if (Arithmetic == ArithmeticType.AdditionAssign)
                 result = targetValue + value1;
@@ -123,12 +128,11 @@ namespace MonoFSM.Runtime.Interact.EffectHit.Resolver.ApplyEffect
                 result = targetValue - value1;
             else
             {
-                var value2 = _source2VariableProvider.GetValue<float>();
+                var value2 = _source2Var.Value;
                 result = Calculate(value1, value2);
             }
 
-
-            _targetVariableProvider.VarRaw.SetValue(result, this);
+            _targetVar.SetValue(result, this);
             // var dealerValue = dealerVariableProvider.GetValueFrom(dealer);
             // var receiverValue = receiverVariableProvider.GetValueFrom(receiver);
             // Debug.Log(
@@ -154,7 +158,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit.Resolver.ApplyEffect
                 ArithmeticType.Divide => source1 / source2,
                 ArithmeticType.Modulo => source1 % source2,
 
-                _ => source1
+                _ => source1,
             };
         }
     }

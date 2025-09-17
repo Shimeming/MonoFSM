@@ -19,8 +19,9 @@ namespace MonoFSM.Core.DataProvider
         [ShowInDebugMode]
         public abstract Type ValueType { get; }
 
+        //FIXME: 應該要避免這個？
         [ShowInDebugMode]
-        public object ValueRaw => Get<object>();
+        public object objectValue => Get<object>();
 
         #region Field Path Support
 

@@ -860,14 +860,16 @@ namespace MonoFSM.Animation
         {
             // Debug.Log("Play Animation State");
             HasAnimationPlaySuccess = false;
-            if (!IsValid)
-                return;
             if (animator == null)
             {
                 Debug.LogError("animator is null" + _fsmOwner.name, this);
                 return;
             }
 
+            if (!IsValid)
+            {
+                return;
+            }
             if (animator.runtimeAnimatorController == null)
                 // Debug.Log(animator);
                 // Debug.Log(animator.runtimeAnimatorController);

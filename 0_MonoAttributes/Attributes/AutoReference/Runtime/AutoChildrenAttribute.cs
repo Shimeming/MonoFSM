@@ -31,6 +31,7 @@ public class AutoChildrenAttribute : AutoFamilyAttribute
 {
     // public bool runtimeIgnore = false; //FIXME: 之後如果想要做全Serialized的
     public bool DepthOneOnly = false; //只找一層, 且不找本身
+    public bool _isSelfInclude = false; //default 要true嗎..但現在會讓DepthOneOnly的壞掉造成遞迴？
 
     /// <summary>
     /// 關著的節點也要撈出來
@@ -76,10 +77,17 @@ public class AutoChildrenAttribute : AutoFamilyAttribute
             // var comps = mb.GetComponents(LimitedType ?? componentType);
             // all.AddRange(comps);
 
+            //自己這層也找一下
+            Component[] result;
+            if (_isSelfInclude)
+            {
+                result = mb.transform.GetComponents(LimitedType ?? componentType);
+                all.AddRange(result);
+            }
             //只從children找
             foreach (Transform t in mb.transform)
             {
-                var result = t.GetComponents(LimitedType ?? componentType);
+                result = t.GetComponents(LimitedType ?? componentType);
                 all.AddRange(result);
             }
 

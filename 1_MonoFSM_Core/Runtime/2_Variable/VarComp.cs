@@ -1,6 +1,7 @@
 using System;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Variable.TypeTag;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -21,13 +22,17 @@ namespace MonoFSM.Variable
         private CompTypeTag _componentTypeTag;
 
         //FIXME: isConst時要Required? 怎麼在 AbstractDescriptionBehaviour 檢查？
-        [FormerlySerializedAs("_siblingValue")]
+        [HideIf(nameof(HasParentVarEntity))]
         [Header("預設值")]
-        [SerializeField]
+        [ShowInInspector]
         [DropDownRef(null, nameof(SiblingValueFilter))]
-        private Component _siblingDefaultValue; //FIXME: 應該要可以篩選type
+        private Component SiblingDefaultValue
+        {
+            set => _defaultValue = value;
+            get => _defaultValue;
+        } //用property?
 
-        // [SerializeField] private Type _type;
+        //可以篩選type, 就是宣告
         Type SiblingValueFilter()
         {
             // 優先使用 MonoTypeTag 的類型限制
@@ -46,9 +51,8 @@ namespace MonoFSM.Variable
         // protected Component _defaultValue;
 
 
-
-        protected override Component DefaultValue =>
-            _siblingDefaultValue != null ? _siblingDefaultValue : _defaultValue;
+        // protected Component DefaultValue =>
+        //     _siblingDefaultValue != null ? _siblingDefaultValue : _defaultValue;
         //FIXME: 把Variable直接丟到該模組上就好？
         // IEnumerable<Component> _filter()
         // {

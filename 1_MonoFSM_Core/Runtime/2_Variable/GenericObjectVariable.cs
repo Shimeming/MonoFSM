@@ -41,19 +41,9 @@ namespace MonoFSM.Variable
 
         //FIXME: 繼承時想要加更多attribute
         // [Header("預設值")] [HideIf(nameof(_siblingDefaultValue))]
-        [HideIf(nameof(HasProxyValue))]
-        // [SOConfig("10_Flags/GameData", useVarTagRestrictType: true)] //FIXME: 痾，只有SO類才需要ㄅ
-        [Required]
-        [PrefabFilter(typeof(PoolObject))] //FIXME: 不一定是Prefab耶？VarEntity享用
-        [SerializeField]
-        //required可以有condition?
-        protected TValueType _defaultValue; //ConfigSettingValue?
 
-        protected virtual TValueType DefaultValue
-        {
-            get { return _defaultValue; }
-            // set { _defaultValue = value; }
-        }
+        [SerializeField]
+        protected TValueType _defaultValue; //ConfigSettingValue? //只有VarMonoObj才需要？
 
         // _siblingDefaultValue != null ? _siblingDefaultValue : _defaultValue;
 
@@ -62,11 +52,12 @@ namespace MonoFSM.Variable
         /// </summary>
         [GUIColor(0.2f, 0.8f, 0.2f)]
         [PreviewInInspector]
-        [DynamicType] // 標示此屬性的型別會根據VarTag動態決定
+        [DynamicType] // 標示此屬性的型別會根據VarTag動態決定 FIXME: 在做啥？
         public TValueType Value //動態？ varTag的RestrictType 才決定型別？
         {
             get
             {
+                // Debug.Log($"Accessing Value of {name}", this);
                 // 檢查遞迴深度
                 if (_recursionDepth.Value >= MAX_RECURSION_DEPTH)
                 {
@@ -110,22 +101,36 @@ namespace MonoFSM.Variable
             }
         }
 
+        [ShowInInspector]
+        private string _valueDebugStatus;
+
         /// <summary>
         ///     實際的 Value 獲取邏輯，從原本的 Value getter 分離出來
         /// </summary>
         private TValueType GetValueInternal()
         {
+            // Debug.Log($"Getting value of {name}", this);
             //要擋掉嗎？那Editor Time就都不要顯示？
             // if (!Application.isPlaying)
             //     return DefaultValue;
             if (HasParentVarEntity)
             {
+                _valueDebugStatus = "Resolving from ParentVarEntity";
                 if (_parentVarEntity.Value == null)
+                {
+                    // Debug.LogError(
+                    //     $"{name}'s ParentVarEntity is null, cannot resolve var '{_varTag}'",
+                    //     this
+                    // );
+                    //editor time 沒有正常
+                    _valueDebugStatus = "ParentVarEntity is null";
                     return null; //還沒有entity, 過掉？
+                }
 
                 // 檢查自我引用（保留原有檢查）
                 if (_parentVarEntity == this || _parentVarEntity.Value.GetVar(_varTag) == this)
                 {
+                    _valueDebugStatus = "Self reference detected";
                     Debug.LogError("ParentVarEntity cannot be self", this);
                     Debug.Break();
                     return null;
@@ -135,6 +140,7 @@ namespace MonoFSM.Variable
                     var targetVar = _parentVarEntity.Value.GetVar(_varTag);
                     if (targetVar == null)
                     {
+                        _valueDebugStatus = "Target variable not found in ParentVarEntity";
                         Debug.LogError(
                             $"{name}'s ParentVarEntity has no var: '{_varTag}' folder:{_parentVarEntity.Value.VariableFolder}",
                             _parentVarEntity.Value
@@ -155,12 +161,14 @@ namespace MonoFSM.Variable
                             return null;
                         }
 
+                    _valueDebugStatus = $"Resolved from ParentVarEntity: {targetVar.name}";
                     return targetVar.GetValue<TValueType>();
                 }
             }
 
             if (HasValueProvider) //FIXME: 和field 分開寫很鳥?
             {
+                _valueDebugStatus = "Resolving from ValueProvider";
                 if (Application.isPlaying)
                 {
                     if (valueSource == null) //有可能resolve後是null
@@ -171,7 +179,11 @@ namespace MonoFSM.Variable
             }
 
             if (Application.isPlaying == false)
-                return DefaultValue;
+            {
+                _valueDebugStatus = "Using _DefaultValue (Edit Mode)";
+                return _defaultValue;
+            }
+
             return _currentValue;
         }
 
@@ -200,17 +212,13 @@ namespace MonoFSM.Variable
         }
 
         //FIXME: 不該留這個API
-        public override void SetValue(object value, MonoBehaviour byWho) //這好蠢？
-        {
-            //這個trace好討厭...又跑下去，然後再上來internal
-            SetValue<TValueType>((TValueType)value, byWho);
-        }
+        // public override void SetValue(object value, MonoBehaviour byWho) //這好蠢？
+        // {
+        //     //這個trace好討厭...又跑下去，然後再上來internal
+        //     SetValue<TValueType>((TValueType)value, byWho);
+        // }
 
-        public override void SetValue(TValueType value, MonoBehaviour byWho)
-        {
-            //這個trace好討厭...又跑下去，然後再上來internal
-            SetValue<TValueType>(value, byWho);
-        }
+
 
         //怎麼那麼多種...
         protected override void SetValueInternal<T1>(T1 value, Object byWho)
@@ -270,7 +278,7 @@ namespace MonoFSM.Variable
             //這裡才做會不會太晚？
             if (_isConst) //FIXME: 怪怪的, 但現在 playerTransform有在用, set過後不想被reset, 可能要另外處理這個情境？
                 return;
-            SetValueInternal(DefaultValue, this);
+            SetValueInternal(_defaultValue, this);
         }
 
         [PropertyOrder(-1)]

@@ -173,9 +173,44 @@ public class AutoAttributeManager : MonoBehaviour
         }
     }
 
-    // void setValue(MonoBehaviour mb, object val){
+    private void AutoResolveField(
+        MonoBehaviour mb,
+        [System.Runtime.CompilerServices.CallerMemberName] string fieldName = ""
+    )
+    {
+#if UNITY_EDITOR
+        if (!Application.isPlaying)
+        {
+            AutoAttributeManager.AutoReferenceFieldEditor(mb, fieldName);
+        }
+#endif
+    }
 
-    // }
+    [Conditional("UNITY_EDITOR")]
+    public static void AutoReferenceFieldEditor(MonoBehaviour mb, string fieldName)
+    {
+        if (Application.isPlaying)
+            return;
+        // success = false;
+        if (mb == null || string.IsNullOrEmpty(fieldName))
+            return;
+        var t = mb.GetType();
+        var fieldDictByName = FieldCache.fieldDictByName;
+        if (!fieldDictByName.TryGetValue((t, fieldName), out var field))
+        {
+            //沒有很正常
+            // Debug.LogWarning($"[Auto] Field {fieldName} not found in {t}", mb);
+            return;
+        }
+
+        var attributes = field.GetCustomAttributes(typeof(IAutoAttribute), true);
+        foreach (IAutoAttribute autoAttribute in attributes)
+        {
+            autoAttribute.Execute(mb, field);
+            // success =  || success;
+        }
+    }
+
     private static void AutoReference(
         MonoBehaviour targetMb,
         out int successfullyAssignments,

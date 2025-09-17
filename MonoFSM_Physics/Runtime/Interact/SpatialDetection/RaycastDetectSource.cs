@@ -16,14 +16,17 @@ namespace MonoFSM_Physics.Runtime.Interact.SpatialDetection
 
         public override IEnumerable<DetectionResult> GetCurrentDetections()
         {
-            var _cachedHits = _raycastCache.CachedHits;
-            foreach (var hit in _cachedHits)
+            var cachedHits = _raycastCache.CachedHits;
+            _buffer.Clear();
+            foreach (var hit in cachedHits)
             {
                 var targetObject = hit.rigidbody
                     ? hit.rigidbody.gameObject
                     : hit.collider.gameObject;
-                yield return new DetectionResult(targetObject, hit.point, hit.normal);
+                _buffer.Add(new DetectionResult(targetObject, hit.point, hit.normal));
             }
+
+            return _buffer;
         }
 
         public override void UpdateDetection()
@@ -49,7 +52,7 @@ namespace MonoFSM_Physics.Runtime.Interact.SpatialDetection
             //從hit拿collider
             var cachedHits = _raycastCache.CachedHits;
             foreach (var hit in cachedHits)
-                _thisFrameColliders.Add(hit.collider);
+                _thisFrameColliders.Add(hit.collider); //這個有用嗎？
 
             //上個frame不在，這個frame卻在
             // foreach (var hit in cachedHits)

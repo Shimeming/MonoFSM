@@ -9,17 +9,14 @@ namespace MonoFSM_Physics.Runtime
     {
         public Rigidbody _rigidbody;
 
-        protected override void OnActionExecuteImplement()
-        {
-
-        }
+        protected override void OnActionExecuteImplement() { }
 
         public void ArgEventReceived(GeneralEffectHitData arg)
         {
             // Debug.Break();
             Debug.Log($"Arrow hit action received data: {arg}");
             if (arg.hitPoint == null)
-                Debug.LogError("Hit point is null, cannot set rigidbody position.");
+                Debug.LogError("Hit point is null, cannot set rigidbody position.", this);
             else
                 _rigidbody.position = arg.hitPoint.Value;
             // Debug.Break();

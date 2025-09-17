@@ -32,12 +32,13 @@ namespace MonoFSM.Runtime
     [Searchable]
     [FormerlyNamedAs("MonoDescriptable")]
     public class MonoEntity
-        : AbstractMonoDescriptable<GameData>,
+        : AbstractMonoDescriptable<GameData>, //不需要這層？
             IInstantiated,
             IBeforePrefabSaveCallbackReceiver,
-            IGameDataProvider,
+            // IGameDataProvider,
             IValueProvider,
-            IAnimatorProvider //這樣data也要一直繼承，好ㄇ...
+            IAnimatorProvider,
+            IValueOfKey<MonoEntityTag> //這樣data也要一直繼承，好ㄇ...
     {
         //FIXME: GetComponentsInChildren IFeature, 然後用type把dict包起來，那和schema不就一樣了？更彈性的版本嗎？
 
@@ -49,7 +50,8 @@ namespace MonoFSM.Runtime
         {
             get
             {
-                this.EnsureComponentInChildren(ref _schemaFolder);
+                AutoAttributeManager.AutoReferenceFieldEditor(this, nameof(_schemaFolder));
+                // this.EnsureComponentInChildren(ref _schemaFolder);
                 return _schemaFolder;
             }
         }
@@ -99,7 +101,8 @@ namespace MonoFSM.Runtime
             var isTagDirty = false;
 
             // 填充 Schema Types - 先確保 _schemaFolder 存在
-            this.EnsureComponentInChildren(ref _schemaFolder);
+            // this.EnsureComponentInChildren(ref _schemaFolder);
+            AutoAttributeManager.AutoReferenceFieldEditor(this, nameof(_schemaFolder));
             if (_schemaFolder != null)
             {
                 var schemas = _schemaFolder.GetValues;
@@ -151,7 +154,7 @@ namespace MonoFSM.Runtime
 #endif
         }
 
-        public GameData GameData => Data;
+        // public GameData GameData => Data;
 
         public T1 Get<T1>()
         {
@@ -191,14 +194,14 @@ namespace MonoFSM.Runtime
     //FIXME: 這層多餘嗎？
     public class AbstractMonoDescriptable<TMonoDescriptable>
         : MonoBlackboard,
-            IMonoDescriptable,
+            // IMonoDescriptable,
             ISceneAwake
         where TMonoDescriptable : GameData //,IVariableOwner //VariableOwner?
     {
         //FIXME: 更複雜的描述組合？
-        [UsedImplicitly] //從UI直接選
-        public virtual string RuntimeDescription =>
-            string.IsNullOrEmpty(Data.Description) ? Data.name : Data.Description;
+        // [UsedImplicitly] //從UI直接選
+        // public virtual string RuntimeDescription =>
+        //     string.IsNullOrEmpty(Data.Description) ? Data.name : Data.Description;
 
         // #if UNITY_EDITOR
         //         [RequiredIn(PrefabKind.InstanceInScene)] [PreviewInInspector] [AutoParent]
@@ -207,24 +210,24 @@ namespace MonoFSM.Runtime
 
         //GameLogic不該Nested?
         //FIXME: 太深了...會包到過多的東西
-        [PreviewInInspector]
+        // [PreviewInInspector]
+        [ShowInDebugMode]
         [AutoChildren]
         private GeneralEffectDealer[] _dealers; //可以互動的性質門
 
         // private HashSet<GeneralEffectType> _dealerTypeSet = new HashSet<GeneralEffectType>(); //可以被互動的性質
 
-        //FIXME: 好像不需要喔？
         private readonly Dictionary<GeneralEffectType, GeneralEffectDealer> _dealerTypeMap = new(); //keys?
 #if UNITY_EDITOR
 
-        [PreviewInInspector]
+        [ShowInDebugMode]
         private List<GeneralEffectType> DealerTypes => _dealerTypeMap.Keys.ToList();
 
-        [PreviewInInspector]
+        [ShowInDebugMode]
         private List<GeneralEffectType> ReceiverTypes => _receiverTypeMap.Keys.ToList();
 #endif
 
-        [PreviewInInspector]
+        [ShowInDebugMode]
         private int DealerSetCount => _dealerTypeMap.Count;
 
         /// <summary>
@@ -246,7 +249,7 @@ namespace MonoFSM.Runtime
             receiver.ForceDirectEffectHit(dealer);
         }
 
-        [PreviewInInspector]
+        [ShowInDebugMode]
         [AutoChildren]
         private GeneralEffectReceiver[] _receivers; //可以互動的性質門
 
@@ -254,7 +257,7 @@ namespace MonoFSM.Runtime
         private readonly Dictionary<GeneralEffectType, GeneralEffectReceiver> _receiverTypeMap =
             new();
 
-        [PreviewInInspector]
+        [ShowInDebugMode]
         private int ReceiverSetCount => _receiverTypeMap.Count;
 
         //帶有xx性質的物件
@@ -299,24 +302,24 @@ namespace MonoFSM.Runtime
 
         // public DescriptableData SampleData;
         //FIXME: 不一定需要data? VarGameData比較對？這樣就往下直接找，code就從schema define? 還是其實 MonoEntity要和Schema合併
-        [SOConfig("10_Flags/GameData")]
-        [SerializeField]
-        protected TMonoDescriptable data; //config
+        // [SOConfig("10_Flags/GameData")]
+        // [SerializeField]
+        // protected TMonoDescriptable data; //config
 
-        public virtual IDescriptableData Descriptable => data;
-
-        public T GetData<T>()
-            where T : GameData
-        {
-            return data as T;
-        }
+        // public virtual IDescriptableData Descriptable => data;
+        //
+        // public T GetData<T>()
+        //     where T : GameData
+        // {
+        //     return data as T;
+        // }
 
         // [ShowInInspector]
-        public TMonoDescriptable Data
-        {
-            get => data;
-            // set => data = value;
-        }
+        // public TMonoDescriptable Data
+        // {
+        //     get => data;
+        //     // set => data = value;
+        // }
 
         // [SerializeField] private MonoDescriptableTag[] DescriptableTags; //
 
@@ -399,19 +402,19 @@ namespace MonoFSM.Runtime
         {
             // _receiverTypeSet = new HashSet<GeneralEffectType>();
             // Debug.Log("EnterSceneAwake: " +name,this); //跑兩次？
-            // if (_receivers != null)
-            //     foreach (var receiver in _receivers)
-            //     {
-            //         // _receiverTypeSet.Add(receiver.EffectType);
-            //         if (!_receiverTypeMap.TryAdd(receiver._effectType, receiver))
-            //         {
-            //             Debug.Log("Receiver type already exists" + receiver._effectType, receiver);
-            //         }
-            //     }
+            if (_receivers != null)
+                foreach (var receiver in _receivers)
+                {
+                    // _receiverTypeSet.Add(receiver.EffectType);
+                    if (!_receiverTypeMap.TryAdd(receiver._effectType, receiver))
+                    {
+                        Debug.Log("Receiver type already exists" + receiver._effectType, receiver);
+                    }
+                }
             //
-            // foreach (var dealer in _dealers)
-            //     if (_dealerTypeMap.TryAdd(dealer._effectType, dealer) == false)
-            //         Debug.LogWarning($"Dealer {dealer._effectType} already exists", dealer);
+            foreach (var dealer in _dealers)
+                if (_dealerTypeMap.TryAdd(dealer._effectType, dealer) == false)
+                    Debug.LogWarning($"Dealer {dealer._effectType} already exists", dealer);
         }
 
         public IEnumerable<ValueDropdownItem<VariableTag>> GetVarTagOptions()

@@ -37,16 +37,16 @@ namespace MonoFSM.Core.Editor
                 return;
             }
 
-            var provider = Property.ValueEntry?.WeakSmartValue as ValueProvider;
+            var provider = Property.ValueEntry?.WeakSmartValue as IValueProvider;
             if (provider == null)
             {
-                DisplayErrorAndCallNextDrawer(GetProviderErrorMessage(), label);
+                DisplayErrorAndCallNextDrawer("null provider (not valueProvider)", label);
                 return;
             }
             // Debug.Log("provider" + Property.Name + (provider == null) + provider.ValueType);
             if (provider.ValueType == null)
             {
-                DisplayErrorAndCallNextDrawer(GetProviderErrorMessage(), label);
+                DisplayErrorAndCallNextDrawer("provider.valuetype is null", label);
                 return;
             }
 

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e71863d6a014827a715566dd5c5af2f, type: 3}
   m_Name: Player
   m_EditorClassIdentifier: 
-  _note: 
+  _note: Character?
   _entityType:
     _bindObject: {fileID: 0}
     _baseFilterTypeName: 

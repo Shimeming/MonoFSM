@@ -143,7 +143,8 @@ namespace MonoFSM.Runtime.Variable
         {
             get
             {
-                this.EnsureComponentInChildren(ref _variableFolder);
+                AutoAttributeManager.AutoReferenceFieldEditor(this, nameof(_variableFolder));
+                // this.EnsureComponentInChildren(ref _variableFolder);
                 return _variableFolder;
             }
         }

@@ -26,17 +26,20 @@ namespace Fusion.Addons.KCC.ECM2.Examples.Networking.Fusion_v2.Characters.Script
                 {
                     case InputActionType.WasPressed:
                         this.Log(
-                            "InputActionWasPressedCondition IsValid: " + _inputAction.WasPressed
+                            "InputActionWasPressedCondition IsValid: ",
+                            _inputAction.WasPressed
                         );
                         return _inputAction.WasPressed;
                     case InputActionType.IsPressed:
                         this.Log(
-                            "InputActionWasPressedCondition IsValid: " + _inputAction.IsPressed
+                            "InputActionWasPressedCondition IsValid: ",
+                            _inputAction.IsPressed
                         );
                         return _inputAction.IsPressed;
                     case InputActionType.WasReleased:
                         this.Log(
-                            "InputActionWasPressedCondition IsValid: " + _inputAction.WasReleased
+                            "InputActionWasPressedCondition IsValid: ",
+                            _inputAction.WasReleased
                         );
                         return _inputAction.WasReleased;
                     default:

@@ -35,7 +35,8 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         {
             get
             {
-                this.EnsureComponentInParent(ref _parentEntity);
+                AutoAttributeManager.AutoReferenceFieldEditor(this, nameof(_parentEntity));
+                // this.EnsureComponentInParent(ref _parentEntity);
                 return _parentEntity;
             }
         }

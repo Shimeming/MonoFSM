@@ -18,9 +18,7 @@ namespace MonoFSM.VarRefOld
         public string stringValue;
         public object objectValue;
 
-        public GenericValue()
-        {
-        }
+        public GenericValue() { }
 
         public GenericValue(int intValue)
         {
@@ -52,7 +50,7 @@ namespace MonoFSM.VarRefOld
             this.objectValue = objectValue;
         }
     }
-    
+
     /// <summary>
     /// 放在Children可以直接被Component Reference
     /// </summary>
@@ -61,35 +59,41 @@ namespace MonoFSM.VarRefOld
         //好像要指定對象耶...身上一堆provider誰知道你要哪個值？
     }
 
-    public abstract class AbstractSourceValueRef : AbstractDescriptionBehaviour 
+    public abstract class AbstractSourceValueRef : AbstractDescriptionBehaviour
     {
         public bool Equals<T>(T value)
         {
             var v = GetValue<T>();
             return EqualityComparer<T>.Default.Equals(v, value);
         }
+
         //如果有多個？避免？
         //改成autoParent如何？
         //還要再多一層比較好？
-        [Required] [CompRef] [Auto] private IValueProvider _valueProvider; //什麼鬼命名，IValueProvider?
+        [Required]
+        [CompRef]
+        [Auto]
+        private IValueProvider _valueProvider; //什麼鬼命名，IValueProvider?
 
         private IValueProvider valueProvider
         {
             get
             {
-                this.EnsureComponent(ref _valueProvider);
+                AutoAttributeManager.AutoReferenceFieldEditor(this, nameof(_valueProvider));
                 return _valueProvider;
             }
         }
 #if UNITY_EDITOR
         //還要playmode版本？
-        [ShowInDebugMode] private object _previewLastValue; // = new(); //這顆會boxing...
+        [ShowInDebugMode]
+        private object _previewLastValue; // = new(); //這顆會boxing...
         // private object CurrentValue => _previewLastValue;
 #endif
+
         public Type ValueType => _valueProvider.ValueType;
 
         public object objectValue => _valueProvider.Get<object>();
-        
+
         public T GetValue<T>()
         {
             var value = _valueProvider.Get<T>();
@@ -99,13 +103,14 @@ namespace MonoFSM.VarRefOld
             return value;
         }
 
-        // [PreviewInInspector] 
+        // [PreviewInInspector]
         public override string Description
         {
             get
             {
                 // Debug.Log("SourceValueRef Description: " + _valueProvider.Description, this);
-                if (valueProvider == null) return "null provider";
+                if (valueProvider == null)
+                    return "null provider";
                 return valueProvider.Description;
             }
         }

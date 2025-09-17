@@ -175,7 +175,8 @@ namespace MonoFSM.Core.DataProvider
         {
             get
             {
-                this.EnsureComponentInParent(ref _parentEntity);
+                // this.EnsureComponentInParent(ref _parentEntity);
+                AutoAttributeManager.AutoReferenceFieldEditor(this, nameof(_parentEntity));
                 return _parentEntity;
             }
         }
@@ -711,6 +712,7 @@ namespace MonoFSM.Core.DataProvider
 
         public override T1 Get<T1>() //GetAs?
         {
+            // Debug.Log($"ValueProvider: Getting value of type {typeof(T1)}", this); //會無窮迴圈嗎？
             if (ValueType == null)
                 // Debug.LogError("VarRef: ValueType is null, cannot get value.", this);
                 return default;
@@ -809,7 +811,12 @@ namespace MonoFSM.Core.DataProvider
             if (fieldValue != null)
                 try
                 {
-                    return (T1)Convert.ChangeType(fieldValue, typeof(T1));
+                    var converted = (T1)Convert.ChangeType(fieldValue, typeof(T1));
+                    Debug.LogWarning(
+                        $"VarRef: 成功將欄位值 {fieldValue} (型別: {fieldValue.GetType()}) 轉換為 {typeof(T1)}: {converted}",
+                        this
+                    );
+                    return converted;
                 }
                 catch (Exception e)
                 {

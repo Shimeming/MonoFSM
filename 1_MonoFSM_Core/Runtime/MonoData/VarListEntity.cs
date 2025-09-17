@@ -185,6 +185,8 @@ namespace MonoFSM.Core.Variable
             if (IsReadOnly)
                 return _valueSourceProvider.Get<List<T>>();
             EnsureActiveCollectionInitialized();
+
+            //FIXME: 這裡應該都會GC
             if (_activeCollection is List<T> list)
                 return list;
             if (_activeCollection is Queue<T> queue)

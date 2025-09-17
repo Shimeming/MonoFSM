@@ -19,7 +19,7 @@ namespace MonoFSM.Foundation
         [PropertyOrder(1)]
         public ConditionGroup _conditionGroup;
 
-        public virtual bool IsValid => _conditionGroup.IsValid;
+        public virtual bool IsValid => _conditionGroup.IsValid && isActiveAndEnabled;
         public abstract bool HasValue { get; }
     }
 

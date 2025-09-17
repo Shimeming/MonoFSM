@@ -16,7 +16,7 @@ public class ConditionGroup //封裝的蠻好的...? 但是auto可能會遇到�
     public bool IsValid => _conditions.IsAllValid();
 
     [CompRef]
-    [AutoChildren(DepthOneOnly = true)]
+    [AutoChildren(DepthOneOnly = true, _isSelfInclude = false)]
     [SerializeField]
     private AbstractConditionBehaviour[] _conditions;
 }
@@ -118,7 +118,6 @@ public abstract class AbstractConditionBehaviour
 
             if (FinalResultInverted)
                 return !IsValid;
-
             return IsValid;
         }
     }

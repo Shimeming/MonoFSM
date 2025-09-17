@@ -37,9 +37,9 @@ namespace MonoFSM.Runtime.Variable.Action
                 return;
             }
 
-            var variable = GetComponentInParent<UIMonoDescriptableProvider>()
-                .MonoInstance.GetVar(_variableTag);
-            variable.ClearValue();
+            // var variable = GetComponentInParent<UIMonoDescriptableProvider>()
+            //     .MonoInstance.GetVar(_variableTag);
+            // variable.ClearValue();
         }
 
         public void ArgEventReceived(IEffectHitData arg)

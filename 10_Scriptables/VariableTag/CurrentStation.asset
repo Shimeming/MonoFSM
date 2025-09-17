@@ -12,14 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c04251230671b427c952ae00fb192c5e, type: 3}
   m_Name: CurrentStation
   m_EditorClassIdentifier: 
-  _variableTypeData: {fileID: 0}
-  _valueTypeData: {fileID: 0}
+  _variableTypeTag: {fileID: 0}
+  _valueTypeTag: {fileID: 0}
   Note: 
   _variableType:
+    _bindObject: {fileID: 11400000}
     _baseFilterTypeName: 
-    typeName: MonoFSM.Variable.AbstractMonoVariable, MonoFSM.Core.Runtime, Version=0.0.0.0,
+    _typeFullName: MonoFSM.Runtime.Variable.VarEntity
+    _assemblyName: MonoFSM.Core.Runtime
+    typeName: MonoFSM.Runtime.Variable.VarEntity, MonoFSM.Core.Runtime, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   _valueFilterType:
+    _bindObject: {fileID: 11400000}
     _baseFilterTypeName: 
-    typeName: MonoFSM.Runtime.MonoDescriptable, MonoFSM.Core.Runtime, Version=0.0.0.0,
+    _typeFullName: 
+    _assemblyName: MonoFSM.Core.Runtime
+    typeName: MonoFSM.Runtime.MonoEntity, MonoFSM.Core.Runtime, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
