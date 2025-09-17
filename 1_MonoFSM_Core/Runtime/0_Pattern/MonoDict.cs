@@ -41,7 +41,7 @@ namespace MonoFSM.Core
         //現在是一個runtime dict...有點爛
         public TU this[T key]
         {
-            get => _dict.GetValueOrDefault(key);
+            get => _dict.GetValueOrDefault(key); //媽的有gc
             set => _dict[key] = value;
         }
 
@@ -144,6 +144,7 @@ namespace MonoFSM.Core
             return _typeDict.GetValueOrDefault(type);
         }
 
+        //蛤？啥意思？
         public TU Get(Type type)
         {
             EditorPrepareCheck();
@@ -282,7 +283,7 @@ namespace MonoFSM.Core
             if (Application.isPlaying == false) //reload domain完就空掉了...
             {
                 Clear();
-                Debug.Log("PrepareDictCheck?", this);
+                // Debug.Log("PrepareDictCheck?", this);
                 _isPrepared = true;
                 _collections = GetComponentsInChildren<TU>(true);
             }

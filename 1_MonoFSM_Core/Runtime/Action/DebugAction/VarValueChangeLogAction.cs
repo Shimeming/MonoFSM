@@ -1,13 +1,15 @@
-using MonoFSM.Variable;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.DataProvider;
+using MonoFSM.Variable;
 using UnityEngine;
 
 namespace RCGMakerFSMCore.Runtime.Action.DebugAction
 {
     public class VarValueChangeLogAction : MonoBehaviour, IVarChangedListener
     {
-        [PreviewInInspector] [AutoParent] private AbstractMonoVariable _var;
+        [PreviewInInspector]
+        [AutoParent]
+        private AbstractMonoVariable _var;
 
         private void Awake()
         {
@@ -36,7 +38,10 @@ namespace RCGMakerFSMCore.Runtime.Action.DebugAction
             if (_var != null)
                 _var.RemoveListener(this);
             else
-                Debug.LogError("ValueChangeLogAction: Variable reference is null on destroy.", this);
+                Debug.LogError(
+                    "ValueChangeLogAction: Variable reference is null on destroy.",
+                    this
+                );
         }
 
         public void OnVarChanged(AbstractMonoVariable variable)
@@ -48,7 +53,9 @@ namespace RCGMakerFSMCore.Runtime.Action.DebugAction
             }
 
             // Log the variable change
-            Debug.Log($"Variable '{variable.name}' changed to: {variable.objectValue}", this);
+#if UNITY_EDITOR
+            Debug.Log($"Variable '{variable.name}' changed to: {variable.Get<object>()}", this);
+#endif
         }
     }
 }

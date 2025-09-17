@@ -1,12 +1,15 @@
+using System;
 using MonoFSM.Core.DataProvider;
 using MonoFSM.Core.Runtime.Action;
 using MonoFSM.Runtime.Attributes;
 using MonoFSM.Variable;
 using Sirenix.OdinInspector;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 namespace _1_MonoFSM_Core.Runtime.Action.VariableAction
 {
+    [Obsolete]
     public class SetVarAction : AbstractStateAction
     {
         //FIXME: 必定會有人null
@@ -15,15 +18,17 @@ namespace _1_MonoFSM_Core.Runtime.Action.VariableAction
         // [SerializeField] AbstractMonoVariable _localVar; //2. local var
 
         // [HideIf(nameof(_localVar))]
-        [ValueTypeValidate(IsVariableNeeded = true)] [SerializeField] [DropDownRef]
+        [ValueTypeValidate(IsVariableNeeded = true)]
+        [SerializeField]
+        [DropDownRef]
         private ValueProvider _targetVarProvider; //1. 遠方的var
-
 
         [InfoBox("$TypeValidationMessage", InfoMessageType.Warning, VisibleIf = "ShowTypeWarning")]
         [InfoBox("$TypeValidationMessage", InfoMessageType.None, VisibleIf = "ShowTypeInfo")]
         // [PropertyOrder(100)]
-        [SerializeField] [DropDownRef] private ValueProvider _sourceValueProvider;
-
+        [SerializeField]
+        [DropDownRef]
+        private ValueProvider _sourceValueProvider;
 
         private string TypeValidationMessage
         {
@@ -47,10 +52,13 @@ namespace _1_MonoFSM_Core.Runtime.Action.VariableAction
             }
         }
 
-        private bool ShowTypeWarning => !ShowTypeInfo && GetTargetVariable() != null && _sourceValueProvider != null;
+        private bool ShowTypeWarning =>
+            !ShowTypeInfo && GetTargetVariable() != null && _sourceValueProvider != null;
 
-        private bool ShowTypeInfo => GetTargetVariable() != null && _sourceValueProvider != null &&
-                                     ValidateValueType(GetTargetVariable(), _sourceValueProvider);
+        private bool ShowTypeInfo =>
+            GetTargetVariable() != null
+            && _sourceValueProvider != null
+            && ValidateValueType(GetTargetVariable(), _sourceValueProvider);
 
         //FIXME:
         private AbstractMonoVariable GetTargetVariable()
@@ -79,11 +87,15 @@ namespace _1_MonoFSM_Core.Runtime.Action.VariableAction
 
             if (!ValidateValueType(targetVar, _sourceValueProvider))
             {
-                Debug.LogError($"SetVarAction: Type mismatch - Variable type: {targetVar.ValueType}, Provider type: {_sourceValueProvider.ValueType}", this);
+                Debug.LogError(
+                    $"SetVarAction: Type mismatch - Variable type: {targetVar.ValueType}, Provider type: {_sourceValueProvider.ValueType}",
+                    this
+                );
                 return;
             }
 
-            targetVar.SetValueByValueProvider(_sourceValueProvider, this);
+            throw new NotImplementedException();
+            // targetVar.SetValueByValueProvider(_sourceValueProvider, this);
         }
 
         private bool ValidateValueType(AbstractMonoVariable targetVar, ValueProvider sourceProvider)
@@ -94,7 +106,8 @@ namespace _1_MonoFSM_Core.Runtime.Action.VariableAction
             if (targetType == null || sourceType == null)
                 return false;
 
-            return targetType.IsAssignableFrom(sourceType) || sourceType.IsAssignableFrom(targetType);
+            return targetType.IsAssignableFrom(sourceType)
+                || sourceType.IsAssignableFrom(targetType);
         }
 
         public override string Description

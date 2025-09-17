@@ -23,28 +23,33 @@ namespace MonoFSM.Core.DataProvider
         }
     }
 
-    [Serializable]
-    public class StringProviderFromVariable : IStringProvider
-    {
-        [FormerlySerializedAs("_variable")] [DropDownRef]
-        public AbstractMonoVariable _monoVariable;
-
-        public string GetString()
-        {
-            return _monoVariable.objectValue.ToString();
-        }
-    }
+    // [Serializable]
+    // public class StringProviderFromVariable : IStringProvider
+    // {
+    //     [FormerlySerializedAs("_variable")] [DropDownRef]
+    //     public AbstractMonoVariable _monoVariable;
+    //
+    //     public string GetString()
+    //     {
+    //         return _monoVariable.objectValue.ToString();
+    //     }
+    // }
 
     [Serializable]
     public class StringProviderFromVariableProperty : IStringProvider
     {
-        [FormerlySerializedAs("_variable")] [Required] [DropDownRef]
+        [FormerlySerializedAs("_variable")]
+        [Required]
+        [DropDownRef]
         public AbstractMonoVariable _monoVariable;
 
-        private static List<Type> supportTypes = new() { typeof(string), typeof(int), typeof(float) };
-        private ValueDropdownList<string> GetPropertyNames => DataReflection.GetProperties(_monoVariable, supportTypes);
+        private static List<Type> supportTypes =
+            new() { typeof(string), typeof(int), typeof(float) };
+        private ValueDropdownList<string> GetPropertyNames =>
+            DataReflection.GetProperties(_monoVariable, supportTypes);
 
-        [Required] [ValueDropdown(nameof(GetPropertyNames))]
+        [Required]
+        [ValueDropdown(nameof(GetPropertyNames))]
         public string propertyName;
 
         public string GetString()
@@ -57,8 +62,10 @@ namespace MonoFSM.Core.DataProvider
     [Serializable]
     public class StringProviderFromDescriptableProperty : IStringProvider
     {
-        [SerializeReference] public IGameDataProvider dataProvider;
-        private static List<Type> supportTypes = new() { typeof(string), typeof(int), typeof(float) };
+        [SerializeReference]
+        public IGameDataProvider dataProvider;
+        private static List<Type> supportTypes =
+            new() { typeof(string), typeof(int), typeof(float) };
 
         private ValueDropdownList<string> GetPropertyNames =>
             dataProvider.GameData.GetProperties(supportTypes);

@@ -180,6 +180,12 @@ namespace MonoFSM.Core.Variable
             return ((AbstractMonoVariable)this).GetValue<T1>();
         }
 
+        public override void SetValueFromVar(AbstractMonoVariable source, Object byWho)
+        {
+            //好像也用不到？難道會需要抄list? copy?
+            throw new NotImplementedException("什麼時候會用到？");
+        }
+
         public List<T> GetList()
         {
             if (IsReadOnly)
@@ -335,16 +341,25 @@ namespace MonoFSM.Core.Variable
                 OnValueChanged();
         }
 
+        public override void SetRaw<T1>(T1 value, Object byWho)
+        {
+            if (value is T tValue)
+            {
+                //... 用的到嗎？
+            }
+        }
+
         public override Type ValueType => typeof(List<T>); //_activeCollection?.GetType() ?? DetermineRuntimeTypeFromStorage(_storageType);
-        public override object objectValue => _activeCollection;
+
+        // public override object objectValue => _activeCollection;
 
         public override Object CurrentRawObject => CurrentListItem as Object;
 
-        protected override void SetValueInternal<T1>(T1 value, Object byWho = null)
-        {
-            // Base implementation is empty. If specific behavior is needed for setting the whole collection,
-            // it could be implemented here (e.g., clear and add all from an IEnumerable<T>).
-        }
+        // protected void SetValueInternal<T1>(T1 value, Object byWho = null)
+        // {
+        //     // Base implementation is empty. If specific behavior is needed for setting the whole collection,
+        //     // it could be implemented here (e.g., clear and add all from an IEnumerable<T>).
+        // }
 
         public override void Add(object item)
         {
@@ -552,7 +567,7 @@ namespace MonoFSM.Core.Variable
         public abstract void GoToNext();
         public abstract void GoToPrevious();
 
-        protected override void SetValueInternal<T1>(T1 value, Object byWho = null) { }
+        // protected override void SetValueInternal<T1>(T1 value, Object byWho = null) { }
 
         public abstract int Count { get; }
 

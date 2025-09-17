@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using MonoDebugSetting;
 using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.DataProvider;
@@ -20,7 +21,7 @@ using Object = UnityEngine.Object;
 
 namespace MonoFSM.Variable
 {
-    public abstract class TypedMonoVariable<T> : AbstractMonoVariable, ISettable<T>
+    public abstract class TypedMonoVariable<T> : AbstractMonoVariable //, ISettable<T>
     {
         //bound直接炸開...
         [CompRef]
@@ -45,34 +46,34 @@ namespace MonoFSM.Variable
             }
         }
 
-        public void SetValue(T value, MonoBehaviour byWho)
-        {
-            // Debug.Log($"SetValue {value} by {byWho}", this);
-            SetValueInternal(value, byWho);
-        }
+        // public void SetValue(T value, MonoBehaviour byWho)
+        // {
+        //     // Debug.Log($"SetValue {value} by {byWho}", this);
+        //     SetValueInternal(value, byWho);
+        // }
 
         // public abstract void SetValue(object value, MonoBehaviour byWho);
 
         public abstract void CommitValue();
 
-        public void SetValue(object value, MonoBehaviour byWho = null)
-        {
-            SetValue<T>((T)value, byWho);
-        }
+        // public void SetValue(object value, MonoBehaviour byWho = null)
+        // {
+        //     SetValue<T>((T)value, byWho);
+        // }
 
-        public void SetValue<T1>(T1 value, MonoBehaviour byWho = null)
-        {
-            if (value is T tValue)
-            {
-                SetValue(tValue, byWho);
-            }
-            else
-            {
-                if (value == null)
-                    return;
-                Debug.LogError($"SetValue: Cannot cast {value} to {typeof(T)}", this);
-            }
-        }
+        // public void SetValue<T1>(T1 value, MonoBehaviour byWho = null)
+        // {
+        //     if (value is T tValue)
+        //     {
+        //         SetValue(tValue, byWho);
+        //     }
+        //     else
+        //     {
+        //         if (value == null)
+        //             return;
+        //         Debug.LogError($"SetValue: Cannot cast {value} to {typeof(T)}", this);
+        //     }
+        // }
     }
 
     //FIXME: 應該要繼承AbstractSourceValueRef
@@ -94,7 +95,7 @@ namespace MonoFSM.Variable
 
         [ShowIf(nameof(HasParentVarEntity))]
         [ShowInInspector]
-        private AbstractMonoVariable proxyVar => _parentVarEntity?.Value?.GetVar(_varTag);
+        protected AbstractMonoVariable proxyVar => _parentVarEntity?.Value?.GetVar(_varTag);
         public bool HasParentVarEntity
         {
             get
@@ -124,7 +125,7 @@ namespace MonoFSM.Variable
         //fuck!?
 
         //倒著，事件鏈超難trace
-        public void OnValueChanged()
+        public void OnValueChanged() //FIXME: SetValue後要call 但會有boxing問題不寫在這？
         {
             if (!Application.isPlaying)
                 return;
@@ -256,30 +257,35 @@ namespace MonoFSM.Variable
             return GetValue<T1>();
         }
 
+        public abstract void SetRaw<T1>(T1 value, Object byWho); //這個還是不太好，會有casting問題？
+
         public virtual Type ValueType => _varTag.ValueType; //遞回了ㄅ？
 
         //FIXME: 好亂喔QQ 好難trace
-        public abstract object objectValue { get; } //不好？generic value?
+        // public abstract object objectValue { get; } //不好？generic value?
 
-        public virtual T GetValue<T>()
-        {
-            var value = objectValue;
-            if (value == null)
-                return default;
-            try
-            {
-                return (T)value;
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"Cannot cast {value} to {typeof(T)}", this);
-                return default;
-            }
-        }
+        public abstract T GetValue<T>();
+        // {
+        //     //FIXME: 很不好耶
+        //     var value = objectValue;
+        //     if (value == null)
+        //         return default;
+        //     try
+        //     {
+        //         return (T)value;
+        //     }
+        //     catch (Exception e)
+        //     {
+        //         Debug.LogError($"Cannot cast {value} to {typeof(T)}", this);
+        //         return default;
+        //     }
+        // }
 
         // private readonly HashSet<Object> byWhoHashSet = new();
         // [ShowInDebugMode] public List<Object> byWhoList => byWhoHashSet.ToList();
-        protected abstract void SetValueInternal<T>(T value, Object byWho);
+
+
+        //FIXME: 不一定是struct的？
 
 #if UNITY_EDITOR
         [ShowInDebugMode]
@@ -296,10 +302,15 @@ namespace MonoFSM.Variable
 
         protected void RecordSetbyWho<T>(Object byWho, T tempValue)
         {
+            if (!RuntimeDebugSetting.IsDebugMode)
+            {
+                return;
+            }
             // byWho.Log("[Variable] Set", name, value);
             this.Log("[Variable] Set", tempValue, "byWho", byWho);
             // byWhoHashSet.Add(byWho);
 #if UNITY_EDITOR
+
             //這個最係最好，如果有包含原因會更好？直接用字串？
             var byWhoData = new SetValueExecutionData
             {
@@ -314,8 +325,10 @@ namespace MonoFSM.Variable
 #endif
         }
 
-        //FIXME: 用Var來Set, 就可以實作Typing了耶？
-        public void SetValue<T>(T value, Object byWho)
+        //abstract?
+        public abstract void SetValueFromVar(AbstractMonoVariable source, Object byWho);
+
+        protected AbstractMonoVariable GetProxyVarOrThis()
         {
             if (_parentVarEntity != null) //用proxy
             {
@@ -329,7 +342,7 @@ namespace MonoFSM.Variable
                             $"Parent entity {_parentVarEntity.name} has no var {_varTag.name}",
                             this
                         );
-                        return;
+                        return this;
                     }
 
                     if (targetVar == this)
@@ -339,12 +352,12 @@ namespace MonoFSM.Variable
                             this
                         );
                         Debug.Break();
-                        return;
+                        return this;
                     }
 
-                    targetVar.SetValue(value, byWho);
+                    // targetVar.SetValue(value, byWho);
 
-                    return;
+                    return targetVar;
                 }
                 else
                 {
@@ -357,12 +370,19 @@ namespace MonoFSM.Variable
                 Debug.Break();
             }
 
-            SetValueInternal(value, byWho);
-            OnValueChanged();
-
-            // OnValueChangedRaw?.Invoke(); //通知有人改變了
-            //FIXME: 如果還有什麼需要處理的？
+            return this;
         }
+
+        //FIXME: 用Var來Set, 就可以實作Typing了耶？
+        //SetValueStruct?
+        // public void SetValue<T>(T value, Object byWho)
+        // {
+        //     // SetValueInternal(value, byWho);
+        //     OnValueChanged();
+        //
+        //     // OnValueChangedRaw?.Invoke(); //通知有人改變了
+        //     //FIXME: 如果還有什麼需要處理的？
+        // }
 
         public bool Equals(AbstractSourceValueRef sourceValueRef)
         {
@@ -395,141 +415,141 @@ namespace MonoFSM.Variable
             return EqualityComparer<T>.Default.Equals(v, value);
         }
 
-        public void SetValueByValueProvider(IValueProvider provider, Object byWho)
-        {
-            if (provider == null)
-            {
-                Debug.LogError("SetValueByValueProvider: provider is null", this);
-                return;
-            }
+        // public void SetValueByValueProvider(IValueProvider provider, Object byWho)
+        // {
+        //     if (provider == null)
+        //     {
+        //         Debug.LogError("SetValueByValueProvider: provider is null", this);
+        //         return;
+        //     }
+        //
+        //     var type = provider.ValueType;
+        //
+        //     if (type == typeof(int))
+        //     {
+        //         SetValue(provider.Get<int>(), byWho);
+        //         return;
+        //     }
+        //
+        //     if (type == typeof(float))
+        //     {
+        //         SetValue(provider.Get<float>(), byWho);
+        //         return;
+        //     }
+        //
+        //     if (type == typeof(string))
+        //     {
+        //         SetValue(provider.Get<string>(), byWho);
+        //         return;
+        //     }
+        //
+        //     if (type == typeof(bool))
+        //     {
+        //         SetValue(provider.Get<bool>(), byWho);
+        //         return;
+        //     }
+        //
+        //     if (type == typeof(Vector2))
+        //     {
+        //         SetValue(provider.Get<Vector2>(), byWho);
+        //         return;
+        //     }
+        //
+        //     if (type == typeof(Vector3))
+        //     {
+        //         SetValue(provider.Get<Vector3>(), byWho);
+        //         return;
+        //     }
+        //
+        //     if (type == typeof(Vector4))
+        //     {
+        //         SetValue(provider.Get<Vector4>(), byWho);
+        //         return;
+        //     }
+        //
+        //     if (type == typeof(Quaternion))
+        //     {
+        //         SetValue(provider.Get<Quaternion>(), byWho);
+        //         return;
+        //     }
+        //
+        //     if (typeof(Object).IsAssignableFrom(type))
+        //     {
+        //         SetValue(provider.Get<Object>(), byWho);
+        //         return;
+        //     }
+        //
+        //     Debug.LogError("SetValueByValueProvider: Unsupported type " + type, this);
+        //     SetValue(provider.Get<object>(), byWho);
+        // }
 
-            var type = provider.ValueType;
-
-            if (type == typeof(int))
-            {
-                SetValue(provider.Get<int>(), byWho);
-                return;
-            }
-
-            if (type == typeof(float))
-            {
-                SetValue(provider.Get<float>(), byWho);
-                return;
-            }
-
-            if (type == typeof(string))
-            {
-                SetValue(provider.Get<string>(), byWho);
-                return;
-            }
-
-            if (type == typeof(bool))
-            {
-                SetValue(provider.Get<bool>(), byWho);
-                return;
-            }
-
-            if (type == typeof(Vector2))
-            {
-                SetValue(provider.Get<Vector2>(), byWho);
-                return;
-            }
-
-            if (type == typeof(Vector3))
-            {
-                SetValue(provider.Get<Vector3>(), byWho);
-                return;
-            }
-
-            if (type == typeof(Vector4))
-            {
-                SetValue(provider.Get<Vector4>(), byWho);
-                return;
-            }
-
-            if (type == typeof(Quaternion))
-            {
-                SetValue(provider.Get<Quaternion>(), byWho);
-                return;
-            }
-
-            if (typeof(Object).IsAssignableFrom(type))
-            {
-                SetValue(provider.Get<Object>(), byWho);
-                return;
-            }
-
-            Debug.LogError("SetValueByValueProvider: Unsupported type " + type, this);
-            SetValue(provider.Get<object>(), byWho);
-        }
-
-        public void SetValueByRef(AbstractSourceValueRef sourceValueRef, Object byWho)
-        {
-            if (sourceValueRef == null)
-            {
-                Debug.LogError("SetValue: sourceValueRef is null", this);
-                return;
-            }
-
-            var type = sourceValueRef.ValueType;
-
-            if (type == typeof(int))
-            {
-                SetValue(sourceValueRef.GetValue<int>(), byWho);
-                return;
-            }
-
-            if (type == typeof(float))
-            {
-                SetValue(sourceValueRef.GetValue<float>(), byWho);
-                return;
-            }
-
-            if (type == typeof(string))
-            {
-                SetValue(sourceValueRef.GetValue<string>(), byWho);
-                return;
-            }
-
-            if (type == typeof(bool))
-            {
-                SetValue(sourceValueRef.GetValue<bool>(), byWho);
-                return;
-            }
-
-            if (type == typeof(Vector2))
-            {
-                SetValue(sourceValueRef.GetValue<Vector2>(), byWho);
-                return;
-            }
-
-            if (type == typeof(Vector3))
-            {
-                SetValue(sourceValueRef.GetValue<Vector3>(), byWho);
-                return;
-            }
-
-            if (type == typeof(Vector4))
-            {
-                SetValue(sourceValueRef.GetValue<Vector4>(), byWho);
-                return;
-            }
-
-            if (type == typeof(Quaternion))
-            {
-                SetValue(sourceValueRef.GetValue<Quaternion>(), byWho);
-                return;
-            }
-
-            if (typeof(Object).IsAssignableFrom(type))
-            {
-                SetValue(sourceValueRef.GetValue<Object>(), byWho);
-                return;
-            }
-
-            Debug.LogError("SetValue: Unsupported type " + type, this);
-            SetValue(sourceValueRef.GetValue<object>(), byWho);
-        }
+        // public void SetValueByRef(AbstractSourceValueRef sourceValueRef, Object byWho)
+        // {
+        //     if (sourceValueRef == null)
+        //     {
+        //         Debug.LogError("SetValue: sourceValueRef is null", this);
+        //         return;
+        //     }
+        //
+        //     var type = sourceValueRef.ValueType;
+        //
+        //     if (type == typeof(int))
+        //     {
+        //         SetValue(sourceValueRef.GetValue<int>(), byWho);
+        //         return;
+        //     }
+        //
+        //     if (type == typeof(float))
+        //     {
+        //         SetValue(sourceValueRef.GetValue<float>(), byWho);
+        //         return;
+        //     }
+        //
+        //     if (type == typeof(string))
+        //     {
+        //         SetValue(sourceValueRef.GetValue<string>(), byWho);
+        //         return;
+        //     }
+        //
+        //     if (type == typeof(bool))
+        //     {
+        //         SetValue(sourceValueRef.GetValue<bool>(), byWho);
+        //         return;
+        //     }
+        //
+        //     if (type == typeof(Vector2))
+        //     {
+        //         SetValue(sourceValueRef.GetValue<Vector2>(), byWho);
+        //         return;
+        //     }
+        //
+        //     if (type == typeof(Vector3))
+        //     {
+        //         SetValue(sourceValueRef.GetValue<Vector3>(), byWho);
+        //         return;
+        //     }
+        //
+        //     if (type == typeof(Vector4))
+        //     {
+        //         SetValue(sourceValueRef.GetValue<Vector4>(), byWho);
+        //         return;
+        //     }
+        //
+        //     if (type == typeof(Quaternion))
+        //     {
+        //         SetValue(sourceValueRef.GetValue<Quaternion>(), byWho);
+        //         return;
+        //     }
+        //
+        //     if (typeof(Object).IsAssignableFrom(type))
+        //     {
+        //         SetValue(sourceValueRef.GetValue<Object>(), byWho);
+        //         return;
+        //     }
+        //
+        //     Debug.LogError("SetValue: Unsupported type " + type, this);
+        //     SetValue(sourceValueRef.GetValue<object>(), byWho);
+        // }
 
         public object GetProperty(string knownFieldName)
         {

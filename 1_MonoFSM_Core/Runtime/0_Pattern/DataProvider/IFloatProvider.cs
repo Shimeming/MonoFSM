@@ -35,7 +35,6 @@ namespace MonoFSM.Core.DataProvider
             if (value is T1 t1Value)
                 return t1Value;
             return default;
-            // throw new InvalidCastException($"Cannot cast {typeof(T)} to {typeof(T1)}");
         }
 
         Type IValueProvider.ValueType => typeof(T);

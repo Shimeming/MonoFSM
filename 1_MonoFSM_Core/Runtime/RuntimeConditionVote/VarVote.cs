@@ -7,6 +7,7 @@ using Object = UnityEngine.Object;
 
 namespace MonoFSM.Runtime.Vote
 {
+    //FIXME: Vote可能獨立根本不是Var?
     public class VarVote : AbstractMonoVariable, IHierarchyValueInfo
     {
         // [SerializeField]
@@ -28,12 +29,32 @@ namespace MonoFSM.Runtime.Vote
             _vote.ClearValue();
         }
 
-        public override Type ValueType => typeof(bool);
-        public override object objectValue => _vote.Result;
-
-        protected override void SetValueInternal<T>(T value, Object byWho = null)
+        public override void SetRaw<T1>(T1 value, Object byWho)
         {
-            _vote.Vote(byWho, (bool)(object)value);
+            if (value is bool bValue)
+                _vote.Vote(byWho, bValue);
+        }
+
+        public override Type ValueType => typeof(bool);
+
+        // public override object objectValue => _vote.Result;
+
+        public override T GetValue<T>()
+        {
+            var value = _vote.Result;
+            if (value is T tValue)
+                return tValue;
+            return default;
+        }
+
+        public override void SetValueFromVar(AbstractMonoVariable source, Object byWho)
+        {
+            //用的到嗎？根本用不到？
+        }
+
+        protected void SetValueInternal(bool value, Object byWho = null)
+        {
+            _vote.Vote(byWho, value);
         }
 
         public override bool IsValueExist => true;

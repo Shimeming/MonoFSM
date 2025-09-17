@@ -1,4 +1,6 @@
 using System;
+using System.Runtime.CompilerServices;
+using MonoDebugSetting;
 using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
 using MonoFSM.RCGMakerFSMCore.Tracking;
@@ -28,6 +30,41 @@ public abstract class AbstractFieldVariable<TScriptableData, TField, TType>
     where TField : FlagField<TType>, new()
     where TType : IEquatable<TType>
 {
+    public TType GetValue()
+    {
+        return CurrentValue;
+    }
+
+    public override T1 GetValue<T1>()
+    {
+        var value = CurrentValue;
+        if (typeof(TType) == typeof(T1))
+            return Unsafe.As<TType, T1>(ref value);
+        // Profiler.BeginSample("GetValue Cast");
+        // if (value is T1 tValue)
+        // {
+        //     Profiler.EndSample();
+        //     return tValue;
+        // }
+        //
+        // Profiler.EndSample();
+
+        return default;
+    }
+
+    public override void SetRaw<T1>(T1 value, Object byWho)
+    {
+        Profiler.BeginSample("SetRaw");
+        var tValue = Unsafe.As<T1, TType>(ref value);
+        SetValueInternal(tValue, byWho);
+        Profiler.EndSample();
+    }
+
+    public override void SetValueFromVar(AbstractMonoVariable source, Object byWho)
+    {
+        SetValueInternal(source.Get<TType>(), byWho);
+    }
+
     // [CompRef] [AutoChildren(DepthOneOnly = true)]
     // private IValueProvider<TType>[] _valueSources; //FIXME: 可能會有多個耶...還要一層resolver嗎？
     //
@@ -52,6 +89,11 @@ public abstract class AbstractFieldVariable<TScriptableData, TField, TType>
     //還要看條件嗎？ conditional value switch
     //想要直接選一個field就拿他的值，應該抽出去做成一個新東西不要放在GenericVariable裡面
     //VariableFloat應該獨立寫？這樣就一定可以有一個最好的abstract class
+    public void SetValue(TType value, Object byWho = null)
+    {
+        SetValueInternal(value, byWho);
+    }
+
     public override void CommitValue()
     {
         var (last, current) = Field.CommitValue();
@@ -299,7 +341,7 @@ public abstract class AbstractFieldVariable<TScriptableData, TField, TType>
             if (valueSource != null) //用外部source getter, 這樣原本一坨都不需要了吧？
                 return valueSource.Get<TType>();
 
-            Profiler.BeginSample("Variable GetValue");
+            Profiler.BeginSample("FieldVariable CurrentValue", this);
             var tempValue = _localField.CurrentValue;
 
             //FIXME: 這裡就有proxy? 而且還是直接reference...
@@ -312,7 +354,7 @@ public abstract class AbstractFieldVariable<TScriptableData, TField, TType>
                 tempValue = BindData.CurrentValue;
 
             Profiler.EndSample();
-            Profiler.BeginSample("AfterGetValueModifyCheck");
+            Profiler.BeginSample("AfterGetValueModifyCheck", this);
             //FIXME: 這個是不是有點貴？有需要在這層做嗎？應該在set時就做掉了？不需要ㄅ
             // if (_modifiers != null)
             //     foreach (var modifier in _modifiers)
@@ -364,17 +406,25 @@ public abstract class AbstractFieldVariable<TScriptableData, TField, TType>
 
     // private MonoBehaviour lastValueSetter;
 
+    // SetValue???
 
-    protected override void SetValueInternal<T>(T value, Object byWho)
+    protected void SetValueInternal(TType value, Object byWho)
     {
-        if (value is TType type)
-        {
-            var (result, tempValue) = SetValueExecution(type, byWho as MonoBehaviour);
-            if (result)
-                RecordSetbyWho(byWho, tempValue);
-        }
-        else
-            Debug.LogError("SetValueInternal Type Error", this);
+        // if (typeof(T) != typeof(TType))
+        // {
+        //     Debug.LogError("Not valid type");
+        //     return;
+        // }
+
+        Profiler.BeginSample("FieldVariable SetValueInternal");
+
+        var (result, tempValue) = SetValueExecution(value, byWho as MonoBehaviour);
+        if (result)
+            RecordSetbyWho(byWho, tempValue);
+        // }
+
+        // Debug.LogError("SetValueInternal Type Error", this);
+        Profiler.EndSample();
     }
 
     //FIXME: protected?
@@ -394,7 +444,11 @@ public abstract class AbstractFieldVariable<TScriptableData, TField, TType>
         if (tempValue.Equals(CurrentValue))
             return (false, tempValue); //沒有變化就不需要處理
 
+        Profiler.BeginSample("Field SetCurrentValue");
         Field.SetCurrentValue(tempValue, byWho);
+        Profiler.EndSample();
+
+        //什麼時候需要track? isTracking?
         TrackValue(tempValue, byWho);
         return (true, tempValue);
         // #if MIXPANEL
@@ -416,6 +470,8 @@ public abstract class AbstractFieldVariable<TScriptableData, TField, TType>
 
     private void TrackValue(TType value, MonoBehaviour byWho)
     {
+        if (!RuntimeDebugSetting.isTracking)
+            return;
         var trackValue = UserDataTracker.BorrowTrackableValue;
         if (trackValue == null)
             return;
@@ -499,7 +555,8 @@ public abstract class AbstractFieldVariable<TScriptableData, TField, TType>
 #endif
 
     public override Type ValueType => typeof(TType);
-    public override object objectValue => CurrentValue;
+
+    // public override object objectValue => CurrentValue;
 
     public string Serialize()
     {
@@ -540,10 +597,11 @@ public interface ISettable //FIXME: 有點蠢
 
     //FIXME: 用T?
     // void SetValue<T>(T value, MonoBehaviour byWho = null);
-    void SetValue(object value, MonoBehaviour byWho = null);
+    // void SetValue(object value, MonoBehaviour byWho = null);
 }
 
+//這個有意義嗎？
 public interface ISettable<in T> : ISettable
 {
-    void SetValue(T value, MonoBehaviour byWho = null);
+    void SetValue(T value, Object byWho = null);
 }

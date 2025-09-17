@@ -37,30 +37,30 @@ namespace MonoFSM.Core.Attributes
         /// <summary>
         ///     指定根型別名稱的建構子
         /// </summary>
-        public FieldPathEditorAttribute(string rootTypeName)
-        {
-            RootTypeName = rootTypeName;
-            UseDynamicRootType = false; // 明確指定時不使用動態型別
-        }
+        // public FieldPathEditorAttribute(string rootTypeName)
+        // {
+        //     RootTypeName = rootTypeName;
+        //     UseDynamicRootType = false; // 明確指定時不使用動態型別
+        // }
 
         /// <summary>
         ///     指定根型別提供方法的建構子
         /// </summary>
-        public FieldPathEditorAttribute(string rootTypeProvider, bool isMethodProvider)
-        {
-            if (isMethodProvider)
-                RootTypeProvider = rootTypeProvider;
-            else
-                RootTypeName = rootTypeProvider;
-            UseDynamicRootType = false; // 明確指定時不使用動態型別
-        }
-
-        /// <summary>
-        ///     僅使用動態根型別的建構子
-        /// </summary>
-        public FieldPathEditorAttribute(bool useDynamicRootType)
-        {
-            UseDynamicRootType = useDynamicRootType;
-        }
+        // public FieldPathEditorAttribute(string rootTypeProvider, bool isMethodProvider)
+        // {
+        //     if (isMethodProvider)
+        //         RootTypeProvider = rootTypeProvider;
+        //     else
+        //         RootTypeName = rootTypeProvider;
+        //     UseDynamicRootType = false; // 明確指定時不使用動態型別
+        // }
+        //
+        // /// <summary>
+        // ///     僅使用動態根型別的建構子
+        // /// </summary>
+        // public FieldPathEditorAttribute(bool useDynamicRootType)
+        // {
+        //     UseDynamicRootType = useDynamicRootType;
+        // }
     }
 }

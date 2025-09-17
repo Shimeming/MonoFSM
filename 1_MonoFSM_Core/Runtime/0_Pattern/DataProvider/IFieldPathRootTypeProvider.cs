@@ -13,6 +13,6 @@ namespace MonoFSM.Core.DataProvider
         /// </summary>
         /// <param name="fieldName">欄位名稱</param>
         /// <returns>該欄位的根型別，若無法確定則返回 null</returns>
-        Type GetFieldPathRootType(string fieldName);
+        Type GetFieldPathRootType();
     }
 }

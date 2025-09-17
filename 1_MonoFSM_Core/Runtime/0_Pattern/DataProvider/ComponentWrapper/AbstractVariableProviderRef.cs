@@ -20,8 +20,7 @@ namespace MonoFSM.Core.DataProvider
         public abstract Type ValueType { get; }
 
         //FIXME: 應該要避免這個？
-        [ShowInDebugMode]
-        public object objectValue => Get<object>();
+        // [ShowInDebugMode] object objectValue => Get<object>();
 
         #region Field Path Support
 
@@ -147,6 +146,9 @@ namespace MonoFSM.Core.DataProvider
     public abstract class AbstractVariableProviderRef : PropertyOfTypeProvider, IVariableProvider
     {
         // public GameFlagBase FinalData => VarRaw?.FinalData;
+        [ShowInDebugMode]
+        public abstract object StartingObject { get; } //拿取值的開頭，可能是pure class
+
         //不一定有這個？再切一層？
         public abstract AbstractMonoVariable VarRaw { get; } //還是其實這個也可以？
 

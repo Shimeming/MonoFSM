@@ -47,7 +47,7 @@ namespace MonoDebugSetting
 
         private static readonly Dictionary<string, bool> DebugSettingDict = new();
         public static IEnumerable<string> DebugModuleNames => DebugSettingDict.Keys;
-
+        public static bool isTracking => false; //FIXME: mixpanel要接的話才來設定
 #if UNITY_EDITOR
         [InitializeOnEnterPlayMode]
 #endif

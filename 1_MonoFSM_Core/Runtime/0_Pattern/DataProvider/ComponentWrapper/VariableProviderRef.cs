@@ -10,7 +10,9 @@ using MonoFSM.Variable;
 using MonoFSM.Variable.Attributes;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Profiling;
 using UnityEngine.Serialization;
+using Object = UnityEngine.Object;
 
 namespace MonoFSM.Core.DataProvider
 {
@@ -35,6 +37,8 @@ namespace MonoFSM.Core.DataProvider
             IValueProvider<TValueType> //, IStringProvider,IValueProvider<TValueType>
         where TVarMonoType : AbstractMonoVariable
     {
+        public override object StartingObject => VarRaw;
+
         public override Type GetObjectType
         {
             get
@@ -424,23 +428,20 @@ namespace MonoFSM.Core.DataProvider
         public override T1 Get<T1>() //原本interface就做掉了，但是
         {
             var value = Value;
+            Profiler.BeginSample("VariableProviderRef.Get cast", this);
             if (value is T1 t1Value)
+            {
+                Profiler.EndSample();
                 return t1Value;
+            }
 
-            // 嘗試轉型
-            try
-            {
-                return (T1)Convert.ChangeType(value, typeof(T1));
-            }
-            catch (Exception e)
-            {
-                if (Application.isPlaying)
-                    Debug.LogError(
-                        $"無法將欄位值 {value} (型別: {value.GetType()}) 轉換為 {typeof(T1)}: {e.Message}",
-                        this
-                    );
-                return default;
-            }
+            Profiler.EndSample();
+
+            Debug.LogError(
+                $"無法將欄位值 {value} (型別: {value.GetType()}) 轉換為 {typeof(T1)}",
+                this
+            );
+            return default;
         }
 
         [ShowInDebugMode]
@@ -457,29 +458,29 @@ namespace MonoFSM.Core.DataProvider
                     return VarRaw.GetValue<TValueType>();
 
                 // 使用欄位路徑存取特定欄位值
-                var fieldValue = ReflectionUtility.GetFieldValueFromPath(
+                var (fieldValue, info) = ReflectionUtility.GetFieldValueFromPath<TValueType>(
                     VarRaw,
                     _pathEntries,
                     gameObject
                 );
 
-                if (fieldValue is TValueType tValue)
-                    return tValue;
+                if (fieldValue != null)
+                    return fieldValue;
 
                 // 嘗試轉型
-                if (fieldValue != null)
-                    try
-                    {
-                        return (TValueType)Convert.ChangeType(fieldValue, typeof(TValueType));
-                    }
-                    catch (Exception e)
-                    {
-                        if (Application.isPlaying)
-                            Debug.LogError(
-                                $"無法將欄位值 {fieldValue} (型別: {fieldValue.GetType()}) 轉換為 {typeof(TValueType)}: {e.Message}",
-                                this
-                            );
-                    }
+                // if (fieldValue != null)
+                //     try
+                //     {
+                //         return (TValueType)Convert.ChangeType(fieldValue, typeof(TValueType));
+                //     }
+                //     catch (Exception e)
+                //     {
+                //         if (Application.isPlaying)
+                //             Debug.LogError(
+                //                 $"無法將欄位值 {fieldValue} (型別: {fieldValue.GetType()}) 轉換為 {typeof(TValueType)}: {e.Message}",
+                //                 this
+                //             );
+                //     }
 
                 return default;
             }

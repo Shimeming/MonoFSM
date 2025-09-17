@@ -2,25 +2,20 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using _1_MonoFSM_Core.Runtime.Attributes;
+using MonoDebugSetting;
 using MonoFSM.Core.Attributes;
 using MonoFSM.EditorExtension;
 using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Profiling;
 using UnityEngine.Search;
 using Object = UnityEngine.Object;
 
 namespace MonoFSM.Variable
 {
+    //primitive type和object type要拆開
     [Searchable]
-    // public abstract class AbstractObjectVariable : AbstractMonoVariable
-    // {
-    //     //FIXME: 這個是多的嗎？
-    //     [PreviewInDebugMode]
-    //     public abstract Object RawValue { get; } //不一定有Object可以returnㄅ？
-    //
-    //     // protected void SetValueExecution();
-    // }
     public abstract class GenericUnityObjectVariable<TValueType>
         : TypedMonoVariable<TValueType>,
             ISettable<TValueType>,
@@ -28,6 +23,48 @@ namespace MonoFSM.Variable
             IHierarchyValueInfo
         where TValueType : Object
     {
+        public override void SetRaw<T1>(T1 value, Object byWho)
+        {
+            Profiler.BeginSample("GenericUnityObjectVariable<TValueType>.SetRaw");
+            if (value is TValueType tValue)
+                SetValueInternal(tValue, byWho);
+            Profiler.EndSample();
+        }
+
+        public override void SetValueFromVar(AbstractMonoVariable source, Object byWho)
+        {
+            if (proxyVar != null)
+            {
+                proxyVar.SetValueFromVar(source, byWho);
+            }
+
+            var value = source.GetValue<TValueType>();
+            Debug.Log(
+                $"SetValueFromVar {source.name} value:{value}, TValueType:{typeof(TValueType)}",
+                this
+            );
+            SetValueInternal(value, byWho);
+        }
+
+        public override T GetValue<T>()
+        {
+            if (Value is T tValue)
+                return tValue;
+            Debug.LogError(
+                $"GetValue<{typeof(T)}> failed, actual type is {typeof(TValueType)}",
+                this
+            );
+            return default;
+        }
+
+        // //核心Setter?
+        // protected void SetObjValueInternal<T>(T value, Object byWho)
+        // {
+        //     _currentValue = value as TValueType;
+        //     RecordSetbyWho(byWho, _currentValue);
+        //     OnValueChanged();
+        // }
+
         // 遞迴檢查相關的靜態成員
         private static readonly ThreadLocal<int> _recursionDepth = new(() => 0);
 
@@ -161,7 +198,8 @@ namespace MonoFSM.Variable
                             return null;
                         }
 
-                    _valueDebugStatus = $"Resolved from ParentVarEntity: {targetVar.name}";
+                    if (RuntimeDebugSetting.IsDebugMode)
+                        _valueDebugStatus = $"Resolved from ParentVarEntity: {targetVar.name}";
                     return targetVar.GetValue<TValueType>();
                 }
             }
@@ -169,13 +207,12 @@ namespace MonoFSM.Variable
             if (HasValueProvider) //FIXME: 和field 分開寫很鳥?
             {
                 _valueDebugStatus = "Resolving from ValueProvider";
-                if (Application.isPlaying)
-                {
-                    if (valueSource == null) //有可能resolve後是null
-                        return null;
-
-                    return valueSource.Get<TValueType>();
-                }
+                // if (Application.isPlaying)
+                // {
+                if (valueSource == null) //有可能resolve後是null
+                    return null;
+                return valueSource.Get<TValueType>(); //Editor可以拿吧？
+                // }
             }
 
             if (Application.isPlaying == false)
@@ -204,6 +241,16 @@ namespace MonoFSM.Variable
         [PreviewInDebugMode]
         private TValueType _lastNonNullValue;
 
+        // public void SetValue(TValueType value, MonoBehaviour byWho = null)
+        // {
+        //     SetObjValueInternal(value, byWho);
+        // }
+
+        public void SetValue(TValueType value, Object byWho = null)
+        {
+            SetValueInternal(value, byWho);
+        }
+
         public override void CommitValue()
         {
             _lastValue = _currentValue;
@@ -218,16 +265,19 @@ namespace MonoFSM.Variable
         //     SetValue<TValueType>((TValueType)value, byWho);
         // }
 
-
-
         //怎麼那麼多種...
-        protected override void SetValueInternal<T1>(T1 value, Object byWho)
+        protected void SetValueInternal(TValueType value, Object byWho)
         {
+            if (proxyVar != null)
+            {
+                proxyVar.SetRaw(value, byWho);
+                return;
+            }
             //沒有實作唷
             //沒有ObjectField...
             // Debug.Log("Set value to " + value, this);
             //FIXME: 這需要分開嗎？在寫啥
-            _currentValue = value as TValueType;
+            _currentValue = value;
             RecordSetbyWho(_currentValue, byWho as MonoBehaviour);
             // OnValueChanged?.Invoke(_currentValue); //多一個參數的版本
             OnValueChanged();
@@ -244,7 +294,7 @@ namespace MonoFSM.Variable
 
         public override void ClearValue()
         {
-            SetValueInternal<Object>(null, this);
+            SetValueInternal(null, this);
             // _currentValue = null;
         }
 
@@ -253,7 +303,7 @@ namespace MonoFSM.Variable
         public override Type ValueType => typeof(TValueType);
 
         //FIXME: 好亂喔QQ
-        public override object objectValue => Value;
+        // public override object objectValue => Value;
 
         // public override Component objectValue => RawValue;
 

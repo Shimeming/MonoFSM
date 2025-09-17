@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using MonoDebugSetting;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.DataProvider;
 using MonoFSM.Core.Utilities;
@@ -21,10 +22,15 @@ namespace MonoFSM.Core.Editor
     {
         protected override void DrawPropertyLayout(GUIContent label)
         {
+            if (RuntimeDebugSetting.IsDebugMode)
+            {
+                CallNextDrawer(label);
+                return;
+            }
             // CallNextDrawer(label);
             var pathEntries = ValueEntry.SmartValue ?? new List<FieldPathEntry>();
             var rootType = GetRootType();
-
+            // Debug.Log("Root Type: " + (rootType != null ? rootType.FullName : "null"));
             if (rootType == null)
             {
                 SirenixEditorGUI.ErrorMessageBox(Attribute.NoRootTypeMessage);
@@ -48,6 +54,7 @@ namespace MonoFSM.Core.Editor
                 ValueEntry.SmartValue = newEntries;
                 // 觸發 OnPathEntriesChanged（如果目標物件有此方法）
                 TriggerOnPathEntriesChanged();
+                Debug.Log("Field path updated.");
             }
 
             EditorGUILayout.Space(5);
@@ -72,7 +79,7 @@ namespace MonoFSM.Core.Editor
                 try
                 {
                     var fieldName = Property.Name;
-                    var rootType = provider.GetFieldPathRootType(fieldName);
+                    var rootType = provider.GetFieldPathRootType();
                     if (rootType != null)
                         return rootType;
                 }
@@ -157,6 +164,7 @@ namespace MonoFSM.Core.Editor
 
         /// <summary>
         ///     繪製路徑片段
+        /// FIXME: 勾選的內容沒有正確觸發 prefab override的標記，editor code要怎麼顯示才會正確？
         /// </summary>
         private List<FieldPathEntry> DrawPathSegments(
             List<FieldPathEntry> currentEntries,

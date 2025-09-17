@@ -5,6 +5,7 @@ using System.Reflection;
 using MonoFSM.Core.DataProvider;
 using MonoFSM.Variable.FieldReference;
 using UnityEngine;
+using UnityEngine.Profiling;
 using Object = UnityEngine.Object;
 
 namespace MonoFSM.Core.Utilities
@@ -20,6 +21,25 @@ namespace MonoFSM.Core.Utilities
         private static readonly Dictionary<(Type, string), Func<object, object>> GetterCache =
             new();
 
+        // Specialized caches for common value types to avoid boxing
+        private static readonly Dictionary<(Type, string), Func<object, int>> IntGetterCache =
+            new();
+
+        private static readonly Dictionary<(Type, string), Func<object, float>> FloatGetterCache =
+            new();
+
+        private static readonly Dictionary<(Type, string), Func<object, bool>> BoolGetterCache =
+            new();
+
+        private static readonly Dictionary<(Type, string), Func<object, double>> DoubleGetterCache =
+            new();
+
+        private static readonly Dictionary<(Type, string), Func<object, long>> LongGetterCache =
+            new();
+
+        private static readonly Dictionary<(Type, string), Func<object, string>> StringGetterCache =
+            new();
+
         // 快取成員型別資訊，避免重複反射查找
         private static readonly Dictionary<(Type, string), Type> MemberTypeCache = new();
 
@@ -32,8 +52,18 @@ namespace MonoFSM.Core.Utilities
         {
             var key = (type, memberName);
             if (GetterCache.TryGetValue(key, out var getter))
+            {
+                // Debug.Log("GetterCache member success: " + memberName);
                 return getter;
+            }
 
+            // const BindingFlags flags =
+            //     BindingFlags.Public | BindingFlags.NonPublic |
+            //     BindingFlags.Instance;
+            //
+            // // 1. 先嘗試直接用當前名稱查找
+            // MemberInfo member = type.GetProperty(memberName, flags) as MemberInfo ??
+            //                     type.GetField(memberName, flags);
             // 使用 RefactorSafeNameResolver 查找成員（支援舊名稱）
             var member = RefactorSafeNameResolver.FindMemberByCurrentOrFormerName(type, memberName);
 
@@ -51,7 +81,203 @@ namespace MonoFSM.Core.Utilities
                 return getter;
             }
 
+            //查不到的話有問題吧？
+            Debug.LogError("GetMemberGetter not found type:" + type + " member:" + memberName);
             return null;
+        }
+
+        static bool IsPrimitiveType(Type type)
+        {
+            return type.IsPrimitive || type == typeof(string) || type == typeof(decimal);
+        }
+
+        /// <summary>
+        /// 取得專門的值類型 getter，避免裝箱 GC
+        /// </summary>
+        public static Func<object, T> GetMemberGetterSpecialized<T>(Type type, string memberName)
+        {
+            var key = (type, memberName);
+
+            // 根據類型使用對應的緩存
+            if (typeof(T) == typeof(int))
+            {
+                if (IntGetterCache.TryGetValue(key, out var intGetter))
+                    return intGetter as Func<object, T>;
+
+                var member = RefactorSafeNameResolver.FindMemberByCurrentOrFormerName(
+                    type,
+                    memberName
+                );
+                if (member != null)
+                {
+                    var newIntGetter = CreateSpecializedGetter<int>(member);
+                    if (newIntGetter != null)
+                    {
+                        IntGetterCache[key] = newIntGetter;
+                        return newIntGetter as Func<object, T>;
+                    }
+                }
+            }
+            else if (typeof(T) == typeof(float))
+            {
+                if (FloatGetterCache.TryGetValue(key, out var floatGetter))
+                    return floatGetter as Func<object, T>;
+
+                var member = RefactorSafeNameResolver.FindMemberByCurrentOrFormerName(
+                    type,
+                    memberName
+                );
+                if (member != null)
+                {
+                    var newFloatGetter = CreateSpecializedGetter<float>(member);
+                    if (newFloatGetter != null)
+                    {
+                        FloatGetterCache[key] = newFloatGetter;
+                        return newFloatGetter as Func<object, T>;
+                    }
+                }
+            }
+            else if (typeof(T) == typeof(bool))
+            {
+                if (BoolGetterCache.TryGetValue(key, out var boolGetter))
+                    return boolGetter as Func<object, T>;
+
+                var member = RefactorSafeNameResolver.FindMemberByCurrentOrFormerName(
+                    type,
+                    memberName
+                );
+                if (member != null)
+                {
+                    var newBoolGetter = CreateSpecializedGetter<bool>(member);
+                    if (newBoolGetter != null)
+                    {
+                        BoolGetterCache[key] = newBoolGetter;
+                        return newBoolGetter as Func<object, T>;
+                    }
+                }
+            }
+            else if (typeof(T) == typeof(double))
+            {
+                if (DoubleGetterCache.TryGetValue(key, out var doubleGetter))
+                    return doubleGetter as Func<object, T>;
+
+                var member = RefactorSafeNameResolver.FindMemberByCurrentOrFormerName(
+                    type,
+                    memberName
+                );
+                if (member != null)
+                {
+                    var newDoubleGetter = CreateSpecializedGetter<double>(member);
+                    if (newDoubleGetter != null)
+                    {
+                        DoubleGetterCache[key] = newDoubleGetter;
+                        return newDoubleGetter as Func<object, T>;
+                    }
+                }
+            }
+            else if (typeof(T) == typeof(long))
+            {
+                if (LongGetterCache.TryGetValue(key, out var longGetter))
+                    return longGetter as Func<object, T>;
+
+                var member = RefactorSafeNameResolver.FindMemberByCurrentOrFormerName(
+                    type,
+                    memberName
+                );
+                if (member != null)
+                {
+                    var newLongGetter = CreateSpecializedGetter<long>(member);
+                    if (newLongGetter != null)
+                    {
+                        LongGetterCache[key] = newLongGetter;
+                        return newLongGetter as Func<object, T>;
+                    }
+                }
+            }
+            else if (typeof(T) == typeof(string))
+            {
+                if (StringGetterCache.TryGetValue(key, out var stringGetter))
+                    return stringGetter as Func<object, T>;
+
+                var member = RefactorSafeNameResolver.FindMemberByCurrentOrFormerName(
+                    type,
+                    memberName
+                );
+                if (member != null)
+                {
+                    var newStringGetter = CreateSpecializedGetter<string>(member);
+                    if (newStringGetter != null)
+                    {
+                        StringGetterCache[key] = newStringGetter;
+                        return newStringGetter as Func<object, T>;
+                    }
+                }
+            }
+
+            // 如果不是常見的值類型，回退到通用方法
+            Profiler.BeginSample("GetMemberGetterSpecialized.GetMemberGetter");
+            var generalGetter = GetMemberGetter(type, memberName);
+            Profiler.EndSample();
+            if (generalGetter != null)
+            {
+                return obj =>
+                {
+                    var value = generalGetter(obj);
+                    if (value is T tValue)
+                        return tValue;
+                    return default;
+                };
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// 創建專門的值類型 getter，避免裝箱
+        /// </summary>
+        private static Func<object, T> CreateSpecializedGetter<T>(MemberInfo member)
+        {
+            if (member is PropertyInfo prop)
+            {
+                return CreateSpecializedPropertyGetter<T>(prop);
+            }
+
+            if (member is FieldInfo field)
+            {
+                return CreateSpecializedFieldGetter<T>(field);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// 使用 Expression 建立專門的 property getter，避免裝箱
+        /// </summary>
+        private static Func<object, T> CreateSpecializedPropertyGetter<T>(PropertyInfo property)
+        {
+            if (property.PropertyType != typeof(T))
+                return null;
+
+            var instanceParam = Expression.Parameter(typeof(object), "instance");
+            var castInstance = Expression.Convert(instanceParam, property.DeclaringType);
+            var propertyAccess = Expression.Property(castInstance, property);
+            var lambda = Expression.Lambda<Func<object, T>>(propertyAccess, instanceParam);
+            return lambda.Compile();
+        }
+
+        /// <summary>
+        /// 使用 Expression 建立專門的 field getter，避免裝箱
+        /// </summary>
+        private static Func<object, T> CreateSpecializedFieldGetter<T>(FieldInfo field)
+        {
+            if (field.FieldType != typeof(T))
+                return null;
+
+            var instanceParam = Expression.Parameter(typeof(object), "instance");
+            var castInstance = Expression.Convert(instanceParam, field.DeclaringType);
+            var fieldAccess = Expression.Field(castInstance, field);
+            var lambda = Expression.Lambda<Func<object, T>>(fieldAccess, instanceParam);
+            return lambda.Compile();
         }
 
         /// <summary>
@@ -150,29 +376,29 @@ namespace MonoFSM.Core.Utilities
                         ?? memberType;
                 }
             }
-            else
-            {
-                // 如果 RefactorSafeNameResolver 找不到，嘗試直接查找
-                var directProp = parentType.GetProperty(
-                    memberName,
-                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
-                );
-                if (directProp != null)
-                {
-                    memberType = directProp.PropertyType;
-                }
-                else
-                {
-                    var directField = parentType.GetField(
-                        memberName,
-                        BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
-                    );
-                    if (directField != null)
-                    {
-                        memberType = directField.FieldType;
-                    }
-                }
-            }
+            // else
+            // {
+            //     // 如果 RefactorSafeNameResolver 找不到，嘗試直接查找
+            //     var directProp = parentType.GetProperty(
+            //         memberName,
+            //         BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
+            //     );
+            //     if (directProp != null)
+            //     {
+            //         memberType = directProp.PropertyType;
+            //     }
+            //     else
+            //     {
+            //         var directField = parentType.GetField(
+            //             memberName,
+            //             BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
+            //         );
+            //         if (directField != null)
+            //         {
+            //             memberType = directField.FieldType;
+            //         }
+            //     }
+            // }
 
             // 快取結果（即使是 null 也要快取，避免重複查找）
             MemberTypeCache[key] = memberType;
@@ -244,12 +470,26 @@ namespace MonoFSM.Core.Utilities
         {
             GetterCache.Clear();
             MemberTypeCache.Clear();
+            IntGetterCache.Clear();
+            FloatGetterCache.Clear();
+            BoolGetterCache.Clear();
+            DoubleGetterCache.Clear();
+            LongGetterCache.Clear();
+            StringGetterCache.Clear();
         }
 
         /// <summary>
         /// 取得快取中的項目數量
         /// </summary>
-        public static int CacheCount => GetterCache.Count + MemberTypeCache.Count;
+        public static int CacheCount =>
+            GetterCache.Count
+            + MemberTypeCache.Count
+            + IntGetterCache.Count
+            + FloatGetterCache.Count
+            + BoolGetterCache.Count
+            + DoubleGetterCache.Count
+            + LongGetterCache.Count
+            + StringGetterCache.Count;
 
         #endregion
 
@@ -321,14 +561,16 @@ namespace MonoFSM.Core.Utilities
         /// <returns>最終欄位值</returns>
         /// FIXME: 這個會有gc?
         /// FIXME: 吃<T>?
-        public static object GetFieldValueFromPath(
-            object obj,
+        public static (T, string) GetFieldValueFromPath<T>(
+            object obj, //target
             List<FieldPathEntry> entries,
             Object logTarget = null
         )
         {
+            T finalValue = default;
+            var finalType = typeof(T);
             if (obj == null)
-                return null;
+                return (default, "obj null");
             var currentObj = obj;
 
             var i = 0;
@@ -337,43 +579,69 @@ namespace MonoFSM.Core.Utilities
                 if (currentObj == null)
                 {
                     Debug.LogError($"在 '{entry._propertyName}' 層級遇到 null", logTarget);
-                    return $"在 '{entry._propertyName}' 層級遇到 null";
+                    if (Application.isPlaying == false)
+                        return (default, $"在 '{entry._propertyName}' 層級遇到 null");
+                    return (default, "propertyName null");
                 }
 
                 // 直接從 currentObj 獲取實際的 Type，而不依賴序列化的資料
-                var type = currentObj.GetType();
+                var objType = currentObj.GetType();
 
                 if (entry._propertyName == null)
-                    return "欄位名稱為空";
+                    return (default, "欄位名稱為空");
 
-                var getter = GetMemberGetter(type, entry._propertyName);
-
-                // 檢查欄位是否已重命名，如果是則更新 entry.fieldName
-                var foundMember = RefactorSafeNameResolver.FindMemberByCurrentOrFormerName(
-                    type,
-                    entry._propertyName
-                );
-                if (foundMember != null && foundMember.Name != entry._propertyName)
+                // 檢查欄位是否已重命名，如果是則更新 entry.fieldName FIXME: 這段應該抽出去？
+#if UNITY_EDITOR
+                if (Application.isPlaying == false)
                 {
-                    Debug.Log(
-                        $"欄位 '{entry._propertyName}' 已重命名為 '{foundMember.Name}'，正在更新參考",
-                        logTarget
-                    );
-                    entry._propertyName = foundMember.Name;
+                    var foundFormerMember =
+                        RefactorSafeNameResolver.FindMemberByCurrentOrFormerName(
+                            objType,
+                            entry._propertyName
+                        );
+                    if (foundFormerMember != null && foundFormerMember.Name != entry._propertyName)
+                    {
+                        Debug.LogWarning(
+                            $"欄位 '{entry._propertyName}' 已重命名為 '{foundFormerMember.Name}'，正在更新參考",
+                            logTarget
+                        );
+                        entry._propertyName = foundFormerMember.Name;
+                    }
                 }
+#endif
 
-                if (getter != null)
+                //有可能最後一層不是primitive嗎？
+                if (i == entries.Count - 1 && finalType.IsPrimitive) //最後一層 FIXME: nooo 可能拿到array....
                 {
-                    currentObj = getter(currentObj); // 可能拿到陣列
+                    var typedGetter = GetMemberGetterSpecialized<T>(objType, entry._propertyName);
+                    if (typedGetter == null)
+                    {
+                        return (default, $"null property of typedGetter");
+                    }
+
+                    var value = typedGetter(currentObj);
+                    return (value, "ok");
                 }
                 else
                 {
-                    Debug.LogError(
-                        $"在 {i}層 {type.Name} 中找不到名稱為 '{entry._propertyName}' 的欄位或屬性"
-                            + obj,
-                        logTarget
-                    );
-                    return $"在 {type.Name} 中找不到名稱為 '{entry._propertyName}' 的欄位或屬性";
+                    var getter = GetMemberGetter(objType, entry._propertyName);
+                    var value = getter(currentObj);
+                    if (value == null)
+                    {
+                        if (entry._canBeNull)
+                            return (default, "allow null");
+                        //這段好像錯位置了？
+                        Debug.LogError(
+                            $"(可以把path上打勾標示可以是null) 期待Type{finalType} 最終欄位 currentObj {currentObj} objType:{objType} propert:'{entry._propertyName}' 為 null，但不允許 null",
+                            logTarget
+                        );
+                        return (
+                            default,
+                            $"最終欄位 '{entry._propertyName}' 為 null，但不允許 null"
+                        );
+                    }
+
+                    currentObj = getter(currentObj); // 可能拿到陣列
                 }
 
                 // 如果是陣列，取得指定index的element value
@@ -385,7 +653,10 @@ namespace MonoFSM.Core.Utilities
                             $"索引 {entry.index} 超出陣列 '{entry._propertyName}' 的範圍 (長度 {arr.Length})",
                             logTarget
                         );
-                        return $"索引 {entry.index} 超出陣列 '{entry._propertyName}' 的範圍 (長度 {arr.Length})";
+                        return (
+                            default,
+                            $"索引 {entry.index} 超出陣列 '{entry._propertyName}' 的範圍 (長度 {arr.Length})"
+                        );
                     }
 
                     currentObj = arr.GetValue(entry.index);
@@ -393,12 +664,13 @@ namespace MonoFSM.Core.Utilities
 
                 if (currentObj == null) //半途遇到 null
                     if (entry._canBeNull)
-                        return null; // 如果允許為 null，則直接返回 null
+                        return (default, "allow null");
                 i++;
                 entry._tempCurrentObject = currentObj; // 用於 Unity 編輯器的預覽
             }
 
-            return currentObj;
+            return ((T)currentObj, "obj ok");
+            // return (currentObj, "ok");
         }
 
         /// <summary>
@@ -476,11 +748,11 @@ namespace MonoFSM.Core.Utilities
 
             try
             {
-                var result = GetFieldValueFromPath(obj, pathEntries);
-                if (result == null)
+                var (fieldValue, _) = GetFieldValueFromPath<object>(obj, pathEntries);
+                if (fieldValue == null)
                     return false;
 
-                var resultType = result.GetType();
+                var resultType = fieldValue.GetType();
                 Debug.Log($"最終欄位值型別：{resultType}, 目標型別：{targetType}", obj);
                 return targetType.IsAssignableFrom(resultType)
                     || CanConvertType(resultType, targetType);

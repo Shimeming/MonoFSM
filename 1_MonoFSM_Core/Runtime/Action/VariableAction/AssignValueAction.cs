@@ -1,3 +1,4 @@
+using System;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.DataProvider;
 using MonoFSM.Core.Runtime.Action;
@@ -11,6 +12,7 @@ namespace MonoFSM.Runtime.Backpack.Actions
     //從receiver那邊拿到變數，然後設定到自己的變數上 (有點像rebind了)
     //FIXME: 直接set?
     //FIXME: Assign Value to Variable?
+    [Obsolete]
     public class AssignValueAction : AbstractStateAction //, IRCGArgEventReceiver<IEffectHitData>
     {
         // public MonoValueProvider TestVariable;
@@ -37,57 +39,58 @@ namespace MonoFSM.Runtime.Backpack.Actions
 
         protected override void OnActionExecuteImplement()
         {
-            if (_sourceValueRef == null)
-            {
-                Debug.LogError("AssignValueAction: Source value is null", _sourceValueRef);
-                return;
-            }
-            //FIXME: 在TargetRef就先檢查了？
-
-            // 新功能：支援直接設定屬性值（不只是變數）
-            if (_targetVarRef.VarRaw != null)
-            {
-                // 原有的變數設定模式
-                var targetVar = _targetVarRef.VarRaw;
-                targetVar.SetValueByRef(_sourceValueRef, this);
-                Debug.Log(
-                    $"AssignValueAction: Set variable value {_sourceValueRef} to {targetVar}",
-                    this
-                );
-            }
-            else
-            {
-                // 新的屬性設定模式：直接透過 ValueProvider 設定屬性
-                var targetValueProvider = _targetVarRef.GetComponent<ValueProvider>();
-
-                if (targetValueProvider != null)
-                {
-                    // 檢查是否支援設定
-                    //FIXME: 是錯的
-                    if (!targetValueProvider.CanSetProperty)
-                    {
-                        Debug.LogError(
-                            $"AssignValueAction: 選擇的欄位 '{targetValueProvider.Description}' 不支援設定值（可能是唯讀屬性或常數）",
-                            this
-                        );
-                        return;
-                    }
-
-                    //FIXME: 應該用generic做到？
-                    var sourceValue = _sourceValueRef.objectValue;
-                    // 直接呼叫 SetProperty 方法（不用反射）
-                    targetValueProvider.SetProperty(sourceValue);
-
-                    Debug.Log(
-                        $"AssignValueAction: Set property value {sourceValue} to {targetValueProvider.Description}",
-                        this
-                    );
-                }
-                else
-                {
-                    Debug.LogError("AssignValueAction: No variable or property target found", this);
-                }
-            }
+            throw new NotImplementedException();
+            // if (_sourceValueRef == null)
+            // {
+            //     Debug.LogError("AssignValueAction: Source value is null", _sourceValueRef);
+            //     return;
+            // }
+            // //FIXME: 在TargetRef就先檢查了？
+            //
+            // // 新功能：支援直接設定屬性值（不只是變數）
+            // if (_targetVarRef.VarRaw != null)
+            // {
+            //     // 原有的變數設定模式
+            //     var targetVar = _targetVarRef.VarRaw;
+            //     targetVar.SetValueByRef(_sourceValueRef, this);
+            //     Debug.Log(
+            //         $"AssignValueAction: Set variable value {_sourceValueRef} to {targetVar}",
+            //         this
+            //     );
+            // }
+            // else
+            // {
+            //     // 新的屬性設定模式：直接透過 ValueProvider 設定屬性
+            //     var targetValueProvider = _targetVarRef.GetComponent<ValueProvider>();
+            //
+            //     if (targetValueProvider != null)
+            //     {
+            //         // 檢查是否支援設定
+            //         //FIXME: 是錯的
+            //         if (!targetValueProvider.CanSetProperty)
+            //         {
+            //             Debug.LogError(
+            //                 $"AssignValueAction: 選擇的欄位 '{targetValueProvider.Description}' 不支援設定值（可能是唯讀屬性或常數）",
+            //                 this
+            //             );
+            //             return;
+            //         }
+            //
+            //         //FIXME: 應該用generic做到？
+            //         var sourceValue = _sourceValueRef.objectValue;
+            //         // 直接呼叫 SetProperty 方法（不用反射）
+            //         targetValueProvider.SetProperty(sourceValue);
+            //
+            //         Debug.Log(
+            //             $"AssignValueAction: Set property value {sourceValue} to {targetValueProvider.Description}",
+            //             this
+            //         );
+            //     }
+            //     else
+            //     {
+            //         Debug.LogError("AssignValueAction: No variable or property target found", this);
+            //     }
+            // }
         }
 
         // protected override void OnArgEventReceived(GeneralEffectHitData arg)

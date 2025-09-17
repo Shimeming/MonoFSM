@@ -14,6 +14,7 @@ using MonoFSM.Variable.TypeTag;
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;
 using UnityEngine;
+using UnityEngine.Profiling;
 using Object = System.Object;
 
 namespace MonoFSM.Core.DataProvider
@@ -27,6 +28,7 @@ namespace MonoFSM.Core.DataProvider
     //EntityTag可以拿到Schema的話更好？這樣寫什麼都可以了
 
     //用這顆就夠了，其他應該都不需要了？除了literal
+    [Searchable]
     public class ValueProvider
         : AbstractVariableProviderRef,
             IOverrideHierarchyIcon,
@@ -153,6 +155,9 @@ namespace MonoFSM.Core.DataProvider
 
         //代表這個ValueProvider可以拿到對應的AbstractMonoVariable
 
+
+        [ShowInDebugMode]
+        public override object StartingObject => GetTarget();
 
         [ShowInPlayMode]
         public override AbstractMonoVariable VarRaw //可以去拿MonoEntity的資料？而不是一定要透過Var?
@@ -361,7 +366,7 @@ namespace MonoFSM.Core.DataProvider
         //選了VarRaw.Value後反而變成原本的type...這樣外面就沒有提示了
 
         //FIXME: 拔掉？
-        private Object GetTarget()
+        private UnityEngine.Object GetTarget()
         {
             // 優先級 1: VarTag（如果有選擇 Variable）
             if (_varTag != null)
@@ -477,192 +482,192 @@ namespace MonoFSM.Core.DataProvider
         ///     檢查當前選擇的欄位是否支援設定值
         ///     FIXME: 這個現在還是錯的，跑去拿GetterMember了
         /// </summary>
-        public bool CanSetProperty
-        {
-            get
-            {
-                // Variable 模式：變數都可以設定
-                if (_varTag != null && !HasFieldPath)
-                    return true;
-
-                // 其他模式需要檢查欄位路徑
-                if (!HasFieldPath)
-                {
-                    Debug.LogError("ValueProvider: 需要設定欄位路徑才能進行屬性設定。", this);
-                    return false;
-                }
-
-                return CanSetFieldPath();
-            }
-        }
+        // public bool CanSetProperty
+        // {
+        //     get
+        //     {
+        //         // Variable 模式：變數都可以設定
+        //         if (_varTag != null && !HasFieldPath)
+        //             return true;
+        //
+        //         // 其他模式需要檢查欄位路徑
+        //         if (!HasFieldPath)
+        //         {
+        //             Debug.LogError("ValueProvider: 需要設定欄位路徑才能進行屬性設定。", this);
+        //             return false;
+        //         }
+        //
+        //         return CanSetFieldPath();
+        //     }
+        // }
 
         /// <summary>
         ///     檢查欄位路徑的最終欄位是否可以設定
         /// </summary>
-        private bool CanSetFieldPath()
-        {
-            if (_pathEntries == null || _pathEntries.Count == 0)
-                return false;
-
-            var lastEntry = _pathEntries[^1];
-            var targetType = GetTargetTypeForFieldPath();
-
-            if (targetType == null || string.IsNullOrEmpty(lastEntry._propertyName))
-            {
-                Debug.LogError("ValueProvider: 無法確定欄位路徑的目標型別或屬性名稱。", this);
-                return false;
-            }
-
-            // 使用 RefactorSafeNameResolver 查找成員
-            var member = RefactorSafeNameResolver.FindMemberByCurrentOrFormerName(
-                targetType,
-                lastEntry._propertyName
-            );
-
-            if (member is PropertyInfo prop)
-            {
-                if (!prop.CanWrite)
-                    Debug.LogError(
-                        $"ValueProvider: 屬性 {targetType}.{lastEntry._propertyName} 是唯讀的，無法設定值。",
-                        this
-                    );
-                return prop.CanWrite;
-            }
-
-            if (member is FieldInfo field)
-                return !field.IsInitOnly && !field.IsLiteral; // 不是 readonly 和 const
-
-            Debug.LogError(
-                $"ValueProvider: 無法找到 {targetType} 中的成員 {lastEntry._propertyName}，無法設定值。",
-                this
-            );
-            return false;
-        }
+        // private bool CanSetFieldPath()
+        // {
+        //     if (_pathEntries == null || _pathEntries.Count == 0)
+        //         return false;
+        //
+        //     var lastEntry = _pathEntries[^1];
+        //     var targetType = GetTargetTypeForFieldPath();
+        //
+        //     if (targetType == null || string.IsNullOrEmpty(lastEntry._propertyName))
+        //     {
+        //         Debug.LogError("ValueProvider: 無法確定欄位路徑的目標型別或屬性名稱。", this);
+        //         return false;
+        //     }
+        //
+        //     // 使用 RefactorSafeNameResolver 查找成員
+        //     var member = RefactorSafeNameResolver.FindMemberByCurrentOrFormerName(
+        //         targetType,
+        //         lastEntry._propertyName
+        //     );
+        //
+        //     if (member is PropertyInfo prop)
+        //     {
+        //         if (!prop.CanWrite)
+        //             Debug.LogError(
+        //                 $"ValueProvider: 屬性 {targetType}.{lastEntry._propertyName} 是唯讀的，無法設定值。",
+        //                 this
+        //             );
+        //         return prop.CanWrite;
+        //     }
+        //
+        //     if (member is FieldInfo field)
+        //         return !field.IsInitOnly && !field.IsLiteral; // 不是 readonly 和 const
+        //
+        //     Debug.LogError(
+        //         $"ValueProvider: 無法找到 {targetType} 中的成員 {lastEntry._propertyName}，無法設定值。",
+        //         this
+        //     );
+        //     return false;
+        // }
 
         /// <summary>
         ///     取得欄位路徑檢查的目標型別
         /// </summary>
-        private Type GetTargetTypeForFieldPath()
-        {
-            if (_pathEntries.Count == 1)
-            {
-                // 只有一層，直接檢查來源型別
-                if (_varTag != null)
-                    return _varTag.ValueType;
-                if (_schemaTypeTag != null)
-                    return _schemaTypeTag.Type;
-                return GetMonoEntity()?.GetType();
-            }
+        // private Type GetTargetTypeForFieldPath()
+        // {
+        //     if (_pathEntries.Count == 1)
+        //     {
+        //         // 只有一層，直接檢查來源型別
+        //         if (_varTag != null)
+        //             return _varTag.ValueType;
+        //         if (_schemaTypeTag != null)
+        //             return _schemaTypeTag.Type;
+        //         return GetMonoEntity()?.GetType();
+        //     }
+        //
+        //     // 多層路徑，需要遍歷到倒數第二層
+        //     try
+        //     {
+        //         var target = GetTarget() as object;
+        //         if (target == null)
+        //             return null;
+        //
+        //         var currentObj = target; // 明確宣告為 object 型別
+        //         for (var i = 0; i < _pathEntries.Count - 1; i++)
+        //         {
+        //             var entry = _pathEntries[i];
+        //             var type = currentObj.GetType();
+        //             var getter = ReflectionUtility.GetMemberGetter(type, entry._propertyName);
+        //
+        //             if (getter != null)
+        //                 currentObj = getter(currentObj);
+        //             else
+        //                 return null;
+        //
+        //             if (currentObj == null)
+        //                 return null;
+        //         }
+        //
+        //         return currentObj.GetType();
+        //     }
+        //     catch
+        //     {
+        //         return null;
+        //     }
+        // }
 
-            // 多層路徑，需要遍歷到倒數第二層
-            try
-            {
-                var target = GetTarget();
-                if (target == null)
-                    return null;
-
-                var currentObj = target; // 明確宣告為 object 型別
-                for (var i = 0; i < _pathEntries.Count - 1; i++)
-                {
-                    var entry = _pathEntries[i];
-                    var type = currentObj.GetType();
-                    var getter = ReflectionUtility.GetMemberGetter(type, entry._propertyName);
-
-                    if (getter != null)
-                        currentObj = getter(currentObj);
-                    else
-                        return null;
-
-                    if (currentObj == null)
-                        return null;
-                }
-
-                return currentObj.GetType();
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        public void SetProperty<T>(T settingValue)
-        {
-            // 特殊處理：Schema 模式
-            if (_schemaTypeTag != null && _varTag == null)
-            {
-                var schemaInstance = GetSelectedSchema();
-                if (schemaInstance == null)
-                {
-                    Debug.LogError("ValueProvider: 無法獲取 Schema 實例進行設定。", this);
-                    return;
-                }
-
-                if (!HasFieldPath)
-                {
-                    Debug.LogError(
-                        "ValueProvider: Schema 模式需要設定欄位路徑才能進行屬性設定。",
-                        this
-                    );
-                    return;
-                }
-
-                // 設定 Schema 欄位值
-                ReflectionUtility.SetFieldValueFromPath(
-                    schemaInstance,
-                    _pathEntries,
-                    settingValue,
-                    gameObject
-                );
-                return;
-            }
-
-            // Variable 模式：如果選擇了變數，直接設定變數值
-            if (_varTag != null)
-            {
-                var variable = VarRaw;
-                if (variable == null)
-                {
-                    Debug.LogError("ValueProvider: 變數為 null，無法設定值。", this);
-                    return;
-                }
-
-                if (!HasFieldPath)
-                {
-                    // 直接設定變數值
-                    variable.SetValue(settingValue, this);
-                    return;
-                }
-
-                // 透過欄位路徑設定變數的特定屬性
-                ReflectionUtility.SetFieldValueFromPath(
-                    variable,
-                    _pathEntries,
-                    settingValue,
-                    gameObject
-                );
-                return;
-            }
-
-            // Entity 模式：直接設定實體的欄位
-            var target = GetTarget();
-            if (target == null)
-            {
-                Debug.LogError("ValueProvider: 目標實體為 null，無法設定值。", this);
-                return;
-            }
-
-            if (!HasFieldPath)
-            {
-                Debug.LogError(
-                    "ValueProvider: Entity 模式需要設定欄位路徑才能進行屬性設定。",
-                    this
-                );
-                return;
-            }
-
-            // 透過欄位路徑設定實體的特定屬性
-            ReflectionUtility.SetFieldValueFromPath(target, _pathEntries, settingValue, gameObject);
-        }
+        // public void SetProperty<T>(T settingValue)
+        // {
+        //     // 特殊處理：Schema 模式
+        //     if (_schemaTypeTag != null && _varTag == null)
+        //     {
+        //         var schemaInstance = GetSelectedSchema();
+        //         if (schemaInstance == null)
+        //         {
+        //             Debug.LogError("ValueProvider: 無法獲取 Schema 實例進行設定。", this);
+        //             return;
+        //         }
+        //
+        //         if (!HasFieldPath)
+        //         {
+        //             Debug.LogError(
+        //                 "ValueProvider: Schema 模式需要設定欄位路徑才能進行屬性設定。",
+        //                 this
+        //             );
+        //             return;
+        //         }
+        //
+        //         // 設定 Schema 欄位值
+        //         ReflectionUtility.SetFieldValueFromPath(
+        //             schemaInstance,
+        //             _pathEntries,
+        //             settingValue,
+        //             gameObject
+        //         );
+        //         return;
+        //     }
+        //
+        //     // Variable 模式：如果選擇了變數，直接設定變數值
+        //     if (_varTag != null)
+        //     {
+        //         var variable = VarRaw;
+        //         if (variable == null)
+        //         {
+        //             Debug.LogError("ValueProvider: 變數為 null，無法設定值。", this);
+        //             return;
+        //         }
+        //
+        //         if (!HasFieldPath)
+        //         {
+        //             // 直接設定變數值
+        //             variable.SetValue(settingValue, this);
+        //             return;
+        //         }
+        //
+        //         // 透過欄位路徑設定變數的特定屬性
+        //         ReflectionUtility.SetFieldValueFromPath(
+        //             variable,
+        //             _pathEntries,
+        //             settingValue,
+        //             gameObject
+        //         );
+        //         return;
+        //     }
+        //
+        //     // Entity 模式：直接設定實體的欄位
+        //     var target = GetTarget();
+        //     if (target == null)
+        //     {
+        //         Debug.LogError("ValueProvider: 目標實體為 null，無法設定值。", this);
+        //         return;
+        //     }
+        //
+        //     if (!HasFieldPath)
+        //     {
+        //         Debug.LogError(
+        //             "ValueProvider: Entity 模式需要設定欄位路徑才能進行屬性設定。",
+        //             this
+        //         );
+        //         return;
+        //     }
+        //
+        //     // 透過欄位路徑設定實體的特定屬性
+        //     ReflectionUtility.SetFieldValueFromPath(target, _pathEntries, settingValue, gameObject);
+        // }
 
         [ShowInDebugMode]
         private object previewObject => Get<object>();
@@ -710,6 +715,9 @@ namespace MonoFSM.Core.DataProvider
             return base.HasError();
         }
 
+        [ShowInDebugMode]
+        private string _getValueDebugInfo;
+
         public override T1 Get<T1>() //GetAs?
         {
             // Debug.Log($"ValueProvider: Getting value of type {typeof(T1)}", this); //會無窮迴圈嗎？
@@ -750,28 +758,19 @@ namespace MonoFSM.Core.DataProvider
                 }
 
                 // 有欄位路徑時，從 Schema 實例中存取欄位
-                var schemaFieldValue = ReflectionUtility.GetFieldValueFromPath(
+                Profiler.BeginSample(
+                    "ReflectionUtility.GetFieldValueFromPath schemaFieldValue",
+                    this
+                );
+                var (schemaFieldValue, info) = ReflectionUtility.GetFieldValueFromPath<T1>(
                     schemaInstance,
                     _pathEntries,
                     gameObject
                 );
+                Profiler.EndSample();
 
-                if (schemaFieldValue is T1 schemaT1Value)
-                    return schemaT1Value;
-
-                // 嘗試轉型
                 if (schemaFieldValue != null)
-                    try
-                    {
-                        return (T1)Convert.ChangeType(schemaFieldValue, typeof(T1));
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.LogError(
-                            $"無法將 Schema 欄位值 {schemaFieldValue} 轉換為 {typeof(T1)}: {e.Message}",
-                            this
-                        );
-                    }
+                    return schemaFieldValue;
 
                 return default;
             }
@@ -787,51 +786,40 @@ namespace MonoFSM.Core.DataProvider
             {
                 // Debug.Log($"VarRef: 直接從變數取得值: {target}", this);
 
+                Profiler.BeginSample("ValueProvider.Get No Field Path", this);
                 if (target is AbstractMonoVariable targetVar)
+                {
+                    Profiler.EndSample();
                     return targetVar.GetValue<T1>();
+                }
 
                 //FIXME: 需要這個嗎？
                 if (target is T1 tObj)
+                {
+                    Profiler.EndSample();
                     return tObj;
+                }
+
+                Profiler.EndSample();
+
                 return default;
             }
 
             // 不選varTag的話就用Entity?
             // 使用欄位路徑存取特定欄位值
-            var fieldValue = ReflectionUtility.GetFieldValueFromPath(
+            Profiler.BeginSample("ReflectionUtility.GetFieldValueFromPath _pathEntries", this);
+            var (fieldValue, infoo) = ReflectionUtility.GetFieldValueFromPath<T1>(
                 target,
                 _pathEntries,
                 gameObject
             );
+            _getValueDebugInfo = infoo;
+            Profiler.EndSample();
 
-            if (fieldValue is T1 tValue)
-                return tValue;
-
-            // 嘗試轉型
             if (fieldValue != null)
-                try
-                {
-                    var converted = (T1)Convert.ChangeType(fieldValue, typeof(T1));
-                    Debug.LogWarning(
-                        $"VarRef: 成功將欄位值 {fieldValue} (型別: {fieldValue.GetType()}) 轉換為 {typeof(T1)}: {converted}",
-                        this
-                    );
-                    return converted;
-                }
-                catch (Exception e)
-                {
-                    if (Application.isPlaying)
-                        Debug.LogError(
-                            $"無法將欄位值 {fieldValue} (型別: {fieldValue.GetType()}) 轉換為 {typeof(T1)}: {e.Message}",
-                            this
-                        );
-                }
-            else
-            {
-                return default; // 如果欄位值為 null，直接返回預設值
-            }
+                return fieldValue;
 
-            Debug.LogError($"VarRef: 轉換失敗 Var:{target}", this);
+            Debug.LogError($"VarRef: 轉換失敗 Var:{target}" + infoo, this);
             return default;
         }
 
@@ -860,7 +848,7 @@ namespace MonoFSM.Core.DataProvider
             }
         }
 
-        public Type GetFieldPathRootType(string fieldName)
+        public Type GetFieldPathRootType()
         {
             return GetObjectType;
         }

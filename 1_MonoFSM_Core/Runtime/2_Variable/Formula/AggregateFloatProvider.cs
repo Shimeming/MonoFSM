@@ -78,7 +78,7 @@ namespace MonoFSM.Core.Formula
 
         private float GetFloatFromDescriptable(MonoEntity entity)
         {
-            return 0;
+            // return 0;
             if (entity == null)
             {
                 Debug.LogError("Entity is null, cannot get variable value.", this);
@@ -99,10 +99,11 @@ namespace MonoFSM.Core.Formula
                 return floatProvider.Value;
 
             // Fallback for variables that are not IFloatProvider but can be converted
-            if (variable.objectValue is float f)
-                return f;
-            if (variable.objectValue is int i)
-                return i;
+            if (variable.ValueType == typeof(float))
+                return variable.Get<float>();
+
+            if (variable.ValueType == typeof(int))
+                return variable.Get<int>();
 
             Debug.LogWarning(
                 $"Variable '{_variableToAggregate.name}' on '{entity.name}' is not a float provider or a convertible type.",

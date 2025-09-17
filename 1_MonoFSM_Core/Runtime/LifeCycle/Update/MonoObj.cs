@@ -9,6 +9,7 @@ using MonoFSM.Runtime;
 using MonoFSM.Variable.FieldReference;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace MonoFSMCore.Runtime.LifeCycle
 {
@@ -331,7 +332,9 @@ namespace MonoFSMCore.Runtime.LifeCycle
                 //FIXME: 這個很難偵錯耶？集中update的壞處，要怎麼樣
                 // try
                 // {
+                Profiler.BeginSample($"MonoObj AfterUpdate");
                 item.AfterUpdate();
+                Profiler.EndSample();
                 // }
                 // catch (Exception e)
                 // {
