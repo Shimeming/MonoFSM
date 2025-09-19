@@ -30,7 +30,7 @@ namespace MonoFSM.Core.Attributes
         /// <summary>
         ///     無根型別時的錯誤訊息
         /// </summary>
-        public string NoRootTypeMessage => "無法確定根型別";
+        public string NoRootTypeMessage => "無法確定根型別(Attr)";
 
         public FieldPathEditorAttribute() { }
 

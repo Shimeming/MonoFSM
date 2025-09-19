@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e71863d6a014827a715566dd5c5af2f, type: 3}
   m_Name: Physics Box
   m_EditorClassIdentifier: 
+  _note: 
   _entityType:
     _bindObject: {fileID: 0}
     _baseFilterTypeName: 
@@ -37,6 +38,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 02cf875545f8a44e6ab6500afc5d346a, type: 2}
   - {fileID: 11400000, guid: 6f0b929ecebf5435ebd5398359425ce6, type: 2}
   - {fileID: 11400000, guid: af63749697e314287ac6d091d9775489, type: 2}
+  - {fileID: 0}
+  containsSchemaTypeTags: []
   IsCollectionTag: 0
   _allMonoDescriptable: []
   _stringKey: 

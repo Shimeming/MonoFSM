@@ -959,7 +959,7 @@ namespace MonoFSM.Animation
             // animator.Play(StateHash, stateLayer, float.NegativeInfinity);
             if (animatorEnterCrossFade <= 0)
             {
-                Debug.Log("Play Animation Again:" + StateName + "layer:" + stateLayer, this);
+                // Debug.Log("Play Animation Again:" + StateName + "layer:" + stateLayer, this);
                 animator.Play(StateHash, stateLayer, float.NegativeInfinity);
             }
             else

@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Runtime;
 using MonoFSM.Runtime.Mono;
@@ -32,8 +33,10 @@ namespace MonoFSM.Core.DataProvider
         T1 IValueProvider.Get<T1>()
         {
             var value = Value;
-            if (value is T1 t1Value)
-                return t1Value;
+            var t1Value = Unsafe.As<T, T1>(ref value);
+            //FIXME: editor/debug mode 做type casting 檢查？
+            // if (value is T1 t1Value) -> 會gc
+            return t1Value;
             return default;
         }
 

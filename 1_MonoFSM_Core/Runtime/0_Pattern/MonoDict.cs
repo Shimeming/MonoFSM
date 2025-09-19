@@ -150,7 +150,14 @@ namespace MonoFSM.Core
             EditorPrepareCheck();
             //FIXME: 做得有點粗，要細再想一下
             var set = _typeDict.GetValueOrDefault(type);
-            return set != null ? set.FirstOrDefault() : default;
+            if (set != null && set.Count > 0)
+            {
+                using var enumerator = set.GetEnumerator();
+                if (enumerator.MoveNext())
+                    return enumerator.Current;
+            }
+
+            return default;
         }
 
         public TT Get<TT>()

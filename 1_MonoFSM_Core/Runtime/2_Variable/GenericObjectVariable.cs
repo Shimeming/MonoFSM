@@ -138,7 +138,7 @@ namespace MonoFSM.Variable
             }
         }
 
-        [ShowInInspector]
+        [ShowInDebugMode]
         private string _valueDebugStatus;
 
         /// <summary>

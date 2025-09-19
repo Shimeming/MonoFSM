@@ -6,11 +6,13 @@ using UnityEngine;
 
 namespace MonoFSM_Physics.Runtime.PhysicsAction
 {
+    //FIXME: 要做啥？
     public class ParentRigidbodyProvider : MonoBehaviour, ICompProvider<Rigidbody>
     {
         [Required]
         [PreviewInInspector]
-        [AutoParent] private Rigidbody _parentRigidbody;
+        [AutoParent]
+        private Rigidbody _parentRigidbody;
 
         public Rigidbody Get()
         {
@@ -31,6 +33,8 @@ namespace MonoFSM_Physics.Runtime.PhysicsAction
         public Type ValueType => typeof(Rigidbody);
 
         public string Description =>
-            _parentRigidbody != null ? "[Parent Rigidbody] " + _parentRigidbody.name : "No Parent Rigidbody assigned";
+            _parentRigidbody != null
+                ? "[Parent Rigidbody] " + _parentRigidbody.name
+                : "No Parent Rigidbody assigned";
     }
 }

@@ -11,15 +11,21 @@ namespace MonoFSM.Core
         [Required]
         [DropDownRef]
         [SerializeField]
-        GeneralState _targetState;
+        private StateMachineLogic _fsmLogic; //FIXME: logic要自動抓到吧？會跨FSM嗎？感覺也很髒
 
         [Required]
         [DropDownRef]
         [SerializeField]
-        private StateMachineLogic _fsmLogic;
+        GeneralState _targetState;
+
         protected override bool IsValid => _fsmLogic.IsCurrentState(_targetState);
 
         //_owner.FsmContext.currentStateType == _targetState;
         public override string Description => $"Is {_targetState?.name}";
+
+        protected override bool HasError()
+        {
+            return base.HasError() && _targetState.isActiveAndEnabled;
+        }
     }
 }

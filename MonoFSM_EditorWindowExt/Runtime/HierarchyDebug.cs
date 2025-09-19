@@ -1,5 +1,6 @@
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace MonoFSM.EditorExtension
 {
@@ -11,11 +12,14 @@ namespace MonoFSM.EditorExtension
             // Register the global event handler for escape key events
             EditorApplication.update += () =>
             {
+                Profiler.BeginSample("HierarchyDebug Update");
                 //FIXME: 再開一個setting?
                 if (IsDebugMode && Application.isPlaying)
                     EditorApplication.RepaintHierarchyWindow();
+                Profiler.EndSample();
             };
         }
+
         private static bool _isDebugMode = false;
 
         public static bool IsDebugMode

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Fusion.Addons.FSM;
-using MonoFSM.Variable.Attributes;
 using MonoFSM.Core.Attributes;
+using MonoFSM.Variable.Attributes;
 using UnityEngine;
 
 namespace _1_MonoFSM_Core.Runtime.FSMCore.Core.StateBehaviour
@@ -13,10 +13,13 @@ namespace _1_MonoFSM_Core.Runtime.FSMCore.Core.StateBehaviour
     public class MonoFSMOwner : MonoBehaviour, IStateMachineOwner
     {
         //只撈一層就是了
-        [SerializeField] [CompRef] [AutoChildren(DepthOneOnly = true)]
+        [SerializeField]
+        [CompRef]
+        [AutoChildren(DepthOneOnly = true)]
         private MonoStateBehaviour[] _states; //SerializeField的話就可以略過不跑？
 
-        [ShowInDebugMode] public StateMachine<MonoStateBehaviour> _fsm;
+        [ShowInDebugMode]
+        public StateMachine<MonoStateBehaviour> _fsm;
 
         void IStateMachineOwner.CollectStateMachines(List<IStateMachine> stateMachines)
         {
@@ -37,6 +40,5 @@ namespace _1_MonoFSM_Core.Runtime.FSMCore.Core.StateBehaviour
         }
 
         //serialize state id? 用int就好？
-        
     }
 }

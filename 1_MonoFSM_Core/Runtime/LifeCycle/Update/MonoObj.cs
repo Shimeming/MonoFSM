@@ -83,7 +83,7 @@ namespace MonoFSMCore.Runtime.LifeCycle
         public void Despawn()
         {
             //會跑兩次嗎？
-            Debug.Log("Despawn" + name, this);
+            // Debug.Log("Despawn" + name, this);
             if (WorldUpdateSimulator == null)
             {
                 Debug.LogError(

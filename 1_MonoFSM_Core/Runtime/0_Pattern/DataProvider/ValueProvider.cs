@@ -769,8 +769,8 @@ namespace MonoFSM.Core.DataProvider
                 );
                 Profiler.EndSample();
 
-                if (schemaFieldValue != null)
-                    return schemaFieldValue;
+                // if (schemaFieldValue != null)
+                return schemaFieldValue;
 
                 return default;
             }
@@ -815,12 +815,8 @@ namespace MonoFSM.Core.DataProvider
             );
             _getValueDebugInfo = infoo;
             Profiler.EndSample();
-
-            if (fieldValue != null)
-                return fieldValue;
-
-            Debug.LogError($"VarRef: 轉換失敗 Var:{target}" + infoo, this);
-            return default;
+            //TODO：看info? fieldValue == null 會有gc
+            return fieldValue;
         }
 
         public string IconName => "Linked@2x";
@@ -846,11 +842,6 @@ namespace MonoFSM.Core.DataProvider
                     return "Entity";
                 return "Unknown";
             }
-        }
-
-        public Type GetFieldPathRootType()
-        {
-            return GetObjectType;
         }
     }
 }

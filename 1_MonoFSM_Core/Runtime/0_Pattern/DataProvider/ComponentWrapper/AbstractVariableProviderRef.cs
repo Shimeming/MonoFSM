@@ -12,8 +12,13 @@ namespace MonoFSM.Core.DataProvider
 {
     //FIXME: AbstractValueProvider?
     //必定從MonoEntity出發？
-    public abstract class PropertyOfTypeProvider : AbstractDescriptionBehaviour, IValueProvider
+    public abstract class PropertyOfTypeProvider
+        : AbstractDescriptionBehaviour,
+            IValueProvider,
+            IFieldPathRootTypeProvider
     {
+        [ShowInDebugMode]
+        public abstract object StartingObject { get; } //拿取值的開頭，可能是pure class
         public abstract Type GetObjectType { get; }
 
         [ShowInDebugMode]
@@ -140,14 +145,18 @@ namespace MonoFSM.Core.DataProvider
         // }
 
         #endregion
+
+        public virtual Type GetFieldPathRootType()
+        {
+            return GetObjectType;
+        }
     }
 
     //不一定有var? IVarProvider
     public abstract class AbstractVariableProviderRef : PropertyOfTypeProvider, IVariableProvider
     {
         // public GameFlagBase FinalData => VarRaw?.FinalData;
-        [ShowInDebugMode]
-        public abstract object StartingObject { get; } //拿取值的開頭，可能是pure class
+
 
         //不一定有這個？再切一層？
         public abstract AbstractMonoVariable VarRaw { get; } //還是其實這個也可以？

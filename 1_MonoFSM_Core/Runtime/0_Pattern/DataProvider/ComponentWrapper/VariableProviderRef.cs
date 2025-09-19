@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Utilities;
 using MonoFSM.Runtime;
@@ -429,13 +430,15 @@ namespace MonoFSM.Core.DataProvider
         {
             var value = Value;
             Profiler.BeginSample("VariableProviderRef.Get cast", this);
-            if (value is T1 t1Value)
-            {
-                Profiler.EndSample();
-                return t1Value;
-            }
-
+            var t1Value = Unsafe.As<TValueType, T1>(ref value);
             Profiler.EndSample();
+            return t1Value;
+            // if (value is T1 t1Value)
+            // {
+            //     Profiler.EndSample();
+            //     return t1Value;
+            // }
+
 
             Debug.LogError(
                 $"無法將欄位值 {value} (型別: {value.GetType()}) 轉換為 {typeof(T1)}",

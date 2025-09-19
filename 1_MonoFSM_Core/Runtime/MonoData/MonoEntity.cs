@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using _1_MonoFSM_Core.Runtime._1_States;
+using Fusion.Addons.FSM;
 using JetBrains.Annotations;
 using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
@@ -41,6 +42,17 @@ namespace MonoFSM.Runtime
             IValueOfKey<MonoEntityTag> //這樣data也要一直繼承，好ㄇ...
     {
         //FIXME: GetComponentsInChildren IFeature, 然後用type把dict包起來，那和schema不就一樣了？更彈性的版本嗎？
+        [AutoChildren]
+        private StateMachineLogic _fsmLogic;
+
+        public StateMachineLogic FsmLogic
+        {
+            get
+            {
+                // AutoAttributeManager.AutoReferenceFieldEditor(this, nameof(_fsmLogic));
+                return _fsmLogic;
+            }
+        }
 
         [PreviewInInspector]
         [AutoChildren(DepthOneOnly = true)]

@@ -1,3 +1,4 @@
+using System;
 using MonoFSM.Core;
 using Sirenix.OdinInspector;
 
@@ -6,10 +7,12 @@ namespace MonoFSM.Core.Runtime.LevelDesign._3DObject
     using UnityEngine;
 
     //#if Editor?
+    [Obsolete("亂寫一通")]
     [RequireComponent(typeof(BoxCollider))] // 確保物件上有 BoxCollider
-    public class AutoFitBoxCollider : MonoBehaviour,IBeforePrefabSaveCallbackReceiver
+    public class AutoFitBoxCollider : MonoBehaviour, IBeforePrefabSaveCallbackReceiver
     {
         private BoxCollider boxCollider;
+
         [Button]
         // 你也可以呼叫這個方法來手動觸發調整
         [ContextMenu("Adjust Box Collider to Children Bounds")]
@@ -17,13 +20,16 @@ namespace MonoFSM.Core.Runtime.LevelDesign._3DObject
         {
             // 獲取或新增 BoxCollider 元件
             boxCollider = GetComponent<BoxCollider>();
-            
+
             Renderer[] renderers = GetComponentsInChildren<Renderer>();
 
             if (renderers.Length == 0)
             {
-                Debug.LogWarning("No Renderers found on " + gameObject.name +
-                                 " or its children. Cannot adjust BoxCollider.");
+                Debug.LogWarning(
+                    "No Renderers found on "
+                        + gameObject.name
+                        + " or its children. Cannot adjust BoxCollider."
+                );
                 // 如果沒有 Renderer，可以考慮禁用 Collider 或給一個預設大小
                 boxCollider.size = Vector3.one;
                 boxCollider.center = Vector3.zero;
@@ -31,7 +37,10 @@ namespace MonoFSM.Core.Runtime.LevelDesign._3DObject
             }
 
             // 初始化總體邊界
-            Bounds combinedBounds = new Bounds(renderers[0].bounds.center, renderers[0].bounds.size);
+            Bounds combinedBounds = new Bounds(
+                renderers[0].bounds.center,
+                renderers[0].bounds.size
+            );
 
             // 遍歷所有 Renderer (包括父物件自身和子物件)
             for (int i = 1; i < renderers.Length; i++)
@@ -62,7 +71,7 @@ namespace MonoFSM.Core.Runtime.LevelDesign._3DObject
         public void OnBeforePrefabSave()
         {
             // 在儲存 Prefab 前自動調整 BoxCollider
-            AdjustColliderToBounds();
+            // AdjustColliderToBounds();
         }
     }
 }

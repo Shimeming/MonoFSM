@@ -6,6 +6,7 @@ using MonoFSM.Core.Variable;
 using MonoFSM.Runtime;
 using MonoFSM.Runtime.Interact.EffectHit;
 using MonoFSM.Runtime.Variable;
+using MonoFSM.Variable;
 using MonoFSM.Variable.Attributes;
 using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
@@ -35,9 +36,24 @@ namespace MonoFSM.Core.LifeCycle
         // private ValueProvider _poolObjProvider; //使用VarPoolObj來存儲目標物件
 
         // [Required] [SerializeField] private VarEntity _poolObjVar; //用來存取剛spawn的物件
+
+
         [Required]
         [SerializeField]
         private VarMonoObj _poolObjVar;
+
+        /// <summary>
+        ///
+        /// </summary>
+        [SerializeField]
+        VarFloat _scaleRatio;
+
+        /// <summary>
+        /// tmp local obj
+        /// </summary>
+        [Required]
+        [SerializeField]
+        private VarEntity _spawnedEntityVar;
 
         [CompRef]
         [AutoChildren]
@@ -64,6 +80,7 @@ namespace MonoFSM.Core.LifeCycle
             Spawn(Prefab, transform.position, transform.rotation, null);
         }
 
+        [HideIf(nameof(_scaleRatio))]
         public bool _isUsingSpawnTransformScale;
 
         [PreviewInInspector]
@@ -73,9 +90,7 @@ namespace MonoFSM.Core.LifeCycle
         private MonoObj _parentObj;
 
         // [Required] [SerializeField] private VarMonoObj _spawnedObjVar; //用來存取剛spawn的物件
-        [Required]
-        [SerializeField]
-        private VarEntity _spawnedEntityVar;
+
 
         //FIXME: 寫死各種參數的介面不好！provdier?
         private void Spawn(
@@ -112,7 +127,12 @@ namespace MonoFSM.Core.LifeCycle
                 return;
             //用目前這個action的transform的scale,fixme; 可能需要別種？物件本身的scale?還是應該避免
             //fixme: 為什麼要這樣？
-            if (_isUsingSpawnTransformScale)
+            if (_scaleRatio != null)
+            {
+                Debug.Log("SpawnAction: Applying scale ratio " + _scaleRatio.CurrentValue, this);
+                newObj.transform.localScale = Vector3.one * _scaleRatio.CurrentValue;
+            }
+            else if (_isUsingSpawnTransformScale)
                 newObj.transform.localScale = transform.lossyScale;
 
             newObj.gameObject.SetActive(true);

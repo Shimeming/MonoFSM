@@ -244,75 +244,76 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
     //
     //private bool _poolCreated = false;
 
-    public GameObject BorrowOrInstantiate(
-        GameObject obj,
-        Vector3 position = default,
-        Quaternion rotation = default,
-        Transform parent = null,
-        Action<PoolObject> handler = null
-    )
-    {
-        var hasRequest = obj.TryGetComponent(out PoolRequest request);
-        var hasPoolObj = obj.TryGetComponent<PoolObject>(out var poolObj);
+    // public GameObject BorrowOrInstantiate(
+    //     GameObject obj,
+    //     Vector3 position = default,
+    //     Quaternion rotation = default,
+    //     Transform parent = null,
+    //     Action<PoolObject> handler = null
+    // )
+    // {
+    //     var hasRequest = obj.TryGetComponent(out PoolRequest request);
+    //     var hasPoolObj = obj.TryGetComponent<PoolObject>(out var poolObj);
+    //
+    //     if (hasRequest)
+    //     {
+    //         return Borrow(
+    //             request.PoolObjectRequests.prefab,
+    //             position,
+    //             rotation,
+    //             parent,
+    //             handler
+    //         ).gameObject;
+    //     }
+    //     else if (hasPoolObj)
+    //     {
+    //         return Borrow(poolObj, position, rotation, parent, handler).gameObject;
+    //     }
+    //     else
+    //     {
+    //         PoolLogger.LogWarning("Runtime instantiate - object not pooled");
+    //         return Instantiate(obj, position, rotation, parent);
+    //     }
+    // }
 
-        if (hasRequest)
-        {
-            return Borrow(
-                request.PoolObjectRequests.prefab,
-                position,
-                rotation,
-                parent,
-                handler
-            ).gameObject;
-        }
-        else if (hasPoolObj)
-        {
-            return Borrow(poolObj, position, rotation, parent, handler).gameObject;
-        }
-        else
-        {
-            PoolLogger.LogWarning("Runtime instantiate - object not pooled");
-            return Instantiate(obj, position, rotation, parent);
-        }
-    }
-
-    public async UniTask<GameObject> BorrowOrInstantiateRcgAssetReference(
-        RCGAssetReference obj,
-        Vector3 position = default,
-        Quaternion rotation = default,
-        Transform parent = null,
-        Action<PoolObject> handler = null
-    )
-    {
-        GameObject poolObject = null;
-        if (prewarmDataLogger != null)
-        {
-            poolObject = prewarmDataLogger.TryFindPrefab(obj.AssetReference);
-
-            if (poolObject != null)
-                return BorrowOrInstantiate(poolObject, position, rotation, parent, handler);
-        }
-
-        PoolLogger.LogWarning($"Please prewarm asset: {obj.AssetReference.AssetGUID}");
-#if UNITY_EDITOR
-        if (obj.editorAsset != null)
-            PoolLogger.LogWarning("Please prewarm this asset", obj.editorAsset);
-#endif
-
-        if (allLoadedRCGRefereces.Contains(obj) == false)
-        {
-            allLoadedRCGRefereces.Add(obj);
-        }
-
-        poolObject = await obj.GetAssetAsync<GameObject>();
-
-        if (this.prewarmDataLogger != null)
-            this.prewarmDataLogger.RegisterEntry(poolObject, obj.AssetReference);
-
-        return BorrowOrInstantiate(poolObject, position, rotation, parent, handler);
-
-        return null;
-    }
+    //FIXME: Addressable?
+    //     public async UniTask<GameObject> BorrowOrInstantiateRcgAssetReference(
+    //         RCGAssetReference obj,
+    //         Vector3 position = default,
+    //         Quaternion rotation = default,
+    //         Transform parent = null,
+    //         Action<PoolObject> handler = null
+    //     )
+    //     {
+    //         GameObject poolObject = null;
+    //         if (prewarmDataLogger != null)
+    //         {
+    //             poolObject = prewarmDataLogger.TryFindPrefab(obj.AssetReference);
+    //
+    //             if (poolObject != null)
+    //                 return BorrowOrInstantiate(poolObject, position, rotation, parent, handler);
+    //         }
+    //
+    //         PoolLogger.LogWarning($"Please prewarm asset: {obj.AssetReference.AssetGUID}");
+    // #if UNITY_EDITOR
+    //         if (obj.editorAsset != null)
+    //             PoolLogger.LogWarning("Please prewarm this asset", obj.editorAsset);
+    // #endif
+    //
+    //         if (allLoadedRCGRefereces.Contains(obj) == false)
+    //         {
+    //             allLoadedRCGRefereces.Add(obj);
+    //         }
+    //
+    //         poolObject = await obj.GetAssetAsync<GameObject>();
+    //
+    //         if (this.prewarmDataLogger != null)
+    //             this.prewarmDataLogger.RegisterEntry(poolObject, obj.AssetReference);
+    //
+    //         return BorrowOrInstantiate(poolObject, position, rotation, parent, handler);
+    //
+    //         return null;
+    //     }
 
     public List<RCGAssetReference> allLoadedRCGRefereces = new List<RCGAssetReference>();
 
@@ -346,11 +347,18 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
         {
             return Borrow(poolObj, position, rotation, parent, handler).GetComponent<T>();
         }
-        else
-        {
-            PoolLogger.LogWarning("Object is not a pool object, using Instantiate", obj);
-            return Instantiate(obj, position, rotation, parent);
-        }
+
+        //error handling而已，直接拔掉好了？
+        PoolLogger.LogError("Object is not a pool object, using Instantiate", obj);
+
+        //             var result = Instantiate(obj, position, rotation, parent);
+        // #if UNITY_EDITOR
+        //             //給spawner做？PoolObject第一次拿出來才需要？
+        //             //Editor裡還是直接使用AutoAttributeManager，cache太容易髒掉了
+        //             Debug.Log($"AutoReferenceAllChildren: {result.name}", result);
+        //             AutoAttributeManager.AutoReferenceAllChildren(result.gameObject);
+        // #endif
+        return null;
     }
 
     private PoolObject Borrow(
@@ -402,6 +410,17 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
     }
 
     //從poolProvider的進入點
+    public T BorrowOrInstantiate<T>(
+        GameObject obj,
+        Vector3 position = default,
+        Quaternion rotation = default,
+        Transform parent = null,
+        Action<PoolObject> handler = null
+    )
+    {
+        throw new NotImplementedException();
+    }
+
     public void ReturnToPool(PoolObject instance)
     {
         PoolDictionary[instance.OriginalPrefab].ReturnToPool(instance);

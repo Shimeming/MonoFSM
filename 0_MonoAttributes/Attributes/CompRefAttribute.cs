@@ -10,6 +10,6 @@ namespace MonoFSM.Variable.Attributes
     [DisableIf("@true")]
     [IncludeMyAttributes]
     [MeansImplicitUse]
-    public class CompRefAttribute : Attribute { }
+    public class CompRefAttribute : Attribute { } //設定AddTo? ex children?
     //TODO: 限定型別？
 }

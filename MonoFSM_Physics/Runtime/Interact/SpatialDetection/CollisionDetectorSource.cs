@@ -44,6 +44,7 @@ namespace MonoFSM.Core.Detection
 
         public void OnCollisionStay(Collision collision)
         {
+            //FIXME: 也沒有拿碰撞資訊啊
             // 收集當前幀中仍在碰撞的collider
             _thisFrameColliders.Add(collision.collider);
         }

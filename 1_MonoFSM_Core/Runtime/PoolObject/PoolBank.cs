@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using MonoFSM.Core;
+using MonoFSM.Core.Attributes;
 using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -9,57 +10,63 @@ using UnityEditor;
 #endif
 
 [RequireComponent(typeof(MonoObj))]
-public class PoolBank : MonoBehaviour,ISceneSavingCallbackReceiver,ISceneAwake
+public class PoolBank : MonoBehaviour, ISceneSavingCallbackReceiver, ISceneAwake
 {
-    [InlineButton("FindOrCreatePoolPrewarmData","Create")]
-    public PoolPrewarmData BindPrewarmData;
-    
-    void FindOrCreatePoolPrewarmData()
-    {
-        FindPoolPrewarmDataFor(this);
-    }
+    // [InlineButton("FindOrCreatePoolPrewarmData","Create")]
+    [SOConfig("15_PoolManagerPrewarm")]
+    public PoolPrewarmData _bindPrewarmData;
 
-    public static PoolPrewarmData FindPoolPrewarmDataFor(PoolBank poolbank)
-    {
-        if (poolbank.BindPrewarmData != null)
-        {
-            return poolbank.BindPrewarmData;
-        }
+    //     void FindOrCreatePoolPrewarmData()
+    //     {
+    //         FindPoolPrewarmDataFor(this);
+    //     }
+    //
+    //     public static PoolPrewarmData FindPoolPrewarmDataFor(PoolBank poolbank)
+    //     {
+    //         if (poolbank._bindPrewarmData != null)
+    //         {
+    //             return poolbank._bindPrewarmData;
+    //         }
+    //
+    //         string directoryPath = "Assets/15_PoolManagerPrewarm";
+    //         var path = directoryPath + "/" + poolbank.gameObject.scene.name + "_Prewarm.asset";
+    //         string resourcesId = poolbank.gameObject.scene.name + "_Prewarm";
+    //
+    //         PoolPrewarmData prewarmData = Resources.Load<PoolPrewarmData>(resourcesId);
+    //
+    //         if (prewarmData == null)
+    //         {
+    // #if UNITY_EDITOR
+    //             prewarmData = AssetDatabase.LoadAssetAtPath<PoolPrewarmData>(path);
+    // #endif
+    //         }
+    //         else
+    //         {
+    //
+    //         }
+    //
+    //         if (prewarmData == null)
+    //         {
+    //             Debug.LogWarning("create new prewarm by resources!");
+    // #if UNITY_EDITOR
+    //             if (!AssetDatabase.IsValidFolder(directoryPath))
+    //             {
+    //                 AssetDatabase.CreateFolder("Assets", "15_PoolManagerPrewarm");
+    //             }
+    //             prewarmData = ScriptableObject.CreateInstance<PoolPrewarmData>();
+    //             AssetDatabase.CreateAsset(prewarmData, path);
+    //             AssetDatabase.SaveAssets();
+    //             AssetDatabase.Refresh();
+    // #endif
+    //         }
+    //
+    //         poolbank._bindPrewarmData = prewarmData;
+    // #if UNITY_EDITOR
+    //         EditorUtility.SetDirty(poolbank);
+    // #endif
+    //         return prewarmData;
+    //     }
 
-        var path = "Assets/15_PoolManagerPrewarm/" + poolbank.gameObject.scene.name + "_Prewarm.asset";
-        string resourcesId = poolbank.gameObject.scene.name + "_Prewarm";
-
-        PoolPrewarmData prewarmData = Resources.Load<PoolPrewarmData>(resourcesId);
-
-        if (prewarmData == null)
-        {
-#if UNITY_EDITOR
-            prewarmData = AssetDatabase.LoadAssetAtPath<PoolPrewarmData>(path);
-#endif
-        }
-        else
-        {
-            
-        }
-
-        if (prewarmData == null)
-        {
-            Debug.LogWarning("create new prewarm by resources!");
-#if UNITY_EDITOR
-            prewarmData = ScriptableObject.CreateInstance<PoolPrewarmData>();
-            AssetDatabase.CreateAsset(prewarmData, path);
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
-#endif
-        }
-
-        poolbank.BindPrewarmData = prewarmData;
-#if UNITY_EDITOR
-        EditorUtility.SetDirty(poolbank);
-#endif
-        return prewarmData;
-    }
-    
     public static PoolPrewarmData FindGlobalPrewarmData()
     {
         var folderPath = "Assets/15_PoolManagerPrewarm";
@@ -112,30 +119,30 @@ public class PoolBank : MonoBehaviour,ISceneSavingCallbackReceiver,ISceneAwake
     public void OnBeforeSceneSave()
     {
         FindGlobalPrewarmData();
-        // 確保當前 PoolBank 的 BindPrewarmData 也被處理
-        if (BindPrewarmData == null)
+        // 確保當前 PoolBank 的 _bindPrewarmData 也被處理
+        if (_bindPrewarmData == null)
         {
-            FindOrCreatePoolPrewarmData();
+            // FindOrCreatePoolPrewarmData();
         }
     }
 
     public void EnterSceneAwake()
     {
-        if (BindPrewarmData == null)
+        if (_bindPrewarmData == null)
             return;
-        
-        Debug.Log("EnterSceneAwake?"+this.gameObject);
+
+        Debug.Log("EnterSceneAwake?" + this.gameObject);
 
         Profiler.BeginSample("Prewarm GameLevel PoolObjects");
         PoolManager.Instance.PrepareGlobalPrewarmData();
-        PoolManager.Instance.SetPrewarmData(BindPrewarmData,this);
+        PoolManager.Instance.SetPrewarmData(_bindPrewarmData, this);
         PoolManager.Instance.ReCalculatePools();
         Profiler.EndSample();
-        
+
         // 顯示動態 PoolBank 機制資訊
         ShowDynamicPoolInfo();
     }
-    
+
     /// <summary>
     /// 顯示動態 Pool 機制的統計資訊
     /// </summary>
@@ -144,7 +151,7 @@ public class PoolBank : MonoBehaviour,ISceneSavingCallbackReceiver,ISceneAwake
         var sceneName = gameObject.scene.name;
         Debug.Log($"=== 動態 PoolBank 機制啟動 ===");
         Debug.Log($"當前場景: {sceneName}");
-        
+
         // 顯示 Protected 物件統計
         var protectedStats = GetProtectedObjectStats();
         if (protectedStats.Count > 0)
@@ -159,21 +166,21 @@ public class PoolBank : MonoBehaviour,ISceneSavingCallbackReceiver,ISceneAwake
         {
             Debug.Log("目前沒有 Protected 狀態的物件");
         }
-        
+
         Debug.Log("=== 使用提示 ===");
         Debug.Log("1. 使用 obj.MarkAsProtected() 保護物件不被回收");
         Debug.Log("2. 使用 obj.MarkAsReturnable() 標記物件可以回收");
         Debug.Log("3. Pool 調整時會自動保護 Protected 狀態的物件");
         Debug.Log("4. 場景配置決定 Pool 大小，Protected 物件不被強制回收");
     }
-    
+
     /// <summary>
     /// 取得 Protected 物件統計
     /// </summary>
     private Dictionary<PoolObject, int> GetProtectedObjectStats()
     {
         var stats = new Dictionary<PoolObject, int>();
-        
+
         foreach (var pool in PoolManager.Instance.allPools)
         {
             var protectedCount = 0;
@@ -184,16 +191,15 @@ public class PoolBank : MonoBehaviour,ISceneSavingCallbackReceiver,ISceneAwake
                     protectedCount++;
                 }
             }
-            
+
             if (protectedCount > 0)
             {
                 stats[pool._prefab] = protectedCount;
             }
         }
-        
+
         return stats;
     }
-    
+
     /// <summary>
-  
 }

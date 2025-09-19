@@ -195,6 +195,9 @@ public class DropDownRefAttributeDrawer : OdinAttributeDrawer<DropDownRefAttribu
         //     CallNextDrawer(label);
         // else //這個可以拿掉？
         // {
+
+
+        //FIXME: optional 可以用個optional 的attribute？
         GUI.backgroundColor =
             Property.ValueEntry.WeakSmartValue == null
                 ? new Color(0.9f, 0.2f, 0.3f, 0.5f)

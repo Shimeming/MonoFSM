@@ -22,15 +22,11 @@ namespace MonoFSM.Core.DataProvider
                 _pathEntries,
                 gameObject
             );
+            //NOTE: null判定會gc
             // if (v == null)
             //     // Debug.LogWarning($"ValueRef: Value is null for path '{PropertyPath}'", this);
             //     return default;
-
-            //string想拿int怎麼辦...
-            if (v != null)
-            {
-                return v;
-            }
+            return v;
 
             //還是有可能是null喔
 
@@ -85,7 +81,7 @@ namespace MonoFSM.Core.DataProvider
         protected override string DescriptionTag => "ref";
         public override Type GetObjectType => _valueProvider?.ValueType;
 
-        public Type GetFieldPathRootType()
+        public override Type GetFieldPathRootType()
         {
             return _valueProvider?.ValueType;
         }

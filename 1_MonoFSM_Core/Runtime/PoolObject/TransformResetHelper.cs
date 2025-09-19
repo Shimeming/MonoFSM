@@ -17,7 +17,7 @@ public static class TransformResetHelper
         public Quaternion rotation;
         public Vector3 scale;
         public Transform parent;
-        
+
         public TransformData(Transform transform)
         {
             position = transform.localPosition;
@@ -25,15 +25,20 @@ public static class TransformResetHelper
             scale = transform.localScale;
             parent = transform.parent;
         }
-        
-        public static TransformData Create(Vector3 pos, Quaternion rot, Vector3 scale, Transform parent)
+
+        public static TransformData Create(
+            Vector3 pos,
+            Quaternion rot,
+            Vector3 scale,
+            Transform parent
+        )
         {
             return new TransformData
             {
                 position = pos,
                 rotation = rot,
                 scale = scale,
-                parent = parent
+                parent = parent,
             };
         }
     }
@@ -43,8 +48,9 @@ public static class TransformResetHelper
     /// </summary>
     public static void ResetTransform(Transform transform, TransformData resetData)
     {
-        if (transform == null) return;
-        
+        if (transform == null)
+            return;
+
         transform.SetParent(resetData.parent);
         transform.localPosition = resetData.position;
         transform.localRotation = resetData.rotation;
@@ -54,22 +60,29 @@ public static class TransformResetHelper
     /// <summary>
     /// 設置 Transform 並返回重置資料
     /// </summary>
-    public static TransformData SetupTransform(Transform transform, Vector3 position, Quaternion rotation, Vector3 scale, Transform parent)
+    public static TransformData SetupTransform(
+        Transform transform,
+        Vector3 position,
+        Quaternion rotation,
+        Vector3 scale,
+        Transform parent
+    )
     {
-        if (transform == null) return default;
-        
+        if (transform == null)
+            return default;
+
         transform.SetParent(parent);
         transform.SetPositionAndRotation(position, rotation);
-        Debug.Log(
-            $"Setting Transform: Position={position}, Rotation={rotation}, Scale={scale}, Parent={parent?.name ?? "null"}",
-            transform);
+        // Debug.Log(
+        //     $"Setting Transform: Position={position}, Rotation={rotation}, Scale={scale}, Parent={parent?.name ?? "null"}",
+        //     transform);
         // 返回本地座標作為重置資料
         return new TransformData
         {
             position = transform.localPosition,
             rotation = transform.localRotation,
             scale = scale,
-            parent = parent
+            parent = parent,
         };
     }
 
@@ -92,10 +105,16 @@ public static class TransformResetHelper
     /// <summary>
     /// 為池物件設置完整的 Transform 配置
     /// </summary>
-    public static TransformData SetupPoolObjectTransform(PoolObject poolObject, Vector3 position, Quaternion rotation, Transform parent)
+    public static TransformData SetupPoolObjectTransform(
+        PoolObject poolObject,
+        Vector3 position,
+        Quaternion rotation,
+        Transform parent
+    )
     {
-        if (poolObject == null) return default;
-        
+        if (poolObject == null)
+            return default;
+
         var defaultScale = GetDefaultScale(poolObject);
         return SetupTransform(poolObject.transform, position, rotation, defaultScale, parent);
     }

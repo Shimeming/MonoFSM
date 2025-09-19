@@ -135,11 +135,7 @@ namespace MonoFSM.Core.Simulate
 
             if (result == null)
                 return null;
-#if UNITY_EDITOR
-            //Editor裡還是直接使用AutoAttributeManager，cache太容易髒掉了
-            Debug.Log($"AutoReferenceAllChildren: {result.name}", result);
-            AutoAttributeManager.AutoReferenceAllChildren(result.gameObject);
-#endif
+
             //FIXME: spawner本來就該來call這個？順便call auto?
             RegisterMonoObject(result);
 
@@ -189,10 +185,10 @@ namespace MonoFSM.Core.Simulate
         {
             if (_monoObjectSet.Remove(target))
             {
-                Debug.Log(
-                    $"Unregistering MonoPoolObj: {target.name} from WorldUpdateSimulator.",
-                    target
-                );
+                // Debug.Log(
+                //     $"Unregistering MonoPoolObj: {target.name} from WorldUpdateSimulator.",
+                //     target
+                // );
                 target.ResetStateRestore(); //FIXME: 需要這行嗎？OnReturnToPool?
                 target.SetWorldUpdateSimulator(null); //清除引用
             }

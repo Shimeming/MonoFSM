@@ -57,6 +57,16 @@ namespace Fusion.Addons.FSM
 
         protected List<IState> _statePool; // Used by CheckDuplicateStates
 
+        public void RestoreState(int stateId)
+        {
+            // Debug.Log($"Restoring state to ID {stateId} on {gameObject.name}", this);
+            // Debug.Break();
+            // StateMachines[0].ForceActivateState(stateId, true);
+            stateIdToRestore = stateId;
+        }
+
+        public int stateIdToRestore = -1;
+
         [AutoChildren]
         public AnyState anyState;
 

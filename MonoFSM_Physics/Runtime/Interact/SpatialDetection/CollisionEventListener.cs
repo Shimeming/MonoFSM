@@ -6,9 +6,12 @@ using UnityEngine;
 
 namespace MonoFSM_Physics.Runtime.Interact.SpatialDetection
 {
+    //FIXME: 蛤？？
     public class CollisionEventListener : MonoBehaviour
     {
-        [CompRef] [Auto] private Rigidbody _rigidbody;
+        [CompRef]
+        [Auto]
+        private Rigidbody _rigidbody;
 
         private readonly HashSet<CollisionDetectorSource> _registeredDetectors = new();
 
@@ -24,6 +27,7 @@ namespace MonoFSM_Physics.Runtime.Interact.SpatialDetection
                 detectorSource.OnCollisionStay(collision);
         }
 
-        [ShowInDebugMode] private GameObject _lastCollisionEnterObj;
+        [ShowInDebugMode]
+        private GameObject _lastCollisionEnterObj;
     }
 }

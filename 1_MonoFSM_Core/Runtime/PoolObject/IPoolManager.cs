@@ -10,8 +10,14 @@ public interface IPoolManager
     /// <summary>
     /// 借用或實例化物件
     /// </summary>
-    GameObject BorrowOrInstantiate(GameObject obj, Vector3 position = default, Quaternion rotation = default,
-        Transform parent = null, Action<PoolObject> handler = null);
+    T BorrowOrInstantiate<T>(
+        T obj,
+        Vector3 position = default,
+        Quaternion rotation = default,
+        Transform parent = null,
+        Action<PoolObject> handler = null
+    )
+        where T : MonoBehaviour;
 
     /// <summary>
     /// 歸還物件到池中
@@ -27,7 +33,7 @@ public interface IPoolManager
     /// 重新計算池大小
     /// </summary>
     void ReCalculatePools();
-    
+
     /// <summary>
     /// 驗證系統完整性
     /// </summary>
@@ -43,12 +49,12 @@ public interface IObjectPool
     /// 池中的總物件數
     /// </summary>
     int TotalObjectCount { get; }
-    
+
     /// <summary>
     /// 使用中的物件數
     /// </summary>
     int InUseObjectCount { get; }
-    
+
     /// <summary>
     /// 可用的物件數
     /// </summary>
@@ -57,8 +63,12 @@ public interface IObjectPool
     /// <summary>
     /// 借用物件
     /// </summary>
-    PoolObject Borrow(Vector3 position, Quaternion rotation, Transform parent = null,
-        Action<PoolObject> beforeHandler = null);
+    PoolObject Borrow(
+        Vector3 position,
+        Quaternion rotation,
+        Transform parent = null,
+        Action<PoolObject> beforeHandler = null
+    );
 
     /// <summary>
     /// 歸還物件
@@ -67,7 +77,7 @@ public interface IObjectPool
 
     /// <summary>
     /// 歸還所有物件
-    /// </summary>  
+    /// </summary>
     void ReturnAllObjects();
 
     /// <summary>
@@ -171,8 +181,13 @@ public interface ITransformResetManager
     /// <summary>
     /// 設置Transform並記錄重置資料
     /// </summary>
-    TransformResetHelper.TransformData SetupTransform(Transform transform, Vector3 position, 
-        Quaternion rotation, Vector3 scale, Transform parent);
+    TransformResetHelper.TransformData SetupTransform(
+        Transform transform,
+        Vector3 position,
+        Quaternion rotation,
+        Vector3 scale,
+        Transform parent
+    );
 
     /// <summary>
     /// 捕獲Transform資料

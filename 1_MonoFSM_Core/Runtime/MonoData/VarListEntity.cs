@@ -17,6 +17,7 @@ namespace MonoFSM.Core.Variable
         : VarList<MonoEntity> //這個變
     { }
 
+    //FIXME: 用的到set或queue嗎？ 還是乾脆把List做完就好，其他要用再說另外實作？
     public class VarList<T> : AbstractVarList, ISerializationCallbackReceiver, IResetStateRestore
     {
         [CompRef]

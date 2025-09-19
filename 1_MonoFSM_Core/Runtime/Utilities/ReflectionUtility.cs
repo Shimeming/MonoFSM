@@ -50,7 +50,9 @@ namespace MonoFSM.Core.Utilities
         /// </summary>
         public static Func<object, object> GetMemberGetter(Type type, string memberName)
         {
+            Profiler.BeginSample("GetMemberGetter Tuple Key");
             var key = (type, memberName);
+            Profiler.EndSample();
             if (GetterCache.TryGetValue(key, out var getter))
             {
                 // Debug.Log("GetterCache member success: " + memberName);
@@ -92,17 +94,284 @@ namespace MonoFSM.Core.Utilities
         }
 
         /// <summary>
-        /// 取得專門的值類型 getter，避免裝箱 GC
+        /// 直接從快取中取得成員值，避免先取得函式再呼叫的步驟
         /// </summary>
-        public static Func<object, T> GetMemberGetterSpecialized<T>(Type type, string memberName)
+        public static (T value, string error) GetValueFromCacheMemberGetter<T>(
+            object instance,
+            Type type,
+            string memberName
+        )
         {
+            if (instance == null)
+                return (default, "instance is null");
+
+            Profiler.BeginSample("GetValueFromCacheMemberGetter Tuple Key");
             var key = (type, memberName);
+            Profiler.EndSample();
 
             // 根據類型使用對應的緩存
             if (typeof(T) == typeof(int))
             {
                 if (IntGetterCache.TryGetValue(key, out var intGetter))
-                    return intGetter as Func<object, T>;
+                {
+                    try
+                    {
+                        var result = intGetter(instance);
+                        return ((T)(object)result, null);
+                    }
+                    catch (Exception e)
+                    {
+                        return (default, $"Error calling int getter: {e.Message}");
+                    }
+                }
+
+                var member = RefactorSafeNameResolver.FindMemberByCurrentOrFormerName(
+                    type,
+                    memberName
+                );
+                if (member != null)
+                {
+                    var newIntGetter = CreateSpecializedGetter<int>(member);
+                    if (newIntGetter != null)
+                    {
+                        IntGetterCache[key] = newIntGetter;
+                        try
+                        {
+                            var result = newIntGetter(instance);
+                            return ((T)(object)result, null);
+                        }
+                        catch (Exception e)
+                        {
+                            return (default, $"Error calling new int getter: {e.Message}");
+                        }
+                    }
+                }
+            }
+            else if (typeof(T) == typeof(float))
+            {
+                if (FloatGetterCache.TryGetValue(key, out var floatGetter))
+                {
+                    try
+                    {
+                        var result = floatGetter(instance);
+                        return ((T)(object)result, null);
+                    }
+                    catch (Exception e)
+                    {
+                        return (default, $"Error calling float getter: {e.Message}");
+                    }
+                }
+
+                var member = RefactorSafeNameResolver.FindMemberByCurrentOrFormerName(
+                    type,
+                    memberName
+                );
+                if (member != null)
+                {
+                    var newFloatGetter = CreateSpecializedGetter<float>(member);
+                    if (newFloatGetter != null)
+                    {
+                        FloatGetterCache[key] = newFloatGetter;
+                        try
+                        {
+                            var result = newFloatGetter(instance);
+                            return ((T)(object)result, null);
+                        }
+                        catch (Exception e)
+                        {
+                            return (default, $"Error calling new float getter: {e.Message}");
+                        }
+                    }
+                }
+            }
+            else if (typeof(T) == typeof(bool))
+            {
+                if (BoolGetterCache.TryGetValue(key, out var boolGetter))
+                {
+                    try
+                    {
+                        var result = boolGetter(instance);
+                        return ((T)(object)result, null);
+                    }
+                    catch (Exception e)
+                    {
+                        return (default, $"Error calling bool getter: {e.Message}");
+                    }
+                }
+
+                var member = RefactorSafeNameResolver.FindMemberByCurrentOrFormerName(
+                    type,
+                    memberName
+                );
+                if (member != null)
+                {
+                    var newBoolGetter = CreateSpecializedGetter<bool>(member);
+                    if (newBoolGetter != null)
+                    {
+                        BoolGetterCache[key] = newBoolGetter;
+                        try
+                        {
+                            var result = newBoolGetter(instance);
+                            return ((T)(object)result, null);
+                        }
+                        catch (Exception e)
+                        {
+                            return (default, $"Error calling new bool getter: {e.Message}");
+                        }
+                    }
+                }
+            }
+            else if (typeof(T) == typeof(double))
+            {
+                if (DoubleGetterCache.TryGetValue(key, out var doubleGetter))
+                {
+                    try
+                    {
+                        var result = doubleGetter(instance);
+                        return ((T)(object)result, null);
+                    }
+                    catch (Exception e)
+                    {
+                        return (default, $"Error calling double getter: {e.Message}");
+                    }
+                }
+
+                var member = RefactorSafeNameResolver.FindMemberByCurrentOrFormerName(
+                    type,
+                    memberName
+                );
+                if (member != null)
+                {
+                    var newDoubleGetter = CreateSpecializedGetter<double>(member);
+                    if (newDoubleGetter != null)
+                    {
+                        DoubleGetterCache[key] = newDoubleGetter;
+                        try
+                        {
+                            var result = newDoubleGetter(instance);
+                            return ((T)(object)result, null);
+                        }
+                        catch (Exception e)
+                        {
+                            return (default, $"Error calling new double getter: {e.Message}");
+                        }
+                    }
+                }
+            }
+            else if (typeof(T) == typeof(long))
+            {
+                if (LongGetterCache.TryGetValue(key, out var longGetter))
+                {
+                    try
+                    {
+                        var result = longGetter(instance);
+                        return ((T)(object)result, null);
+                    }
+                    catch (Exception e)
+                    {
+                        return (default, $"Error calling long getter: {e.Message}");
+                    }
+                }
+
+                var member = RefactorSafeNameResolver.FindMemberByCurrentOrFormerName(
+                    type,
+                    memberName
+                );
+                if (member != null)
+                {
+                    var newLongGetter = CreateSpecializedGetter<long>(member);
+                    if (newLongGetter != null)
+                    {
+                        LongGetterCache[key] = newLongGetter;
+                        try
+                        {
+                            var result = newLongGetter(instance);
+                            return ((T)(object)result, null);
+                        }
+                        catch (Exception e)
+                        {
+                            return (default, $"Error calling new long getter: {e.Message}");
+                        }
+                    }
+                }
+            }
+            else if (typeof(T) == typeof(string))
+            {
+                if (StringGetterCache.TryGetValue(key, out var stringGetter))
+                {
+                    try
+                    {
+                        var result = stringGetter(instance);
+                        return ((T)(object)result, null);
+                    }
+                    catch (Exception e)
+                    {
+                        return (default, $"Error calling string getter: {e.Message}");
+                    }
+                }
+
+                var member = RefactorSafeNameResolver.FindMemberByCurrentOrFormerName(
+                    type,
+                    memberName
+                );
+                if (member != null)
+                {
+                    var newStringGetter = CreateSpecializedGetter<string>(member);
+                    if (newStringGetter != null)
+                    {
+                        StringGetterCache[key] = newStringGetter;
+                        try
+                        {
+                            var result = newStringGetter(instance);
+                            return ((T)(object)result, null);
+                        }
+                        catch (Exception e)
+                        {
+                            return (default, $"Error calling new string getter: {e.Message}");
+                        }
+                    }
+                }
+            }
+
+            // 如果不是常見的值類型，回退到通用方法
+            Profiler.BeginSample("GetValueFromCacheMemberGetter.GetMemberGetter");
+            var generalGetter = GetMemberGetter(type, memberName);
+            Profiler.EndSample();
+            if (generalGetter != null)
+            {
+                try
+                {
+                    var value = generalGetter(instance);
+                    if (value is T tValue)
+                        return (tValue, null);
+                    return (
+                        default,
+                        $"Value type mismatch: expected {typeof(T)}, got {value?.GetType()}"
+                    );
+                }
+                catch (Exception e)
+                {
+                    return (default, $"Error calling general getter: {e.Message}");
+                }
+            }
+
+            return (default, $"Member '{memberName}' not found in type {type}");
+        }
+
+        /// <summary>
+        /// 取得專門的值類型 getter，避免裝箱 GC
+        /// </summary>
+        public static Func<object, T> GetMemberGetterSpecialized<T>(Type type, string memberName)
+        {
+            Profiler.BeginSample("GetMemberGetterSpecialized Tuple Key");
+            var key = (type, memberName);
+            Profiler.EndSample();
+
+            // 根據類型使用對應的緩存
+            if (typeof(T) == typeof(int))
+            {
+                if (IntGetterCache.TryGetValue(key, out var intGetter))
+                    return intGetter as Func<object, T>; //這個感覺又gc了...
 
                 var member = RefactorSafeNameResolver.FindMemberByCurrentOrFormerName(
                     type,
@@ -350,9 +619,9 @@ namespace MonoFSM.Core.Utilities
                 var dynamicTypeAttr = prop.GetCustomAttribute<Attributes.DynamicTypeAttribute>();
                 if (dynamicTypeAttr != null && instance != null)
                 {
-                    Debug.Log(
-                        $"動態型別：{dynamicTypeAttr.TypeProviderMethod} 來自屬性 {prop.Name}"
-                    );
+                    // Debug.Log(
+                    //     $"動態型別：{dynamicTypeAttr.TypeProviderMethod} 來自屬性 {prop.Name}"
+                    // );
                     memberType =
                         GetDynamicMemberType(parentType, prop, dynamicTypeAttr, instance)
                         ?? memberType;
@@ -613,13 +882,16 @@ namespace MonoFSM.Core.Utilities
                 //有可能最後一層不是primitive嗎？
                 if (i == entries.Count - 1 && finalType.IsPrimitive) //最後一層 FIXME: nooo 可能拿到array....
                 {
-                    var typedGetter = GetMemberGetterSpecialized<T>(objType, entry._propertyName);
-                    if (typedGetter == null)
+                    var (value, error) = GetValueFromCacheMemberGetter<T>(
+                        currentObj,
+                        objType,
+                        entry._propertyName
+                    );
+                    if (!string.IsNullOrEmpty(error))
                     {
-                        return (default, $"null property of typedGetter");
+                        return (default, error);
                     }
 
-                    var value = typedGetter(currentObj);
                     return (value, "ok");
                 }
                 else

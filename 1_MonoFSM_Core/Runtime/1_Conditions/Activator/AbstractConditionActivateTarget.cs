@@ -1,6 +1,8 @@
+using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Simulate;
 using MonoFSM.Foundation;
 using MonoFSMCore.Runtime.LifeCycle;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace MonoFSM.Core.Condition
@@ -19,6 +21,7 @@ namespace MonoFSM.Core.Condition
 
         public void AfterUpdate() { }
 
+        [InlineField]
         [AutoNested]
         public ConditionGroup _conditionGroup;
 
