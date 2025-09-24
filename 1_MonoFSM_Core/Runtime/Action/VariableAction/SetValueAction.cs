@@ -7,9 +7,9 @@ namespace _1_MonoFSM_Core.Runtime.Action.VariableAction
     //SetObjectValue?
     public class SetValueAction : AbstractStateAction
     {
+        public override string Description => $"Set {_targetVar.name} to {_sourceVar.name}";
+
         //FIXME: validate: 兩個要同型別? 還是value type要可以assign上去就好？
-
-
         [SerializeField]
         private AbstractMonoVariable _targetVar;
 

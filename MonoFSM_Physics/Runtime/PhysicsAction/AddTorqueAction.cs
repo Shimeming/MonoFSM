@@ -1,7 +1,8 @@
-using MonoFSM_Physics.Runtime;
-using MonoFSM.Core;
+using System;
 using MonoFSM.Core.Runtime.Action;
-using MonoFSM.Variable.Attributes;
+using MonoFSM.Runtime.Interact.EffectHit;
+using MonoFSM.Variable;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace MonoFSM.Runtime.PhysicsAction
@@ -12,27 +13,31 @@ namespace MonoFSM.Runtime.PhysicsAction
 
 
     //從EffectHitData嗎？ 對象是Rigidbody, 方向
-    public class AddTorqueAction : AbstractStateAction
+    public class AddTorqueAction : AbstractArgEventHandler<GeneralEffectHitData>
     {
-        [CompRef] [AutoParent] private ICompProvider<Rigidbody> _rigidbodyProvider;
-        [CompRef] [AutoParent] private IHitDataProvider _hitDataProvider;
+        // [CompRef] [AutoParent] private ICompProvider<Rigidbody> _rigidbodyProvider;
+        // [CompRef] [AutoParent] private IHitDataProvider _hitDataProvider;
+        public VarComp _rigidbodyVar;
+        public VarVector3 _torqueVector;
 
         // [SerializeField] private Vector3 _torque;
-        [SerializeField] private float _torqueMagnitude = 10f; // 可以在Inspector中調整
+        [SerializeField]
+        private float _torqueMagnitude = 10f; // 可以在Inspector中調整
 
-        [SerializeField] private ForceMode _forceMode = ForceMode.Impulse;
+        [SerializeField]
+        private ForceMode _forceMode = ForceMode.Impulse;
 
-//TODO: offset?
-        public void ArgEventReceived(Rigidbody target) //轉型Provider?
-        {
-            if (target == null) return;
-            var hitData = _hitDataProvider.GetHitData();
-            var dir = hitData.Dealer.transform.position - hitData.Receiver.transform.position;
-            // var _torque = ;
-            Debug.Log("AddTorqueAction: Applying torque to " + target.name + " with direction: " + dir, this);
-            Debug.DrawLine(hitData.Dealer.transform.position, hitData.Receiver.transform.position, Color.red, 10f);
-            target.AddTorque(dir.normalized * _torqueMagnitude, _forceMode);
-        }
+        //TODO: offset?
+        // public void ArgEventReceived(Rigidbody target) //轉型Provider?
+        // {
+        //     if (target == null) return;
+        //     var hitData = _hitDataProvider.GetHitData();
+        //     var dir = hitData.Dealer.transform.position - hitData.Receiver.transform.position;
+        //     // var _torque = ;
+        //     Debug.Log("AddTorqueAction: Applying torque to " + target.name + " with direction: " + dir, this);
+        //     Debug.DrawLine(hitData.Dealer.transform.position, hitData.Receiver.transform.position, Color.red, 10f);
+        //     target.AddTorque(dir.normalized * _torqueMagnitude, _forceMode);
+        // }
         //
         // public void EventReceived<T>(T arg)
         // {
@@ -40,30 +45,82 @@ namespace MonoFSM.Runtime.PhysicsAction
         // }
 
         //如果沒有額外的，用Receiver
+        // protected override void OnActionExecuteImplement()
+        // {
+        //     var hitData = _hitDataProvider.GetHitData();
+        //     if (hitData == null)
+        //     {
+        //         Debug.LogError("HitData is null in AddTorqueAction", this);
+        //         return;
+        //     }
+        //
+        //     if (_rigidbodyProvider == null)
+        //     {
+        //         Debug.LogError("RigidbodyProvider is not set in AddTorqueAction", this);
+        //         return;
+        //     }
+        //
+        //     var target = _rigidbodyProvider.Get();
+        //     // var target = hitData.Receiver.transform.GetComponent<Rigidbody>();
+        //     if (target == null)
+        //     {
+        //         Debug.LogError("No Rigidbody found on Receiver in AddTorqueAction", this);
+        //         return;
+        //     }
+        //
+        //     ArgEventReceived(target);
+        // }
+
+
+        [Button]
+        void TestAction()
+        {
+            OnActionExecuteImplement();
+        }
+
         protected override void OnActionExecuteImplement()
         {
-            var hitData = _hitDataProvider.GetHitData();
-            if (hitData == null)
-            {
-                Debug.LogError("HitData is null in AddTorqueAction", this);
-                return;
-            }
+            Delay();
+        }
 
-            if (_rigidbodyProvider == null)
+        private async void Delay()
+        {
+            try
             {
-                Debug.LogError("RigidbodyProvider is not set in AddTorqueAction", this);
-                return;
+                await Awaitable.NextFrameAsync();
+                var bd = _rigidbodyVar.Value as Rigidbody;
+                var torqueDir = _torqueVector.Value * _torqueMagnitude;
+                bd.AddTorque(torqueDir, _forceMode);
+                Debug.Log(
+                    "AddTorqueAction: Applying torque to "
+                        + bd.name
+                        + " with direction: "
+                        + torqueDir,
+                    this
+                );
             }
-
-            var target = _rigidbodyProvider.Get();
-            // var target = hitData.Receiver.transform.GetComponent<Rigidbody>();
-            if (target == null)
+            catch (Exception e)
             {
-                Debug.LogError("No Rigidbody found on Receiver in AddTorqueAction", this);
-                return;
+                Debug.LogException(e, this);
             }
+        }
 
-            ArgEventReceived(target);
+        protected override void OnArgEventReceived(GeneralEffectHitData arg)
+        {
+            //好像拿不到耶？
+            var hitData = arg;
+            var dir = hitData.Dealer.transform.position - hitData.Receiver.transform.position;
+
+            // var _torque = ;
+            // Debug.Log("AddTorqueAction: Applying torque to " + target.name + " with direction: " + dir, this);
+            Debug.DrawLine(
+                hitData.Dealer.transform.position,
+                hitData.Receiver.transform.position,
+                Color.red,
+                10f
+            );
+            var bd = _rigidbodyVar.Value as Rigidbody;
+            bd.AddTorque(dir.normalized * _torqueMagnitude, _forceMode);
         }
     }
 }

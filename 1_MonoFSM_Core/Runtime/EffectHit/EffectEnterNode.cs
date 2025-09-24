@@ -1,6 +1,5 @@
 using MonoFSM.Core;
 using MonoFSM.Runtime.Variable;
-using MonoFSM.Variable.Attributes;
 
 namespace MonoFSM.Runtime.Interact.EffectHit
 {
@@ -8,7 +7,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
     public sealed class EffectEnterNode : AbstractEventHandler
     {
         //local variable, 這在這個enter下的生命週期
-        [CompRef] //[Component?
-        public VarEntity _hittingEntity;
+        [Component] //[Component?
+        public VarEntity _hittingEntity; //to set
     }
 }

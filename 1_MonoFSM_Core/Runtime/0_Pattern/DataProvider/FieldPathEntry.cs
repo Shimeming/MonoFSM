@@ -5,7 +5,9 @@ using System.Reflection;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Utilities;
 using MonoFSM.Variable;
+using MonoFSM.Variable.TypeTag;
 using Sirenix.OdinInspector;
+using UnityEngine;
 using UnityEngine.Serialization;
 using Object = UnityEngine.Object;
 
@@ -19,24 +21,31 @@ namespace MonoFSM.Core.DataProvider
     {
         public void SetSerializedType(Type type)
         {
-            _serializedType = new MySerializedType<Object>
+            //FIXME: 用so取代？ monoTypeTag
+            _serializedType = new MySerializedType<Object> //不好debug QQ
             {
-                RestrictType = type
+                RestrictType = type,
             };
         }
 
         // 父層型別，由外部更新（非序列化）
         // [NonSerialized] public Type parentType;
-        [InlineProperty(LabelWidth = 60)] public MySerializedType<Object> _serializedType; //FIXME: refactor時會爛掉...有點麻煩
+        [SerializeField]
+        private MonoTypeTag _monoTypeTag; //FIXME: 怎麼自動對應？
 
+        [InlineProperty(LabelWidth = 60)]
+        public MySerializedType<Object> _serializedType; //FIXME: refactor時會爛掉...有點麻煩
 #if UNITY_EDITOR
-        [NonSerialized] [PreviewInDebugMode] public object _tempCurrentObject;
+        [NonSerialized]
+        [PreviewInDebugMode]
+        public object _tempCurrentObject;
 #endif
-        
+
         public Type GetPropertyType()
         {
-            if (string.IsNullOrEmpty(_propertyName)) return null;
-            
+            if (string.IsNullOrEmpty(_propertyName))
+                return null;
+
             // 使用 ReflectionUtility 的快取機制來提高效率
             var memberType = ReflectionUtility.GetMemberType(parentType, _propertyName);
 
@@ -46,7 +55,8 @@ namespace MonoFSM.Core.DataProvider
             return memberType;
         }
 
-        [FormerlySerializedAs("fieldName")] [ValueDropdown(nameof(GetFieldOptions))]
+        [FormerlySerializedAs("fieldName")]
+        [ValueDropdown(nameof(GetFieldOptions))]
         public string _propertyName;
 
         public string PropertyPath
@@ -68,25 +78,31 @@ namespace MonoFSM.Core.DataProvider
         // 當對應的欄位為陣列時，才會顯示 index 欄位
         //FIXME: 不可以編輯？用index注入？
         // [PreviewInInspector]
-        [ShowIf(nameof(IsArray))] [LabelText("Index")]
+        [ShowIf(nameof(IsArray))]
+        [LabelText("Index")]
         public int index; //injected index;
 
         private Type parentType => _serializedType.RestrictType; //為什麼叫parentType？
-        
 
         // 支援的型別清單
         //restrict to types?
         //FIXME: editor only?
         [ShowInDebugMode]
-        [PreviewInInspector] public List<Type> _supportedTypes;
+        [PreviewInInspector]
+        public List<Type> _supportedTypes;
 
         /// <summary>
         ///     統一的成員獲取方法，可用於不同場景
         /// </summary>
-        public List<string> GetAvailableMembers(Type targetType = null, bool includeFields = false, bool includeNonPublic = false)
+        public List<string> GetAvailableMembers(
+            Type targetType = null,
+            bool includeFields = false,
+            bool includeNonPublic = false
+        )
         {
             var type = targetType ?? parentType;
-            if (type == null) return new List<string>();
+            if (type == null)
+                return new List<string>();
 
             var members = new List<string>();
             var bindingFlags = BindingFlags.Instance | BindingFlags.Public;
@@ -137,20 +153,25 @@ namespace MonoFSM.Core.DataProvider
         {
             var options = new List<ValueDropdownItem<string>>();
             var pType = _serializedType.RestrictType;
-            
+
             if (pType != null)
             {
                 // 使用統一的成員獲取方法，但保持原有的非公共屬性支援
-                var properties = pType.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                
+                var properties = pType.GetProperties(
+                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
+                );
+
                 foreach (var prop in properties)
                 {
-                    if (!prop.CanRead) continue;
+                    if (!prop.CanRead)
+                        continue;
 
                     var propType = prop.PropertyType;
                     if (IsValidMember(propType))
                     {
-                        options.Add(new ValueDropdownItem<string>($"{prop.Name}:{propType}", prop.Name));
+                        options.Add(
+                            new ValueDropdownItem<string>($"{prop.Name}:{propType}", prop.Name)
+                        );
                     }
                 }
             }

@@ -6,7 +6,7 @@ using UnityEngine;
 namespace MonoFSM.Runtime
 {
     //FIXME: fusion network不做一個對稱的？
-    public class LocalSpawnManager : MonoBehaviour, ISpawnProcessor
+    public class LocalSpawnManager : MonoBehaviour, ISpawnProcessor //local spawner應該直接和worldUpdateSimulator整合在一起？
     {
         [Auto]
         private WorldUpdateSimulator _worldUpdateSimulator;

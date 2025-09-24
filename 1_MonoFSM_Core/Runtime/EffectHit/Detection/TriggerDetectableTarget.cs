@@ -6,10 +6,8 @@ using UnityEngine;
 namespace MonoFSM.Core.Detection
 {
     [DisallowMultipleComponent]
-    public class TriggerDetectableTarget //很白痴耶，只有Trigger
-        : BaseEffectDetectTarget,
-            IDetectableTarget,
-            IColliderProvider
+    public class TriggerDetectableTarget //很白痴耶，只有Trigger => 其實就是hitbox?
+        : BaseEffectDetectTarget, IDetectableTarget, IColliderProvider
     {
         [Required]
         [CompRef]
@@ -17,6 +15,7 @@ namespace MonoFSM.Core.Detection
         //FIXME: [AutoParent(AddAtSame = true)]
         [SerializeField]
         private Collider _collider;
+
         //FIXME: 加的時候要同一層
 
 

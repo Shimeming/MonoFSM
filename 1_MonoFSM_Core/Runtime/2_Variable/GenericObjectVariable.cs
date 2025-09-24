@@ -19,6 +19,7 @@ namespace MonoFSM.Variable
     public abstract class GenericUnityObjectVariable<TValueType>
         : TypedMonoVariable<TValueType>,
             ISettable<TValueType>,
+            ISceneStart,
             IResetStateRestore,
             IHierarchyValueInfo
         where TValueType : Object
@@ -322,6 +323,11 @@ namespace MonoFSM.Variable
         //         }
 
         // public Type ObjectType => typeof(TValueType);
+
+        public void EnterSceneStart()
+        {
+            SetValueInternal(_defaultValue, this);
+        }
 
         public override void ResetStateRestore()
         {

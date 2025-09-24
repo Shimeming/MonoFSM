@@ -1,11 +1,9 @@
-using System;
 using System.Collections.Generic;
 using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Detection;
 using MonoFSM.Foundation;
 using MonoFSM.Variable.Attributes;
-using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace MonoFSM.Runtime.Interact.EffectHit
@@ -71,8 +69,10 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         [PreviewInInspector]
         private HashSet<EffectDetector> toRemoves = new();
 
-        public void ProcessEffectHit(EffectDetector detector)
+        //FIXME: 要改成能支援photon 給的HitData？
+        public void ProcessEffectHit(EffectDetector detector, Vector3 hitPoint, Vector3 hitNormal)
         {
+            Debug.Log($"[EffectDetectable] ProcessEffectHit from {detector.name} to {name}", this);
             //FIXME: 在這邊new data...?
             var detectData = new DetectData(detector, this);
 

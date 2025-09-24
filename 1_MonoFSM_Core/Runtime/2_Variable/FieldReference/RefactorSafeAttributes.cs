@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace MonoFSM.Variable.FieldReference
 {
@@ -101,7 +102,8 @@ namespace MonoFSM.Variable.FieldReference
         /// </summary>
         public static Type FindTypeByCurrentOrFormerName(
             string currentName,
-            string assemblyName = null
+            string assemblyName = null,
+            Object obj = null
         )
         {
             if (string.IsNullOrEmpty(currentName))
@@ -162,7 +164,8 @@ namespace MonoFSM.Variable.FieldReference
             Debug.LogError(
                 "Type not found: "
                     + currentName
-                    + ". Please check if the type has been renamed or moved to another assembly."
+                    + ". Please check if the type has been renamed or moved to another assembly.",
+                obj
             );
             return null;
         }

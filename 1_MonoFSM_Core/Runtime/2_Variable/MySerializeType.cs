@@ -187,7 +187,7 @@ namespace MonoFSM.Variable
             _baseFilterTypeName = _baseFilterType?.AssemblyQualifiedName;
         }
 
-        public void OnAfterDeserialize() //這個會讓reload domain變慢？資料變多就會跑愈多？
+        public void OnAfterDeserialize() //FIXME: 這個會讓reload domain變慢？資料變多就會跑愈多？
         {
             if (typeName.IsNullOrWhitespace())
             {
@@ -219,7 +219,8 @@ namespace MonoFSM.Variable
             {
                 var type = RefactorSafeNameResolver.FindTypeByCurrentOrFormerName(
                     typeName,
-                    _assemblyName
+                    _assemblyName,
+                    _bindObject
                 );
                 // Debug.Log($"RefactorSafeNameResolver 查找型別 '{typeName}' 結果：{type?.FullName ?? "未找到"}", _bindObject);
                 if (type != null)

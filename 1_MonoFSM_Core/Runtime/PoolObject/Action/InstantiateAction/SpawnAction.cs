@@ -15,6 +15,8 @@ using UnityEngine;
 namespace MonoFSM.Core.LifeCycle
 {
     //FIXME: 還是走SpawnEventHandler的方式？ 但參數呢？
+    //IsServer才能spawn?
+    //需要preprocess? 這樣就可以提早決定位置 (不用重複set之類的)
     public interface IAfterSpawnProcess //action在Spawn之後執行 也有種event的概念？AfterSpawnEventHandler?
     {
         public void AfterSpawn(
@@ -90,7 +92,9 @@ namespace MonoFSM.Core.LifeCycle
         private MonoObj _parentObj;
 
         // [Required] [SerializeField] private VarMonoObj _spawnedObjVar; //用來存取剛spawn的物件
-
+        //FIXME: 自動判定？好麻煩喔
+        [SerializeField]
+        public bool _isSpawningVisual; //有NetworkObject的話就不需要?
 
         //FIXME: 寫死各種參數的介面不好！provdier?
         private void Spawn(
@@ -122,7 +126,11 @@ namespace MonoFSM.Core.LifeCycle
                 return;
             }
 
-            var newObj = _parentObj.WorldUpdateSimulator.Spawn(prefab, position, rotation); //Runner.spawn?
+            MonoObj newObj;
+            if (_isSpawningVisual)
+                newObj = _parentObj.WorldUpdateSimulator.SpawnVisual(prefab, position, rotation); //Runner.spawn?
+            else
+                newObj = _parentObj.WorldUpdateSimulator.Spawn(prefab, position, rotation); //Runner.spawn?
             if (newObj == null)
                 return;
             //用目前這個action的transform的scale,fixme; 可能需要別種？物件本身的scale?還是應該避免

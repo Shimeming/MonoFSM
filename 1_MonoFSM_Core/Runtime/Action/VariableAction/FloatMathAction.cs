@@ -73,8 +73,8 @@ namespace MonoFSM.Runtime.Interact.EffectHit.Resolver.ApplyEffect
         {
             get
             {
-                var targetDesc = _targetVar?.Description;
-                var source1Desc = _source1Var?.Description;
+                var targetDesc = _targetVar != null ? _targetVar.Description : "null";
+                var source1Desc = _source1Var != null ? _source1Var.Description : "null";
 
                 return Arithmetic switch
                 {

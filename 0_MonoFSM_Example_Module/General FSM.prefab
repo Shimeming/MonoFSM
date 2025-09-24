@@ -87,7 +87,7 @@ GameObject:
   - component: {fileID: 8388388469843436753}
   - component: {fileID: 2641676531158844801}
   m_Layer: 0
-  m_Name: this
+  m_Name: d_this
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -121,7 +121,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ca1f421dbd84eab9de983e488c78d3e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: MonoFSM.Core.Runtime::MonoFSM.Runtime.Variable.VarEntity
-  _varTag: {fileID: 0}
+  _varTag: {fileID: 11400000, guid: fe6f95997618b40b382e095deabd42ea, type: 2}
   description: 
   _defaultValue: {fileID: 0}
   _isConst: 0
@@ -222,6 +222,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5267f2df9256e49ff918c479e92d3518, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  stateIdToRestore: -1
   anyState: {fileID: 0}
 --- !u!114 &1973556432026734445
 MonoBehaviour:
@@ -339,7 +340,6 @@ GameObject:
   - component: {fileID: 1679154381190438241}
   - component: {fileID: 2870840079908465395}
   - component: {fileID: 4819980146996288446}
-  - component: {fileID: 7887281621756074557}
   m_Layer: 0
   m_Name: General FSM
   m_TagString: Untagged
@@ -409,7 +409,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _entityTag: {fileID: 0}
   _descriptableTags: []
-  data: {fileID: 0}
 --- !u!114 &4819980146996288446
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -423,19 +422,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _worldUpdateSimulator: {fileID: 0}
---- !u!114 &7887281621756074557
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4082089536309548135}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fd0cf00434d64b7c933828af47dc6089, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _expectedEntityTag: {fileID: 0}
 --- !u!1 &4619145615866190664
 GameObject:
   m_ObjectHideFlags: 0

@@ -321,7 +321,7 @@ public class ObjectPool : IObjectPool
 #if UNITY_EDITOR
         //給spawner做？PoolObject第一次拿出來才需要？
         //Editor裡還是直接使用AutoAttributeManager，cache太容易髒掉了
-        Debug.Log($"AutoReferenceAllChildren: {obj.name}", obj);
+        // Debug.Log($"AutoReferenceAllChildren: {obj.name}", obj);
         AutoAttributeManager.AutoReferenceAllChildren(obj.gameObject);
         //FIXME: 還要...?
 #endif

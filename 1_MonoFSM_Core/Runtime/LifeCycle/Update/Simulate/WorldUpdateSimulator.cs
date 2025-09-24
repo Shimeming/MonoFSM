@@ -11,6 +11,7 @@ using UnityEditor;
 using UnityEditor.Compilation;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Profiling;
 
 namespace MonoFSM.Core.Simulate
 {
@@ -61,7 +62,7 @@ namespace MonoFSM.Core.Simulate
         [Required]
         [CompRef]
         [Auto]
-        private ISpawnProcessor _spawnProcessor;
+        private ISpawnProcessor _spawnProcessor; //logic Spawner, 和visual spawner要拆開？
 
         private void Awake()
         {
@@ -114,6 +115,22 @@ namespace MonoFSM.Core.Simulate
                 gobj.transform.rotation
             );
             return obj?.gameObject;
+        }
+
+        public MonoObj SpawnVisual(MonoObj obj, Vector3 position, Quaternion rotation)
+        {
+            //FIXME: 還要做updateSimulator的註冊？
+            var newObj = PoolManager.Instance.BorrowOrInstantiate(obj, position, rotation);
+            AfterPoolSpawn(newObj);
+            return newObj;
+        }
+
+        public void DespawnVisual(MonoObj obj)
+        {
+            if (obj == null)
+                return;
+            // Return the object to the pool
+            PoolManager.Instance.ReturnToPool(obj);
         }
 
         //全世界都該透過這個spawn?
@@ -298,7 +315,14 @@ namespace MonoFSM.Core.Simulate
             _deltaTime = deltaTime;
             foreach (var monoObject in _currentUpdatingObjs)
                 if (monoObject is { isActiveAndEnabled: true })
-                    monoObject.BeforeSimulate(deltaTime);
+                {
+                    if (monoObject.IsBeforeSimulatesNeeded)
+                    {
+                        Profiler.BeginSample("BeforeSimulate", monoObject);
+                        monoObject.BeforeSimulate(deltaTime);
+                        Profiler.EndSample();
+                    }
+                }
         }
 
         public static int CurrentTick { get; private set; }
@@ -336,7 +360,14 @@ namespace MonoFSM.Core.Simulate
             foreach (var monoObject in _currentUpdatingObjs)
             {
                 if (monoObject is { isActiveAndEnabled: true })
-                    monoObject.Simulate(deltaTime);
+                {
+                    if (monoObject.IsUpdateSimulatesNeeded)
+                    {
+                        Profiler.BeginSample("BeforeSimulate", monoObject);
+                        monoObject.Simulate(deltaTime);
+                        Profiler.EndSample();
+                    }
+                }
             }
 
             // else
@@ -353,7 +384,15 @@ namespace MonoFSM.Core.Simulate
                 return;
             foreach (var monoObject in _monoObjectSet)
                 if (monoObject is { isActiveAndEnabled: true })
-                    monoObject.AfterUpdate();
+                {
+                    if (monoObject.IsUpdateSimulatesNeeded)
+                    {
+                        Profiler.BeginSample("AfterUpdate", monoObject);
+                        monoObject.AfterUpdate();
+                        Profiler.EndSample();
+                    }
+                }
+
             // else
             //     Debug.LogWarning("A mono object is null or not active and enabled, skipping after update.");
         }

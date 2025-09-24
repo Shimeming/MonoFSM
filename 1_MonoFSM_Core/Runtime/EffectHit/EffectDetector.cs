@@ -147,7 +147,7 @@ namespace MonoFSM.Core.Detection
         //不該從這裡？
         public string OnDetectEnterCheck(
             GameObject other,
-            Vector3? point = null,
+            Vector3? point = null, //FIXME: 一定要給？
             Vector3? normal = null
         )
         {
@@ -360,6 +360,7 @@ namespace MonoFSM.Core.Detection
 
         public void AfterUpdate() { }
 
+        //通常物理的進入點
         private void ProcessDetectionChanges(
             Dictionary<EffectDetectable, DetectData> previousDetected,
             Dictionary<EffectDetectable, DetectData> currentDetected

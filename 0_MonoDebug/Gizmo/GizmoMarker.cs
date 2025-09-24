@@ -1,5 +1,7 @@
-﻿using UnityEngine;
+﻿using MonoDebugSetting;
+using UnityEngine;
 
+//FIXME: Debug Gizmo?
 public class GizmoMarker : MonoBehaviour, IEditorOnly //,IDrawHierarchyBackGround
 {
 #if UNITY_EDITOR
@@ -38,6 +40,8 @@ public class GizmoMarker : MonoBehaviour, IEditorOnly //,IDrawHierarchyBackGroun
 
     private void OnDrawGizmos()
     {
+        if (RuntimeDebugSetting.IsDebugMode == false)
+            return;
         if (gizmoType == GizmoShapeType.HandleDot || gizmoType == GizmoShapeType.HandleSphere)
             return;
 

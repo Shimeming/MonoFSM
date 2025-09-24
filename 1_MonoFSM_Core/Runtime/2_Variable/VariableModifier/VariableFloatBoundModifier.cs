@@ -25,6 +25,7 @@ namespace MonoFSM.Variable
     /// <summary>
     /// Function: 限制VariableFloat的最小最大值
     /// //FIXME: 直接塞兩個VarFloat比較對？
+    /// FIXME: 直接把MinMax一鍵生成？
     /// </summary>
     public class VariableFloatBoundModifier : MonoBehaviour, AbstractVariableModifier<float>
     {

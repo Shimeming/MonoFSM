@@ -14,6 +14,7 @@ public class PoolBank : MonoBehaviour, ISceneSavingCallbackReceiver, ISceneAwake
 {
     // [InlineButton("FindOrCreatePoolPrewarmData","Create")]
     [SOConfig("15_PoolManagerPrewarm")]
+    [InlineEditor]
     public PoolPrewarmData _bindPrewarmData;
 
     //     void FindOrCreatePoolPrewarmData()

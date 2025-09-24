@@ -74,10 +74,33 @@ namespace MonoFSM.Core.Detection
             foreach (var col in _thisFrameColliders)
                 if (col != null && col.gameObject != null)
                 {
-                    _buffer.Add(new DetectionResult(col.gameObject));
+                    //模擬的打擊點
+                    if (IsProperCollider(col))
+                    {
+                        var hitPoint = col.ClosestPoint(transform.position);
+                        Vector3 hitNormal = (hitPoint - col.bounds.center).normalized;
+                        _buffer.Add(new DetectionResult(col.gameObject, hitPoint, hitNormal));
+                    }
+                    else
+                        _buffer.Add(new DetectionResult(col.gameObject));
                 }
 
             return _buffer;
+        }
+
+        bool IsProperCollider(Collider col)
+        {
+            // Physics.ClosestPoint can only be used with a BoxCollider, SphereCollider, CapsuleCollider and a convex MeshCollider.
+
+            if (col is BoxCollider)
+                return true;
+            if (col is SphereCollider)
+                return true;
+            if (col is CapsuleCollider)
+                return true;
+            if (col is MeshCollider meshCol && meshCol.convex)
+                return true;
+            return false;
         }
 
         //FIXME: Gizmo?

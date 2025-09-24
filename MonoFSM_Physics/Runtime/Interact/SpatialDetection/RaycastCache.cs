@@ -41,7 +41,9 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
         [SerializeField]
         private RaycastMode _raycastMode = RaycastMode.Single;
 
-        [HideIf("@_distanceProvider != null")]
+        bool IsHavingDistanceSource => _distanceSource != null;
+
+        [HideIf(nameof(IsHavingDistanceSource))]
         public float _distance = 30; //要依照速度來決定distance...distance provider?
 
         [FormerlySerializedAs("_distanceProvider")]

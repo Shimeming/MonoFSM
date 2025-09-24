@@ -177,10 +177,6 @@ namespace MonoFSM.Core.Editor
             using var searchContext = SearchService.CreateContext(new[] { "asset" }, "t:MonoObj");
             using var results = SearchService.Request(searchContext, SearchFlags.Synchronous);
             {
-                // foreach (var label in results.Select(r => r.GetLabel(searchContext)))
-                //     Debug.Log(label);
-                // foreach (var obj in results.Select(r => r.ToObject<GameObject>()))
-                //     Debug.Log(obj, obj);
                 return results
                     .Select(r => r.ToObject<GameObject>())
                     // .Where(prefab => prefab != null && ValidatePrefab(prefab))

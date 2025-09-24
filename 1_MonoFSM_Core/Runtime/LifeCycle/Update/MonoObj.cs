@@ -139,9 +139,13 @@ namespace MonoFSMCore.Runtime.LifeCycle
         [AutoChildren]
         private IUpdateSimulate[] _updateSimulates;
 
+        public bool IsUpdateSimulatesNeeded => _updateSimulates.Length > 0;
+
         [PreviewInInspector]
         [AutoChildren]
         private IBeforeSimulate[] _beforeSimulates;
+
+        public bool IsBeforeSimulatesNeeded => _beforeSimulates.Length > 0;
 
         //FIXME: PoolBeforeReturnToPool? OnReturnPool?
 
@@ -251,18 +255,19 @@ namespace MonoFSMCore.Runtime.LifeCycle
             {
                 if (item == null)
                     continue;
-                //FIXEM: 用trycatch不好debug?
-                // try
-                // {
-                item.ResetStart();
-                // }
-                // catch (Exception e)
-                // {
-                //     if (item is MonoBehaviour)
-                //         Debug.LogError(e.Message + "\n" + e.StackTrace, item as MonoBehaviour);
-                //     else
-                //         Debug.LogError(e.Message + "\n" + e.StackTrace);
-                // }
+                //FIXEM: 用trycatch不好debug? 但沒有trycatch會整個爛掉喔！
+                try
+                {
+                    item.ResetStart();
+                }
+                catch (Exception e)
+                {
+                    if (item is MonoBehaviour)
+                        Debug.LogException(e, item as MonoBehaviour);
+                    // Debug.LogError(e.Message + "\n" + e.StackTrace, item as MonoBehaviour);
+                    else
+                        Debug.LogException(e, this);
+                }
             }
         }
 
