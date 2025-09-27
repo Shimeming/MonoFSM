@@ -9,6 +9,7 @@ namespace MonoFSM.Core.Detection
     {
         [Required]
         [CompRef]
+        [SerializeField]
         [Auto]
         private Collider _collider;
 

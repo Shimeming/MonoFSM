@@ -7,6 +7,7 @@ using MonoFSM.Core.Attributes;
 using MonoFSM.EditorExtension;
 using MonoFSM.Runtime;
 using MonoFSM.Runtime.Attributes;
+using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -23,6 +24,12 @@ namespace MonoFSM.Foundation
             IAfterPrefabStageOpenCallbackReceiver,
             IDrawHierarchyBackGround
     {
+        [HideIf(nameof(_parentObj))]
+        [Required]
+        [ShowInInspector]
+        [AutoParent]
+        private MonoObj _parentObj;
+
 #if UNITY_EDITOR
         [TextArea]
         [SerializeField]

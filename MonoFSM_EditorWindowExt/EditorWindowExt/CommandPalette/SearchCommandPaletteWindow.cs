@@ -76,6 +76,7 @@ namespace CommandPalette
         {
             _currentMode = (SearchMode)
                 EditorPrefs.GetInt(SearchModePrefKey, (int)SearchMode.Prefabs);
+            PerformSearch(); // 初始載入時顯示該類型的所有資源
         }
 
         private void OnGUI()
@@ -199,12 +200,6 @@ namespace CommandPalette
             _searchResults.Clear();
             _selectedIndex = -1;
 
-            if (string.IsNullOrEmpty(_searchString))
-            {
-                Repaint();
-                return;
-            }
-
             if (_currentMode == SearchMode.MenuItems)
             {
                 // TODO: MenuItem 搜尋實作
@@ -213,7 +208,18 @@ namespace CommandPalette
             }
 
             var provider = SearchProviders[_currentMode];
-            var query = $"{provider} {_searchString}";
+            string query;
+
+            if (string.IsNullOrEmpty(_searchString))
+            {
+                // 空搜尋時顯示該類型的所有資源
+                query = provider;
+            }
+            else
+            {
+                // 有關鍵字時進行篩選
+                query = $"{provider} {_searchString}";
+            }
 
             using var context = SearchService.CreateContext(new[] { "asset" }, query);
             using var results = SearchService.Request(context, SearchFlags.Synchronous);
@@ -246,13 +252,18 @@ namespace CommandPalette
 
                 // 圖標
                 var iconRect = new Rect(rect.x + 5, rect.y + 3, 16, 16);
-                var thumbnail = result.preview;
-                if (thumbnail != null)
-                    GUI.DrawTexture(iconRect, thumbnail);
+                var obj = result.ToObject<UnityEngine.Object>();
+                if (obj != null)
+                {
+                    var thumbnail = AssetPreview.GetMiniThumbnail(obj);
+                    if (thumbnail != null)
+                        GUI.DrawTexture(iconRect, thumbnail);
+                }
 
                 // 標題
                 var nameRect = new Rect(rect.x + 25, rect.y, rect.width - 30, rect.height);
-                GUI.Label(nameRect, result.ToObject().name);
+                var displayName = result.ToObject<UnityEngine.Object>()?.name ?? result.id;
+                GUI.Label(nameRect, displayName);
 
                 // 滑鼠點擊
                 if (

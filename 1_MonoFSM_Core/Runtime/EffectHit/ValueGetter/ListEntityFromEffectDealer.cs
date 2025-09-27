@@ -21,6 +21,8 @@ namespace _1_MonoFSM_Core.Runtime.EffectHit.ValueGetter
                 : "No EffectDealer";
 
         protected override string DescriptionTag => "GetList";
-        public override List<MonoEntity> Value => _effectDealer.GetHittingEntities();
+
+        public override List<MonoEntity> Value =>
+            _effectDealer != null ? _effectDealer.GetHittingEntities() : null;
     }
 }
