@@ -1,6 +1,7 @@
 using System;
 using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
+using MonoFSM.Core.DataProvider;
 using MonoFSM.Core.Runtime;
 using MonoFSM.Runtime;
 using MonoFSM.Runtime.Variable;
@@ -11,9 +12,10 @@ namespace MonoFSMCore.Runtime.LifeCycle
 {
     //FIXME: 好像很trivial, 不好懂
     //剛被Spawn的物件
+    [Obsolete]
     public class SpawnedObjectEntityProvider
         : AbstractEntityProvider,
-            IEntityProvider,
+            IEntityValueProvider,
             ICompProvider<MonoEntity>
     {
         [Required]

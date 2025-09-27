@@ -1,5 +1,6 @@
 using System;
 using MonoFSM.Core.Attributes;
+using MonoFSM.Core.DataProvider;
 using MonoFSM.Core.Runtime;
 using MonoFSM.Runtime;
 using MonoFSM.Variable.Attributes;
@@ -7,8 +8,8 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-// [Obsolete("不可信任XDD 還是直接從arg event當下拿比較好，還是可以修回來？")] //FIXME: 不可信任XDD 還是直接從arg event當下拿比較好
-public class HitDataEntityProvider : AbstractEntityProvider, IEntityProvider //這個介面很怪？VariableOwner...那就直接I
+[Obsolete("不可信任XDD 還是直接從arg event當下拿比較好，還是可以修回來？")] //FIXME: 不可信任XDD 還是直接從arg event當下拿比較好
+public class HitDataEntityProvider : AbstractEntityProvider, IEntityValueProvider //這個介面很怪？VariableOwner...那就直接I
 {
     //可是這裡
     [CompRef]
@@ -22,7 +23,7 @@ public class HitDataEntityProvider : AbstractEntityProvider, IEntityProvider //�
     }
 
     //FIXME: Owner可以 自動判斷吧，parent有Dealer就表示要用Receiver的
-    string IEntityProvider.Description => $"{ownerType}'s Entity";
+    // string IEntityValueProvider.Description => $"{ownerType}'s Entity";
 
     public HitDataVariableOwner ownerType;
 

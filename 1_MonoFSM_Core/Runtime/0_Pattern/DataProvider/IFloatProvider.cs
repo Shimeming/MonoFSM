@@ -20,7 +20,7 @@ namespace MonoFSM.Core.DataProvider
         // public bool IsDirty { get; }
     }
 
-    public interface IEntityValueProvider : IValueProvider<MonoEntity>
+    public interface IEntityValueProvider : IValueProvider<MonoEntity> //怎麼
     {
         MonoEntityTag entityTag { get; }
     }

@@ -81,6 +81,8 @@ namespace MonoFSM.Core.DataProvider
 
         public IEnumerable<ValueDropdownItem<VariableTag>> GetVarTagsFromEntity()
         {
+            if (Application.isPlaying) //暫時解
+                return null;
             if (_varEntity != null)
             {
                 if (_varEntity.Value != null)
@@ -94,6 +96,13 @@ namespace MonoFSM.Core.DataProvider
                     // Debug.Log("ValueProvider: Getting variable tags from assigned entity tag.",
                     // this);
                     return _varEntity.EntityTag.GetVariableTagItems();
+                }
+                else
+                {
+                    Debug.LogError(
+                        "ValueProvider: Assigned VarEntity has no entity tag, returning empty variable tags.",
+                        this
+                    );
                 }
             }
 
@@ -385,7 +394,8 @@ namespace MonoFSM.Core.DataProvider
         }
 
         // public override Type GetValueType =>
-        [PropertyOrder(-1)]
+        // [PropertyOrder(-1)]
+        [GUIColor(0.6f, 0.8f, 1f)]
         [PreviewInInspector]
         public override Type GetObjectType
         {
@@ -669,6 +679,7 @@ namespace MonoFSM.Core.DataProvider
         //     ReflectionUtility.SetFieldValueFromPath(target, _pathEntries, settingValue, gameObject);
         // }
 
+        //FIXME: 顯示失敗？
         [ShowInDebugMode]
         private object previewObject => Get<object>();
 

@@ -19,13 +19,13 @@ namespace MonoFSM.Core.Attributes
         /// <summary>
         ///     根型別提供方法名稱，會在目標物件上尋找此方法來獲取根型別
         /// </summary>
-        public string RootTypeProvider { get; set; }
+        // public string RootTypeProvider { get; set; }
 
         /// <summary>
         ///     是否使用 IFieldPathRootTypeProvider 介面來動態獲取根型別
         ///     當為 true 時，會優先檢查目標物件是否實作 IFieldPathRootTypeProvider
         /// </summary>
-        public bool UseDynamicRootType { get; set; } = true;
+        // public bool UseDynamicRootType { get; set; } = true;
 
         /// <summary>
         ///     無根型別時的錯誤訊息

@@ -10,6 +10,7 @@ using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace MonoFSM.Core.Editor
 {
@@ -70,18 +71,30 @@ namespace MonoFSM.Core.Editor
         /// </summary>
         private Type GetRootType()
         {
-            var targetObject = Property.ParentValues[0];
+            var targetObject = Property.ParentValues[0] as Object;
             if (targetObject == null)
                 return null;
 
+            //直接用targetObject就好了？搞這麼多？
             // 優先級1: 使用動態 IFieldPathRootTypeProvider 介面
-            if (Attribute.UseDynamicRootType && targetObject is IFieldPathRootTypeProvider provider)
+            if (targetObject is IFieldPathRootTypeProvider provider) //FIXME: 需要特別寫這個嗎覺得有點蠢？
                 try
                 {
                     var fieldName = Property.Name;
                     var rootType = provider.GetFieldPathRootType();
+                    // Debug.Log(
+                    //     $"透過 IFieldPathRootTypeProvider 獲取根型別: {(rootType != null ? rootType.FullName : "null")}",
+                    //     targetObject
+                    // );
                     if (rootType != null)
                         return rootType;
+                    else
+                    {
+                        Debug.LogError(
+                            $"IFieldPathRootTypeProvider 返回的根型別為 null，請檢查 {targetObject} 的實作。",
+                            targetObject
+                        );
+                    }
                 }
                 catch (Exception e)
                 {
@@ -89,57 +102,62 @@ namespace MonoFSM.Core.Editor
                         $"透過 IFieldPathRootTypeProvider 獲取根型別時發生錯誤: {e.Message}"
                     );
                 }
+            else
+                Debug.LogError(
+                    targetObject + " 需要實作 IFieldPathRootTypeProvider 介面",
+                    targetObject
+                );
 
             // 優先級2: 使用 RootTypeProvider 方法
-            if (!string.IsNullOrEmpty(Attribute.RootTypeProvider))
-            {
-                var method = targetObject
-                    .GetType()
-                    .GetMethod(
-                        Attribute.RootTypeProvider,
-                        BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
-                    );
-
-                if (method != null && method.ReturnType == typeof(Type))
-                    try
-                    {
-                        return method.Invoke(targetObject, null) as Type;
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.LogError(
-                            $"調用 {Attribute.RootTypeProvider} 方法時發生錯誤: {e.Message}"
-                        );
-                    }
-
-                // 如果是屬性
-                var property = targetObject
-                    .GetType()
-                    .GetProperty(
-                        Attribute.RootTypeProvider,
-                        BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
-                    );
-
-                if (property != null && property.PropertyType == typeof(Type))
-                    try
-                    {
-                        return property.GetValue(targetObject) as Type;
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.LogError(
-                            $"讀取 {Attribute.RootTypeProvider} 屬性時發生錯誤: {e.Message}"
-                        );
-                    }
-            }
+            // if (!string.IsNullOrEmpty(Attribute.RootTypeProvider))
+            // {
+            //     var method = targetObject
+            //         .GetType()
+            //         .GetMethod(
+            //             Attribute.RootTypeProvider,
+            //             BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
+            //         );
+            //
+            //     if (method != null && method.ReturnType == typeof(Type))
+            //         try
+            //         {
+            //             return method.Invoke(targetObject, null) as Type;
+            //         }
+            //         catch (Exception e)
+            //         {
+            //             Debug.LogError(
+            //                 $"調用 {Attribute.RootTypeProvider} 方法時發生錯誤: {e.Message}"
+            //             );
+            //         }
+            //
+            //     // 如果是屬性
+            //     var property = targetObject
+            //         .GetType()
+            //         .GetProperty(
+            //             Attribute.RootTypeProvider,
+            //             BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
+            //         );
+            //
+            //     if (property != null && property.PropertyType == typeof(Type))
+            //         try
+            //         {
+            //             return property.GetValue(targetObject) as Type;
+            //         }
+            //         catch (Exception e)
+            //         {
+            //             Debug.LogError(
+            //                 $"讀取 {Attribute.RootTypeProvider} 屬性時發生錯誤: {e.Message}"
+            //             );
+            //         }
+            // }
 
             // 優先級3: 使用 RootTypeName
-            if (!string.IsNullOrEmpty(Attribute.RootTypeName))
-                return Type.GetType(Attribute.RootTypeName)
-                    ?? AppDomain
-                        .CurrentDomain.GetAssemblies()
-                        .SelectMany(a => a.GetTypes())
-                        .FirstOrDefault(t => t.Name == Attribute.RootTypeName);
+            // if (!string.IsNullOrEmpty(Attribute.RootTypeName))
+            //     return Type.GetType(Attribute.RootTypeName)
+            //         ?? AppDomain
+            //             .CurrentDomain.GetAssemblies()
+            //             .SelectMany(a => a.GetTypes())
+            //             .FirstOrDefault(t => t.Name == Attribute.RootTypeName);
 
             return null;
         }

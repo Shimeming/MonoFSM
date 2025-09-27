@@ -165,7 +165,9 @@ namespace MonoFSM.Core.Detection
                 detectData.SetCustomHitPoint(point.Value);
             if (normal != null)
                 detectData.SetCustomNormal(normal.Value);
-            _thisFrameDetectedObjects[detectable] = detectData;
+
+            if (!_thisFrameDetectedObjects.TryAdd(detectable, detectData))
+                return "already detected";
 
 #if UNITY_EDITOR
             _lastDetectedObjects[detectable] = detectData;
@@ -239,8 +241,9 @@ namespace MonoFSM.Core.Detection
                 // 讓 DetectionSource 更新其內部狀態
                 detectionSource.UpdateDetection();
 
-                // 收集當前檢測到的物件
-                foreach (var result in detectionSource.GetCurrentDetections())
+                // 收集當前檢測到的物件va
+                var results = detectionSource.GetCurrentDetections();
+                foreach (var result in results)
                 {
                     if (result.isValidHit)
                     {
@@ -475,14 +478,14 @@ namespace MonoFSM.Core.Detection
                 return detectable;
 
             // 透過 BaseEffectDetectTarget 取得
-            var spatialDetectable = target.GetComponentInParent<BaseEffectDetectTarget>();
+            var spatialDetectable = target.GetComponent<BaseEffectDetectTarget>();
             if (spatialDetectable != null)
                 return spatialDetectable.Detectable;
 
             // 透過 TriggerDetectableTarget 取得 (向後相容)
-            if (target.TryGetComponent<TriggerDetectableTarget>(out var triggerDetectable))
-                return triggerDetectable.Detectable;
-
+            // if (target.TryGetComponent<TriggerDetectableTarget>(out var triggerDetectable))
+            //     return triggerDetectable.Detectable;
+            // Debug.LogError("not a EffectDetectable or BaseEffectDetectTarget", target);
             return null;
         }
 

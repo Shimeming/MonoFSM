@@ -1,6 +1,7 @@
 using MonoFSM.Core;
 using MonoFSM.Foundation;
 using MonoFSM.Variable.Attributes;
+using UnityEngine;
 
 namespace MonoFSM.Variable
 {
@@ -15,6 +16,7 @@ namespace MonoFSM.Variable
 
         protected IValueProvider GetActiveTypedValueSource()
         {
+            //是這個沒有跑嗎？
             AutoAttributeManager.AutoReferenceFieldEditor(this, nameof(_valueSources));
             return ValueResolver.GetActiveValueSource(_valueSources, this);
         }
@@ -23,7 +25,9 @@ namespace MonoFSM.Variable
         {
             get
             {
+                // Debug.Log("Check HasValueProvider in TypedMonoVariable");
                 AutoAttributeManager.AutoReferenceFieldEditor(this, nameof(_valueSources));
+                // Debug.Log("_valueSources.length" + _valueSources.Length);
                 return ValueResolver.HasValueProvider(_valueSources) || base.HasValueProvider;
             }
         }

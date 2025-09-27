@@ -9,7 +9,9 @@ namespace MonoFSM.Variable
 {
     internal static class VariableExtension
     {
-        public static IList<ValueDropdownItem<T>> GetVariableValueDropdownItems<T>(this MonoBehaviour self)
+        public static IList<ValueDropdownItem<T>> GetVariableValueDropdownItems<T>(
+            this MonoBehaviour self
+        )
             where T : AbstractMonoVariable
         {
             var items = new List<ValueDropdownItem<T>>();
@@ -26,10 +28,13 @@ namespace MonoFSM.Variable
 
             return items;
         }
-        
-        public static IList<ValueDropdownItem<VariableTag>> GetVariableTagDropdownItems<T>(this MonoBehaviour self)
+
+        public static IList<ValueDropdownItem<VariableTag>> GetVariableTagDropdownItems<T>(
+            this MonoBehaviour self
+        )
             where T : AbstractMonoVariable
         {
+            //FIXME: application play很討厭？
             var items = new List<ValueDropdownItem<VariableTag>>();
             var contexts = self.GetComponentsInParent<MonoBlackboard>(true);
             foreach (var context in contexts)
@@ -38,7 +43,18 @@ namespace MonoFSM.Variable
                 foreach (var var in vars)
                 {
                     var owner = var.GetComponentInParent<MonoBlackboard>();
-                    items.Add(new ValueDropdownItem<VariableTag>(owner.name + "/" + var.name, var._varTag));
+                    if (owner == null)
+                    {
+                        Debug.LogError("owner==null", var);
+                    }
+
+                    if (var._varTag == null)
+                    {
+                        Debug.LogError("varTag==null", var);
+                    }
+                    items.Add(
+                        new ValueDropdownItem<VariableTag>(owner.name + "/" + var.name, var._varTag)
+                    );
                 }
             }
             return items;
@@ -52,7 +68,8 @@ namespace MonoFSM.Variable
         //FIXME: 用selection dropdown來篩選
         //這個還可以化簡嗎？整個description就代表含義了..但沒有Reference可能還是不夠用
         // protected override string renamePostfix =>
-        public override string Description => _target != null ? _target.name + " = " + TargetValue : "null target";
+        public override string Description =>
+            _target != null ? _target.name + " = " + TargetValue : "null target";
 
         private IList<ValueDropdownItem<VarBool>> GetVariables()
         {
@@ -80,12 +97,13 @@ namespace MonoFSM.Variable
         // [Required]
         // [HideIf("Multiple")]
         public VarBool _target; //var?
-        //ObjectReference還指不到耶？ 
+
+        //ObjectReference還指不到耶？
 
         //FIXME: Multiple的話另外寫SetVariableComplexAction, 直接用VariableProviderList之類的好了？
         // [ShowIf("Multiple")] public List<VarBool> targetFlags;
 
-        // [MCPExtractable] 
+        // [MCPExtractable]
         public bool TargetValue = true;
 
         // public bool Multiple = false;
@@ -98,7 +116,7 @@ namespace MonoFSM.Variable
 
         // public override void EventReceived<T>(T arg)
         // {
-        //   
+        //
         //     // this.Log("EventReceived setVariableBoolAction");
         //     if (arg is bool b)
         //         SetValue(b);

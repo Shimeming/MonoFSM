@@ -96,7 +96,7 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
 
 #if UNITY_EDITOR
         [ShowInDebugMode]
-        private readonly List<Collider> _debugHistoryObjs = new();
+        private readonly Queue<Collider> _debugHistoryObjs = new();
 #endif
 
         public bool _isDrawDebugColor;
@@ -183,12 +183,16 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
                     CachedHits.Add(hitInfo);
                     // Debug.Log("[RaycastCache] RaycastProcessor Hit:" + hitInfo.collider, this);
                     // _thisFrameColliders.Add(hitInfo.collider);
-                    _debugHistoryObjs.Add(hitInfo.collider);
+                    _debugHistoryObjs.Enqueue(hitInfo.collider);
+                    if (_debugHistoryObjs.Count > 10)
+                        _debugHistoryObjs.Dequeue();
                 }
                 else if (Physics.Raycast(ray, out var hit, GetDistance(), _hittingLayer))
                 {
                     CachedHits.Add(hit);
-                    _debugHistoryObjs.Add(hit.collider);
+                    _debugHistoryObjs.Enqueue(hit.collider);
+                    if (_debugHistoryObjs.Count > 10)
+                        _debugHistoryObjs.Dequeue();
                 }
             }
             else

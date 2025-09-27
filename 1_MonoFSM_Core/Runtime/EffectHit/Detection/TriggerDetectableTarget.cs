@@ -18,7 +18,10 @@ namespace MonoFSM.Core.Detection
 
         //FIXME: 加的時候要同一層
 
-
+        protected override bool HasError()
+        {
+            return base.HasError() || _collider.enabled == false;
+        }
 
         // [Component] [AutoChildren(DepthOneOnly = true)]
         // private GeneralEffectReceiver[] _effectReceivers;

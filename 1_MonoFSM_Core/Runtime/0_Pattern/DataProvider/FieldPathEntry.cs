@@ -101,6 +101,7 @@ namespace MonoFSM.Core.DataProvider
         )
         {
             var type = targetType ?? parentType;
+            // Debug.Log("GetAvailableMembers for type: " + type, _monoTypeTag);
             if (type == null)
                 return new List<string>();
 

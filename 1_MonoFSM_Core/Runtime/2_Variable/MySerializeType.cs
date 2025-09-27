@@ -80,7 +80,7 @@ namespace MonoFSM.Variable
         //         return;
         //     _type = Type.GetType(typeName);
         // }
-
+        public bool IsTypeSet => _type != null;
         private Type _type; //cached
 
         private bool FilterTypes(Type type)
@@ -130,7 +130,7 @@ namespace MonoFSM.Variable
                     //     // 檢查並同步型別名稱
                     //     SyncTypeNameIfNeeded();
                     // }
-                    return BaseFilterType;
+                    return BaseFilterType; //default用程式碼的
                 }
                 return _type;
             }

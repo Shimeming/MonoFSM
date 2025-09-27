@@ -13,6 +13,6 @@ namespace Fusion.Addons.KCC.ECM2.Examples.Networking.Fusion_v2.Characters.Script
         public override bool HasValue =>
             _gameData != null && _gameData.Value != null && _gameData.Value.bindPrefab != null;
 
-        public MonoObj Value => _gameData.Value.bindPrefab;
+        public MonoObj Value => HasValue ? _gameData.Value.bindPrefab : null;
     }
 }

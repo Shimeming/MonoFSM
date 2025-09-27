@@ -7,6 +7,7 @@ using System.Reflection;
 using MonoFSM.AddressableAssets;
 using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
+using MonoFSM.Core.DataProvider;
 using MonoFSM.Localization;
 using MonoFSM.Runtime.Mono;
 using MonoFSM.Variable.FieldReference;
@@ -167,7 +168,8 @@ public class GameData
     : GameFlagBase,
         IDescriptableData,
         IMonoDescriptable,
-        ISceneSavingCallbackReceiver
+        ISceneSavingCallbackReceiver,
+        IFieldPathRootTypeProvider
 {
     [FormerlySerializedAs("descriptableTag")]
     public MonoEntityTag _entityTag;
@@ -657,5 +659,10 @@ public class GameData
         //FIXME:
         //自動改名、validation之類的
         // name = name.Replace("[", "(").Replace("]", ")");
+    }
+
+    public Type GetFieldPathRootType()
+    {
+        return typeof(GameData);
     }
 }

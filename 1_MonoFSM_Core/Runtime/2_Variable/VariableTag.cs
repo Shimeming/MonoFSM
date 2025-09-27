@@ -137,6 +137,10 @@ namespace MonoFSM.Variable
 
         public Type ValueFilterType => _valueTypeTag?.Type ?? _valueFilterType.RestrictType;
 
+        //因為Restrict Type會回傳default type, 另外細處理有沒有被set
+        public bool HasOverrideValueFilterType =>
+            _valueTypeTag != null || _valueFilterType.IsTypeSet;
+
         [Button]
         void FetchFilterType()
         {

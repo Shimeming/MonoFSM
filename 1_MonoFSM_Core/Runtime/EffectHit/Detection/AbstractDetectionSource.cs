@@ -9,17 +9,20 @@ namespace MonoFSM.Core.Detection
 {
     public struct DetectionResult
     {
-        public GameObject targetObject;
+        // public Rigidbody _targetRigidbody; //為了不要重複判斷？
+        public GameObject targetObject; //collider
         public Vector3? hitPoint;
         public Vector3? hitNormal;
         public bool isValidHit;
 
         public DetectionResult(
-            GameObject target,
+            // Rigidbody targetRigidbody,
+            GameObject target, //為何不用collider?
             Vector3? hitPoint = null,
             Vector3? hitNormal = null
         )
         {
+            // this._targetRigidbody = targetRigidbody;
             this.targetObject = target;
             this.hitPoint = hitPoint;
             this.hitNormal = hitNormal;
@@ -51,6 +54,7 @@ namespace MonoFSM.Core.Detection
         [PreviewInInspector]
         protected readonly HashSet<Collider> _thisFrameColliders = new(); //這個有用嗎？
 
+        [ShowInDebugMode]
         protected List<DetectionResult> _buffer = new List<DetectionResult>();
 
         // [PreviewInDebugMode]

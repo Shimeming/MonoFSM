@@ -1,6 +1,7 @@
 using _1_MonoFSM_Core.Runtime.Attributes;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.DataProvider;
+using MonoFSM.Foundation;
 using MonoFSM.Runtime;
 using MonoFSM.Runtime.Mono;
 using MonoFSM.Variable.Attributes;
@@ -18,9 +19,8 @@ namespace MonoFSM.Core.Runtime
     /// FIXME: 應該叫做EntityRef?
     /// 這個要自帶改名能力嗎？
     public abstract class AbstractEntityProvider
-        : MonoBehaviour,
-            IEntityProvider,
-            IValueProvider<MonoEntity>
+        : AbstractValueSource<MonoEntity>,
+            IEntityValueProvider
     {
         public abstract string SuggestDeclarationName { get; }
 
@@ -50,6 +50,6 @@ namespace MonoFSM.Core.Runtime
 
         // public abstract string NickName { get; }
         public string Description => $"{SuggestDeclarationName}({entityTag})";
-        public MonoEntity Value => monoEntity;
+        public override MonoEntity Value => monoEntity;
     }
 }

@@ -20,10 +20,10 @@ namespace MonoFSM_Physics.Runtime.Interact.SpatialDetection
             _buffer.Clear();
             foreach (var hit in cachedHits)
             {
-                var targetObject = hit.rigidbody
-                    ? hit.rigidbody.gameObject
-                    : hit.collider.gameObject;
-                _buffer.Add(new DetectionResult(targetObject, hit.point, hit.normal));
+                // var targetObject = hit.rigidbody
+                //     ? hit.rigidbody.gameObject
+                //     : hit.collider.gameObject;
+                _buffer.Add(new DetectionResult(hit.collider.gameObject, hit.point, hit.normal));
             }
 
             return _buffer;

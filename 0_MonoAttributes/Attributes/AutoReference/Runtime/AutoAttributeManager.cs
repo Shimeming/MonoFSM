@@ -29,6 +29,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 // using Cysharp.Threading.Tasks;
 using Debug = UnityEngine.Debug;
+using Object = UnityEngine.Object;
 
 [ScriptTiming(-20000)]
 public class AutoAttributeManager : MonoBehaviour
@@ -195,11 +196,18 @@ public class AutoAttributeManager : MonoBehaviour
         if (mb == null || string.IsNullOrEmpty(fieldName))
             return;
         var t = mb.GetType();
+
         var fieldDictByName = FieldCache.fieldDictByName;
+
+        //先看看有沒有這個type的內容，沒有的話重新拉
+        if (!fieldDictByName.ContainsKey((t, fieldName)))
+        {
+            GetFieldsWithAutoAndBuildCache(mb);
+        }
+
         if (!fieldDictByName.TryGetValue((t, fieldName), out var field))
         {
-            //沒有很正常
-            // Debug.LogWarning($"[Auto] Field {fieldName} not found in {t}", mb);
+            Debug.LogError("[Auto] Cannot find field " + fieldName + " in " + t, mb);
             return;
         }
 
@@ -419,7 +427,7 @@ public class AutoAttributeManager : MonoBehaviour
         return monoBehaviours;
     }
 
-    public static IEnumerable<FieldInfo> GetFieldsWithAutoAndBuildCache(object mb)
+    public static IEnumerable<FieldInfo> GetFieldsWithAutoAndBuildCache(Object mb) //FIXME: 應該吃type, mb誤會
     {
         if (mb == null)
             return default;

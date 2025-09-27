@@ -10,10 +10,7 @@ namespace MonoFSM.Core.Runtime
     ///     FIXME: 怎麼拿到目前player的Inventory? condition? runtime tag? (LocalPlayer,Inventory?) tuple key?
     /// </summary>
     /// 改名叫做world?
-    public class GlobalEntityProvider
-        : AbstractEntityProvider,
-            IEntityProvider,
-            IValueProvider<MonoEntity>
+    public class GlobalEntityProvider : AbstractEntityProvider, IEntityValueProvider
     {
         // [Required] [TypeRestrictFilter(typeof(MonoEntity), true, "請選擇 MonoEntity 類型的 VariableTag")] [SerializeField]
         // private MonoEntityTag _monoEntityTag;
@@ -27,6 +24,8 @@ namespace MonoFSM.Core.Runtime
 
         private MonoEntity GetBlackboardFromGlobalInstance()
         {
+            if (Application.isPlaying == false)
+                return null;
             if (_expectedEntityTag == null)
             {
                 if (Application.isPlaying)

@@ -102,12 +102,18 @@ namespace MonoFSM.Variable
         {
             if (_varTag != null)
             {
+                Debug.Log($"Set _varTag:{_varTag} _variableType  {GetType()}", _varTag);
+
+                //要怎麼找到對應的variable tag...要有一個dict可以找hmm
                 _varTag._variableType.SetType(GetType());
 
                 //如果有了不該蓋掉？如果改型別了呢？還是要看有沒有繼承關係？
                 //FIXME: BaseFilterType應該要改？
-                if (_varTag.ValueFilterType == null)
+                if (_varTag.HasOverrideValueFilterType == false)
+                {
+                    Debug.Log($"Set _varTag:{_varTag} ValueFilterType  {ValueType}", _varTag);
                     _varTag._valueFilterType.SetType(ValueType);
+                }
             }
 
             // Debug.Log("Tag Changed");

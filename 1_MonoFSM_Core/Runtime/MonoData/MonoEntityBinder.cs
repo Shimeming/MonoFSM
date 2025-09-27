@@ -116,6 +116,8 @@ namespace MonoFSM.Runtime
         /// GetInstance, GetInstances ?
         public static MonoEntity GetGlobalInstance(this MonoBehaviour mono, MonoEntityTag tag)
         {
+            if (!Application.isPlaying)
+                return null;
             //Descriptable就在自己的parent上，
             if (mono == null)
             {

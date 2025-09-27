@@ -31,7 +31,7 @@ namespace MonoFSM.Core.DataProvider
     //動態提取？不用type? 讓我pathField選到string就有string的能力？ any IValueProvider然後Get<TType>看看？
     //A.B.Variable, 用tag來找variable
     //單純版好像不想要這麼複雜？ localRef
-    // [Obsolete]
+    [Obsolete]
     public abstract class VariableProviderRef<TVarMonoType, TValueType>
         : AbstractVariableProviderRef,
             IVariableProvider,
@@ -160,10 +160,9 @@ namespace MonoFSM.Core.DataProvider
         [TabGroup("Owner Setting")]
         [Required]
         //開prefab
-        public IEntityProvider entityProvider;
+        public IEntityValueProvider entityProvider;
 
-        public MonoEntity entity =>
-            _varEntity != null ? _varEntity.Value : entityProvider.monoEntity;
+        public MonoEntity entity => _varEntity != null ? _varEntity.Value : entityProvider.Value;
 
         public VarEntity _varEntity;
 
@@ -327,7 +326,7 @@ namespace MonoFSM.Core.DataProvider
 
             if (_getFromType == GetFromType.VariableOwnerProvider)
             {
-                entityProvider = GetComponent<IEntityProvider>();
+                entityProvider = GetComponent<IEntityValueProvider>();
                 // if (_entityProvider == null)
                 //     // Debug.LogError("VariableOwnerProvider is null", this);
                 //     return null;

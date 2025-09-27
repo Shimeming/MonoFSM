@@ -34,7 +34,9 @@ namespace MonoFSM.Runtime.Variable
         {
             get
             {
-                if (HasValueProvider && valueSource is IEntityValueProvider entityValueSource)
+                var isProxy = HasValueProvider;
+                // Debug.Log("Get EntityTag from VarEntity isProxy:" + isProxy);
+                if (isProxy && valueSource is IEntityValueProvider entityValueSource)
                     return entityValueSource.entityTag;
                 // return valueSource.EntityTag; //hmm 怎麼額外定義QQ
                 return _monoEntityTag;
