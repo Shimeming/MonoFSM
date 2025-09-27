@@ -21,61 +21,6 @@ using Object = UnityEngine.Object;
 
 namespace MonoFSM.Variable
 {
-    public abstract class TypedMonoVariable<T> : AbstractMonoVariable //, ISettable<T>
-    {
-        //bound直接炸開...
-        [CompRef]
-        [AutoChildren(DepthOneOnly = true, _isSelfInclude = true)]
-        //fixme; 用interface的壞處？需要 ensurecomponent? 但不會髒掉？
-        protected IValueProvider[] _valueSources; //FIXME: 好像可以改成AbstractValueProvider<T>?
-
-        protected IValueProvider valueSource => GetActiveTypedValueSource();
-
-        protected IValueProvider GetActiveTypedValueSource()
-        {
-            AutoAttributeManager.AutoReferenceFieldEditor(this, nameof(_valueSources));
-            return ValueResolver.GetActiveValueSource(_valueSources, this);
-        }
-
-        protected override bool HasValueProvider
-        {
-            get
-            {
-                AutoAttributeManager.AutoReferenceFieldEditor(this, nameof(_valueSources));
-                return ValueResolver.HasValueProvider(_valueSources) || base.HasValueProvider;
-            }
-        }
-
-        // public void SetValue(T value, MonoBehaviour byWho)
-        // {
-        //     // Debug.Log($"SetValue {value} by {byWho}", this);
-        //     SetValueInternal(value, byWho);
-        // }
-
-        // public abstract void SetValue(object value, MonoBehaviour byWho);
-
-        public abstract void CommitValue();
-
-        // public void SetValue(object value, MonoBehaviour byWho = null)
-        // {
-        //     SetValue<T>((T)value, byWho);
-        // }
-
-        // public void SetValue<T1>(T1 value, MonoBehaviour byWho = null)
-        // {
-        //     if (value is T tValue)
-        //     {
-        //         SetValue(tValue, byWho);
-        //     }
-        //     else
-        //     {
-        //         if (value == null)
-        //             return;
-        //         Debug.LogError($"SetValue: Cannot cast {value} to {typeof(T)}", this);
-        //     }
-        // }
-    }
-
     //FIXME: 應該要繼承AbstractSourceValueRef
     public abstract class AbstractMonoVariable //Rename self?
         : MonoBehaviour,
