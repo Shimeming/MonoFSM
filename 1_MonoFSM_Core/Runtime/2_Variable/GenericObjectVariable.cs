@@ -183,7 +183,7 @@ namespace MonoFSM.Variable
                             $"{name}'s ParentVarEntity has no var: '{_varTag}' folder:{_parentVarEntity.Value.VariableFolder}",
                             _parentVarEntity.Value
                         );
-                        Debug.Break();
+                        // Debug.Break();
                         return null;
                     }
 
@@ -347,9 +347,9 @@ namespace MonoFSM.Variable
         {
             get
             {
-                // ValueInfo 也需要保護，因為它會呼叫 Value
                 try
                 {
+                    //現在hierarchy上會一直去狂拿，會有問題嗎？
                     var value = Value;
                     return value != null ? value.name : "null";
                 }

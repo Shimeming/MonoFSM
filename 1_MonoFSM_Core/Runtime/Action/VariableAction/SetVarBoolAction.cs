@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using _1_MonoFSM_Core.Runtime.Action.VariableAction;
 using MonoFSM.Core.Runtime.Action;
 using MonoFSM.Runtime.Variable;
 using Sirenix.OdinInspector;
@@ -7,60 +8,6 @@ using UnityEngine.Serialization;
 
 namespace MonoFSM.Variable
 {
-    internal static class VariableExtension
-    {
-        public static IList<ValueDropdownItem<T>> GetVariableValueDropdownItems<T>(
-            this MonoBehaviour self
-        )
-            where T : AbstractMonoVariable
-        {
-            var items = new List<ValueDropdownItem<T>>();
-            var contexts = self.GetComponentsInParent<MonoBlackboard>(true);
-            foreach (var context in contexts)
-            {
-                var vars = context.GetComponentsInChildren<T>(true);
-                foreach (var var in vars)
-                {
-                    var owner = var.GetComponentInParent<MonoBlackboard>();
-                    items.Add(new ValueDropdownItem<T>(owner.name + "/" + var.name, var));
-                }
-            }
-
-            return items;
-        }
-
-        public static IList<ValueDropdownItem<VariableTag>> GetVariableTagDropdownItems<T>(
-            this MonoBehaviour self
-        )
-            where T : AbstractMonoVariable
-        {
-            //FIXME: application play很討厭？
-            var items = new List<ValueDropdownItem<VariableTag>>();
-            var contexts = self.GetComponentsInParent<MonoBlackboard>(true);
-            foreach (var context in contexts)
-            {
-                var vars = context.GetComponentsInChildren<T>(true);
-                foreach (var var in vars)
-                {
-                    var owner = var.GetComponentInParent<MonoBlackboard>();
-                    if (owner == null)
-                    {
-                        Debug.LogError("owner==null", var);
-                    }
-
-                    if (var._varTag == null)
-                    {
-                        Debug.LogError("varTag==null", var);
-                    }
-                    items.Add(
-                        new ValueDropdownItem<VariableTag>(owner.name + "/" + var.name, var._varTag)
-                    );
-                }
-            }
-            return items;
-        }
-    }
-
     //set flag, pick item...和GameFlag有關的要用一個interface才可以撈出來
     //FIXME: 需要雙向reference, debug用，要不然不知道誰在set? candidate
     public class SetVarBoolAction : AbstractStateAction, IArgEventReceiver<bool>
@@ -89,13 +36,6 @@ namespace MonoFSM.Variable
             // return items;
         }
 
-        [FormerlySerializedAs("_targetFlag")]
-        [FormerlySerializedAs("targetFlag")]
-        [DropDownRef]
-        [ValueDropdown(nameof(GetVariables))]
-        // [InlineEditor]
-        // [Required]
-        // [HideIf("Multiple")]
         public VarBool _target; //var?
 
         //ObjectReference還指不到耶？

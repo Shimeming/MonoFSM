@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using _1_MonoFSM_Core.Runtime._1_States;
+using _1_MonoFSM_Core.Runtime.Action.VariableAction;
 using Cysharp.Text;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Utilities;
@@ -819,6 +820,7 @@ namespace MonoFSM.Core.DataProvider
             // 不選varTag的話就用Entity?
             // 使用欄位路徑存取特定欄位值
             Profiler.BeginSample("ReflectionUtility.GetFieldValueFromPath _pathEntries", this);
+            // Debug.Log("GetValue from target" + target, target);
             var (fieldValue, infoo) = ReflectionUtility.GetFieldValueFromPath<T1>(
                 target,
                 _pathEntries,

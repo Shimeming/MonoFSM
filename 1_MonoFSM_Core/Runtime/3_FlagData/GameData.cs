@@ -175,11 +175,15 @@ public class GameData
     public MonoEntityTag _entityTag;
 
     [SerializeReference]
-    private AbstractDataFunction[] _dataFunctionsArray; //這個用hashSet會比較好？ 可是QQ
+    private AbstractDataFunction[] _dataFunctionsArray;
 
+    [OnValueChanged(nameof(RebuildDataFunctionDict))]
     [SerializeReference]
     private IDataFeature[] _dataFunctions; //這個用hashSet會比較好？ 可是QQ
-    private readonly Dictionary<Type, IDataFeature> _dataFunctionSet = new();
+
+    private readonly Dictionary<Type, IDataFeature> _dataFunctionDict = new();
+
+    bool IsRebuildNeeded => _dataFunctions.Length != _dataFunctionDict.Count;
 
     // private readonly HashSet<IDataFunction> _hashSet = new();
 
@@ -187,7 +191,7 @@ public class GameData
         where T : class, IDataFeature
     {
         //沒有interface的對應實作...hmm好難
-        if (_dataFunctionSet.TryGetValue(typeof(T), out var dataFunction))
+        if (_dataFunctionDict.TryGetValue(typeof(T), out var dataFunction))
             return dataFunction as T;
 
         Debug.LogError($"Data function of type {typeof(T)} not found in {name}", this);
@@ -197,13 +201,21 @@ public class GameData
     public override void FlagAwake(TestMode mode)
     {
         base.FlagAwake(mode);
-        Init();
+        RebuildDataFunctionDict();
     }
 
-    private void Init()
+    void RebuildDataFunctionCheck()
     {
-        _dataFunctionSet.Clear();
-        if (_dataFunctions == null)
+        if (IsRebuildNeeded)
+            RebuildDataFunctionDict();
+    }
+
+    private void RebuildDataFunctionDict()
+    {
+        if (_dataFunctions == null) //如果onchange清掉咧？
+            return;
+        _dataFunctionDict.Clear();
+        if (_dataFunctions.Length == 0) //沒有
             return;
         foreach (var dataFunction in _dataFunctions)
         {
@@ -214,7 +226,7 @@ public class GameData
             }
             dataFunction.SetOwner(this);
             var type = dataFunction.GetType();
-            if (!_dataFunctionSet.TryAdd(type, dataFunction))
+            if (!_dataFunctionDict.TryAdd(type, dataFunction))
                 Debug.LogError($"Duplicate data function of type {type} found in {name}", this);
         }
     }
@@ -349,8 +361,10 @@ public class GameData
     {
         get
         {
-            //FIXME://editor還沒準備好？ 當數量不同時，重新建立？
-            if (_dataFunctionSet.TryGetValue(typeof(PickableData), out var dataFunction))
+            if (!Application.isPlaying)
+                RebuildDataFunctionCheck();
+
+            if (_dataFunctionDict.TryGetValue(typeof(PickableData), out var dataFunction))
                 return ((PickableData)dataFunction).EntityPrefab;
             // Debug.LogError("No PickableData found in " + name, this);
             return null;

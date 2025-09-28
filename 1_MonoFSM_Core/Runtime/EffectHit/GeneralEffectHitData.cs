@@ -1,14 +1,12 @@
 using System;
-using MonoFSM.Runtime.Variable;
 using MonoFSM.Runtime.Item_BuildSystem;
+using MonoFSM.Runtime.Variable;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace MonoFSM.Runtime.Interact.EffectHit
 {
-    public interface IActor
-    {
-    }
+    public interface IActor { }
 
     [Serializable] //沒用？
     public class GeneralEffectHitData : IEffectHitData
@@ -20,7 +18,6 @@ namespace MonoFSM.Runtime.Interact.EffectHit
             data.Override(dealer, receiver);
             return data;
         }
-
 
         //dealer和receiver的transform資料可以作為相對位置
         [ShowInInspector]
@@ -46,7 +43,6 @@ namespace MonoFSM.Runtime.Interact.EffectHit
             hitNormal = null; //重置hitNormal
         }
 
-
         [ShowInInspector]
         public Vector3? hitPoint
         {
@@ -61,23 +57,26 @@ namespace MonoFSM.Runtime.Interact.EffectHit
             set => _hitNormal = value;
         }
 
+        //合理的設計嗎？force direction? 和normal無關，從dealer推測力的方向
+        //TODO: 好像還要包含dealer的rotation?
         public Vector3 Dir =>
             hitPoint.HasValue && hitNormal.HasValue
-                ? (hitPoint.Value - Receiver.transform.position).normalized
-                : (Dealer.transform.position - Receiver.transform.position)
-                .normalized;
+                ? (hitPoint.Value - Dealer.transform.position).normalized
+                : (Receiver.transform.position - Dealer.transform.position).normalized;
 
         private Vector3? _hitPoint;
         private Vector3? _hitNormal;
 
-        public T GetComponentFromDealerOwner<T>() where T : class
+        public T GetComponentFromDealerOwner<T>()
+            where T : class
         {
             return GeneralDealer.GetComponentOfSibling<IModuleOwner, T>();
         }
 
         //從Owner身旁的MonoEntityBinder取得下面的Entity
         //FIXME: 不一定會有MonoEntityBinder? 還是要逼每個MonoObject都要有MonoEntityBinder? 那就應該要做成可以直接宣告的方式？(A has B)
-        public T GetEntityFromDealerOwner<T>() where T : MonoEntity
+        public T GetEntityFromDealerOwner<T>()
+            where T : MonoEntity
         {
             //FIXME: 現在根本兩個就一樣..
             var binder = GeneralDealer.GetComponentInParent<MonoEntityBinder>();
@@ -91,8 +90,9 @@ namespace MonoFSM.Runtime.Interact.EffectHit
             Debug.Log("GetEntityFromDealerOwner " + typeof(T).Name, binder);
             return binder.Get(typeof(T)) as T; //有點醜
         }
-        
-        public T GetComponentFromReceiver<T>() where T : class
+
+        public T GetComponentFromReceiver<T>()
+            where T : class
         {
             return GeneralReceiver.GetComponentOfSibling<IModuleOwner, T>();
         }

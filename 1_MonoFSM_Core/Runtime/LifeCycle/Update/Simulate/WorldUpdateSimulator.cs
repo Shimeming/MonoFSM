@@ -363,8 +363,21 @@ namespace MonoFSM.Core.Simulate
                 {
                     if (monoObject.IsUpdateSimulatesNeeded)
                     {
-                        Profiler.BeginSample("BeforeSimulate", monoObject);
+                        Profiler.BeginSample("Simulate", monoObject);
                         monoObject.Simulate(deltaTime);
+                        Profiler.EndSample();
+                    }
+                }
+            }
+
+            foreach (var monoObject in _currentUpdatingObjs)
+            {
+                if (monoObject is { isActiveAndEnabled: true })
+                {
+                    if (monoObject.IsAfterSimulatesNeeded)
+                    {
+                        Profiler.BeginSample("AfterSimulate", monoObject);
+                        monoObject.AfterSimulate(deltaTime);
                         Profiler.EndSample();
                     }
                 }

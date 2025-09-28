@@ -5,10 +5,24 @@ using UnityEngine;
 
 namespace MonoFSM_Physics.Runtime.PhysicsAction
 {
+    [System.Flags]
+    public enum LerpAxis
+    {
+        None = 0,
+        X = 1 << 0,
+        Y = 1 << 1,
+        Z = 1 << 2,
+        XY = X | Y,
+        XZ = X | Z,
+        YZ = Y | Z,
+        All = X | Y | Z,
+    }
+
     public interface ICustomRigidbody
     {
         public void AddForce(Vector3 force, ForceMode mode);
-        public Vector3 position { get; set; }
+        public Vector3 position { get; set; } //不一定可以？
+        public void Move(Vector3 offset);
         public bool isPaused { set; get; }
     }
 
@@ -19,6 +33,7 @@ namespace MonoFSM_Physics.Runtime.PhysicsAction
         // [DropDownRef] public ValueProvider _rigidbodyValueProvider;
         public VarComp _rigidbodyVar;
         public Vector3 _offsetPosition = Vector3.zero;
+        public LerpAxis _lerpAxis = LerpAxis.All;
         private Rigidbody _rb;
 
         protected override void OnStateEnter()
@@ -39,16 +54,41 @@ namespace MonoFSM_Physics.Runtime.PhysicsAction
 
         private Vector3 _targetPosition;
 
+        private Vector3 GetLerpedPosition(Vector3 currentPos, Vector3 targetPos, float deltaTime)
+        {
+            var lerpPos = currentPos;
+
+            if ((_lerpAxis & LerpAxis.X) != 0)
+                lerpPos.x = Mathf.Lerp(currentPos.x, targetPos.x, deltaTime);
+
+            if ((_lerpAxis & LerpAxis.Y) != 0)
+            {
+                lerpPos.y = Mathf.Lerp(currentPos.y, targetPos.y, deltaTime);
+                // Debug.Log(
+                //     $"Lerping Y from {currentPos.y} to {targetPos.y} with deltaTime {deltaTime}, result: {lerpPos.y}",
+                //     this);
+            }
+
+            if ((_lerpAxis & LerpAxis.Z) != 0)
+                lerpPos.z = Mathf.Lerp(currentPos.z, targetPos.z, deltaTime);
+
+            return lerpPos;
+        }
+
+        //FIXME: 只lerp其中一個軸？ 像是只有y軸，其他不管？
+
         protected override void OnStateUpdate()
         {
             base.OnStateUpdate();
-
+            if (_rb == null)
+                return;
+            var lerpPos = GetLerpedPosition(_rb.position, _targetPosition, DeltaTime);
             //character要另外處理...
             if (_rb.TryGetComponent<ICustomRigidbody>(out var customRigidbody))
             {
                 // customRigidbody.AddForce((_offsetPosition - rb.position) * 100,
                 //     ForceMode.VelocityChange);
-                customRigidbody.position = Vector3.Lerp(_rb.position, _targetPosition, DeltaTime);
+                customRigidbody.position = lerpPos;
                 return;
             }
 
@@ -59,11 +99,11 @@ namespace MonoFSM_Physics.Runtime.PhysicsAction
                 return;
             }
 
-            //FIXME: network卡住？
-            // var forceDirection = (targetPosition - rb.position).normalized;
-            // Debug.Log($"Force direction: {forceDirection}", this);
-            // rb.AddForce(forceDirection * 1, ForceMode.VelocityChange);
-            _rb.MovePosition(Vector3.Lerp(_rb.position, _targetPosition, DeltaTime));
+            Debug.Log(
+                $"Lerping from {_rb.position} to {_targetPosition} with deltaTime {DeltaTime}, result: {lerpPos}",
+                this
+            );
+            _rb.MovePosition(lerpPos);
         }
 
         protected override void OnStateExit()

@@ -145,7 +145,12 @@ namespace MonoFSMCore.Runtime.LifeCycle
         [AutoChildren]
         private IBeforeSimulate[] _beforeSimulates;
 
+        [PreviewInInspector]
+        [AutoChildren]
+        private IAfterSimulate[] _afterSimulates;
+
         public bool IsBeforeSimulatesNeeded => _beforeSimulates.Length > 0;
+        public bool IsAfterSimulatesNeeded => _afterSimulates.Length > 0;
 
         //FIXME: PoolBeforeReturnToPool? OnReturnPool?
 
@@ -313,6 +318,30 @@ namespace MonoFSMCore.Runtime.LifeCycle
                 // try
                 // {
                 item.Simulate(deltaTime);
+                // }
+                // catch (Exception e)
+                // {
+                //     if (item is MonoBehaviour)
+                //         Debug.LogError(e.Message + "\n" + e.StackTrace, item as MonoBehaviour);
+                //     else
+                //         Debug.LogError(e.Message + "\n" + e.StackTrace);
+                // }
+            }
+        }
+
+        public void AfterSimulate(float deltaTime)
+        {
+            if (HasParent)
+                return;
+            if (IsProxy)
+                return;
+            foreach (var item in _afterSimulates)
+            {
+                if (item == null || !item.isActiveAndEnabled)
+                    continue;
+                // try
+                // {
+                item.AfterSimulate(deltaTime);
                 // }
                 // catch (Exception e)
                 // {
