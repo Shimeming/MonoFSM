@@ -18,14 +18,6 @@ namespace MonoFSM_Physics.Runtime.PhysicsAction
         All = X | Y | Z,
     }
 
-    public interface ICustomRigidbody
-    {
-        public void AddForce(Vector3 force, ForceMode mode);
-        public Vector3 position { get; set; } //不一定可以？
-        public void Move(Vector3 offset);
-        public bool isPaused { set; get; }
-    }
-
     //FIXME: 沒有rigidbody不給貼？或是沒有效果？ 自帶isvalid?
     public class LerpToPositionAction : AbstractStateLifeCycleHandler
     {
