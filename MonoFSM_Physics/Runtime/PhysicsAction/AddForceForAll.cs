@@ -65,7 +65,10 @@ namespace MonoFSM_Physics.Runtime.PhysicsAction
                 // var forceToAdd = velChange;
                 // force = forceToAdd;
 
-                if (rb.TryGetComponent<ICustomRigidbody>(out var customRigidbody))
+                if (
+                    rb.TryGetComponent<ICustomRigidbody>(out var customRigidbody)
+                    && !customRigidbody.isPaused
+                )
                 {
                     customRigidbody.AddForce(force, _forceMode);
                     return;
@@ -84,6 +87,7 @@ namespace MonoFSM_Physics.Runtime.PhysicsAction
                         + entity.name,
                     rb
                 );
+                DrawArrow.ForDebug(applicationPoint, force, Color.coral, 1f);
 
                 rb.AddForceAtPosition(force, applicationPoint, _forceMode);
             }

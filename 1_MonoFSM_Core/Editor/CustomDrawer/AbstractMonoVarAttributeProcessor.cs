@@ -7,12 +7,11 @@ using Sirenix.OdinInspector.Editor;
 
 namespace _1_MonoFSM_Core.Editor.CustomDrawer
 {
-    //FIXME: 一定需要Required?
     /// <summary>
-    ///     自動幫 AbstractMonoVariable 加上 DropDownRefAttribute 和 ShowDrawerChainAttribute
+    ///     自動幫 IDropdownRef 加上 DropDownRefAttribute 和 ShowDrawerChainAttribute
     /// </summary>
     [UsedImplicitly]
-    public class AbstractMonoVarAttributeProcessor : OdinAttributeProcessor<AbstractMonoVariable>
+    public class AbstractMonoVarAttributeProcessor : OdinAttributeProcessor<IDropdownRef> //可以對interface做嗎？ IDropdownRef?
     {
         public override void ProcessSelfAttributes(
             InspectorProperty property,

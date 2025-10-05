@@ -48,10 +48,10 @@ namespace MonoFSM.Core.Variable
 
         //FIXME: 這個要弄成Field嗎...比較好reset?
         [PreviewInInspector]
-        private int _currentIndex; //FIXME: save? var int?
+        private int _currentIndex;
 
         [PreviewInInspector]
-        private int _lastIndex = -1; //FIXME: save? var int?
+        private int _lastIndex = -1;
         public int _defaultIndex;
 
         public override void SetIndex(int index)

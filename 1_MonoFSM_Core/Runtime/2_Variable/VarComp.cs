@@ -7,6 +7,16 @@ using UnityEngine.Serialization;
 
 namespace MonoFSM.Variable
 {
+    // [InlineField]
+    [Serializable]
+    public class VarCompField<T>
+        where T : class //用attribute processor幫她加inlinefield
+    {
+        [SerializeField]
+        VarComp _varComp;
+        public T Value => _varComp.Value as T;
+    }
+
     //variable
     //Monobehaviour 包著一個變數
     //需要Generic嗎...好像算了

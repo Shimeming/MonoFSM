@@ -105,6 +105,11 @@ public class PlayerStartSpawnPoint
     [SerializeField]
     LayerMask _teleportHitLayerMask;
 
+    public LayerMask TeleportHitLayerMask
+    {
+        get => _teleportHitLayerMask;
+    }
+
     // [SerializeField]
     // private ValueProvider _currentPlayerEntityProvider;
 

@@ -21,6 +21,8 @@ using Object = UnityEngine.Object;
 
 namespace MonoFSM.Variable
 {
+    public interface IDropdownRef { }
+
     //FIXME: 應該要繼承AbstractSourceValueRef
     public abstract class AbstractMonoVariable //Rename self?
         : MonoBehaviour,
@@ -30,7 +32,8 @@ namespace MonoFSM.Variable
             IOverrideHierarchyIcon,
             IBeforePrefabSaveCallbackReceiver,
             IConfigTypeProvider,
-            IResetStateRestore
+            IResetStateRestore,
+            IDropdownRef
     {
         //FIXME: 什麼case需要parentVarEntity? 忘記了XD
         // [ShowIf(nameof(_parentVarEntity))] //有才顯示就好, 或是debugMode?
@@ -590,7 +593,7 @@ namespace MonoFSM.Variable
         //
         // }
 
-        [Button("Save")]
+        [Button("Prefab Save")]
         public virtual void OnBeforePrefabSave()
         {
             // base.OnBeforePrefabSave();

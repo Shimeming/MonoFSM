@@ -318,9 +318,16 @@ public class PlayerStartSpawnPointEditor
                         // var ray =  obj.camera.ViewportPointToRay(Event.current.mousePosition);
                         // var ray =  obj.camera.ScreenPointToRay(Event.current.mousePosition);
                         var ray = HandleUtility.GUIPointToWorldRay(Event.current.mousePosition);
-                        if (Physics.Raycast(ray, out var hit, 100000))
+                        if (
+                            Physics.Raycast(
+                                ray,
+                                out var hit,
+                                10000,
+                                layerMask: currentSpawnPoint.TeleportHitLayerMask
+                            )
+                        )
                         {
-                            // Debug.Log("3D mode"+hit.point);
+                            Debug.Log("Set spawnPoint at" + hit.collider, hit.collider);
                             GetTarget.transform.position = hit.point;
                             GetTarget.EventReceived(hit.point);
                         }
