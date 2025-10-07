@@ -34,9 +34,9 @@ namespace MonoFSM.Variable
 
         public override void SetValueFromVar(AbstractMonoVariable source, Object byWho)
         {
-            if (proxyVar != null)
+            if (varRef != null)
             {
-                proxyVar.SetValueFromVar(source, byWho);
+                varRef.SetValueFromVar(source, byWho);
             }
 
             var value = source.GetValue<TValueType>();
@@ -269,9 +269,9 @@ namespace MonoFSM.Variable
         //怎麼那麼多種...
         protected void SetValueInternal(TValueType value, Object byWho)
         {
-            if (proxyVar != null)
+            if (varRef != null)
             {
-                proxyVar.SetRaw(value, byWho);
+                varRef.SetRaw(value, byWho);
                 return;
             }
             //沒有實作唷

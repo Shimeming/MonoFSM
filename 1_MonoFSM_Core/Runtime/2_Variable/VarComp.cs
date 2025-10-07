@@ -21,6 +21,7 @@ namespace MonoFSM.Variable
     //Monobehaviour 包著一個變數
     //需要Generic嗎...好像算了
     //沒用的東西！
+    //FIXME: 怎麼表達Required / Optional 的variable?
     public class VarComp : GenericUnityObjectVariable<Component>
     {
         //FIXME: typeRestrict

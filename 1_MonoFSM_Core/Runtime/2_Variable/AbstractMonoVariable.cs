@@ -37,13 +37,18 @@ namespace MonoFSM.Variable
     {
         //FIXME: 什麼case需要parentVarEntity? 忘記了XD
         // [ShowIf(nameof(_parentVarEntity))] //有才顯示就好, 或是debugMode?
+
         [PreviewInInspector]
         [AutoParent(includeSelf: false)] //不可以抓到自己！
         protected VarEntity _parentVarEntity; //我的parent如果有VarEntity, 去跟這個entity拿？
 
+        [Header("Variable Reference, 從 Parent Entity 拿 Variable")]
         [ShowIf(nameof(HasParentVarEntity))]
         [ShowInInspector]
-        protected AbstractMonoVariable proxyVar => _parentVarEntity?.Value?.GetVar(_varTag);
+        protected AbstractMonoVariable varRef => _parentVarEntity?.Value?.GetVar(_varTag);
+
+        //ver reference?
+
         public bool HasParentVarEntity
         {
             get

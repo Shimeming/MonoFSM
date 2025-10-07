@@ -862,7 +862,7 @@ namespace MonoFSM.Animation
             HasAnimationPlaySuccess = false;
             if (animator == null)
             {
-                Debug.LogError("animator is null" + _fsmOwner.name, this);
+                Debug.LogError("animator is null", this);
                 return;
             }
 
