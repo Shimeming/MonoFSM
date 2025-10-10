@@ -56,7 +56,7 @@ namespace MonoFSM_Physics.Runtime.PhysicsAction
             // var force = forceDirection * _magnitude;
             foreach (var entity in list)
             {
-                var rb = entity.GetComp<Rigidbody>();
+                var rb = entity.GetCompCache<Rigidbody>();
                 var force = CalForce(rb);
 
                 //max vel?

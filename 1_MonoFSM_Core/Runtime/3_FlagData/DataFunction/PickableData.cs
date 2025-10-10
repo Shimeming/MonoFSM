@@ -1,4 +1,5 @@
 using System;
+using _1_MonoFSM_Core.Runtime.Attributes;
 using MonoFSM.Core.Attributes;
 using MonoFSMCore.Runtime.LifeCycle;
 using UnityEngine;
@@ -27,6 +28,8 @@ public abstract class AbstractDataFunction
 public class PickableData : AbstractDataFunction, IItemData //寫死還是有點不爽？
 {
     public MonoObj EntityPrefab => _entityPrefab;
+
+    [PrefabFilter]
     [SerializeField] private MonoObj _entityPrefab; //這個是用來生成實體的
     [SerializeField] private int _stackCount = 1; //這個是用來描述這個物品的堆疊數量
     public int MaxStackCount => _stackCount;

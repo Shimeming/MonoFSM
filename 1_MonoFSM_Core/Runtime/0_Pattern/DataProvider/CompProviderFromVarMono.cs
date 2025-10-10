@@ -24,7 +24,7 @@ namespace MonoFSM.Core.DataProvider
             }
 
             var t = _varEntity.Value["t"];
-            return _varEntity.Value.GetComp(_monoTypeData.Type);
+            return _varEntity.Value.GetCompCache(_monoTypeData.Type);
         }
 
         public T GetValue<T>()

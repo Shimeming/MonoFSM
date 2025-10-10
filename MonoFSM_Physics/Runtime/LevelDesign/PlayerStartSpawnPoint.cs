@@ -2,6 +2,7 @@ using System.Linq;
 using MonoFSM.Core;
 using MonoFSM.Core.Runtime.Action;
 using MonoFSM.Core.Simulate;
+using MonoFSM.Foundation;
 using MonoFSM.PhysicsWrapper;
 using MonoFSM.Variable.Attributes;
 using MonoFSMCore.Runtime.LifeCycle;
@@ -11,12 +12,14 @@ using UnityEngine.InputSystem;
 
 //Editor Debug用
 public class PlayerStartSpawnPoint
-    : MonoBehaviour,
+    : AbstractDescriptionBehaviour,
         IUpdateSimulate,
         IBeforeBuildProcess,
         IActionParent,
         IResetStart
 {
+    protected override string DescriptionTag { get; }
+
     private void Start()
     {
         _camera = Camera.main;
@@ -124,10 +127,9 @@ public class PlayerStartSpawnPoint
         _playerTeleporter?.ArgEventReceived(point);
     }
 
-    [Required]
-    [CompRef]
-    [Auto]
-    private IRaycastProcessor _raycastProcessor;
+    // [Required]
+    // [CompRef]
+    private IRaycastProcessor _raycastProcessor => simulator.GetCompCache<IRaycastProcessor>();
 
     public void EventReceived(Vector3 arg)
     {
@@ -146,9 +148,9 @@ public class PlayerStartSpawnPoint
     {
         //Debug用，按`鍵，把player移到這個位置
         var keyboard = Keyboard.current;
-        if (keyboard.digit1Key.wasPressedThisFrame)
+        if (keyboard.backquoteKey.wasPressedThisFrame)
         {
-            Debug.Log("Alpha1 Pressed", this);
+            Debug.Log("backquoteKey Pressed", this);
             //第一人稱? 第三人稱？
 
             var ray = _camera.ScreenPointToRay(Mouse.current.position.ReadValue());
@@ -158,7 +160,7 @@ public class PlayerStartSpawnPoint
                 // Create ray from camera through screen center
                 ray = _camera.ScreenPointToRay(screenCenter);
 
-                Debug.Log("Alpha1 Pressed at screen center", this);
+                Debug.Log("backquoteKey Pressed at screen center", this);
             }
 
             Debug.DrawRay(ray.origin, ray.direction * 100f, Color.red, 10f);
@@ -177,7 +179,7 @@ public class PlayerStartSpawnPoint
                 //好無聊？寫死？character移動？DI問題?
                 // _playerTeleporter?.ArgEventReceived(hit.point);
                 ProcessTeleport(hit.point);
-                Debug.Log("Alpha1 Pressed" + hit.point + hit.collider, hit.collider);
+                Debug.Log("backquoteKey Pressed" + hit.point + hit.collider, hit.collider);
             }
             else
             {

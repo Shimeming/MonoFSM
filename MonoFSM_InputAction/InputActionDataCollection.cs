@@ -101,6 +101,8 @@ namespace MonoFSM.InputAction
 
         public override void OnHeavySceneSaving()
         {
+            Debug.Log(
+                "OnHeavySceneSaving: Finding all InputActionData in project and assigning action IDs.");
             FindAllInputActionsInProject();
             // 在Custom 保存時自動分配 actionID
             AssignActionIDs();

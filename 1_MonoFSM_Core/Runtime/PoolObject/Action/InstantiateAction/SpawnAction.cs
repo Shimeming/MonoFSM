@@ -50,6 +50,9 @@ namespace MonoFSM.Core.LifeCycle
         [SerializeField]
         VarFloat _scaleRatio;
 
+        //FIXME: Spawn可能有有很多需求，...
+        [SerializeField] private Transform _spawnPosition;
+        [SerializeField] private bool _isRotationIdentity;
         /// <summary>
         /// tmp local obj
         /// </summary>
@@ -77,9 +80,11 @@ namespace MonoFSM.Core.LifeCycle
         //FIXME: preview scale & rotation
         protected override void OnActionExecuteImplement()
         {
-            Debug.Log("SpawnAction OnStateEnterImplement", this);
+            // Debug.Log("SpawnAction OnStateEnterImplement", this);
             //FIXME: 時機點？FixedUpdateNetwork?
-            Spawn(Prefab, transform.position, transform.rotation, null);
+            //外包transform?
+            var t = _spawnPosition != null ? _spawnPosition : transform;
+            Spawn(Prefab, t.position, _isRotationIdentity ? Quaternion.identity : t.rotation, null);
         }
 
         [HideIf(nameof(_scaleRatio))]
@@ -87,9 +92,6 @@ namespace MonoFSM.Core.LifeCycle
 
         [PreviewInInspector]
         private MonoObj _lastSpawnedObj;
-
-        [AutoParent]
-        private MonoObj _parentObj;
 
         // [Required] [SerializeField] private VarMonoObj _spawnedObjVar; //用來存取剛spawn的物件
         //FIXME: 自動判定？好麻煩喔
@@ -144,7 +146,7 @@ namespace MonoFSM.Core.LifeCycle
                 newObj.transform.localScale = transform.lossyScale;
 
             newObj.gameObject.SetActive(true);
-            _spawnedEntityVar.SetValue(newObj.GetComponent<MonoEntity>(), this); //更新變數
+            _spawnedEntityVar?.SetValue(newObj.GetComponent<MonoEntity>(), this); //更新變數
             //Rotation呢？
             _lastSpawnedObj = newObj;
             _spawnEventHandler?.OnSpawn(newObj, position, rotation);

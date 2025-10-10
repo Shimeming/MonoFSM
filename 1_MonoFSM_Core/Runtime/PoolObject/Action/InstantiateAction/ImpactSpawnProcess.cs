@@ -4,7 +4,8 @@ using UnityEngine;
 
 namespace MonoFSM.Core.LifeCycle
 {
-    //位置和面向
+    //依照hitData來更動位置和面向
+
     public class ImpactSpawnProcess : MonoBehaviour, IAfterSpawnProcess
     {
         //事後才做，好像應該spawn前就當作參數才對？

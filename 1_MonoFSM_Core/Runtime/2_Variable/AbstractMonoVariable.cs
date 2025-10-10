@@ -25,7 +25,7 @@ namespace MonoFSM.Variable
 
     //FIXME: 應該要繼承AbstractSourceValueRef
     public abstract class AbstractMonoVariable //Rename self?
-        : MonoBehaviour,
+        : AbstractDescriptionBehaviour,
             IGuidEntity,
             IName,
             IValueOfKey<VariableTag>,
@@ -35,9 +35,13 @@ namespace MonoFSM.Variable
             IResetStateRestore,
             IDropdownRef
     {
+        protected override string DescriptionTag => "Var";
+
+
         //FIXME: 什麼case需要parentVarEntity? 忘記了XD
         // [ShowIf(nameof(_parentVarEntity))] //有才顯示就好, 或是debugMode?
 
+        //FIXME: 與其用parentEntity, 好像 是一個ValueSource -> GetVarFromEntity比較好？
         [PreviewInInspector]
         [AutoParent(includeSelf: false)] //不可以抓到自己！
         protected VarEntity _parentVarEntity; //我的parent如果有VarEntity, 去跟這個entity拿？
@@ -198,7 +202,7 @@ namespace MonoFSM.Variable
         [OnValueChanged(nameof(UpdateTag))]
         [Header("變數名稱")]
         [PropertyOrder(-1)]
-        [Required]
+        // [Required]
         [SOConfig("VariableType", nameof(CreateTagPostProcess))]
         public VariableTag _varTag; //直接看當下是什麼就可以 好像可以再往下抽？ ValueContainer? , readonly => Config, settable
 
@@ -552,20 +556,18 @@ namespace MonoFSM.Variable
 #if UNITY_EDITOR
         // [Header("GameState 功能說明")]
         //FIXME: 整合 AbstractDescriptable??
-        [TextArea(1, 4)]
-        public string description;
+        // [TextArea(1, 4)]
+        // public string description;
 
-        public string Description
-        {
-            get => name;
-            // set => description = value;
-        }
+        public override string Description => _varTag != null ? _varTag.name : ReformatedName;
+        // set => description = value;
 #endif
 
         // [HideInInlineEditors] [Header("Flag Setting")]
         // public FlagTypeScriptable typeScriptable;
-        protected virtual void Awake()
+        protected override void Awake()
         {
+            base.Awake();
             if (_parentVarEntity != null)
                 Debug.Log("Variable has parent entity: " + _parentVarEntity.name, this);
         } //FIXME: 好像盡量不要亂用awake喔

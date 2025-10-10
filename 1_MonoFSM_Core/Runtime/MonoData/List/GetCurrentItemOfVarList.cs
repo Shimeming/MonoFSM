@@ -12,11 +12,13 @@ namespace MonoFSM.Core.Variable.Providers
 
         public T1 Get<T1>()
         {
-            if (_varList.CurrentRawObject is T1 t1)
+            if (_varList == null)
+                return default;
+            if (_varList?.CurrentRawObject is T1 t1)
                 return t1;
             return default;
         }
 
-        public Type ValueType => _varList.ValueType;
+        public Type ValueType => _varList?.ValueType;
     }
 }

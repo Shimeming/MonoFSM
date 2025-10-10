@@ -6,6 +6,7 @@ using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Simulate;
 using MonoFSM.CustomAttributes;
 using MonoFSM.Runtime;
+using MonoFSM.Variable.Attributes;
 using MonoFSM.Variable.FieldReference;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -252,10 +253,14 @@ namespace MonoFSMCore.Runtime.LifeCycle
             }
         }
 
+        [SerializeField] [AutoChildren] [CompRef]
+        private OnResetStartHandler _onResetStartHandler;
+
         private void HandleIResetStart()
         {
             if (HasParent)
                 return;
+            _onResetStartHandler?.EventHandle();
             foreach (var item in _resetStarts)
             {
                 if (item == null)

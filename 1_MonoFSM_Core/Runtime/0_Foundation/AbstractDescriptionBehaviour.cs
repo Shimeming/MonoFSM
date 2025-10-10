@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
+using MonoFSM.Core.Simulate;
 using MonoFSM.EditorExtension;
 using MonoFSM.Runtime;
 using MonoFSM.Runtime.Attributes;
@@ -28,7 +29,9 @@ namespace MonoFSM.Foundation
         [Required]
         [ShowInInspector]
         [AutoParent]
-        private MonoObj _parentObj;
+        protected MonoObj _parentObj;
+
+        public WorldUpdateSimulator simulator => _parentObj.WorldUpdateSimulator;
 
 #if UNITY_EDITOR
         [TextArea]
@@ -250,13 +253,16 @@ namespace MonoFSM.Foundation
 
         protected abstract string DescriptionTag { get; }
 
+        protected virtual bool IsIgnoreRename => false;
+
         [InfoBox("$Description")]
         [HideInInlineEditors]
         [Button]
         protected void Rename()
         {
-            // gameObject.name = $"[Action] {GetType().Name.Split("Action")[0]} {renamePostfix}";
 #if UNITY_EDITOR
+            if (IsIgnoreRename)
+                return;
             try
             {
                 // Debug.Log("DescriptionTag: " + DescriptionTag, this);

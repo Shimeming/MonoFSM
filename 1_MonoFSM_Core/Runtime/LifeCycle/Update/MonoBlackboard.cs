@@ -101,23 +101,26 @@ namespace MonoFSM.Runtime.Variable
 
         private Dictionary<Type, Component> _compCache = new();
 
-        public T GetComp<T>()
+        public Rigidbody rb => GetCompCache<Rigidbody>();
+
+        public T GetCompCache<T>()
             where T : Component
         {
             if (_compCache.TryGetValue(typeof(T), out var comp))
                 return comp as T;
             var component = GetComponentInChildren<T>(); //從children找
-            if (component != null)
+            _compCache[typeof(T)] = component;
+            if (component == null)
             {
-                _compCache[typeof(T)] = component;
-                return component;
+                Debug.LogError("Cannot find component of type " + typeof(T).Name + " in " + name,
+                    this);
             }
 
-            Debug.LogError("Cannot find component of type " + typeof(T).Name + " in " + name, this);
-            return null;
+            return component;
+
         }
 
-        public Component GetComp(Type type)
+        public Component GetCompCache(Type type)
         {
             if (_compCache.TryGetValue(type, out var comp))
                 return comp;

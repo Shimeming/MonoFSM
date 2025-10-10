@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MonoFSM.Core.Attributes;
@@ -51,6 +52,7 @@ namespace MonoFSM.Core.Simulate
     [DefaultExecutionOrder(10000)] //確保在所有Update之後執行
     public sealed class WorldUpdateSimulator : MonoBehaviour
     {
+        //typeDict?
         //反綁？
         //fsm reset?, simulate runner
         [Required]
@@ -63,6 +65,11 @@ namespace MonoFSM.Core.Simulate
         [CompRef]
         [Auto]
         private ISpawnProcessor _spawnProcessor; //logic Spawner, 和visual spawner要拆開？
+
+        //interface dict?
+
+        // Component cache for better performance
+        private readonly ComponentCache _componentCache = new();
 
         private void Awake()
         {
@@ -80,6 +87,10 @@ namespace MonoFSM.Core.Simulate
         [Auto]
         private MonoEntityBinder _binder;
 
+        public static WorldUpdateSimulator GetWorldUpdateSimulator(MonoObj me)
+        {
+            return me.WorldUpdateSimulator;
+        }
         public static WorldUpdateSimulator GetWorldUpdateSimulator(GameObject me)
         {
             //這個是用來獲取當前的WorldUpdateSimulator
@@ -445,5 +456,12 @@ namespace MonoFSM.Core.Simulate
         {
             // throw new System.NotImplementedException();
         }
+
+        public T GetCompCache<T>()
+        {
+            return _componentCache.GetComponent<T>(gameObject);
+        }
+
+        //可以把一些常用的先直接列出來？
     }
 }

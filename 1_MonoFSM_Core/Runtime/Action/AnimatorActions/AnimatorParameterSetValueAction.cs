@@ -3,6 +3,7 @@ using _1_MonoFSM_Core.Runtime.Action.AnimatorActions;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.DataProvider;
 using MonoFSM.Core.Runtime.Action;
+using MonoFSM.Variable;
 using MonoFSM.Variable.Attributes;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -65,14 +66,17 @@ namespace MonoFSM.Animation
         private float _lastValue;
 
         public float _floatValue;
-
+        [SerializeField] private VarFloat _varFloat;
+        float floatValue => _varFloat != null ? _varFloat.Value : _floatValue;
         #endregion
 
         public int _intValue;
+        [SerializeField] private VarInt _varInt;
+        int intValue => _varInt != null ? _varInt.Value : _intValue;
 
-        [Auto]
-        [PreviewInInspector]
-        public IFloatProvider _floatValueSource;
+        // [Auto]
+        // [PreviewInInspector]
+        // public IFloatProvider _floatValueSource;
 
         // [DropDownRef]
         // public AbstractVariable sourceVariable;
@@ -87,20 +91,20 @@ namespace MonoFSM.Animation
         {
             if (!animator.isActiveAndEnabled)
                 return;
-            if (_floatValueSource != null)
-            {
-                if (_interpolate == 0)
-                    _lastValue = _floatValueSource.Value;
-                else
-                    _lastValue = Mathf.MoveTowards(
-                        _lastValue,
-                        _floatValueSource.Value,
-                        _interpolate * bindingState.DeltaTime
-                    ); //FIXME: 不一定會有bindingState? 還是乾脆拿logic的就好了？
-
-                animator.SetFloat(ParameterName, _lastValue);
-            }
-            else
+            // if (_floatValueSource != null)
+            // {
+            //     if (_interpolate == 0)
+            //         _lastValue = _floatValueSource.Value;
+            //     else
+            //         _lastValue = Mathf.MoveTowards(
+            //             _lastValue,
+            //             _floatValueSource.Value,
+            //             _interpolate * bindingState.DeltaTime
+            //         ); //FIXME: 不一定會有bindingState? 還是乾脆拿logic的就好了？
+            //
+            //     animator.SetFloat(ParameterName, _lastValue);
+            // }
+            // else
             {
                 switch (valueType)
                 {
@@ -108,10 +112,10 @@ namespace MonoFSM.Animation
                         animator.SetBool(ParameterName, IsValid); //直接對著valid做不是很爽？ FIXME: 要拆出去？
                         break;
                     case ValueType.Float:
-                        animator.SetFloat(ParameterName, _floatValue);
+                        animator.SetFloat(ParameterName, floatValue);
                         break;
                     case ValueType.Int:
-                        animator.SetInteger(ParameterName, _intValue);
+                        animator.SetInteger(ParameterName, intValue);
                         break;
                 }
             }

@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f54b396fca66942dca18ba104e9d4f34, type: 3}
   m_Name: JumpData
   m_EditorClassIdentifier: 
+  _note: 
   _inputAction: {fileID: 0}
-  actionID: 16
+  actionID: 17

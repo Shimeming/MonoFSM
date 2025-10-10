@@ -19,7 +19,6 @@ namespace _1_MonoFSM_Core.Runtime.Action.VariableAction
 
         protected override void OnActionExecuteImplement()
         {
-            //用objectValue有點討厭, 還是乾脆每種都寫？ObjectValue會有裝箱問題
             _targetVar.SetValueFromVar(_sourceVar, this);
         }
     }

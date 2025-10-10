@@ -12,7 +12,10 @@ namespace MonoFSM.Runtime.Interact.EffectHit.Resolver.ApplyEffect
     // //最完整的應該用這個
     public class FloatMathAction : AbstractStateAction
     {
+        [Required]
         public VarFloat _targetVar;
+
+        [Required]
         public VarFloat _source1Var;
 
         // [AutoChildren] [CompRef] private TargetVarRef _targetVariableProvider; // }

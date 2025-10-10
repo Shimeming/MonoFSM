@@ -16,6 +16,7 @@ namespace MonoFSM.Core.Runtime.Action
     {
         void IArgEventReceiver<T>.ArgEventReceived(T arg)
         {
+            //FIXME: 要做delay嗎？
             AddEventTime(Time.time);
             OnArgEventReceived(arg);
         }

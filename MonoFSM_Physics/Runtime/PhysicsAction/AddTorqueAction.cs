@@ -87,17 +87,18 @@ namespace MonoFSM.Runtime.PhysicsAction
         {
             try
             {
-                await Awaitable.NextFrameAsync();
+                await Awaitable.WaitForSecondsAsync(0.1f);
                 var bd = _rigidbodyVar.Value as Rigidbody;
                 var torqueDir = _torqueVector.Value * _torqueMagnitude;
-                bd.AddTorque(torqueDir, _forceMode);
-                Debug.Log(
-                    "AddTorqueAction: Applying torque to "
-                        + bd.name
-                        + " with direction: "
-                        + torqueDir,
-                    this
-                );
+                // bd.AddTorque(torqueDir, _forceMode);
+                bd.AddForce(torqueDir, _forceMode);
+                // Debug.Log(
+                //     "AddTorqueAction: Applying force to "
+                //         + bd.name
+                //         + " with direction: "
+                //         + torqueDir,
+                //     this
+                // );
             }
             catch (Exception e)
             {

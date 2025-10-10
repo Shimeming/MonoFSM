@@ -155,7 +155,7 @@ public static class StartPointSelector
         return GetCurrentSpawnPoint();
     }
 
-    [MenuItem("RCGMaker/SpawnPoint/Select SpawnPoint  _1", false, 0)]
+    [MenuItem("RCGMaker/SpawnPoint/Select SpawnPoint  _`", false, 0)]
     // [MenuItem("RCGMaker/SpawnPoint/Select SpawnPoint  _`", false, 0)]
     private static void DoSelectSpawnPoint()
     {
@@ -202,7 +202,7 @@ public static class StartPointSelector
         }
     }
 
-    [MenuItem("RCGMaker/SpawnPoint/Reset to First SpawnPoint  &_1", false, 2)]
+    [MenuItem("RCGMaker/SpawnPoint/Reset to First SpawnPoint  &_`", false, 2)]
     private static void DoResetToFirstSpawnPoint()
     {
         FocusOnScene();
@@ -278,7 +278,7 @@ public class PlayerStartSpawnPointEditor
         if (Event.current.type == EventType.KeyDown)
             // Debug.Log(Event.current.type);
             // Check for specific keycodes
-            if (Event.current.keyCode == KeyCode.Alpha1)
+            if (Event.current.keyCode == KeyCode.BackQuote)
             {
                 // 如果同時按下Shift，則切換到下一個SpawnPoint
                 if (Event.current.shift)

@@ -40,7 +40,7 @@ public class GizmoMarker : MonoBehaviour, IEditorOnly //,IDrawHierarchyBackGroun
 
     private void OnDrawGizmos()
     {
-        if (RuntimeDebugSetting.IsDebugMode == false)
+        if (RuntimeDebugSetting.IsDebugMode == false && _isAlwaysVisible == false)
             return;
         if (gizmoType == GizmoShapeType.HandleDot || gizmoType == GizmoShapeType.HandleSphere)
             return;

@@ -196,10 +196,12 @@ public class DropDownRefAttributeDrawer : OdinAttributeDrawer<DropDownRefAttribu
         // else //這個可以拿掉？
         // {
 
+        bool hasRequiredAttr =
+            Property.GetAttribute<RequiredAttribute>() != null;
 
         //FIXME: optional 可以用個optional 的attribute？
         GUI.backgroundColor =
-            Property.ValueEntry.WeakSmartValue == null
+            Property.ValueEntry.WeakSmartValue as Object == null && hasRequiredAttr
                 ? new Color(0.9f, 0.2f, 0.3f, 0.5f)
                 : new Color(0.35f, 0.3f, 0.1f, 0.2f);
 

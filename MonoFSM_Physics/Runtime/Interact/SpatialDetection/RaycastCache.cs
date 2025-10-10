@@ -83,9 +83,8 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
         public RaycastHit CachedHit => CachedHits.Count > 0 ? CachedHits[0] : default;
         public Ray CachedRay => _cachedRay;
 
-        [Auto]
-        [CompRef]
-        private IRaycastProcessor _raycastProcessor;
+        private IRaycastProcessor raycastProcessor =>
+            _parentObj.WorldUpdateSimulator.GetCompCache<IRaycastProcessor>();
 
         // [CompRef] //all in 1 就撞了？
         // [Auto]
@@ -109,16 +108,7 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
             if (!enabled)
                 return;
             Gizmos.color = _overrideGizmoColor;
-            // if (_sphereCastProcessor != null)
-            // {
-            //     Gizmos.DrawWireSphere(_cachedRay.origin, _sphereRadius);
-            //     Gizmos.DrawRay(_cachedRay.origin, _cachedRay.direction * _distance);
-            //     Gizmos.DrawWireSphere(
-            //         _cachedRay.origin + _cachedRay.direction * _distance,
-            //         _sphereRadius
-            //     );
-            // }
-            // else
+
 
             //FIXME: 處理 editor mode的ray provider
             if (Application.isPlaying == false && _rayProvider != null)
@@ -132,25 +122,10 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
                 Gizmos.color = Color.green;
                 Gizmos.DrawSphere(hit.point, 0.1f);
             }
-            // if (_cacehdHit.collider != null)
-            // {
-            //     Gizmos.color = Color.green;
-            //     Gizmos.DrawSphere(_cacehdHit.point, 0.1f);
-            // }
         }
 
-        // CameraRayProvider
-        //FIXME:
-        // public bool _isEffectByCameraRotation;
 
-        // [SerializeField]
-        // private float _minVerticalAngle = -45f; // Minimum vertical angle limit
-        //
-        // [SerializeField]
-        // private float _maxVerticalAngle = 45f; // Maximum vertical angle limit
-        // private Transform _characterTransform; // Reference to the character's transform
-
-
+        public QueryTriggerInteraction _queryTriggerInteraction = QueryTriggerInteraction.Collide;
         private void TryCast()
         {
             var ray = _rayProvider.GetRay();
@@ -167,37 +142,26 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
                 if (_isDrawDebugColor)
                     Debug.DrawLine(_cachedRay.origin, endPoint, _overrideGizmoColor, 10f);
 
-                if (_raycastProcessor != null)
-                {
-                    if (
-                        !_raycastProcessor.Raycast(
-                            ray.origin,
-                            ray.direction,
-                            out var hitInfo,
-                            GetDistance(),
-                            _hittingLayer
-                        )
-                    )
-                        return;
-                    //FIXME: 操作 list好嗎？
-                    CachedHits.Add(hitInfo);
-                    // Debug.Log("[RaycastCache] RaycastProcessor Hit:" + hitInfo.collider, this);
-                    // _thisFrameColliders.Add(hitInfo.collider);
-                    _debugHistoryObjs.Enqueue(hitInfo.collider);
-                    if (_debugHistoryObjs.Count > 10)
-                        _debugHistoryObjs.Dequeue();
-                }
-                else if (Physics.Raycast(ray, out var hit, GetDistance(), _hittingLayer))
-                {
-                    CachedHits.Add(hit);
-                    _debugHistoryObjs.Enqueue(hit.collider);
-                    if (_debugHistoryObjs.Count > 10)
-                        _debugHistoryObjs.Dequeue();
-                }
+                var result = raycastProcessor.Raycast(
+                    ray.origin,
+                    ray.direction,
+                    out var hitInfo,
+                    GetDistance(),
+                    _hittingLayer, _queryTriggerInteraction
+                );
+
+
+                //FIXME: 操作 list好嗎？
+                CachedHits.Add(hitInfo);
+                // Debug.Log("[RaycastCache] RaycastProcessor Hit:" + hitInfo.collider, this);
+                // _thisFrameColliders.Add(hitInfo.collider);
+                _debugHistoryObjs.Enqueue(hitInfo.collider);
+                if (_debugHistoryObjs.Count > 10)
+                    _debugHistoryObjs.Dequeue();
             }
             else
             {
-                throw new ArgumentNullException("No Multiple Raycast");
+                throw new ArgumentNullException("Not implement Multiple Raycast");
             }
             // else
             // {

@@ -6,6 +6,7 @@ using Cysharp.Threading.Tasks;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Foundation;
 using MonoFSM.Runtime.Vote;
+using MonoFSM.Variable.Attributes;
 using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -146,21 +147,6 @@ namespace MonoFSM.Core.Runtime.Action
         protected CancellationTokenSource cancellationTokenSource =>
             bindingState.GetStateExitCancellationTokenSource();
 
-        //FIXME: 不該全部都virtual
-        // public virtual void ArgEventReceived(IEffectHitData arg)
-        // {
-        //     EventReceived(arg);
-        // }
-        //
-        // public virtual void ArgEventReceived(GeneralEffectHitData arg)
-        // {
-        //     EventReceived(arg);
-        // }
-
-        // public virtual void EventReceived<T>(T arg)
-        // {
-        //     OnActionExecuteImplement();
-        // }
 #if UNITY_EDITOR
         [PreviewInDebugMode]
         protected Queue<float> _lastEventReceivedTimes = new();
@@ -172,18 +158,27 @@ namespace MonoFSM.Core.Runtime.Action
         private const int MaxEventTimeRecords = 10;
 #endif
 
+        //可以用delay modifier?
+        [SerializeField] [CompRef] [Auto] private DelayActionModifier _delayActionModifier;
         public void EventReceived()
         {
-            AddEventTime(Time.time);
-            // if (!isActiveAndEnabled)
-            // if (enabled == false)
-            //     Debug.LogError("not enabled", this);
-            // if (gameObject.activeInHierarchy == false)
-            //     Debug.LogError("not activeInHierarchy", this);
-            if (gameObject.activeInHierarchy)
-                OnActionExecuteImplement();
-            // else
-            //     Debug.LogError("Not active self", this);
+            if (_delayActionModifier == null)
+            {
+                AddEventTime(Time.time);
+                if (gameObject.activeInHierarchy)
+                    OnActionExecuteImplement();
+                return;
+            }
+
+            var delayTime = _delayActionModifier.delayTime;
+            //primeTween delay?
+            PrimeTween.Tween.Delay(this, delayTime, t =>
+            {
+                t.AddEventTime(Time.time);
+                if (t.gameObject.activeInHierarchy)
+                    OnActionExecuteImplement();
+            });
+
         }
 
         public virtual void SimulationUpdate(float passedDuration) { }

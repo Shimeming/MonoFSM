@@ -1,10 +1,14 @@
+using MonoFSM.Core.Simulate;
 using UnityEngine;
 namespace MonoFSM.PhysicsWrapper
 {
     public class MyRaycast : MonoBehaviour
     {
-        [Auto] private IRaycastProcessor _raycastProcessor;
+        private IRaycastProcessor _raycastProcessor;
 
+        //null的話每次都會再要一次...
+        IRaycastProcessor raycastProcessor => _raycastProcessor ??= WorldUpdateSimulator
+            .GetWorldUpdateSimulator(gameObject)?.GetCompCache<IRaycastProcessor>();
         /// <summary>
         /// Casts a ray against colliders in the scene.
         /// </summary>
@@ -14,7 +18,9 @@ namespace MonoFSM.PhysicsWrapper
         /// <returns>True if the ray intersects with a collider, otherwise false.</returns>
         public bool Raycast(Vector3 origin, Vector3 direction, float maxDistance)
         {
-            if (_raycastProcessor != null) return _raycastProcessor.Raycast(origin, direction, maxDistance);
+            // var raycastProcessor = simulator.GetCompCache<IRaycastProcessor>();
+            if (raycastProcessor != null)
+                return raycastProcessor.Raycast(origin, direction, maxDistance);
 
             // Fallback to Physics.Raycast if no processor is available
             return Physics.Raycast(origin, direction, maxDistance);
@@ -30,7 +36,8 @@ namespace MonoFSM.PhysicsWrapper
         /// <returns>True if the ray intersects with a collider, otherwise false.</returns>
         public bool Raycast(Vector3 origin, Vector3 direction, float maxDistance, int layerMask)
         {
-            if (_raycastProcessor != null) return _raycastProcessor.Raycast(origin, direction, maxDistance, layerMask);
+            if (raycastProcessor != null)
+                return raycastProcessor.Raycast(origin, direction, maxDistance, layerMask);
 
             // Fallback to Physics.Raycast if no processor is available
             return Physics.Raycast(origin, direction, maxDistance, layerMask);
@@ -46,8 +53,8 @@ namespace MonoFSM.PhysicsWrapper
         /// <returns>True if the ray intersects with a collider, otherwise false.</returns>
         public bool Raycast(Vector3 origin, Vector3 direction, out RaycastHit hitInfo, float maxDistance)
         {
-            if (_raycastProcessor != null)
-                return _raycastProcessor.Raycast(origin, direction, out hitInfo, maxDistance);
+            if (raycastProcessor != null)
+                return raycastProcessor.Raycast(origin, direction, out hitInfo, maxDistance);
 
             // Fallback to Physics.Raycast if no processor is available
             return Physics.Raycast(origin, direction, out hitInfo, maxDistance);
@@ -64,8 +71,9 @@ namespace MonoFSM.PhysicsWrapper
         /// <returns>True if the ray intersects with a collider, otherwise false.</returns>
         public bool Raycast(Vector3 origin, Vector3 direction, out RaycastHit hitInfo, float maxDistance, int layerMask)
         {
-            if (_raycastProcessor != null)
-                return _raycastProcessor.Raycast(origin, direction, out hitInfo, maxDistance, layerMask);
+            if (raycastProcessor != null)
+                return raycastProcessor.Raycast(origin, direction, out hitInfo, maxDistance,
+                    layerMask);
 
             // Fallback to Physics.Raycast if no processor is available
             return Physics.Raycast(origin, direction, out hitInfo, maxDistance, layerMask);
@@ -84,8 +92,9 @@ namespace MonoFSM.PhysicsWrapper
         public bool Raycast(Vector3 origin, Vector3 direction, out RaycastHit hitInfo, float maxDistance, int layerMask,
             QueryTriggerInteraction queryTriggerInteraction)
         {
-            if (_raycastProcessor != null)
-                return _raycastProcessor.Raycast(origin, direction, out hitInfo, maxDistance, layerMask,
+            if (raycastProcessor != null)
+                return raycastProcessor.Raycast(origin, direction, out hitInfo, maxDistance,
+                    layerMask,
                     queryTriggerInteraction);
 
             // Fallback to Physics.Raycast if no processor is available
@@ -106,8 +115,9 @@ namespace MonoFSM.PhysicsWrapper
             int layerMask,
             QueryTriggerInteraction queryTriggerInteraction)
         {
-            if (_raycastProcessor != null)
-                return _raycastProcessor.RaycastNonAlloc(origin, direction, results, maxDistance, layerMask,
+            if (raycastProcessor != null)
+                return raycastProcessor.RaycastNonAlloc(origin, direction, results, maxDistance,
+                    layerMask,
                     queryTriggerInteraction);
 
             // Fallback to Physics.RaycastNonAlloc if no processor is available

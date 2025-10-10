@@ -20,7 +20,7 @@ namespace MonoFSM_Physics.Runtime
         {
             if (_varEntity == null || _varEntity.Value == null) return null;
             var t = _varEntity.Value["t"];
-            return _varEntity.Value.GetComp<T>();
+            return _varEntity.Value.GetCompCache<T>();
         }
 
         public object GetValue()

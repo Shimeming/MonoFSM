@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e71863d6a014827a715566dd5c5af2f, type: 3}
   m_Name: Pickable FSM Variant
   m_EditorClassIdentifier: 
+  _note: 
   _entityType:
     _bindObject: {fileID: 0}
     _baseFilterTypeName: 
@@ -28,6 +29,9 @@ MonoBehaviour:
   containsVariableTypeTags:
   - {fileID: 11400000, guid: 5276685b2521d4fcc8d5f683d4d9f688, type: 2}
   - {fileID: 11400000, guid: d781a846ea0764d10b1a2ad3eb086aab, type: 2}
+  - {fileID: 11400000, guid: fe6f95997618b40b382e095deabd42ea, type: 2}
+  containsSchemaTypeTags: []
   IsCollectionTag: 0
   _allMonoDescriptable: []
   _stringKey: 
+  Note: 

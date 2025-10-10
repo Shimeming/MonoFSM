@@ -577,7 +577,7 @@ namespace MonoFSM_EditorWindowExt.EditorWindowExt
 
 
             // Handle ESC key for exiting prefab stage
-            if (Event.current.keyCode != KeyCode.Escape)
+            if (Event.current.keyCode != KeyCode.Escape || Application.isPlaying)
                 return;
 
             // Debug.Log("Escape key pressed - Handling global escape events...");

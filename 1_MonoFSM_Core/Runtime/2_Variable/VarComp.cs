@@ -12,6 +12,7 @@ namespace MonoFSM.Variable
     public class VarCompField<T>
         where T : class //用attribute processor幫她加inlinefield
     {
+        public bool HasVar => _varComp != null;
         [SerializeField]
         VarComp _varComp;
         public T Value => _varComp.Value as T;

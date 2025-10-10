@@ -133,7 +133,7 @@ namespace EditorTool
                 return;
             }
 
-            Debug.Log("OnSceneSaving");
+            Debug.Log("On CustomSave");
             CustomFindSceneSavingAndProcess();
             EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
             AssetDatabase.SaveAssets();
@@ -256,12 +256,16 @@ namespace EditorTool
             // var myPath = AssetDatabase.GetAssetPath(this);
             // Debug.Log("Mypath" + name + ":" + myPath);
             // var dirPath = System.IO.Path.GetDirectoryName(myPath);
-            var allProjectFlags = AssetDatabase.FindAssets("t:MonoSOConfig");
+            var filter = "t:" + nameof(AbstractSOConfig);
+            Debug.Log("Find All SO with filter:" + filter);
+            var allProjectFlags =
+                AssetDatabase.FindAssets(filter);
             // var soList = new List<ScriptableObject>();
             //All 10_Flags
             // string[] allProjectFlags = AssetDatabase.FindAssets("t:GameFlagBase", new[] { "Assets/10_Flags" });
             for (var i = 0; i < allProjectFlags.Length; i++)
             {
+                Debug.Log("Find Flag:" + i + "/" + allProjectFlags.Length);
                 var path = AssetDatabase.GUIDToAssetPath(allProjectFlags[i]);
                 //這步驟感覺有點貴...只弄一個folder?或是篩選一層類別？
                 var flag = AssetDatabase.LoadAssetAtPath<AbstractSOConfig>(path);

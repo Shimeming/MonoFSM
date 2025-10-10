@@ -3,7 +3,7 @@ using System.Diagnostics;
 using Sirenix.OdinInspector;
 
 // [Required] //FIXME: optional?
-[IncludeMyAttributes]
+// [IncludeMyAttributes]
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
 [Conditional("UNITY_EDITOR")] //這個可以嗎？
 public class DropDownRefAttribute : Attribute

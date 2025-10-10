@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace MonoFSM.PhysicsWrapper
 {
+    //FIXME: 用photon projectile?
     public class CameraRayProvider : AbstractRayProvider
     {
         private Transform _characterTransform;

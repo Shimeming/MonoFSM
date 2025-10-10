@@ -1,3 +1,4 @@
+using System.Threading;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Runtime;
 using MonoFSM.Core.Runtime.Action;
@@ -58,6 +59,8 @@ namespace MonoFSM.Core
             }
         }
 
+
+
         [PreviewInInspector]
         private float _lastEventHandledTime = -1f;
 
@@ -69,11 +72,11 @@ namespace MonoFSM.Core
                 if (eventReceiver is IArgEventReceiver<T> argEventReceiver)
                 {
                     if (argEventReceiver.IsValid)
-                        argEventReceiver.ArgEventReceived(arg);
+                        argEventReceiver.ArgEventReceived(arg); //在這裡delay?
                 }
                 else
                 {
-                    eventReceiver.EventReceived();
+                    eventReceiver.EventReceived(); //在這裡delay?
                 }
         }
 

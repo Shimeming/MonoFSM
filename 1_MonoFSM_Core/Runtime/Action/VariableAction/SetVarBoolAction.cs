@@ -1,16 +1,16 @@
 using System.Collections.Generic;
 using _1_MonoFSM_Core.Runtime.Action.VariableAction;
 using MonoFSM.Core.Runtime.Action;
-using MonoFSM.Runtime.Variable;
+using MonoFSM.EditorExtension;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace MonoFSM.Variable
 {
     //set flag, pick item...和GameFlag有關的要用一個interface才可以撈出來
     //FIXME: 需要雙向reference, debug用，要不然不知道誰在set? candidate
-    public class SetVarBoolAction : AbstractStateAction, IArgEventReceiver<bool>
+    public class SetVarBoolAction : AbstractStateAction, IArgEventReceiver<bool>,
+        IHierarchyValueInfo
     {
         //FIXME: 用selection dropdown來篩選
         //這個還可以化簡嗎？整個description就代表含義了..但沒有Reference可能還是不夠用
@@ -36,6 +36,10 @@ namespace MonoFSM.Variable
             // return items;
         }
 
+
+        public bool IsVarExternal => _target?.ParentEntity != ParentEntity;
+
+        //有辦法判斷不是
         public VarBool _target; //var?
 
         //ObjectReference還指不到耶？
@@ -86,6 +90,9 @@ namespace MonoFSM.Variable
         {
             SetValue(arg);
         }
+
+        public string ValueInfo => "Cross Ref:" + _target.ParentEntity.name; //highlight顏色？
+        public bool IsDrawingValueInfo => _target != null && IsVarExternal;
     }
 
     // public class SetPropertyAction : AbstractAction

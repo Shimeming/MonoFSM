@@ -1,6 +1,8 @@
 using MonoFSM.Core;
 using MonoFSM.Core.DataProvider;
+using MonoFSM.Runtime.Variable;
 using MonoFSM.Variable;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace MonoFSM_Physics.Runtime.PhysicsAction
@@ -23,7 +25,8 @@ namespace MonoFSM_Physics.Runtime.PhysicsAction
     {
         // [Required] [CompRef] [AutoChildren] private ICompProvider<Rigidbody> _rigidbodyProvider;
         // [DropDownRef] public ValueProvider _rigidbodyValueProvider;
-        public VarComp _rigidbodyVar;
+        // public VarComp _rigidbodyVar;
+        [Required] public VarEntity _targetEntity;
         public Vector3 _offsetPosition = Vector3.zero;
         public LerpAxis _lerpAxis = LerpAxis.All;
         private Rigidbody _rb;
@@ -31,7 +34,8 @@ namespace MonoFSM_Physics.Runtime.PhysicsAction
         protected override void OnStateEnter()
         {
             base.OnStateEnter();
-            _rb = _rigidbodyVar.Get<Rigidbody>();
+            //hmm這樣直接
+            _rb = _targetEntity.Value.GetCompCache<Rigidbody>();
             if (_rb == null)
             {
                 Debug.LogError("Rigidbody is null. Cannot perform LerpToPositionAction.", this);
