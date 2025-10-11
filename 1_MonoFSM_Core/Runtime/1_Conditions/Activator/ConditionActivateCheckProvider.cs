@@ -1,3 +1,4 @@
+using System;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Condition;
 using UnityEngine;
@@ -7,9 +8,12 @@ namespace _3_Script._0_RedCandleGamesUtilities.UICanvas.ActivateChecker
     //掛在UIControlGroup (或是掛在物件的root)
     //會在OnPanelShow,OnEnable,(Update)時檢查 下面的 AbstractConditionActivateTarget
     //FIXME: UI變化時可以監聽
+    [Obsolete]
     public class ConditionActivateCheckProvider : MonoBehaviour
     {
-        [PreviewInInspector] [AutoChildren] private AbstractConditionActivateTarget[] conditionActivateTargets;
+        [PreviewInInspector]
+        [AutoChildren]
+        private AbstractConditionActivateTarget[] conditionActivateTargets;
 
         //FIXME: 這個應該可以抽象掉？
         // [PreviewInInspector] [Auto(false)] private UIControlGroup uiControlGroup;

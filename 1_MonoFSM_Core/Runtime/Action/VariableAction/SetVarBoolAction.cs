@@ -9,8 +9,10 @@ namespace MonoFSM.Variable
 {
     //set flag, pick item...和GameFlag有關的要用一個interface才可以撈出來
     //FIXME: 需要雙向reference, debug用，要不然不知道誰在set? candidate
-    public class SetVarBoolAction : AbstractStateAction, IArgEventReceiver<bool>,
-        IHierarchyValueInfo
+    public class SetVarBoolAction
+        : AbstractStateAction,
+            IArgEventReceiver<bool>,
+            IHierarchyValueInfo
     {
         //FIXME: 用selection dropdown來篩選
         //這個還可以化簡嗎？整個description就代表含義了..但沒有Reference可能還是不夠用
@@ -35,7 +37,6 @@ namespace MonoFSM.Variable
             //
             // return items;
         }
-
 
         public bool IsVarExternal => _target?.ParentEntity != ParentEntity;
 

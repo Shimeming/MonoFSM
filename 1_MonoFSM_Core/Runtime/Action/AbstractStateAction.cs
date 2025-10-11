@@ -44,9 +44,10 @@ namespace MonoFSM.Core.Runtime.Action
         {
             get
             {
-                if (_delay)
+                if (_delay) //FIXME: 蛤？
                     return false;
-                return isActiveAndEnabled && _conditions.IsAllValid();
+                return gameObject.activeSelf && _conditions.IsAllValid();
+                //用activeSelf到底可以嗎？有可能強制都要isActiveAndEnabled？
             }
         }
 
@@ -159,26 +160,33 @@ namespace MonoFSM.Core.Runtime.Action
 #endif
 
         //可以用delay modifier?
-        [SerializeField] [CompRef] [Auto] private DelayActionModifier _delayActionModifier;
+        [SerializeField]
+        [CompRef]
+        [Auto]
+        private DelayActionModifier _delayActionModifier;
+
         public void EventReceived()
         {
             if (_delayActionModifier == null)
             {
                 AddEventTime(Time.time);
-                if (gameObject.activeInHierarchy)
+                if (gameObject.activeSelf) //又來！
                     OnActionExecuteImplement();
                 return;
             }
 
             var delayTime = _delayActionModifier.delayTime;
             //primeTween delay?
-            PrimeTween.Tween.Delay(this, delayTime, t =>
-            {
-                t.AddEventTime(Time.time);
-                if (t.gameObject.activeInHierarchy)
-                    OnActionExecuteImplement();
-            });
-
+            PrimeTween.Tween.Delay(
+                this,
+                delayTime,
+                t =>
+                {
+                    t.AddEventTime(Time.time);
+                    if (t.gameObject.activeSelf)
+                        OnActionExecuteImplement();
+                }
+            );
         }
 
         public virtual void SimulationUpdate(float passedDuration) { }

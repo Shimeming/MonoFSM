@@ -253,7 +253,9 @@ namespace MonoFSMCore.Runtime.LifeCycle
             }
         }
 
-        [SerializeField] [AutoChildren] [CompRef]
+        [SerializeField]
+        [AutoChildren]
+        [CompRef]
         private OnResetStartHandler _onResetStartHandler;
 
         private void HandleIResetStart()

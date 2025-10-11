@@ -2,6 +2,12 @@ using UnityEngine;
 
 public static class ConditionHelper
 {
+    /// <summary>
+    /// 每個frame跑condition會很貴嗎？可以cache?
+    /// </summary>
+    /// <param name="conditions"></param>
+    /// <param name="owner"></param>
+    /// <returns></returns>
     public static bool IsAllValid(this AbstractConditionBehaviour[] conditions, Object owner = null)
     {
         if (conditions == null || conditions.Length == 0)

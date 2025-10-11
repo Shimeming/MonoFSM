@@ -1,5 +1,6 @@
 using MonoFSM.Core.Simulate;
 using UnityEngine;
+
 namespace MonoFSM.PhysicsWrapper
 {
     public class MyRaycast : MonoBehaviour
@@ -7,8 +8,11 @@ namespace MonoFSM.PhysicsWrapper
         private IRaycastProcessor _raycastProcessor;
 
         //null的話每次都會再要一次...
-        IRaycastProcessor raycastProcessor => _raycastProcessor ??= WorldUpdateSimulator
-            .GetWorldUpdateSimulator(gameObject)?.GetCompCache<IRaycastProcessor>();
+        IRaycastProcessor raycastProcessor =>
+            _raycastProcessor ??= WorldUpdateSimulator
+                .GetWorldUpdateSimulator(gameObject)
+                ?.GetCompCache<IRaycastProcessor>();
+
         /// <summary>
         /// Casts a ray against colliders in the scene.
         /// </summary>
@@ -51,7 +55,12 @@ namespace MonoFSM.PhysicsWrapper
         /// <param name="hitInfo">If true is returned, hitInfo will contain more information about where the collider was hit.</param>
         /// <param name="maxDistance">The max distance the ray should check for collisions.</param>
         /// <returns>True if the ray intersects with a collider, otherwise false.</returns>
-        public bool Raycast(Vector3 origin, Vector3 direction, out RaycastHit hitInfo, float maxDistance)
+        public bool Raycast(
+            Vector3 origin,
+            Vector3 direction,
+            out RaycastHit hitInfo,
+            float maxDistance
+        )
         {
             if (raycastProcessor != null)
                 return raycastProcessor.Raycast(origin, direction, out hitInfo, maxDistance);
@@ -69,11 +78,22 @@ namespace MonoFSM.PhysicsWrapper
         /// <param name="maxDistance">The max distance the ray should check for collisions.</param>
         /// <param name="layerMask">A layer mask that is used to selectively ignore colliders when casting a ray.</param>
         /// <returns>True if the ray intersects with a collider, otherwise false.</returns>
-        public bool Raycast(Vector3 origin, Vector3 direction, out RaycastHit hitInfo, float maxDistance, int layerMask)
+        public bool Raycast(
+            Vector3 origin,
+            Vector3 direction,
+            out RaycastHit hitInfo,
+            float maxDistance,
+            int layerMask
+        )
         {
             if (raycastProcessor != null)
-                return raycastProcessor.Raycast(origin, direction, out hitInfo, maxDistance,
-                    layerMask);
+                return raycastProcessor.Raycast(
+                    origin,
+                    direction,
+                    out hitInfo,
+                    maxDistance,
+                    layerMask
+                );
 
             // Fallback to Physics.Raycast if no processor is available
             return Physics.Raycast(origin, direction, out hitInfo, maxDistance, layerMask);
@@ -89,16 +109,34 @@ namespace MonoFSM.PhysicsWrapper
         /// <param name="layerMask">A layer mask that is used to selectively ignore colliders when casting a ray.</param>
         /// <param name="queryTriggerInteraction">Specifies whether this query should hit Triggers.</param>
         /// <returns>True if the ray intersects with a collider, otherwise false.</returns>
-        public bool Raycast(Vector3 origin, Vector3 direction, out RaycastHit hitInfo, float maxDistance, int layerMask,
-            QueryTriggerInteraction queryTriggerInteraction)
+        public bool Raycast(
+            Vector3 origin,
+            Vector3 direction,
+            out RaycastHit hitInfo,
+            float maxDistance,
+            int layerMask,
+            QueryTriggerInteraction queryTriggerInteraction
+        )
         {
             if (raycastProcessor != null)
-                return raycastProcessor.Raycast(origin, direction, out hitInfo, maxDistance,
+                return raycastProcessor.Raycast(
+                    origin,
+                    direction,
+                    out hitInfo,
+                    maxDistance,
                     layerMask,
-                    queryTriggerInteraction);
+                    queryTriggerInteraction
+                );
 
             // Fallback to Physics.Raycast if no processor is available
-            return Physics.Raycast(origin, direction, out hitInfo, maxDistance, layerMask, queryTriggerInteraction);
+            return Physics.Raycast(
+                origin,
+                direction,
+                out hitInfo,
+                maxDistance,
+                layerMask,
+                queryTriggerInteraction
+            );
         }
 
         /// <summary>
@@ -111,17 +149,34 @@ namespace MonoFSM.PhysicsWrapper
         /// <param name="layerMask">A layer mask that is used to selectively ignore colliders when casting a ray.</param>
         /// <param name="queryTriggerInteraction">Specifies whether this query should hit Triggers.</param>
         /// <returns>The number of hits stored in the results buffer.</returns>
-        public int RaycastNonAlloc(Vector3 origin, Vector3 direction, RaycastHit[] results, float maxDistance,
+        public int RaycastNonAlloc(
+            Vector3 origin,
+            Vector3 direction,
+            RaycastHit[] results,
+            float maxDistance,
             int layerMask,
-            QueryTriggerInteraction queryTriggerInteraction)
+            QueryTriggerInteraction queryTriggerInteraction
+        )
         {
             if (raycastProcessor != null)
-                return raycastProcessor.RaycastNonAlloc(origin, direction, results, maxDistance,
+                return raycastProcessor.RaycastNonAlloc(
+                    origin,
+                    direction,
+                    results,
+                    maxDistance,
                     layerMask,
-                    queryTriggerInteraction);
+                    queryTriggerInteraction
+                );
 
             // Fallback to Physics.RaycastNonAlloc if no processor is available
-            return Physics.RaycastNonAlloc(origin, direction, results, maxDistance, layerMask, queryTriggerInteraction);
+            return Physics.RaycastNonAlloc(
+                origin,
+                direction,
+                results,
+                maxDistance,
+                layerMask,
+                queryTriggerInteraction
+            );
         }
     }
 }

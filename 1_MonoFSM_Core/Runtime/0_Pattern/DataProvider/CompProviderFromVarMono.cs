@@ -6,6 +6,7 @@ using UnityEngine.Serialization;
 
 namespace MonoFSM.Core.DataProvider
 {
+    [Obsolete]
     public class CompProviderFromVarMono : MonoBehaviour, ICompProvider<Component>
     {
         [FormerlySerializedAs("_systemTypeData")]
@@ -16,7 +17,8 @@ namespace MonoFSM.Core.DataProvider
 
         public Component Get()
         {
-            if (_varEntity == null || _varEntity.Value == null) return null;
+            if (_varEntity == null || _varEntity.Value == null)
+                return null;
             if (_monoTypeData == null)
             {
                 Debug.LogError("SystemTypeData is not set on " + gameObject.name, this);
@@ -30,7 +32,9 @@ namespace MonoFSM.Core.DataProvider
         public T GetValue<T>()
         {
             if (typeof(T) != typeof(Component))
-                throw new InvalidOperationException("GetValue<T>() can only be used with Component type.");
+                throw new InvalidOperationException(
+                    "GetValue<T>() can only be used with Component type."
+                );
 
             return (T)(object)Get();
         }

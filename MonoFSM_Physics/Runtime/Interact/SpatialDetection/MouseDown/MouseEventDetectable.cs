@@ -38,15 +38,18 @@ namespace MonoFSM.Runtime.Interact.SpatialDetection
                 return;
             }
 
+            throw new NotImplementedException();
             //current mouse effectDealer?
             var detector = MouseDetector.Instance;
             // if(detector.)
             // Debug.Log("OnMouseDown", this);
-            detector._detector.OnDetectEnterCheck(_mouseDownDetectable.gameObject);
+            // detector._detector.OnDetectEnterCheck(_mouseDownDetectable.gameObject);
             //TODO: 馬上就Exit?
             //FIXME: 連點會有狀態問題耶...
             //FIXME: 要條件對才可以做這件事？
-            detector._detector.OnDetectExitCheck(_mouseDownDetectable.gameObject);
+            // detector._detector.OnDetectExitCheck(_mouseDownDetectable.gameObject);
+
+
             _mouseDownDetectable.HandleMouseDown(detector);
             // foreach (var effectReceiver in EffectReceivers)
             // {

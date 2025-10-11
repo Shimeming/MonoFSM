@@ -26,7 +26,8 @@ namespace MonoFSM_Physics.Runtime.PhysicsAction
         // [Required] [CompRef] [AutoChildren] private ICompProvider<Rigidbody> _rigidbodyProvider;
         // [DropDownRef] public ValueProvider _rigidbodyValueProvider;
         // public VarComp _rigidbodyVar;
-        [Required] public VarEntity _targetEntity;
+        [Required]
+        public VarEntity _targetEntity;
         public Vector3 _offsetPosition = Vector3.zero;
         public LerpAxis _lerpAxis = LerpAxis.All;
         private Rigidbody _rb;

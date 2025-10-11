@@ -112,12 +112,13 @@ namespace MonoFSM.Runtime.Variable
             _compCache[typeof(T)] = component;
             if (component == null)
             {
-                Debug.LogError("Cannot find component of type " + typeof(T).Name + " in " + name,
-                    this);
+                Debug.LogError(
+                    "Cannot find component of type " + typeof(T).Name + " in " + name,
+                    this
+                );
             }
 
             return component;
-
         }
 
         public Component GetCompCache(Type type)

@@ -4,6 +4,7 @@ using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Detection;
 using MonoFSM.Foundation;
 using MonoFSM.Variable.Attributes;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace MonoFSM.Runtime.Interact.EffectHit
@@ -31,6 +32,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         // public GeneralEffectReceiver[] EffectReceivers => _detectable.EffectReceivers;
     }
 
+    [Searchable]
     [DisallowMultipleComponent]
     //空間中的物件，可以被偵測到, 基本上會有collider或是collider2D
     //從Detector過來
@@ -40,6 +42,8 @@ namespace MonoFSM.Runtime.Interact.EffectHit
     {
         //可能不只一個？
         // [Obsolete("只是拿來新增用的button？其實不一定需要？")]
+
+        //TODO: 如果想要永遠都把EffectDetectable打開，然後去關Collider (DetectHitBox?)要可以支援group node, 這樣就不是depth only 1了
         [CompRef]
         [AutoChildren(DepthOneOnly = true)]
         [SerializeField]

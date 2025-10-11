@@ -37,7 +37,6 @@ namespace MonoFSM.Variable
     {
         protected override string DescriptionTag => "Var";
 
-
         //FIXME: 什麼case需要parentVarEntity? 忘記了XD
         // [ShowIf(nameof(_parentVarEntity))] //有才顯示就好, 或是debugMode?
 

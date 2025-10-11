@@ -91,6 +91,7 @@ namespace MonoFSM.Core.Simulate
         {
             return me.WorldUpdateSimulator;
         }
+
         public static WorldUpdateSimulator GetWorldUpdateSimulator(GameObject me)
         {
             //這個是用來獲取當前的WorldUpdateSimulator

@@ -258,8 +258,7 @@ namespace EditorTool
             // var dirPath = System.IO.Path.GetDirectoryName(myPath);
             var filter = "t:" + nameof(AbstractSOConfig);
             Debug.Log("Find All SO with filter:" + filter);
-            var allProjectFlags =
-                AssetDatabase.FindAssets(filter);
+            var allProjectFlags = AssetDatabase.FindAssets(filter);
             // var soList = new List<ScriptableObject>();
             //All 10_Flags
             // string[] allProjectFlags = AssetDatabase.FindAssets("t:GameFlagBase", new[] { "Assets/10_Flags" });

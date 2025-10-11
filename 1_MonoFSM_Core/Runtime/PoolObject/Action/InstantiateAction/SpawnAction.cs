@@ -51,8 +51,12 @@ namespace MonoFSM.Core.LifeCycle
         VarFloat _scaleRatio;
 
         //FIXME: Spawn可能有有很多需求，...
-        [SerializeField] private Transform _spawnPosition;
-        [SerializeField] private bool _isRotationIdentity;
+        [SerializeField]
+        private Transform _spawnPosition;
+
+        [SerializeField]
+        private bool _isRotationIdentity;
+
         /// <summary>
         /// tmp local obj
         /// </summary>

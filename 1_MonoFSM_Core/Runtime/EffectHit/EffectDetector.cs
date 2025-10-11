@@ -86,6 +86,7 @@ namespace MonoFSM.Core.Detection
         private readonly Dictionary<GeneralEffectDealer, bool> _dealerLastStates = new();
 
         //FIXME: Receiver的部分要怎麼處理？ 也會有開關的問題？還是沒差遇到再說
+        //有特別做了
         private void OnDisable()
         {
             if (!Application.isPlaying)
@@ -98,9 +99,7 @@ namespace MonoFSM.Core.Detection
                 TriggerExitEventsForDetectable(detectable);
 
             _toRemove.Clear();
-            _thisFrameDetectedObjects.Clear();
-
-            // OnDisableImplement();
+            _thisFrameDetectedObjects.Clear(); //應該要關掉嗎？
         }
 
         [RequiredListLength(MinLength = 1)]
@@ -125,12 +124,6 @@ namespace MonoFSM.Core.Detection
         // [PreviewInInspector] private List<EffectDetectable> currentDetectedObjects => _detectedObjects.ToList();
         [PreviewInInspector]
         protected Dictionary<EffectDetectable, DetectData> _lastDetectedObjects = new();
-
-        [Button]
-        private void ClearLastDetectedObjects()
-        {
-            _lastDetectedObjects.Clear();
-        }
 #endif
 
         // protected abstract void AssignHitPoint(DetectData data);
@@ -179,33 +172,33 @@ namespace MonoFSM.Core.Detection
             return "Detection successful";
         }
 
-        /// <summary>
-        /// 向後相容方法 - 現在由 DetectCheck 統一管理，此方法僅作調試用途
-        /// </summary>
-        [System.Obsolete(
-            "Use DetectCheck() instead. This method is for backward compatibility only."
-        )]
-        public void OnDetectExitCheck(GameObject other)
-        {
-            var detectable = GetEffectDetectable(other);
-            if (detectable == null)
-                return;
-
-            // 手動從檢測列表移除（用於向後相容）
-            _thisFrameDetectedObjects.Remove(detectable);
-
-#if UNITY_EDITOR
-            detectable._debugDetectors.Remove(this);
-#endif
-
-            // 直接觸發離開事件
-            TriggerExitEventsForDetectable(detectable);
-        }
+        //         /// <summary>
+        //         /// 向後相容方法 - 現在由 DetectCheck 統一管理，此方法僅作調試用途
+        //         /// </summary>
+        //         [System.Obsolete(
+        //             "Use DetectCheck() instead. This method is for backward compatibility only."
+        //         )]
+        //         public void OnDetectExitCheck(GameObject other)
+        //         {
+        //             var detectable = GetEffectDetectable(other);
+        //             if (detectable == null)
+        //                 return;
+        //
+        //             // 手動從檢測列表移除（用於向後相容）
+        //             _thisFrameDetectedObjects.Remove(detectable);
+        //
+        // #if UNITY_EDITOR
+        //             detectable._debugDetectors.Remove(this);
+        // #endif
+        //
+        //             // 直接觸發離開事件
+        //             TriggerExitEventsForDetectable(detectable);
+        //         }
 
         //需要debug是誰改的嗎？
         public ManualEffectDetectAction _manualEffectDetectAction; //被Action控走的話，就不自己update了
 
-        //FIXME: manual Update? from StateAction?
+        //注意：目前關掉也會持續判定喔，這樣exit才會正確判
         public void Simulate(float deltaTime)
         {
             if (!IsValid || _detectionSources == null || _manualEffectDetectAction != null)
@@ -390,6 +383,7 @@ namespace MonoFSM.Core.Detection
                 var detectable = kvp.Key;
                 if (!currentDetected.ContainsKey(detectable))
                 {
+                    // Debug.Log($"Detectable exited: {detectable.name}", this);
                     TriggerExitEventsForDetectable(detectable);
 #if UNITY_EDITOR
                     detectable._debugDetectors.Remove(this);
@@ -437,17 +431,13 @@ namespace MonoFSM.Core.Detection
             foreach (var dealer in _dealers)
             {
                 var receiver = detectable.Get(dealer._effectType);
-
-                // foreach (var receiver in detectable.EffectReceivers)
-                // {
-                //
-                // }
                 if (!dealer.IsEnteredReceiver(receiver))
                     continue;
 
                 var hitData = receiver.GenerateEffectHitData(dealer);
                 dealer.OnHitExit(hitData);
                 receiver.OnEffectHitExit(hitData);
+                // Debug.Log($"TriggerExitEventsForDetectable: {receiver.name}", receiver);
             }
         }
 
@@ -473,6 +463,8 @@ namespace MonoFSM.Core.Detection
 
         private EffectDetectable GetEffectDetectable(GameObject target)
         {
+            if (!target.activeInHierarchy)
+                return null;
             // 先嘗試直接取得 EffectDetectable
             if (target.TryGetComponent(out EffectDetectable detectable))
                 return detectable;

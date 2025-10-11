@@ -1,8 +1,8 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using MonoFSM.Core.Runtime.Action;
 using MonoFSM.Core.Attributes;
+using MonoFSM.Core.Runtime.Action;
 using UnityEngine;
 
 //DElayNode?
@@ -13,7 +13,9 @@ public class DelayActionModifier : MonoBehaviour
 {
     public float delayTime = 1;
 
-    [Component(AddComponentAt.Children, "[Action]")] [PreviewInInspector] [AutoChildren]
+    [Component(AddComponentAt.Children, "[Action]")]
+    [PreviewInInspector]
+    [AutoChildren]
     private AbstractStateAction[] actions;
 
     public async UniTaskVoid TriggerDelayAction()

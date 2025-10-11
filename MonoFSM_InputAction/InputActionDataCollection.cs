@@ -6,7 +6,10 @@ using UnityEngine;
 
 namespace MonoFSM.InputAction
 {
-    [CreateAssetMenu(fileName = "InputActionDataCollection", menuName = "MonoFSM/Input/InputActionDataCollection")]
+    [CreateAssetMenu(
+        fileName = "InputActionDataCollection",
+        menuName = "MonoFSM/Input/InputActionDataCollection"
+    )]
     public class InputActionDataCollection : DynamicScriptableCollection
     {
         private static InputActionDataCollection _instance;
@@ -30,7 +33,8 @@ namespace MonoFSM.InputAction
             base.OnValidate();
 
             // 自動設定目標類型為 InputActionData
-            if (targetType.RestrictType != typeof(InputActionData)) targetType.SetType(typeof(InputActionData));
+            if (targetType.RestrictType != typeof(InputActionData))
+                targetType.SetType(typeof(InputActionData));
         }
 
         [Button]
@@ -89,7 +93,8 @@ namespace MonoFSM.InputAction
 
         public void AddInputActionData(InputActionData inputActionData)
         {
-            if (inputActionData == null || collection.Contains(inputActionData)) return;
+            if (inputActionData == null || collection.Contains(inputActionData))
+                return;
             collection.Add(inputActionData);
 
             // 自動分配 actionID
@@ -102,7 +107,8 @@ namespace MonoFSM.InputAction
         public override void OnHeavySceneSaving()
         {
             Debug.Log(
-                "OnHeavySceneSaving: Finding all InputActionData in project and assigning action IDs.");
+                "OnHeavySceneSaving: Finding all InputActionData in project and assigning action IDs."
+            );
             FindAllInputActionsInProject();
             // 在Custom 保存時自動分配 actionID
             AssignActionIDs();

@@ -109,7 +109,6 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
                 return;
             Gizmos.color = _overrideGizmoColor;
 
-
             //FIXME: 處理 editor mode的ray provider
             if (Application.isPlaying == false && _rayProvider != null)
                 _cachedRay = _rayProvider.GetRay();
@@ -124,8 +123,8 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
             }
         }
 
-
         public QueryTriggerInteraction _queryTriggerInteraction = QueryTriggerInteraction.Collide;
+
         private void TryCast()
         {
             var ray = _rayProvider.GetRay();
@@ -147,9 +146,9 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
                     ray.direction,
                     out var hitInfo,
                     GetDistance(),
-                    _hittingLayer, _queryTriggerInteraction
+                    _hittingLayer,
+                    _queryTriggerInteraction
                 );
-
 
                 //FIXME: 操作 list好嗎？
                 CachedHits.Add(hitInfo);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using MonoFSM.Core.DataProvider;
+using MonoFSM.Variable;
 using MonoFSM.Variable.FieldReference;
 using UnityEngine;
 using UnityEngine.Profiling;
@@ -966,6 +967,8 @@ namespace MonoFSM.Core.Utilities
 
             for (var i = 0; i < pathEntries.Count; i++)
             {
+                if (pathEntries[i]._serializedType == null)
+                    pathEntries[i]._serializedType = new MySerializedType<Object>();
                 pathEntries[i]._serializedType.SetType(currentType);
                 if (supportedTypes != null)
                     pathEntries[i]._supportedTypes = supportedTypes;

@@ -95,9 +95,8 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         // public IEffectType getEffectType => EffectType;
 
         // [Required]
-        [Component]
+        [CompRef]
         [AutoChildren(DepthOneOnly = true)]
-        [PreviewInInspector]
         protected EffectEnterNode _enterNode;
 
         [CompRef]
@@ -118,8 +117,10 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         private AbstractConditionBehaviour[] _conditions =
             Array.Empty<AbstractConditionBehaviour>();
 
+        //FIXME: 關掉的就不算嗎 hmmm
+        // [PreviewInInspector] public bool IsValid => isActiveAndEnabled && _conditions.IsAllValid();
         [PreviewInInspector]
-        public bool IsValid => isActiveAndEnabled && _conditions.IsAllValid(); //condition 可以burst?感覺不會比較快，這個數量級
+        public bool IsValid => gameObject.activeSelf && _conditions.IsAllValid();
 
         public IActor Owner => GetComponentInParent<IActor>();
         public string ValueInfo => IsValid ? "Valid" : "Invalid";

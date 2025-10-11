@@ -51,6 +51,8 @@ namespace MonoFSM.Core
         {
             // if (!isActiveAndEnabled) //FIXME: 打開的瞬間，我還沒打開？
             //     return;
+            if (!gameObject.activeSelf)
+                return;
             _lastEventHandledTime = Time.time;
             foreach (var eventReceiver in _eventReceivers)
             {
@@ -59,13 +61,13 @@ namespace MonoFSM.Core
             }
         }
 
-
-
         [PreviewInInspector]
         private float _lastEventHandledTime = -1f;
 
         protected virtual void EventHandleImplement<T>(T arg)
         {
+            if (!gameObject.activeSelf)
+                return;
             _lastEventHandledTime = Time.time;
             foreach (var eventReceiver in _eventReceivers)
                 //有參數的介面時
@@ -88,8 +90,8 @@ namespace MonoFSM.Core
         public void EventHandle<T>(T arg)
         {
             //FIXME:會需要condition嗎?
-            if (!isActiveAndEnabled)
-                return;
+            // if (!isActiveAndEnabled) //哇....整個關掉就沒了...要開洞嗎？還是要保持關掉就不觸發？
+            //     return;
 
             EventHandleImplement(arg);
         }

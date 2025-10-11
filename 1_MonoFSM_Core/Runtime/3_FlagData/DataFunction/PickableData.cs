@@ -9,7 +9,9 @@ using UnityEngine;
 public abstract class AbstractDataFunction
 {
     //FIXME: 抽出去
-    [ShowInDebugMode] [SerializeField] private GameData _owner; //這個是用來描述這個物品的擁有者
+    [ShowInDebugMode]
+    [SerializeField]
+    private GameData _owner; //這個是用來描述這個物品的擁有者
     public GameData Owner => _owner;
 
     public void SetOwner(GameData owner)
@@ -30,8 +32,11 @@ public class PickableData : AbstractDataFunction, IItemData //寫死還是有點
     public MonoObj EntityPrefab => _entityPrefab;
 
     [PrefabFilter]
-    [SerializeField] private MonoObj _entityPrefab; //這個是用來生成實體的
-    [SerializeField] private int _stackCount = 1; //這個是用來描述這個物品的堆疊數量
+    [SerializeField]
+    private MonoObj _entityPrefab; //這個是用來生成實體的
+
+    [SerializeField]
+    private int _stackCount = 1; //這個是用來描述這個物品的堆疊數量
     public int MaxStackCount => _stackCount;
 
     public void Use()
@@ -40,9 +45,11 @@ public class PickableData : AbstractDataFunction, IItemData //寫死還是有點
         //丟出來？
     }
 }
+
 [Serializable]
 public class ScoreData : AbstractDataFunction
 {
-    [SerializeField] private int _score = 1; //這個是用來描述這個物品的分數
+    [SerializeField]
+    private int _score = 1; //這個是用來描述這個物品的分數
     public int Score => _score;
 }

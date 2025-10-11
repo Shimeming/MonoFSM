@@ -14,6 +14,10 @@ namespace MonoFSM.Core.Condition
     {
         protected override string DescriptionTag => "Condition Activate";
 
+        /// <summary>
+        /// 要不要做成disable還會檢查的simulate?
+        /// </summary>
+        /// <param name="deltaTime"></param>
         public void Simulate(float deltaTime)
         {
             ActivateCheck();

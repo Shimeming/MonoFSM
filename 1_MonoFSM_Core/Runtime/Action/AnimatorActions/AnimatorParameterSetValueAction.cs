@@ -66,12 +66,16 @@ namespace MonoFSM.Animation
         private float _lastValue;
 
         public float _floatValue;
-        [SerializeField] private VarFloat _varFloat;
+
+        [SerializeField]
+        private VarFloat _varFloat;
         float floatValue => _varFloat != null ? _varFloat.Value : _floatValue;
         #endregion
 
         public int _intValue;
-        [SerializeField] private VarInt _varInt;
+
+        [SerializeField]
+        private VarInt _varInt;
         int intValue => _varInt != null ? _varInt.Value : _intValue;
 
         // [Auto]
