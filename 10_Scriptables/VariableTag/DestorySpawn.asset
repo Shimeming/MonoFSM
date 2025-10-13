@@ -18,14 +18,14 @@ MonoBehaviour:
   _variableType:
     _bindObject: {fileID: 11400000}
     _baseFilterTypeName: 
-    _typeFullName: MonoFSM.Core.Variable.VarPoolObj
+    _typeFullName: MonoFSM.Core.Variable.VarMonoObj
     _assemblyName: MonoFSM.Core.Runtime
-    typeName: MonoFSM.Core.Variable.VarPoolObj, MonoFSM.Core.Runtime, Version=0.0.0.0,
+    typeName: MonoFSM.Core.Variable.VarMonoObj, MonoFSM.Core.Runtime, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   _valueFilterType:
     _bindObject: {fileID: 11400000}
     _baseFilterTypeName: 
     _typeFullName: MonoFSMCore.Runtime.LifeCycle.MonoPoolObj
     _assemblyName: MonoFSM.Core.Runtime
-    typeName: MonoFSMCore.Runtime.LifeCycle.MonoPoolObj, MonoFSM.Core.Runtime, Version=0.0.0.0,
+    typeName: MonoFSMCore.Runtime.LifeCycle.MonoObj, MonoFSM.Core.Runtime, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null

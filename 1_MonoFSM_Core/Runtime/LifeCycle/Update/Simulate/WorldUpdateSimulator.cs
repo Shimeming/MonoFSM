@@ -321,9 +321,10 @@ namespace MonoFSM.Core.Simulate
         private static float _deltaTime;
         public static float DeltaTime => _deltaTime * TimeScale;
 
-        public void BeforeSimulate(float deltaTime, int tick)
+        public void BeforeSimulate(float time, float deltaTime, int tick)
         {
             CurrentTick = tick;
+            SimulationTime = time;
             _deltaTime = deltaTime;
             foreach (var monoObject in _currentUpdatingObjs)
                 if (monoObject is { isActiveAndEnabled: true })
@@ -338,6 +339,7 @@ namespace MonoFSM.Core.Simulate
         }
 
         public static int CurrentTick { get; private set; }
+        public static float SimulationTime { get; private set; }
 
         /// <summary>
         /// 需要依照環境決定怎麼simulate

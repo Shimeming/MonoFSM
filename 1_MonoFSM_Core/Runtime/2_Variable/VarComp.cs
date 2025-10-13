@@ -7,6 +7,29 @@ using UnityEngine.Serialization;
 
 namespace MonoFSM.Variable
 {
+    [Serializable]
+    public class VarFloatFoldOut : VarFoldOut<VarFloat, float> { }
+
+    [Serializable]
+    public class VarFoldOut<TVarType, TValueType>
+        where TVarType : AbstractMonoVariable //用attribute processor幫她加inlinefield
+    {
+        [SerializeField]
+        bool _isVarNeeded;
+
+        [ShowIf(nameof(_isVarNeeded))]
+        [SerializeField]
+        private TVarType _var;
+
+        [HideIf(nameof(HasVar))]
+        [SerializeField]
+        private TValueType _constValue;
+
+        public TValueType Value => HasVar ? _var.GetValue<TValueType>() : _constValue;
+
+        public bool HasVar => _var != null;
+    }
+
     // [InlineField]
     [Serializable]
     public class VarCompField<T>

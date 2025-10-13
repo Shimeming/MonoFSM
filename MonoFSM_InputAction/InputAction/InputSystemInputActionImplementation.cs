@@ -1,4 +1,5 @@
 using MonoFSM.Core.Attributes;
+using MonoFSM.Core.Simulate;
 using MonoFSM.Foundation;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -10,6 +11,7 @@ namespace MonoFSM_InputAction
     [RequireComponent(typeof(MonoInputAction))]
     public class InputSystemInputActionImplementation
         : AbstractDescriptionBehaviour,
+            IUpdateSimulate,
             IInputActionImplementation
     {
         // [Required]
@@ -20,6 +22,14 @@ namespace MonoFSM_InputAction
         [SOConfig("PlayerInputActionData")]
         [SerializeField]
         protected InputActionData _inputActionData;
+
+        // 時間追蹤欄位
+        [ShowInInspector]
+        private float _pressStartTime = -1f;
+
+        [ShowInInspector]
+        private float _lastPressedTime = -1f;
+        private bool _wasPressedLastFrame;
 
         // private bool _readLocalVec2;
 
@@ -46,11 +56,63 @@ namespace MonoFSM_InputAction
             _inputActionData?._inputAction?.action?.expectedControlType == "Vector2";
 
         [ShowInDebugMode]
-        bool IInputActionImplementation.IsPressed => myAction?.IsPressed() ?? false; //如果外掛
+        bool IInputActionImplementation.IsPressed => myAction?.IsPressed() ?? false;
         bool IInputActionImplementation.WasPressed => myAction.WasPressedThisFrame();
         bool IInputActionImplementation.WasReleased => myAction.WasReleasedThisFrame();
 
+        [ShowInDebugMode]
+        float IInputActionImplementation.PressTime
+        {
+            get
+            {
+                if (!Application.isPlaying || _pressStartTime < 0f)
+                    return 0f;
+
+                bool isCurrentlyPressed = myAction?.IsPressed() ?? false;
+                if (isCurrentlyPressed)
+                    return ((IInputActionImplementation)this).GetCurrentTime() - _pressStartTime;
+
+                return 0f;
+            }
+        }
+
+        [ShowInDebugMode]
+        float IInputActionImplementation.LastPressedTime => _lastPressedTime;
+
+        /// <summary>
+        /// 獲取當前時間 - 預設使用 Time.time，可在子類別中 override 使用 Runner.SimulationTime
+        /// </summary>
+        float IInputActionImplementation.GetCurrentTime() => WorldUpdateSimulator.SimulationTime;
+
         protected override string DescriptionTag => "Input";
         public override string Description => _inputActionData?.name;
+
+        public void Simulate(float deltaTime)
+        {
+            // if (!Application.isPlaying || myAction == null)
+            //     return;
+
+            bool isCurrentlyPressed = myAction.IsPressed();
+            float currentTime = ((IInputActionImplementation)this).GetCurrentTime();
+
+            // 檢測按下事件
+            if (isCurrentlyPressed && !_wasPressedLastFrame)
+            {
+                _pressStartTime = currentTime;
+                _lastPressedTime = currentTime;
+            }
+            // 檢測放開事件
+            else if (!isCurrentlyPressed && _wasPressedLastFrame)
+            {
+                _pressStartTime = -1f;
+            }
+
+            _wasPressedLastFrame = isCurrentlyPressed;
+        }
+
+        public void AfterUpdate()
+        {
+            // throw new System.NotImplementedException();
+        }
     }
 }

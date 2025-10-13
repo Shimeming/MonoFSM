@@ -2,7 +2,6 @@ using MonoFSM_InputAction;
 
 namespace Fusion.Addons.KCC.ECM2.Examples.Networking.Fusion_v2.Characters.Scripts.Input
 {
-    //FIXME: 非network也可以用要怎麼兼容？ 不用AbstractFusionPlayerInput而是用interface
     //FIXME: move不能用這個
     public class InputActionWasPressedCondition : AbstractConditionBehaviour
     {

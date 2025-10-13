@@ -17,6 +17,13 @@ namespace MonoFSM_InputAction
         protected internal Vector2 ReadLocalVec2 { get; }
         protected internal Vector2 Vec2Value { get; }
         protected internal bool IsVec2 { get; }
+        protected internal float PressTime { get; } // 已按住的時間
+        protected internal float LastPressedTime { get; } // 上次按下的時間戳
+
+        /// <summary>
+        /// 獲取當前時間（由實作層決定時間源：Time.time 或 Runner.SimulationTime）
+        /// </summary>
+        protected internal float GetCurrentTime();
     }
 
     //抽象的input介面
@@ -26,35 +33,47 @@ namespace MonoFSM_InputAction
         #region 不會被Override, local input result
 
         public Vector2 LocalVec2 => _abstractInputActionImplementation.ReadLocalVec2; //不會被Override
-        [PreviewInInspector] public bool IsLocalPressed => _abstractInputActionImplementation?.IsLocalPressed ?? false; //這個是local的
 
+        [PreviewInInspector]
+        public bool IsLocalPressed => _abstractInputActionImplementation?.IsLocalPressed ?? false; //這個是local的
         #endregion
 
         //FIXME: 重命名, relay?
-        [CompRef] [Auto] private IInputActionImplementation _abstractInputActionImplementation;
-
+        [CompRef]
+        [Auto]
+        private IInputActionImplementation _abstractInputActionImplementation;
 
         //可能被network版的inputActionHandler override
         public Vector2 ReadValueVec2 =>
             _abstractInputActionImplementation?.Vec2Value ?? Vector2.zero; //可以被Override
 
-
-
         //什麼時候需要用到？local直接接？
-        [ShowInPlayMode] public bool IsPressed => _abstractInputActionImplementation.IsPressed; //如果外掛
+        [ShowInPlayMode]
+        public bool IsPressed => _abstractInputActionImplementation.IsPressed; //如果外掛
 
-        [ShowInPlayMode] public bool WasPressed => _abstractInputActionImplementation.WasPressed;
+        [ShowInPlayMode]
+        public bool WasPressed => _abstractInputActionImplementation.WasPressed;
 
         // public abstract bool WasPressBuffered();
-        [ShowInPlayMode] public bool WasReleased => _abstractInputActionImplementation.WasReleased;
+        [ShowInPlayMode]
+        public bool WasReleased => _abstractInputActionImplementation.WasReleased;
 
         //FIXME: read Vector2 input, 混用? 還是要再抽一層？
-        public int InputActionId => _abstractInputActionImplementation
-            .InputActionId; //還是monobehaviour自己assign就好？
+        public int InputActionId => _abstractInputActionImplementation.InputActionId; //還是monobehaviour自己assign就好？
 
         public bool IsReadingVec2 => _abstractInputActionImplementation.IsVec2;
 
+        /// <summary>
+        /// 已按住的時間（秒）
+        /// </summary>
+        [ShowInPlayMode]
+        public float PressTime => _abstractInputActionImplementation?.PressTime ?? 0f;
 
+        /// <summary>
+        /// 上次按下的時間戳（Time.time）
+        /// </summary>
+        [ShowInPlayMode]
+        public float LastPressedTime => _abstractInputActionImplementation?.LastPressedTime ?? -1f;
 
         //FIXME: Debug last press time?
 
@@ -97,6 +116,5 @@ namespace MonoFSM_InputAction
         //             i--;
         //         }
         // }
-
     }
 }
