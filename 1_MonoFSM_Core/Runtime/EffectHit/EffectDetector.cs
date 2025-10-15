@@ -241,8 +241,14 @@ namespace MonoFSM.Core.Detection
                     if (result.isValidHit)
                     {
                         var detectable = GetEffectDetectable(result.targetObject);
+
                         if (detectable != null && IsValid)
                         {
+                            //FIXME: 需要的話Detector也可以判才對
+                            detectable.CanBeInteractedBy(this); //還是應該是assign而不是回傳，condition是
+                            if (!detectable.IsValid)
+                                continue;
+
                             var detectData = new DetectData(this, detectable);
                             if (result.hitPoint.HasValue)
                                 detectData.SetCustomHitPoint(result.hitPoint.Value);
@@ -287,7 +293,9 @@ namespace MonoFSM.Core.Detection
 
             // 最後統一更新狀態記錄
             foreach (var kvp in dealerStateChanges)
+            {
                 _dealerLastStates[kvp.Key] = kvp.Value.currentState;
+            }
         }
 
         private void ProcessDealerStateChangesForDetectable(
@@ -295,8 +303,6 @@ namespace MonoFSM.Core.Detection
             Dictionary<GeneralEffectDealer, (bool lastState, bool currentState)> dealerStateChanges
         )
         {
-            // Debug.Log("Processing dealer state changes for detectable", detectable);
-
             foreach (var kvp in dealerStateChanges)
             {
                 var dealer = kvp.Key;
@@ -322,11 +328,6 @@ namespace MonoFSM.Core.Detection
         )
         {
             var detectData = new DetectData(this, detectable);
-
-            // foreach (var receiver in detectable.EffectReceivers)
-            // {
-            //
-            // }
             var receiver = detectable.Get(dealer._effectType);
             if (!dealer.CanHitReceiver(receiver))
                 return;
@@ -341,10 +342,6 @@ namespace MonoFSM.Core.Detection
             EffectDetectable detectable
         )
         {
-            // foreach (var receiver in detectable.EffectReceivers)
-            // {
-            //
-            // }
             var receiver = detectable.Get(dealer._effectType);
             if (!dealer.IsEnteredReceiver(receiver))
                 return;
@@ -389,6 +386,11 @@ namespace MonoFSM.Core.Detection
                     detectable._debugDetectors.Remove(this);
 #endif
                 }
+            }
+
+            foreach (var dealer in _dealers)
+            {
+                dealer.OnBestMatchCheck(); //多補一個事件
             }
         }
 

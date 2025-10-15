@@ -85,44 +85,44 @@ namespace MonoFSM.Core.Runtime.Action
         protected virtual bool ForceExecuteInValid => false;
 
         //FIXME: 不會走這了？
-        public async void OnActionExecute()
-        {
-            if (!isActiveAndEnabled)
-                return;
-            if (_delay)
-                Debug.LogError("Delay 還沒結束又DELAY 死罪", this);
-
-            // _delay = false;
-            //TODO: conditions
-            if (!IsValid && !ForceExecuteInValid)
-                return; //not valid也要用字串？
-
-            _delay = true;
-            if (delayActionModifier != null)
-                try
-                {
-                    //FIXME: 這個delay用unitask不好，時間軸和fsm錯開了
-                    //有點像sequence? 如果另外包好像還行？
-                    await UniTask.Delay(
-                        TimeSpan.FromSeconds(delayActionModifier.delayTime),
-                        DelayType.DeltaTime,
-                        PlayerLoopTiming.Update,
-                        cancellationTokenSource.Token
-                    );
-                }
-                catch (OperationCanceledException)
-                {
-                    _delay = false;
-                    // Debug.LogError("Delay Cancelled" + e, this);
-                    return;
-                }
-
-            _delay = false;
-            // this.AddTask(OnStateEnterImplement, delayActionModifier.delayTime);
-            AddEventTime(Time.time);
-            OnActionExecuteImplement();
-            Debug.Log($"Action Executed: {name} {renamePostfix} at {lastEventReceivedTime}", this);
-        }
+        // public async void OnActionExecute()
+        // {
+        //     if (!gameObject.activeSelf)
+        //         return;
+        //     if (_delay)
+        //         Debug.LogError("Delay 還沒結束又DELAY 死罪", this);
+        //
+        //     // _delay = false;
+        //     //TODO: conditions
+        //     if (!IsValid && !ForceExecuteInValid)
+        //         return; //not valid也要用字串？
+        //
+        //     _delay = true;
+        //     if (delayActionModifier != null)
+        //         try
+        //         {
+        //             //FIXME: 這個delay用unitask不好，時間軸和fsm錯開了
+        //             //有點像sequence? 如果另外包好像還行？
+        //             await UniTask.Delay(
+        //                 TimeSpan.FromSeconds(delayActionModifier.delayTime),
+        //                 DelayType.DeltaTime,
+        //                 PlayerLoopTiming.Update,
+        //                 cancellationTokenSource.Token
+        //             );
+        //         }
+        //         catch (OperationCanceledException)
+        //         {
+        //             _delay = false;
+        //             // Debug.LogError("Delay Cancelled" + e, this);
+        //             return;
+        //         }
+        //
+        //     _delay = false;
+        //     // this.AddTask(OnStateEnterImplement, delayActionModifier.delayTime);
+        //     AddEventTime(Time.time);
+        //     OnActionExecuteImplement();
+        //     Debug.Log($"Action Executed: {name} {renamePostfix} at {lastEventReceivedTime}", this);
+        // }
 
         protected abstract void OnActionExecuteImplement();
 
@@ -170,8 +170,7 @@ namespace MonoFSM.Core.Runtime.Action
             if (_delayActionModifier == null)
             {
                 AddEventTime(Time.time);
-                if (gameObject.activeSelf) //又來！
-                    OnActionExecuteImplement();
+                OnActionExecuteImplement();
                 return;
             }
 

@@ -78,7 +78,8 @@ namespace MonoFSM.Core
                 }
                 else
                 {
-                    eventReceiver.EventReceived(); //在這裡delay?
+                    if (eventReceiver.IsValid)
+                        eventReceiver.EventReceived(); //在這裡delay?
                 }
         }
 

@@ -6,6 +6,7 @@ using MonoFSM.Core.Simulate;
 using MonoFSM.EditorExtension;
 using MonoFSM.Foundation;
 using MonoFSM.PhysicsWrapper;
+using MonoFSM.Variable;
 using MonoFSM.Variable.Attributes;
 using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
@@ -81,6 +82,7 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
         public List<RaycastHit> CachedHits { get; } = new();
 
         public RaycastHit CachedHit => CachedHits.Count > 0 ? CachedHits[0] : default;
+        public VarVector3 _hitPosVar;
         public Ray CachedRay => _cachedRay;
 
         private IRaycastProcessor raycastProcessor =>
@@ -149,7 +151,7 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
                     _hittingLayer,
                     _queryTriggerInteraction
                 );
-
+                _hitPosVar?.SetValue(hitInfo.point);
                 //FIXME: 操作 list好嗎？
                 CachedHits.Add(hitInfo);
                 // Debug.Log("[RaycastCache] RaycastProcessor Hit:" + hitInfo.collider, this);
@@ -223,12 +225,13 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
             // Debug.Log("[RaycastCache] BeforeSimulate Ray:" + _cachedRay, this);
         }
 
-        public string ValueInfo => "h:" + _hittingLayer.value; //FIXME: 可能會是多個..
+        public string ValueInfo => "layer:" + _hittingLayer.value; //FIXME: 可能會是多個..
         public bool IsDrawingValueInfo => true;
     }
 
     public abstract class AbstractRayProvider : MonoBehaviour
     {
+        //FIXME: 先判定需要才算？ IsValid?
         public abstract Ray GetRay();
         //FIXME: 應該要包含距離？
     }

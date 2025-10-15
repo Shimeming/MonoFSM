@@ -12,7 +12,8 @@ namespace MonoFSM_InputAction
     public class InputSystemInputActionImplementation
         : AbstractDescriptionBehaviour,
             IUpdateSimulate,
-            IInputActionImplementation
+            IInputActionImplementation,
+            IBeforeSimulate
     {
         // [Required]
         // [PreviewInInspector] [AutoParent] private PlayerInput _localPlayerInput;
@@ -87,13 +88,24 @@ namespace MonoFSM_InputAction
         protected override string DescriptionTag => "Input";
         public override string Description => _inputActionData?.name;
 
-        public void Simulate(float deltaTime)
+        public void Simulate(
+            float deltaTime
+        ) //走beforesimulate?
+        { }
+
+        public void AfterUpdate()
+        {
+            // throw new System.NotImplementedException();
+        }
+
+        public void BeforeSimulate(float deltaTime)
         {
             // if (!Application.isPlaying || myAction == null)
             //     return;
+            //順序問題，會不會比較晚？
 
-            bool isCurrentlyPressed = myAction.IsPressed();
-            float currentTime = ((IInputActionImplementation)this).GetCurrentTime();
+            var isCurrentlyPressed = myAction.IsPressed();
+            var currentTime = ((IInputActionImplementation)this).GetCurrentTime();
 
             // 檢測按下事件
             if (isCurrentlyPressed && !_wasPressedLastFrame)
@@ -108,11 +120,6 @@ namespace MonoFSM_InputAction
             }
 
             _wasPressedLastFrame = isCurrentlyPressed;
-        }
-
-        public void AfterUpdate()
-        {
-            // throw new System.NotImplementedException();
         }
     }
 }

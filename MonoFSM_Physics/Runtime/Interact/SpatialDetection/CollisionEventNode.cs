@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
 {
+    //用的到這個嗎？
     public class CollisionEventNode : AbstractEventHandler, ICollisionDataProvider
     {
         public void EventHandle(Collision collision)
@@ -23,6 +24,7 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
             return _cacheCollision;
         }
 
-        [PreviewInInspector] private Collision _cacheCollision;
+        [PreviewInInspector]
+        private Collision _cacheCollision;
     }
 }

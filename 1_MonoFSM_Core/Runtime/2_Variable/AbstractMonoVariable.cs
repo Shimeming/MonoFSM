@@ -585,6 +585,8 @@ namespace MonoFSM.Variable
         // [HideInInlineEditors] public UnityEvent valueChangedEvent;
         public string Name => gameObject.name;
         public VariableTag Key => _varTag;
+
+        [ShowInInspector]
         public abstract bool IsValueExist { get; }
         protected virtual bool HasValueProvider => false;
         protected virtual bool HasProxyValue => HasValueProvider || HasParentVarEntity;
@@ -594,23 +596,11 @@ namespace MonoFSM.Variable
             return new[] { _varTag };
         }
 
-        // public virtual void OnBeforePrefabSave()
-        // {
-        //
-        // }
-
-        [Button("Prefab Save")]
-        public virtual void OnBeforePrefabSave()
+        protected override void Rename()
         {
-            // base.OnBeforePrefabSave();
+            //FIXME: 直接把繼承來的邏輯override掉囉
+            // base.Rename();
             UpdateTag();
-            //FIXME: 不知道怎麼做比較好的自動取名
-            // if (HasValueProvider)
-            // {
-            //     name = "=>"; //hmm多個怎麼辦...
-            //     return;
-            // }
-
             if (_varTag == null)
             {
                 Debug.LogError("No VarTag: " + this, this);
@@ -622,7 +612,6 @@ namespace MonoFSM.Variable
                 str = _parentVarEntity.name + "_" + str;
 
             name = str;
-            //FIXME: 怎麼更好的取名？
         }
 
         public Type GetRestrictType()

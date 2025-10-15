@@ -1,6 +1,8 @@
 using System;
 using MonoFSM.Core.Attributes;
+using MonoFSM.Core.Variable;
 using MonoFSM.Variable.TypeTag;
+using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -9,6 +11,9 @@ namespace MonoFSM.Variable
 {
     [Serializable]
     public class VarFloatFoldOut : VarFoldOut<VarFloat, float> { }
+
+    [Serializable]
+    public class VarMonoObjFoldOut : VarFoldOut<VarMonoObj, MonoObj> { }
 
     [Serializable]
     public class VarFoldOut<TVarType, TValueType>

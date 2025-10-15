@@ -1,6 +1,7 @@
 using System;
 using MonoFSM.Condition;
 using MonoFSM.Core.Attributes;
+using MonoFSM.Foundation;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -8,7 +9,7 @@ using Object = UnityEngine.Object;
 
 namespace MonoFSM.Variable
 {
-    public class VariableStatModifier : MonoBehaviour, IStatModifer //單一數值的modify...不同層
+    public class VariableStatModifier : AbstractDescriptionBehaviour, IStatModifer //單一數值的modify...不同層
     {
         [AutoParent]
         private IConditionChangeListener _inParent; //遠遠的註冊就沒有這個？還是註冊時assign
@@ -53,16 +54,17 @@ namespace MonoFSM.Variable
 
         private string sign => FinalValue >= 0 ? "+" : "-"; //這個是用來顯示的
 
+        public override string Description => _valueVar.name + " " + _valueMultiplier;
+
         [ShowInInspector]
-        private string ValueDescription //FIXME: 用value不對ㄅ provider的資訊
-            =>
+        private string ValueDescription =>
             _type switch
             {
                 StatModType.Flat => $"{sign}{Mathf.Abs(FinalValue)}",
                 StatModType.PercentAdd => $"{sign}{Mathf.Abs(FinalValue) * 100}%",
                 StatModType.PercentMult => $"*{FinalValue * 100}%",
                 _ => throw new ArgumentOutOfRangeException(),
-            };
+            }; //FIXME: 用value不對ㄅ provider的資訊
 
         [FormerlySerializedAs("Type")]
         public StatModType _type = StatModType.Flat; //Const?
@@ -74,11 +76,7 @@ namespace MonoFSM.Variable
         // [PreviewInInspector] IStatModifierOwner _source; //原本的parent?可以用interface?
         public Object Source => this;
 
-        [Button]
-        private void Rename()
-        {
-            name = "Stat Modifier " + ValueDescription;
-        }
+        protected override string DescriptionTag => "Stat M";
 
         [PreviewInInspector]
         [AutoChildren]

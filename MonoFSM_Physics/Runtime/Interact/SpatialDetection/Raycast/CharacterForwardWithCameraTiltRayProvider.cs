@@ -4,7 +4,7 @@ using UnityEngine;
 namespace MonoFSM.PhysicsWrapper
 {
     //FIXME: 用photon projectile?
-    public class CameraRayProvider : AbstractRayProvider
+    public class CharacterForwardWithCameraTiltRayProvider : AbstractRayProvider
     {
         private Transform _characterTransform;
 
@@ -18,6 +18,7 @@ namespace MonoFSM.PhysicsWrapper
         {
             _characterTransform = transform;
             var ray = new Ray(_characterTransform.position, _characterTransform.forward);
+            //FIXME: DI camera?
             var mainCamera = Camera.main;
             // Get camera's pitch (vertical rotation)
             var cameraPitch = mainCamera.transform.eulerAngles.x;

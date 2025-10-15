@@ -1,5 +1,6 @@
 using MonoFSM.Core.Attributes;
 using MonoFSM.Variable;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace MonoFSM_InputAction.Condition
@@ -8,6 +9,9 @@ namespace MonoFSM_InputAction.Condition
     {
         [DropDownRef]
         public MonoInputAction _inputAction;
+
+        [ShowInInspector]
+        private float pressingTime => _inputAction.PressTime;
 
         [InlineField]
         [SerializeField]

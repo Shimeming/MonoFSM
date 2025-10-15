@@ -258,7 +258,7 @@ namespace MonoFSM.Foundation
         [InfoBox("$Description")]
         [HideInInlineEditors]
         [Button]
-        protected void Rename()
+        protected virtual void Rename()
         {
 #if UNITY_EDITOR
             if (IsIgnoreRename)

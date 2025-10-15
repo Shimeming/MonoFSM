@@ -8,7 +8,8 @@ namespace MonoFSM.Runtime.Interact.SpatialDetection
         {
             // if(detector.)
             // Debug.Log("OnMouseDown", this);
-            detector._detector.OnDetectEnterCheck(gameObject);
+            //FIXME: 重新想怎麼做比較好
+            // detector._detector.OnDetectEnterCheck(gameObject);
         }
     }
 }

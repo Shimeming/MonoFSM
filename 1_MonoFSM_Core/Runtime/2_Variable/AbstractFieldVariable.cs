@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.CompilerServices;
+using JetBrains.Annotations;
 using MonoDebugSetting;
 using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
@@ -28,7 +29,7 @@ public abstract class AbstractFieldVariable<TScriptableData, TField, TType>
         ISceneStart
     where TScriptableData : AbstractScriptableData<TField, TType>
     where TField : FlagField<TType>, new()
-    where TType : IEquatable<TType>
+// where TType : IEquatable<TType>
 {
     public TType GetValue()
     {
@@ -330,6 +331,11 @@ public abstract class AbstractFieldVariable<TScriptableData, TField, TType>
         }
     }
 
+    public bool IsNull => _isNull;
+
+    [SerializeField]
+    private bool _isNull = false; //預設是ProductionValue
+
     [ShowInPlayMode]
     public virtual TType CurrentValue //FIXME: 改成Value?
     {
@@ -448,10 +454,12 @@ public abstract class AbstractFieldVariable<TScriptableData, TField, TType>
 
         Profiler.BeginSample("Field SetCurrentValue");
         Field.SetCurrentValue(tempValue, byWho);
+        _isNull = false;
         Profiler.EndSample();
 
         //什麼時候需要track? isTracking?
         TrackValue(tempValue, byWho);
+
         return (true, tempValue);
         // #if MIXPANEL
         //         _trackValue.OnRecycle();
@@ -581,6 +589,7 @@ public abstract class AbstractFieldVariable<TScriptableData, TField, TType>
     public override void ClearValue()
     {
         Field.ClearValue();
+        _isNull = true;
     }
 
     public override void OnBeforePrefabSave()

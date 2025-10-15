@@ -75,7 +75,7 @@ namespace MonoFSM.Variable
 
         private const int MAX_RECURSION_DEPTH = 10;
 
-        public override bool IsValueExist => _currentValue != null;
+        public override bool IsValueExist => Value != null;
 
         //FIXME: 繼承時想要加更多attribute
         // [Header("預設值")] [HideIf(nameof(_siblingDefaultValue))]

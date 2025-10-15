@@ -67,7 +67,7 @@ public abstract class AbstractConditionBehaviour
     {
         //FIXME: formatName會把這個尬爛...
         var text = base.DescriptionPreprocess(description);
-        return FinalResultInverted ? " Not " + text : text;
+        return FinalResultInverted ? " \"Not\" " + text : text;
     }
 
     // protected override string Description =>

@@ -1,8 +1,10 @@
 using System;
 using _1_MonoFSM_Core.Runtime._1_States;
+using _1_MonoFSM_Core.Runtime.EffectHit;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Detection;
 using MonoFSM.Foundation;
+using MonoFSM.Runtime.Interact.EffectHit.Resolver;
 using MonoFSM.Variable.Attributes;
 using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
@@ -20,6 +22,30 @@ namespace MonoFSM.Runtime.Interact.EffectHit
             IHitDataProvider,
             IResetStateRestore //, IHierarchyValueInfo,
     {
+        [PreviewInInspector]
+        [Component]
+        [AutoChildren(DepthOneOnly = true)]
+        protected AbstractEffectHitCondition[] _effectConditions;
+
+        public bool IsEffectConditionsAllValid(EffectResolver pairResolver)
+        {
+            if (_effectConditions != null)
+                foreach (var condition in _effectConditions)
+                {
+                    var result = condition.IsEffectHitValid(pairResolver);
+                    if (!result)
+                    {
+                        // SetFailReason($"EffectCondition {condition.GetType().Name} failed");
+                        // var data = r.GenerateEffectHitData(this);
+                        // OnEffectHitConditionFail(data);
+                        // r.OnEffectHitConditionFail(data);
+                        return false;
+                    }
+                }
+
+            return true;
+        }
+
         [Required]
         [PreviewInInspector]
         [AutoParent]
@@ -111,6 +137,14 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         [CompRef]
         [AutoChildren(DepthOneOnly = true)]
         protected EffectExitNode _exitNode;
+
+        [CompRef]
+        [AutoChildren(DepthOneOnly = true)]
+        protected EffectEnterBestMatchNode _bestEnterNode;
+
+        [CompRef]
+        [AutoChildren(DepthOneOnly = true)]
+        protected EffectExitBestMatchNode _bestExitNode;
 
         [CompRef]
         [AutoChildren(DepthOneOnly = true)]

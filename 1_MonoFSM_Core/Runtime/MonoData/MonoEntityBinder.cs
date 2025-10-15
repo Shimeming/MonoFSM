@@ -40,6 +40,8 @@ namespace MonoFSM.Runtime
             return true;
             // return item.isActiveAndEnabled;
         }
+
+        protected override string DescriptionTag => "EntityBinder";
     }
 
     public static class MonoDescriptableBinderExtension

@@ -5,9 +5,7 @@ namespace MonoFSM.Variable
 {
     public class SchemaFolder : MonoDict<AbstractEntitySchema, AbstractEntitySchema>
     {
-        protected override void AddImplement(AbstractEntitySchema item)
-        {
-        }
+        protected override void AddImplement(AbstractEntitySchema item) { }
 
         protected override void RemoveImplement(AbstractEntitySchema item)
         {
@@ -18,5 +16,7 @@ namespace MonoFSM.Variable
         {
             return true;
         }
+
+        protected override string DescriptionTag => "SchemaFolder";
     }
 }

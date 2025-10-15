@@ -24,6 +24,10 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         [AutoParent]
         private EffectDetectable _detectable; //不一定是，IEffectDetectable?
 
+        [Header("Best Match Settings")]
+        [Tooltip("當 EffectType 設定為只觸發最佳匹配時，此值越高優先級越高")]
+        public int MatchPriority = 0;
+
         // [PropertyOrder(-1)]
         // public  ValueSource; //FIXME: 拿來做什麼？
 
@@ -74,6 +78,23 @@ namespace MonoFSM.Runtime.Interact.EffectHit
 
         [PreviewInInspector]
         private HashSet<GeneralEffectDealer> _dealers = new();
+
+        public void OnEffectHitBestMatchEnter(GeneralEffectHitData data)
+        {
+            //bestEnterNode
+            _bestEnterNode?.EventHandle(data);
+        }
+
+        public void OnEffectHitBestMatchExit(GeneralEffectHitData data)
+        {
+            this.Log("OnHitBestMatchExit");
+            Debug.Log(
+                $"[GeneralEffectReceiver] OnEffectHitBestMatchExit {data.GeneralDealer.name} to {name}",
+                this
+            );
+            _bestExitNode?.EventHandle(data);
+            // _currentHitData = null;
+        }
 
         public void OnEffectHitExit(IEffectHitData data)
         {

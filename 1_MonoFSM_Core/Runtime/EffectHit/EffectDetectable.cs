@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using _1_MonoFSM_Core.Runtime.EffectHit;
 using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Detection;
@@ -61,7 +62,23 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         // [ShowInInspector] public GeneralEffectReceiver[] EffectReceivers => _effectReceivers;
 
         public GameObject TargetObject => gameObject;
-        public bool IsValidTarget => enabled && gameObject.activeInHierarchy;
+        public bool IsValid => gameObject.activeInHierarchy && _interactConditions.IsAllValid();
+
+        //FIXME 這可以再包一層嗎？
+        [AutoChildren]
+        [CompRef]
+        public AbstractEntityInteractCondition[] _interactConditions; //應該是可以有多個condition？
+
+        public void CanBeInteractedBy(EffectDetector detector) //pre-assign?
+        {
+            foreach (var condition in _interactConditions)
+            {
+                condition._sourceEntity = detector.ParentEntity;
+                condition._targetEntity = ParentEntity;
+            }
+
+            // return;
+        }
 
         //DebugOnly
 #if UNITY_EDITOR
@@ -134,5 +151,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         {
             return true;
         }
+
+        protected override string DescriptionTag => "EffectDetectable 接收進入點";
     }
 }

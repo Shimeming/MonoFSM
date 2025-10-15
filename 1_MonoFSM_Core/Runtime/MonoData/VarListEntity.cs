@@ -463,7 +463,12 @@ namespace MonoFSM.Core.Variable
             get
             {
                 if (IsReadOnly)
-                    return _valueSourceProvider.Value.Count;
+                {
+                    if (_valueSourceProvider != null && _valueSourceProvider.Value != null)
+                        return _valueSourceProvider.Value.Count;
+                    // else
+                    //     return 0;
+                }
 
                 EnsureActiveCollectionInitialized();
                 if (_activeCollection is List<T> list)

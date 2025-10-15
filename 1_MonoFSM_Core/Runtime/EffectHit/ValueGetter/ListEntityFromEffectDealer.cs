@@ -24,5 +24,7 @@ namespace _1_MonoFSM_Core.Runtime.EffectHit.ValueGetter
 
         public override List<MonoEntity> Value =>
             _effectDealer != null ? _effectDealer.GetHittingEntities() : null;
+
+        //FIXME: 對方關著要能看出來？
     }
 }

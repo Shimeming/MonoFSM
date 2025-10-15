@@ -4,7 +4,8 @@ using System.Linq;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.DataProvider;
 using MonoFSM.Core.Detection;
-using MonoFSM.Runtime.Interact.EffectHit.Resolver;
+using MonoFSM.Variable.Attributes;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -16,11 +17,6 @@ namespace MonoFSM.Runtime.Interact.EffectHit
 
     public class GeneralEffectDealer : EffectResolver, IEffectDealer
     {
-        [PreviewInInspector]
-        [Component]
-        [AutoChildren(DepthOneOnly = true)]
-        private AbstractEffectHitCondition[] _effectConditions;
-
         // public VariableMonoDescriptableProvider proxyProvider;
         // public GeneralEffectType effectType;
         [Header("自動找EffectType相同的Dealer")] //[SerializeReference]
@@ -114,7 +110,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
             if (_effectConditions != null)
                 foreach (var condition in _effectConditions)
                 {
-                    var result = condition.IsEffectHitValid((GeneralEffectReceiver)receiver);
+                    var result = condition.IsEffectHitValid(r);
                     if (!result)
                     {
                         SetFailReason($"EffectCondition {condition.GetType().Name} failed");
@@ -124,6 +120,15 @@ namespace MonoFSM.Runtime.Interact.EffectHit
                         return false;
                     }
                 }
+
+            if (!r.IsEffectConditionsAllValid(this))
+            {
+                SetFailReason($"Receiver's EffectCondition fail");
+                var data = r.GenerateEffectHitData(this);
+                OnEffectHitConditionFail(data);
+                r.OnEffectHitConditionFail(data);
+                return false;
+            }
 
 #if UNITY_EDITOR
             this.Log("HitReceiver Success:"); //, r.GetGlobalId());
@@ -136,7 +141,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
 
         //FIXME: runtime receivers
         [PreviewInInspector]
-        private HashSet<IEffectReceiver> _receivers = new();
+        private HashSet<GeneralEffectReceiver> _receivers = new();
 
         [Header("Condition不符合的")]
         [PreviewInDebugMode]
@@ -144,6 +149,59 @@ namespace MonoFSM.Runtime.Interact.EffectHit
 
         [PreviewInInspector]
         private GeneralEffectReceiver _lastReceiver;
+
+        GeneralEffectReceiver _lastBestMatchReceiver;
+
+        public void OnBestMatchCheck()
+        {
+            if (_onlyTriggerBestMatch != null)
+            {
+                // Debug.Log("OnBestMatchCheck", this);
+                if (_receivers.Count == 0)
+                {
+                    if (_lastBestMatchReceiver != null)
+                        _lastBestMatchReceiver.OnEffectHitBestMatchExit(_currentHitData);
+                    _lastBestMatchReceiver = null;
+                    return;
+                }
+
+                if (_receivers.Count == 1)
+                {
+                    var only = _receivers.First();
+                    if (_lastBestMatchReceiver != only)
+                    {
+                        if (_lastBestMatchReceiver != null)
+                            _lastBestMatchReceiver.OnEffectHitBestMatchExit(_currentHitData);
+                        only.OnEffectHitBestMatchEnter(_currentHitData);
+                        Debug.Log($"Only one receiver, {only.name} is the best match", this);
+                        _lastBestMatchReceiver = only;
+                    }
+
+                    return;
+                }
+
+                GeneralEffectReceiver bestMatch = null;
+                float bestScore = float.MinValue;
+                foreach (var receiver in _receivers)
+                {
+                    var score = _onlyTriggerBestMatch.CalculateScore(this, receiver);
+                    if (score > bestScore)
+                    {
+                        bestScore = score;
+                        bestMatch = receiver;
+                    }
+                }
+
+                if (_lastBestMatchReceiver != bestMatch)
+                {
+                    if (_lastBestMatchReceiver != null)
+                        _lastBestMatchReceiver.OnEffectHitBestMatchExit(_currentHitData);
+                    if (bestMatch != null)
+                        bestMatch.OnEffectHitBestMatchEnter(_currentHitData);
+                    _lastBestMatchReceiver = bestMatch;
+                }
+            }
+        }
 
         public void OnHitEnter(IEffectHitData data, DetectData? detectData = null)
         {
@@ -160,7 +218,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
             _enterNode?._hittingEntity?.SetValue(receiverEntity, this); //要先做
             _enterNode?.EventHandle(_currentHitData);
 
-            _receivers.Add(_currentHitData.Receiver);
+            _receivers.Add(_currentHitData.GeneralReceiver);
             _hittingEntities.Add(receiverEntity);
 
             _lastReceiver = data.Receiver as GeneralEffectReceiver;
@@ -181,11 +239,18 @@ namespace MonoFSM.Runtime.Interact.EffectHit
                 proxyDealer.OnHitEnter(data);
 
             _exitNode?.EventHandle(data as GeneralEffectHitData);
-            _receivers.Remove(data.Receiver);
+            _receivers.Remove((GeneralEffectReceiver)data.Receiver);
             _hittingEntities.Remove(hitData.GeneralReceiver.ParentEntity);
         }
 
         protected override string TypeTag => "Dealer";
         protected override string DescriptionTag => "Dealer";
+
+        [CompRef]
+        [Auto]
+        private AbstractOnlyTriggerBestMatch _onlyTriggerBestMatch;
+
+        public AbstractOnlyTriggerBestMatch OnlyTriggerBestMatch => _onlyTriggerBestMatch;
+        public bool IsOnlyTriggerBestMatch => _onlyTriggerBestMatch != null;
     }
 }

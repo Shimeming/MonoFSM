@@ -208,4 +208,6 @@ public class VariableFolder : MonoDict<VariableTag, AbstractMonoVariable>
         //一定要可以加，還是用disable?
         // return true;
     }
+
+    protected override string DescriptionTag => "VarFolder";
 }

@@ -2,7 +2,8 @@ using MonoFSM.Core;
 
 namespace MonoFSM.Runtime.Mono
 {
-    public class MonoDescriptableCollectionBinder : MonoDict<MonoEntityTag, IMonoDescriptableCollection>
+    public class MonoDescriptableCollectionBinder
+        : MonoDict<MonoEntityTag, IMonoDescriptableCollection>
     {
         // public void Inject()
         // {
@@ -24,5 +25,7 @@ namespace MonoFSM.Runtime.Mono
         {
             return item.isActiveAndEnabled;
         }
+
+        protected override string DescriptionTag => "DescriptableCollection";
     }
 }

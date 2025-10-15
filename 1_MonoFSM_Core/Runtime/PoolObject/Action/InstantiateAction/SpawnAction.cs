@@ -39,10 +39,12 @@ namespace MonoFSM.Core.LifeCycle
 
         // [Required] [SerializeField] private VarEntity _poolObjVar; //用來存取剛spawn的物件
 
+        [SerializeField]
+        VarMonoObjFoldOut _poolObjFoldOut;
 
         [Required]
         [SerializeField]
-        private VarMonoObj _poolObjVar;
+        private VarMonoObj _poolObjVar; //不要用了？轉用_poolObjFoldOut?
 
         /// <summary>
         ///
@@ -52,7 +54,14 @@ namespace MonoFSM.Core.LifeCycle
 
         //FIXME: Spawn可能有有很多需求，...
         [SerializeField]
-        private Transform _spawnPosition;
+        private Transform _spawnPosition; //Position provider, VarVector3
+
+        public VarVector3 _spawnPositionV3; //可以用provider
+
+        Vector3 spawnPos =>
+            _spawnPosition != null
+                ? _spawnPosition.position
+                : (_spawnPositionV3 != null ? _spawnPositionV3.Value : transform.position);
 
         [SerializeField]
         private bool _isRotationIdentity;
@@ -75,7 +84,8 @@ namespace MonoFSM.Core.LifeCycle
         //Prefab特殊，不該runtime去Instantiate對ㄅ，都應該從prefab來，就算要也是複製狀態
 
         [PreviewInDebugMode]
-        private MonoObj Prefab => _poolObjVar?.Value; // _poolObjProvider?.Get<MonoObj>();
+        private MonoObj Prefab =>
+            _poolObjFoldOut.Value != null ? _poolObjFoldOut.Value : _poolObjVar?.Value; // _poolObjProvider?.Get<MonoObj>();
 
         [CompRef]
         [AutoChildren]
@@ -87,8 +97,9 @@ namespace MonoFSM.Core.LifeCycle
             // Debug.Log("SpawnAction OnStateEnterImplement", this);
             //FIXME: 時機點？FixedUpdateNetwork?
             //外包transform?
-            var t = _spawnPosition != null ? _spawnPosition : transform;
-            Spawn(Prefab, t.position, _isRotationIdentity ? Quaternion.identity : t.rotation, null);
+            // var t = _spawnPosition != null ? _spawnPosition : transform;
+            var rotation = _isRotationIdentity ? Quaternion.identity : transform.rotation;
+            Spawn(Prefab, spawnPos, rotation, null);
         }
 
         [HideIf(nameof(_scaleRatio))]

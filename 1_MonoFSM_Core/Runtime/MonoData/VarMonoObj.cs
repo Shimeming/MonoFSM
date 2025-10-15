@@ -14,10 +14,9 @@ namespace MonoFSM.Core.Variable
         // [SOConfig("10_Flags/GameData", useVarTagRestrictType: true)] //FIXME: 痾，只有SO類才需要ㄅ
         [Required]
         [PrefabFilter(typeof(PoolObject))] //hmm?
-        //這個寫法hmm?
-        //FIXME: 不一定是Prefab耶？VarEntity享用
-        //required可以有condition?
-        protected MonoObj DefaultValue
+        // [ShowDrawerChain]
+        [ShowInInspector]
+        protected MonoObj DefaultValueSelector //優先順序？
         {
             get => _defaultValue;
             set => _defaultValue = value;

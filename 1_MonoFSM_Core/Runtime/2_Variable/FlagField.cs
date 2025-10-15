@@ -59,9 +59,9 @@ public class FlagFieldVector2 : FlagField<Vector2>
 [Serializable]
 public class FlagFieldVector3 : FlagField<Vector3>
 {
-    public static bool operator ==(FlagFieldVector3 j, Vector3 k) => j.CurrentValue == k;
-
-    public static bool operator !=(FlagFieldVector3 j, Vector3 k) => j.CurrentValue != k;
+    // public static bool operator ==(FlagFieldVector3 j, Vector3 k) => j.CurrentValue == k;
+    //
+    // public static bool operator !=(FlagFieldVector3 j, Vector3? k) => j.CurrentValue != k;
 
     protected override bool IsCurrentValueEquals(Vector3 value) => _currentValue == value;
 }
@@ -275,6 +275,7 @@ public class FlagField<T> : FlagFieldBase, IVariableField // where T : IComparab
 
     //editor time value changed?
 
+    // public bool _isNull;
 
     [GUIColor(0.3f, 0.7f, 0.7f, 1f)]
     [FormerlySerializedAs("DefaultValue")]
@@ -320,12 +321,12 @@ public class FlagField<T> : FlagFieldBase, IVariableField // where T : IComparab
 
 
     [PreviewInInspector]
-    protected T _currentValue; //真正拿來存的值
+    protected T? _currentValue; //真正拿來存的值
 
     [PropertyOrder(-1)]
     [GUIColor(0, 1, 0.5f, 1)]
     [ShowInPlayMode]
-    public virtual T CurrentValue
+    public virtual T? CurrentValue
     {
         get
         {

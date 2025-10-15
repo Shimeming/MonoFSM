@@ -16,6 +16,8 @@ public static class ConditionHelper
         {
             if (condition == null)
                 continue;
+            if (condition.gameObject.activeSelf == false) //只看自己，可能是parent有人關
+                continue;
             if (condition == owner)
             {
                 Debug.LogError(
@@ -24,8 +26,6 @@ public static class ConditionHelper
                 );
                 continue;
             }
-            if (condition.gameObject.activeSelf == false) //只看自己，可能是parent有人關
-                continue;
             if (condition.FinalResult == false)
                 return false;
             // Debug.Log($"[ConditionHelper] {condition.name} is valid", condition.gameObject);

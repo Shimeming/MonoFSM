@@ -147,7 +147,6 @@ namespace MonoFSM.Core
 
                     if (CanTransition(ref t._transitionData) == true)
                     {
-                        // Debug.Log($"[{Name}] ForceActivateState to {transition.TargetState.Name}", this);
                         if (Machine.TryActivateState(t.TargetState))
                             return;
                     }
