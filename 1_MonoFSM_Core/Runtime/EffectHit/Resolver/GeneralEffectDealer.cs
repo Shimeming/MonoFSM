@@ -151,6 +151,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         private GeneralEffectReceiver _lastReceiver;
 
         GeneralEffectReceiver _lastBestMatchReceiver;
+        public GeneralEffectReceiver BestMatchReceiver => _lastBestMatchReceiver;
 
         public void OnBestMatchCheck()
         {
@@ -173,7 +174,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
                         if (_lastBestMatchReceiver != null)
                             _lastBestMatchReceiver.OnEffectHitBestMatchExit(_currentHitData);
                         only.OnEffectHitBestMatchEnter(_currentHitData);
-                        Debug.Log($"Only one receiver, {only.name} is the best match", this);
+                        // Debug.Log($"Only one receiver, {only.name} is the best match", this);
                         _lastBestMatchReceiver = only;
                     }
 
@@ -250,7 +251,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         [Auto]
         private AbstractOnlyTriggerBestMatch _onlyTriggerBestMatch;
 
-        public AbstractOnlyTriggerBestMatch OnlyTriggerBestMatch => _onlyTriggerBestMatch;
+        // public AbstractOnlyTriggerBestMatch OnlyTriggerBestMatch => _onlyTriggerBestMatch;
         public bool IsOnlyTriggerBestMatch => _onlyTriggerBestMatch != null;
     }
 }

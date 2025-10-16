@@ -88,10 +88,6 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         public void OnEffectHitBestMatchExit(GeneralEffectHitData data)
         {
             this.Log("OnHitBestMatchExit");
-            Debug.Log(
-                $"[GeneralEffectReceiver] OnEffectHitBestMatchExit {data.GeneralDealer.name} to {name}",
-                this
-            );
             _bestExitNode?.EventHandle(data);
             // _currentHitData = null;
         }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using _1_MonoFSM_Core.Runtime.EffectHit.Action;
+using MonoDebugSetting;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Simulate;
 using MonoFSM.CustomAttributes;
@@ -472,14 +473,20 @@ namespace MonoFSM.Core.Detection
                 return detectable;
 
             // 透過 BaseEffectDetectTarget 取得
-            var spatialDetectable = target.GetComponent<BaseEffectDetectTarget>();
-            if (spatialDetectable != null)
+            if (target.TryGetComponent<BaseEffectDetectTarget>(out var spatialDetectable))
                 return spatialDetectable.Detectable;
 
             // 透過 TriggerDetectableTarget 取得 (向後相容)
             // if (target.TryGetComponent<TriggerDetectableTarget>(out var triggerDetectable))
             //     return triggerDetectable.Detectable;
-            // Debug.LogError("not a EffectDetectable or BaseEffectDetectTarget", target);
+
+            //FIXME: 可以做一個dict?
+            if (RuntimeDebugSetting.IsDebugMode)
+            {
+                Debug.LogError("not a EffectDetectable or BaseEffectDetectTarget", target);
+                Debug.LogError("not a EffectDetectable or BaseEffectDetectTarget from ", this);
+            }
+
             return null;
         }
 
