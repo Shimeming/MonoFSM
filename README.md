@@ -152,7 +152,8 @@ This tutorial walks you through creating a simple door FSM that demonstrates Mon
 
 #### Scene Preparation
 
-First, add the `SinglePlayer World Simulator.prefab` to your scene (located in the project).
+First, add the `(local) SinglePlayer World Simulator.prefab` (located at `Packages/MonoFSM/0_MonoFSM_Example_Module/0_LifeCycle/`) to your scene.
+*MonoFSM's lifecycle is controlled through this component*
 *MonoFSM's lifecycle is controlled through this component*
 
 ![World Simulator](0_MonoFSM_Example_Module/Document/DocumentAssets/WorldSimulator.png)
@@ -167,14 +168,15 @@ First, add the `SinglePlayer World Simulator.prefab` to your scene (located in t
 3. Rename the generated `General FSM Variant` to your desired object name, for example:
    `General FSM Variant - Door.prefab`
 4. Move it to your project's appropriate location, such as:
-   `Assets/FSMs/Puzzles/General FSM Variant - Door.prefab`
+   `Assets/FSMs/Puzzles/Door/General FSM Variant - Door.prefab`
 
 #### Configure States
 
-Edit the `[General FSM Variant - Door.prefab]`:
+Edit the `[General FSM Variant - Door.prefab]` by double-clicking it.
 
 **[States]**
-Copy and rename existing states to create: `[State] Closed`, `[State] Opening`, `[State] Opened`, `[State] Closing`
+Copy and rename existing states to create: `[State] Closed`, `[State] Opening`, `[State] Opened`, `[State] Closing`.
+The special icon of the Door Variant in the figure is achieved by the paid asset [vHierarchy2](https://assetstore.unity.com/packages/tools/utilities/vhierarchy-2-253397?srsltid=AfmBOoq44pd4vwLzhVOUblVMqnrNVQCZQQBuyJhyHyjC0V9U0enazlhH).
 
 ![Create State](0_MonoFSM_Example_Module/Document/DocumentAssets/CreateState.png)
 
@@ -183,7 +185,8 @@ Copy and rename existing states to create: `[State] Closed`, `[State] Opening`, 
 **[Variables]**
 
 1. Click the Variables node
-2. In Inspector → AddChild → Add VarBool named `[VarBool] Should Open`
+2. In Inspector → AddChild → Add VarBool
+3. Name it to `[VarBool] Should Open`
 
 ![Variables](0_MonoFSM_Example_Module/Document/DocumentAssets/Variables.png)
 
