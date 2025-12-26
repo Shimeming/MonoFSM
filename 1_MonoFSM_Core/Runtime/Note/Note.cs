@@ -3,12 +3,12 @@ using MonoFSM.EditorExtension;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-
 //Just for remind
 public class Note : MonoBehaviour, IEditorOnly, IHierarchyValueInfo //IOverrideHierarchyIcon
 {
     //FIXME: 用vHierarchyIcon來做?
     // [EnumToggleButtons]
+    //FIXME: hoverable note, 不要直接顯示
     // public NoteType type = NoteType.NOTE; //FIXME:拿掉這個好了，不需要 ，用issue來做丟接球
 
     // public bool IsShow = false; //default 景裡可以看到
@@ -25,21 +25,26 @@ public class Note : MonoBehaviour, IEditorOnly, IHierarchyValueInfo //IOverrideH
         //issue想要獨立節點嗎？好像不需要，反而直接裝在有問題的東西旁邊比較好
         this.AddChildrenComponent<Issue>("issue");
     }
+
     public enum NoteType
     {
         NOTE,
         TODO,
-        FIXME
+        FIXME,
     }
-#if UNITY_EDITOR
-    [SerializeField] private NoteType _noteType = NoteType.NOTE;
-    [TextArea(5,100)] [Title("意圖、Prompt")]
-    public string note;
 
+#if UNITY_EDITOR
+    [SerializeField]
+    private NoteType _noteType = NoteType.NOTE;
+
+    [TextArea(5, 100)]
+    [Title("意圖、Prompt")]
+    public string note;
     // [ColorPalette] public Color bgColor = Color.yellow; //fixme:color 應該直接照著類型，和IDE這個註解一樣
 #endif
+
     public string IconName => "_Help";
     public bool IsDrawingIcon => false;
     public string ValueInfo => note;
-    public bool IsDrawingValueInfo => true;
+    public bool IsDrawingValueInfo => false; //TODO:
 }

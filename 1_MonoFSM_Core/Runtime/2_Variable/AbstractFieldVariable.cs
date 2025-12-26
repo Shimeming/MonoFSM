@@ -31,6 +31,11 @@ public abstract class AbstractFieldVariable<TScriptableData, TField, TType>
     where TField : FlagField<TType>, new()
 // where TType : IEquatable<TType>
 {
+    // 遞迴檢測相關變數
+    [System.NonSerialized]
+    private int _recursionDepth = 0;
+    private const int MAX_RECURSION_DEPTH = 50;
+
     public TType GetValue()
     {
         return CurrentValue;
@@ -38,19 +43,39 @@ public abstract class AbstractFieldVariable<TScriptableData, TField, TType>
 
     public override T1 GetValue<T1>()
     {
-        var value = CurrentValue;
-        if (typeof(TType) == typeof(T1))
-            return Unsafe.As<TType, T1>(ref value);
-        // Profiler.BeginSample("GetValue Cast");
-        // if (value is T1 tValue)
-        // {
-        //     Profiler.EndSample();
-        //     return tValue;
-        // }
-        //
-        // Profiler.EndSample();
+        // 遞迴檢測
+        _recursionDepth++;
+        if (_recursionDepth > MAX_RECURSION_DEPTH)
+        {
+            Debug.LogError(
+                $"[遞迴檢測] GetValue 遞迴深度超過 {MAX_RECURSION_DEPTH}！可能發生循環引用。Variable: {name}",
+                this
+            );
+            Debug.Break();
+            _recursionDepth = 0;
+            return default;
+        }
 
-        return default;
+        try
+        {
+            var value = CurrentValue;
+            if (typeof(TType) == typeof(T1))
+                return Unsafe.As<TType, T1>(ref value);
+            // Profiler.BeginSample("GetValue Cast");
+            // if (value is T1 tValue)
+            // {
+            //     Profiler.EndSample();
+            //     return tValue;
+            // }
+            //
+            // Profiler.EndSample();
+
+            return default;
+        }
+        finally
+        {
+            _recursionDepth--;
+        }
     }
 
     public override void SetRaw<T1>(T1 value, Object byWho)
@@ -344,32 +369,52 @@ public abstract class AbstractFieldVariable<TScriptableData, TField, TType>
             if (!Application.isPlaying) //FIXME: 先隨便寫一下..
                 return EditorValue;
 
-            if (valueSource != null) //用外部source getter, 這樣原本一坨都不需要了吧？
-                return valueSource.Get<TType>();
-            if (varRef != null)
-                return varRef.Get<TType>();
+            // 遞迴檢測
+            _recursionDepth++;
+            if (_recursionDepth > MAX_RECURSION_DEPTH)
+            {
+                Debug.LogError(
+                    $"[遞迴檢測] CurrentValue 遞迴深度超過 {MAX_RECURSION_DEPTH}！可能發生循環引用。Variable: {name}, ValueSource: {valueSource}, VarRef: {varRef}",
+                    this
+                );
+                Debug.Break();
+                _recursionDepth = 0;
+                return default;
+            }
 
-            Profiler.BeginSample("FieldVariable CurrentValue", this);
-            var tempValue = _localField.CurrentValue;
+            try
+            {
+                if (valueSource != null) //用外部source getter, 這樣原本一坨都不需要了吧？
+                    return valueSource.Get<TType>();
+                if (varRef != null)
+                    return varRef.Get<TType>();
 
-            //FIXME: 這裡就有proxy? 而且還是直接reference...
-            // if (VariableSource != null)
-            // {
-            //     var v = VariableSource as GenericMonoVariable<TScriptableData, TField, TType>;
-            //     tempValue = v.CurrentValue;
-            // }
-            if (BindData != null)
-                tempValue = BindData.CurrentValue;
+                Profiler.BeginSample("FieldVariable CurrentValue", this);
+                var tempValue = _localField.CurrentValue;
 
-            Profiler.EndSample();
-            Profiler.BeginSample("AfterGetValueModifyCheck", this);
-            //FIXME: 這個是不是有點貴？有需要在這層做嗎？應該在set時就做掉了？不需要ㄅ
-            // if (_modifiers != null)
-            //     foreach (var modifier in _modifiers)
-            //         tempValue = modifier.AfterGetValueModifyCheck(tempValue);
-            Profiler.EndSample();
-            // this.Log("[Variable] Get", tempValue);
-            return tempValue;
+                //FIXME: 這裡就有proxy? 而且還是直接reference...
+                // if (VariableSource != null)
+                // {
+                //     var v = VariableSource as GenericMonoVariable<TScriptableData, TField, TType>;
+                //     tempValue = v.CurrentValue;
+                // }
+                if (BindData != null)
+                    tempValue = BindData.CurrentValue;
+
+                Profiler.EndSample();
+                Profiler.BeginSample("AfterGetValueModifyCheck", this);
+                //FIXME: 這個是不是有點貴？有需要在這層做嗎？應該在set時就做掉了？不需要ㄅ
+                // if (_modifiers != null)
+                //     foreach (var modifier in _modifiers)
+                //         tempValue = modifier.AfterGetValueModifyCheck(tempValue);
+                Profiler.EndSample();
+                // this.Log("[Variable] Get", tempValue);
+                return tempValue;
+            }
+            finally
+            {
+                _recursionDepth--;
+            }
         }
 
         //         set //FIXME: 拿掉，用SetValue(

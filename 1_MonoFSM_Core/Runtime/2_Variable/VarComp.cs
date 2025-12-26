@@ -1,4 +1,5 @@
 using System;
+using _1_MonoFSM_Core.Runtime.Attributes;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Variable;
 using MonoFSM.Variable.TypeTag;
@@ -13,7 +14,17 @@ namespace MonoFSM.Variable
     public class VarFloatFoldOut : VarFoldOut<VarFloat, float> { }
 
     [Serializable]
-    public class VarMonoObjFoldOut : VarFoldOut<VarMonoObj, MonoObj> { }
+    public class VarMonoObjFoldOut : VarFoldOut<VarMonoObj, MonoObj>
+    {
+        [HideIf(nameof(HasVar))]
+        [PrefabFilter]
+        [SerializeField]
+        private MonoObj _constObjValue;
+
+        protected override bool HasOverrideHideValue => true;
+
+        public override MonoObj Value => HasVar ? base.Value : _constObjValue;
+    }
 
     [Serializable]
     public class VarFoldOut<TVarType, TValueType>
@@ -26,13 +37,17 @@ namespace MonoFSM.Variable
         [SerializeField]
         private TVarType _var;
 
-        [HideIf(nameof(HasVar))]
+        [HideIf(nameof(HideConstValue))]
         [SerializeField]
         private TValueType _constValue;
 
-        public TValueType Value => HasVar ? _var.GetValue<TValueType>() : _constValue;
+        public virtual TValueType Value => HasVar ? _var.GetValue<TValueType>() : _constValue;
 
         public bool HasVar => _var != null;
+
+        bool HideConstValue => HasVar || HasOverrideHideValue;
+
+        protected virtual bool HasOverrideHideValue => false;
     }
 
     // [InlineField]

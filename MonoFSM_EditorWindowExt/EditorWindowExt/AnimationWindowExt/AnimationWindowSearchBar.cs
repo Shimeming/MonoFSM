@@ -55,28 +55,26 @@ namespace MonoFSM.Editor.AnimationWindow
 
         static AnimationWindowSearchBar()
         {
-            t_AnimationWindow = typeof(UnityEditor.Editor).Assembly.GetType(
-                "UnityEditor.AnimationWindow"
-            );
-            t_HostView = typeof(UnityEditor.Editor).Assembly.GetType("UnityEditor.HostView");
-            t_EditorWindowDelegate = t_HostView.GetNestedType(
-                "EditorWindowDelegate",
-                maxBindingFlags
-            );
-            mi_WrappedGUI = typeof(AnimationWindowSearchBar).GetMethod(
-                nameof(WrappedGUI),
-                maxBindingFlags
-            );
+            //FIXME: override的時候，最下面那排不見了...
+            // t_AnimationWindow = typeof(UnityEditor.Editor).Assembly.GetType(
+            //     "UnityEditor.AnimationWindow"
+            // );
+            // t_HostView = typeof(UnityEditor.Editor).Assembly.GetType("UnityEditor.HostView");
+            // t_EditorWindowDelegate = t_HostView.GetNestedType(
+            //     "EditorWindowDelegate",
+            //     maxBindingFlags
+            // );
+            // mi_WrappedGUI = typeof(AnimationWindowSearchBar).GetMethod(
+            //     nameof(WrappedGUI),
+            //     maxBindingFlags
+            // );
         }
 
         [InitializeOnLoadMethod]
         private static void Init()
         {
-            EditorApplication.update -= CheckForAnimationWindows;
-            EditorApplication.update += CheckForAnimationWindows;
-
-            // EditorApplication.delayCall -= DelayCallLoop;
-            // EditorApplication.delayCall += DelayCallLoop;
+            // EditorApplication.update -= CheckForAnimationWindows;
+            // EditorApplication.update += CheckForAnimationWindows;
         }
 
         private static void CheckForAnimationWindows()

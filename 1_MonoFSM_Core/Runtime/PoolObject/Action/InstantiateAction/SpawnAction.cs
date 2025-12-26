@@ -39,6 +39,7 @@ namespace MonoFSM.Core.LifeCycle
 
         // [Required] [SerializeField] private VarEntity _poolObjVar; //用來存取剛spawn的物件
 
+        [InlineField]
         [SerializeField]
         VarMonoObjFoldOut _poolObjFoldOut;
 
@@ -46,9 +47,11 @@ namespace MonoFSM.Core.LifeCycle
         [SerializeField]
         private VarMonoObj _poolObjVar; //不要用了？轉用_poolObjFoldOut?
 
-        /// <summary>
-        ///
-        /// </summary>
+        [BoxGroup("Scale")]
+        [HideIf(nameof(_scaleRatio))]
+        public bool _isUsingSpawnTransformScale;
+
+        [BoxGroup("Scale")]
         [SerializeField]
         VarFloat _scaleRatio;
 
@@ -98,12 +101,12 @@ namespace MonoFSM.Core.LifeCycle
             //FIXME: 時機點？FixedUpdateNetwork?
             //外包transform?
             // var t = _spawnPosition != null ? _spawnPosition : transform;
-            var rotation = _isRotationIdentity ? Quaternion.identity : transform.rotation;
+            var rotation =
+                _isRotationIdentity ? Quaternion.identity
+                : _spawnPosition ? _spawnPosition.rotation
+                : transform.rotation;
             Spawn(Prefab, spawnPos, rotation, null);
         }
-
-        [HideIf(nameof(_scaleRatio))]
-        public bool _isUsingSpawnTransformScale;
 
         [PreviewInInspector]
         private MonoObj _lastSpawnedObj;
@@ -137,9 +140,10 @@ namespace MonoFSM.Core.LifeCycle
             if (_parentObj.WorldUpdateSimulator == null)
             {
                 Debug.LogError(
-                    "SpawnAction: No WorldUpdateSimulator found in MonoPoolObj",
+                    "SpawnAction: No WorldUpdateSimulator found in _parentObj",
                     _parentObj
                 );
+                Debug.Break();
                 return;
             }
 

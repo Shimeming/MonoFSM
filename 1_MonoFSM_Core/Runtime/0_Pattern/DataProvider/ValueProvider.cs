@@ -36,6 +36,11 @@ namespace MonoFSM.Core.DataProvider
             IHierarchyValueInfo,
             IFieldPathRootTypeProvider
     {
+        // 遞迴檢測相關變數
+        [System.NonSerialized]
+        private int _recursionDepth = 0;
+        private const int MAX_RECURSION_DEPTH = 50;
+
         //自引用？
         // [SerializeField] ValueProvider _valueProviderRef;
         //Entity?
@@ -644,7 +649,7 @@ namespace MonoFSM.Core.DataProvider
         //
         //         if (!HasFieldPath)
         //         {
-        //             // 直接設定變數值
+        //             // 直���設定變數值
         //             variable.SetValue(settingValue, this);
         //             return;
         //         }
@@ -732,104 +737,124 @@ namespace MonoFSM.Core.DataProvider
 
         public override T1 Get<T1>() //GetAs?
         {
-            // Debug.Log($"ValueProvider: Getting value of type {typeof(T1)}", this); //會無窮迴圈嗎？
-            if (ValueType == null)
-                // Debug.LogError("VarRef: ValueType is null, cannot get value.", this);
-                return default;
-            if (!typeof(T1).IsAssignableFrom(ValueType))
+            // 遞迴檢測
+            _recursionDepth++;
+            if (_recursionDepth > MAX_RECURSION_DEPTH)
             {
                 Debug.LogError(
-                    $"無法將 {ValueType} 轉換為 {typeof(T1)}，請檢查變數類型或欄位路徑設定。",
+                    $"[遞迴檢測] ValueProvider.Get 遞迴深度超過 {MAX_RECURSION_DEPTH}！可能發生循環引用。Target: {GetTarget()}, VarTag: {_varTag}, SchemaTag: {_schemaTypeTag}",
                     this
                 );
+                Debug.Break();
+                _recursionDepth = 0;
                 return default;
             }
 
-            // 特殊處理：Schema 模式
-            if (_schemaTypeTag != null && _varTag == null)
+            try
             {
-                var schemaInstance = GetSelectedSchema();
-                if (schemaInstance == null)
-                {
-                    if (Application.isPlaying)
-                        Debug.LogError("ValueProvider: 無法獲取 Schema 實例。", this);
+                // Debug.Log($"ValueProvider: Getting value of type {typeof(T1)}", this); //會無窮迴圈嗎？
+                if (ValueType == null)
+                    // Debug.LogError("VarRef: ValueType is null, cannot get value.", this);
                     return default;
-                }
-
-                // 如果沒有設定欄位路徑，直接返回 Schema 實例
-                if (!HasFieldPath)
+                if (!typeof(T1).IsAssignableFrom(ValueType))
                 {
-                    if (schemaInstance is T1 schemaValue)
-                        return schemaValue;
-
                     Debug.LogError(
-                        $"無法將 Schema {schemaInstance.GetType()} 轉換為 {typeof(T1)}",
+                        $"無法將 {ValueType} 轉換為 {typeof(T1)}，請檢查變數類型或欄位路徑設定。",
                         this
                     );
                     return default;
                 }
 
-                // 有欄位路徑時，從 Schema 實例中存取欄位
-                Profiler.BeginSample(
-                    "ReflectionUtility.GetFieldValueFromPath schemaFieldValue",
-                    this
-                );
-                var (schemaFieldValue, info) = ReflectionUtility.GetFieldValueFromPath<T1>(
-                    schemaInstance,
+                // 特殊處理：Schema 模式
+                if (_schemaTypeTag != null && _varTag == null)
+                {
+                    var schemaInstance = GetSelectedSchema();
+                    if (schemaInstance == null)
+                    {
+                        if (Application.isPlaying)
+                            Debug.LogError("ValueProvider: 無法獲取 Schema 實例。", this);
+                        return default;
+                    }
+
+                    // 如果沒有設定欄位路徑，直接返回 Schema 實例
+                    if (!HasFieldPath)
+                    {
+                        if (schemaInstance is T1 schemaValue)
+                            return schemaValue;
+
+                        Debug.LogError(
+                            $"無法將 Schema {schemaInstance.GetType()} 轉換為 {typeof(T1)}",
+                            this
+                        );
+                        return default;
+                    }
+
+                    // 有欄位路徑時，從 Schema 實例中存取欄位
+                    Profiler.BeginSample(
+                        "ReflectionUtility.GetFieldValueFromPath schemaFieldValue",
+                        this
+                    );
+                    var (schemaFieldValue, info) = ReflectionUtility.GetFieldValueFromPath<T1>(
+                        schemaInstance,
+                        _pathEntries,
+                        gameObject
+                    );
+                    Profiler.EndSample();
+
+                    // if (schemaFieldValue != null)
+                    return schemaFieldValue;
+
+                    return default;
+                }
+
+                // 原有的 VarTag 或 Entity 模式
+                var target = GetTarget();
+                if (target == null)
+                    // Debug.LogError("VarRef: 目標變數或實體為 null，無法獲取值。", this);
+                    return default;
+
+                // 如果沒有設定欄位路徑，直接回傳變數值
+                if (!HasFieldPath)
+                {
+                    // Debug.Log($"VarRef: 直接從變數取得值: {target}", this);
+
+                    Profiler.BeginSample("ValueProvider.Get No Field Path", this);
+                    if (target is AbstractMonoVariable targetVar)
+                    {
+                        Profiler.EndSample();
+                        return targetVar.GetValue<T1>();
+                    }
+
+                    //FIXME: 需要這個嗎？
+                    if (target is T1 tObj)
+                    {
+                        Profiler.EndSample();
+                        return tObj;
+                    }
+
+                    Profiler.EndSample();
+
+                    return default;
+                }
+
+                // 不選varTag的話就用Entity?
+                // 使用欄位路徑存取特定欄位值
+                Profiler.BeginSample("ReflectionUtility.GetFieldValueFromPath _pathEntries", this);
+                // Debug.Log("GetValue from target" + target, target);
+                var (fieldValue, infoo) = ReflectionUtility.GetFieldValueFromPath<T1>(
+                    target,
                     _pathEntries,
                     gameObject
                 );
+                _getValueDebugInfo = infoo;
                 Profiler.EndSample();
-
-                // if (schemaFieldValue != null)
-                return schemaFieldValue;
-
-                return default;
+                //TODO：看info? fieldValue == null 會有gc
+                return fieldValue;
             }
-
-            // 原有的 VarTag 或 Entity 模式
-            var target = GetTarget();
-            if (target == null)
-                // Debug.LogError("VarRef: 目標變數或實體為 null，無法獲取值。", this);
-                return default;
-
-            // 如果沒有設定欄位路徑，直接回傳變數值
-            if (!HasFieldPath)
+            finally
             {
-                // Debug.Log($"VarRef: 直接從變數取得值: {target}", this);
-
-                Profiler.BeginSample("ValueProvider.Get No Field Path", this);
-                if (target is AbstractMonoVariable targetVar)
-                {
-                    Profiler.EndSample();
-                    return targetVar.GetValue<T1>();
-                }
-
-                //FIXME: 需要這個嗎？
-                if (target is T1 tObj)
-                {
-                    Profiler.EndSample();
-                    return tObj;
-                }
-
-                Profiler.EndSample();
-
-                return default;
+                _recursionDepth--;
             }
-
-            // 不選varTag的話就用Entity?
-            // 使用欄位路徑存取特定欄位值
-            Profiler.BeginSample("ReflectionUtility.GetFieldValueFromPath _pathEntries", this);
-            // Debug.Log("GetValue from target" + target, target);
-            var (fieldValue, infoo) = ReflectionUtility.GetFieldValueFromPath<T1>(
-                target,
-                _pathEntries,
-                gameObject
-            );
-            _getValueDebugInfo = infoo;
-            Profiler.EndSample();
-            //TODO：看info? fieldValue == null 會有gc
-            return fieldValue;
         }
 
         public string IconName => "Linked@2x";

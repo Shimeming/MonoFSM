@@ -58,7 +58,8 @@ namespace MonoFSMCore.Runtime.LifeCycle
     [FormerlyNamedAs("MonoPoolObj")]
     public sealed class MonoObj : MonoBehaviour, IPrefabSerializeCacheOwner, IDropdownRoot
     {
-        [field: Auto]
+        [ShowInInspector]
+        [field: AutoChildren] //Children? //FIXME: 要弄成必定同一層，還是因為MonoObj 包一層 FSM的case很多？
         public MonoEntity Entity { get; }
 
         // public
@@ -69,7 +70,15 @@ namespace MonoFSMCore.Runtime.LifeCycle
             nameof(RuntimeCheckNoWorldUpdateSimulator)
         )]
         [ShowInDebugMode]
-        public WorldUpdateSimulator WorldUpdateSimulator => _worldUpdateSimulator;
+        public WorldUpdateSimulator WorldUpdateSimulator
+        {
+            get
+            {
+                if (HasParent)
+                    return _parentObj.WorldUpdateSimulator;
+                return _worldUpdateSimulator;
+            }
+        }
 
         // set => _worldUpdateSimulator = value;
         public void SetWorldUpdateSimulator(WorldUpdateSimulator world)

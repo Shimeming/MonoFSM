@@ -1,6 +1,6 @@
-using UnityEngine.Serialization;
-using Sirenix.OdinInspector;
 using MonoFSM.Condition;
+using Sirenix.OdinInspector;
+using UnityEngine.Serialization;
 
 // using jerryee.UnityMCP;
 
@@ -17,7 +17,6 @@ namespace MonoFSM.Variable.Condition
         {
             Rename();
         }
-
 
         [FormerlySerializedAs("_monoVariableBool")]
         // [MCPExtractable]
@@ -41,6 +40,6 @@ namespace MonoFSM.Variable.Condition
 
         //FIXME: 會有需求要比對其他東西嗎？
         // protected override IVariableField listenField => _varBool.Field;
-        protected override bool IsValid => _varBool.CurrentValue == targetValue;
+        protected override bool IsValid => _varBool?.CurrentValue == targetValue;
     }
 }

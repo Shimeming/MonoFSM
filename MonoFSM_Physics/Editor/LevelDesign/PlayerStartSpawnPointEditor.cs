@@ -183,7 +183,7 @@ public static class StartPointSelector
         }
     }
 
-    [MenuItem("RCGMaker/SpawnPoint/Switch to Next SpawnPoint  #_1", false, 1)]
+    [MenuItem("RCGMaker/SpawnPoint/Switch to Next SpawnPoint  #_`", false, 1)]
     private static void DoSwitchToNextSpawnPoint()
     {
         FocusOnScene();

@@ -226,6 +226,11 @@ namespace MonoFSM.Core.Detection
             // 3. 收集所有 DetectionSource 的當前檢測結果
             foreach (var detectionSource in _detectionSources)
             {
+                if (detectionSource == null)
+                {
+                    Debug.LogError("DetectionSource is null", this);
+                    continue;
+                }
                 if (!detectionSource.isActiveAndEnabled)
                 {
                     detectionSource.AfterDetection();
@@ -483,8 +488,14 @@ namespace MonoFSM.Core.Detection
             //FIXME: 可以做一個dict?
             if (RuntimeDebugSetting.IsDebugMode)
             {
-                Debug.LogError("not a EffectDetectable or BaseEffectDetectTarget", target);
-                Debug.LogError("not a EffectDetectable or BaseEffectDetectTarget from ", this);
+                Debug.LogError(
+                    "Detector hitting: not a EffectDetectable or BaseEffectDetectTarget",
+                    target
+                );
+                Debug.LogError(
+                    "Detector hitting: not a EffectDetectable or BaseEffectDetectTarget from ",
+                    this
+                );
             }
 
             return null;

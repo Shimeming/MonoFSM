@@ -28,8 +28,11 @@ namespace MonoFSM.Core
             var types = filterType.FilterSubClassOrImplementationFromDomain();
             foreach (var type in types)
             {
+                // Filter out types with Obsolete attribute
+                if (type.GetCustomAttributes(typeof(ObsoleteAttribute), true).Length > 0)
+                    continue;
+
                 tree.Add(type.Name, type);
-                // Debug.Log("Add type " + type);
             }
 
             tree.Config.SelectMenuItemsOnMouseDown = true;

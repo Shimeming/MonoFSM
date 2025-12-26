@@ -187,6 +187,8 @@ namespace MonoFSM.Core.Variable
             throw new NotImplementedException("什麼時候會用到？");
         }
 
+        public List<T> Value => GetList();
+
         public List<T> GetList()
         {
             if (IsReadOnly)
@@ -421,10 +423,12 @@ namespace MonoFSM.Core.Variable
                 list.Remove(item);
             else if (_activeCollection is HashSet<T> set)
                 set.Remove(item);
-            else if (_activeCollection is Queue<T>)
+            else if (_activeCollection is Queue<T> queue)
+            {
                 throw new NotSupportedException(
                     "Remove(T item) is not supported for Queue. Use Dequeue() to remove the item from the front, or manage items by clearing and re-adding if specific item removal is needed."
                 );
+            }
             else
                 throw new InvalidOperationException(
                     "Collection not properly initialized or unknown type."
@@ -498,6 +502,19 @@ namespace MonoFSM.Core.Variable
                 OnValueChanged();
                 if (item == null)
                     Debug.LogError("Dequeue returned null. This may indicate the queue was empty.");
+                return item;
+            }
+            else if (_activeCollection is List<T> list)
+            {
+                if (list.Count == 0)
+                {
+                    Debug.LogError("Cannot dequeue from an empty List.");
+                    return default;
+                }
+
+                var item = list[0];
+                list.RemoveAt(0);
+                OnValueChanged();
                 return item;
             }
 

@@ -45,6 +45,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64e706c50c724392be5b38e2319bc997, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _note: 
+  _hittingEntity: {fileID: 0}
 --- !u!1 &1007480425006094322
 GameObject:
   m_ObjectHideFlags: 0
@@ -89,6 +91,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 030c08acca9c148b09523a3baade3587, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _note: 
+  _delayActionModifier: {fileID: 0}
   _target: {fileID: 0}
   TargetValue: 0
 --- !u!1 &1264322080609581854
@@ -137,7 +141,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 788128e4eeab4d919bfc3a6cec2e5567, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  EffectType: {fileID: 11400000, guid: 2795990079c9849ccb77b99d120be1db, type: 2}
+  _note: 
+  _effectType: {fileID: 11400000, guid: 2795990079c9849ccb77b99d120be1db, type: 2}
 --- !u!1 &2642439091165249996
 GameObject:
   m_ObjectHideFlags: 0
@@ -183,6 +188,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa82abf85eb6445da5e22aebfe5e620e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _note: 
 --- !u!1 &3744698031215929389
 GameObject:
   m_ObjectHideFlags: 0
@@ -227,6 +233,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 030c08acca9c148b09523a3baade3587, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _note: 
+  _delayActionModifier: {fileID: 0}
   _target: {fileID: 0}
   TargetValue: 1
 --- !u!1 &5776180804275836019
@@ -290,6 +298,8 @@ MeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -311,6 +321,7 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
@@ -383,7 +394,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7eb67c483d4c4d629abd2b71e070f59e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  HittingLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  virtualDetector: {fileID: 0}
+  _note: 
+  _detector: {fileID: 0}
+  _collider: {fileID: 3492560789353915584}

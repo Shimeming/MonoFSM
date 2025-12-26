@@ -35,7 +35,7 @@ namespace MonoFSM_InputAction
         // private bool _readLocalVec2;
 
         // private InputActionMap _inputActionMap;
-        public InputAction myAction => _inputActionData._inputAction.action;
+        public InputAction myAction => _inputActionData?._inputAction?.action;
 
         // public InputAction myAction =>
         // _inputActionData && _inputActionData._inputAction != null

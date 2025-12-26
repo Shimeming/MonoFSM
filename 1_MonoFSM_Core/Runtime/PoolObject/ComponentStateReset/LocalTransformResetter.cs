@@ -1,4 +1,5 @@
 using MonoFSMCore.Runtime.LifeCycle;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 //第一次記住
@@ -7,10 +8,15 @@ using UnityEngine;
 //FIXME: 放在這，還是應該放在init state
 public class LocalTransformResetter : MonoBehaviour, IResetStateRestore
 {
-    private Vector3 _initPosition;
-    private Quaternion _initRotation;
+    [ShowInInspector]
+    private Vector3 _initLocalPosition;
+    private Quaternion _initLocalRotation;
+
+    [ShowInInspector]
     private Transform _initParent;
     private Vector3 _initLocalScale;
+
+    [ShowInInspector]
     private bool _isResetParameterInit;
 
     private bool _isKinematic;
@@ -42,8 +48,8 @@ public class LocalTransformResetter : MonoBehaviour, IResetStateRestore
     private void InitSaveSnapshot()
     {
         _initParent = transform.parent;
-        _initPosition = transform.localPosition;
-        _initRotation = transform.localRotation;
+        _initLocalPosition = transform.localPosition;
+        _initLocalRotation = transform.localRotation;
         _initLocalScale = transform.localScale;
 
         //--
@@ -56,8 +62,8 @@ public class LocalTransformResetter : MonoBehaviour, IResetStateRestore
         if (ParameterInitCheck()) //第一次記下來？還是分開感覺比較好？
         {
             transform.SetParent(_initParent);
-            transform.localPosition = _initPosition;
-            transform.localRotation = _initRotation;
+            transform.localPosition = _initLocalPosition;
+            transform.localRotation = _initLocalRotation;
             transform.localScale = _initLocalScale;
         }
 

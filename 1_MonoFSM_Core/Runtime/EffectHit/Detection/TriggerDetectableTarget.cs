@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace MonoFSM.Core.Detection
 {
+    //每個collider上面都要放？好煩
     //Detectable HitBox?
     [DisallowMultipleComponent]
     public class TriggerDetectableTarget //很白痴耶，只有Trigger => 其實就是hitbox?

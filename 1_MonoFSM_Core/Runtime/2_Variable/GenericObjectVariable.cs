@@ -49,10 +49,14 @@ namespace MonoFSM.Variable
 
         public override T GetValue<T>()
         {
+            var v = Value;
+            if (v == null)
+                return default;
+
             if (Value is T tValue)
                 return tValue;
             Debug.LogError(
-                $"GetValue<{typeof(T)}> failed, actual type is {typeof(TValueType)}",
+                $"GetValue<T> typeof: {typeof(T)} failed, actual type is {typeof(TValueType)}",
                 this
             );
             return default;
@@ -111,7 +115,7 @@ namespace MonoFSM.Variable
                 if (_visitedVariables.Value.Contains(this))
                 {
                     Debug.LogError(
-                        $"[Circular Reference Protection] Circular reference detected in variable: {name}",
+                        $"[Circular Reference Protection] Circular reference detected in variable: {name} obj:{_parentObj}",
                         this
                     );
                     Debug.Break();

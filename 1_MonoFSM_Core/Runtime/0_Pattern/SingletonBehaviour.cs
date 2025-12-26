@@ -65,10 +65,6 @@ public abstract class SingletonBehaviour<T> : MonoBehaviour
             {
                 if (_isInstanceCreated && _instance != null)
                 {
-                    // Debug.Log(
-                    //     "SingletonBehaviour Instance already created: " + typeof(T).FullName,
-                    //     _instance
-                    // );
                     return _instance;
                 }
 

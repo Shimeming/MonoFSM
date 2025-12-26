@@ -1,6 +1,7 @@
 using MonoFSM.Foundation;
 using MonoFSM.Runtime;
 using MonoFSM.Runtime.Interact.EffectHit;
+using Sirenix.OdinInspector;
 
 namespace _1_MonoFSM_Core.Runtime.EffectHit.ValueGetter
 {
@@ -8,6 +9,7 @@ namespace _1_MonoFSM_Core.Runtime.EffectHit.ValueGetter
     {
         public override MonoEntity Value => _effectDealer?.BestMatchReceiver?.ParentEntity;
 
+        [Required]
         [DropDownRef]
         public GeneralEffectDealer _effectDealer;
 

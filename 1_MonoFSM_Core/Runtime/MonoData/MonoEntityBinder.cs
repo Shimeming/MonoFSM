@@ -12,6 +12,8 @@ namespace MonoFSM.Runtime
     /// </summary>
     public class MonoEntityBinder : MonoDict<MonoEntityTag, MonoEntity>, IModuleOwner
     {
+        protected override bool IsIgnoreRename => true;
+
         //FIXME: 同個tag可以有個list?
         //FIXME: 怎麼 runtime 註冊？ world update simulator的MonoObj通通都要？
         //network想要看authority來決定要不要加到字典裡...這個性質是什麼? 還是應該都加進去，但可以篩選authority?

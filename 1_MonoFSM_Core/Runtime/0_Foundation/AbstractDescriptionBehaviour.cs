@@ -29,7 +29,7 @@ namespace MonoFSM.Foundation
         [Required]
         [ShowInInspector]
         [AutoParent]
-        protected MonoObj _parentObj;
+        protected MonoObj _parentObj; //FIXME: 會拿不到root的耶...好麻煩啊
 
         public WorldUpdateSimulator simulator => _parentObj.WorldUpdateSimulator;
 

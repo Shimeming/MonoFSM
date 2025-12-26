@@ -35,6 +35,8 @@ namespace MonoFSM.Core.Formula
         [SerializeField]
         private ValueProvider _monoEntityListProvider;
 
+        //用VarListEntity?
+
         [SerializeField]
         [Required]
         [Tooltip("The variable tag to look for on each object to get the float value.")]

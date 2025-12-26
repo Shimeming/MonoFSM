@@ -1,8 +1,10 @@
+using System;
 using MonoFSM.Core.DataProvider;
 using MonoFSM.Runtime.Attributes;
 
 namespace MonoFSM.Variable.Condition
 {
+    [Obsolete]
     public class ValueProviderBoolCondition : AbstractConditionBehaviour
     {
         [ValueTypeValidate(typeof(bool))]

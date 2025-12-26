@@ -35,7 +35,7 @@ namespace MonoFSM_Physics.Runtime.PhysicsAction
         [Tooltip("力的大小")]
         [FormerlySerializedAs("_torqueMagnitude")]
         [SerializeField]
-        private float _magnitude = 10f;
+        private float _magnitude = 10f; //FIXME: 怎麼會放在receiver這邊？ 應該要去從 dealer那邊拿？
 
         [Tooltip("力的施加模式")]
         [SerializeField]

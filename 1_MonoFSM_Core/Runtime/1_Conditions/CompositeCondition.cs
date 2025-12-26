@@ -13,6 +13,7 @@ namespace _1_MonoFSM_Core.Runtime._1_Conditions
         [AutoChildren(DepthOneOnly = true, _isSelfInclude = false)]
         [CompRef]
         [RequiredListLength(2, null)]
+        //可以是warning嗎？
         private AbstractConditionBehaviour[] _conditions;
 
         public override string Description => ReformatedName;

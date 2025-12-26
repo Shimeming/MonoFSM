@@ -117,6 +117,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _note: 
   _effectType: {fileID: 11400000, guid: 027893eb2faa049a29c8cfbbe7cad14b, type: 2}
+  MatchPriority: 0
 --- !u!114 &237173539706676430
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -269,8 +270,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da001379065748ad8f35741f44a2ecbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _note: 
   _effectDetectTargets:
   - {fileID: 7837412588357656167}
+  _interactConditions: []
 --- !u!114 &613726383868202934
 MonoBehaviour:
   m_ObjectHideFlags: 0
