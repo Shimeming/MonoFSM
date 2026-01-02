@@ -26,10 +26,11 @@ namespace Example
 
         // CONSTRUCTORS
 
+        //FIXME: 被 Unity改掉了
         static ToolbarUtility()
         {
-            EditorApplication.update -= Update;
-            EditorApplication.update += Update;
+            // EditorApplication.update -= Update;
+            // EditorApplication.update += Update;
         }
 
         // PUBLIC METHODS
@@ -42,7 +43,9 @@ namespace Example
         // PARTIAL METHODS
 
         static partial void OnUpdate();
+
         static partial void OnLeftToolbarAttached(VisualElement toolbar);
+
         static partial void OnRightToolbarAttached(VisualElement toolbar);
 
         // PRIVATE METHODS
@@ -81,7 +84,9 @@ namespace Example
 
             if (_mainToolbar == null)
             {
-                var toolbars = Resources.FindObjectsOfTypeAll(typeof(Editor).Assembly.GetType("UnityEditor.Toolbar"));
+                var toolbars = Resources.FindObjectsOfTypeAll(
+                    typeof(Editor).Assembly.GetType("UnityEditor.Toolbar")
+                );
                 _mainToolbar = toolbars.Length > 0 ? (ScriptableObject)toolbars[0] : null;
             }
 
@@ -92,17 +97,30 @@ namespace Example
                 {
                     _mainToolbarInstanceID = mainToolbarInstanceID;
 
-                    RefreshToolbar(ref _leftToolbar, "ToolbarZoneLeftAlign", FlexDirection.Row, LeftToolbarAttached);
-                    RefreshToolbar(ref _rightToolbar, "ToolbarZoneRightAlign", FlexDirection.RowReverse,
-                        RightToolbarAttached);
+                    RefreshToolbar(
+                        ref _leftToolbar,
+                        "ToolbarZoneLeftAlign",
+                        FlexDirection.Row,
+                        LeftToolbarAttached
+                    );
+                    RefreshToolbar(
+                        ref _rightToolbar,
+                        "ToolbarZoneRightAlign",
+                        FlexDirection.RowReverse,
+                        RightToolbarAttached
+                    );
                 }
             }
 
             OnUpdate();
         }
 
-        private static void RefreshToolbar(ref VisualElement toolbar, string toolbarID, FlexDirection direction,
-            Action<VisualElement> onAttachToMainToolbar)
+        private static void RefreshToolbar(
+            ref VisualElement toolbar,
+            string toolbarID,
+            FlexDirection direction,
+            Action<VisualElement> onAttachToMainToolbar
+        )
         {
             if (toolbar != null)
             {
@@ -110,7 +128,9 @@ namespace Example
                 toolbar = null;
             }
 
-            var root = _mainToolbar.GetType().GetField("m_Root", BindingFlags.NonPublic | BindingFlags.Instance);
+            var root = _mainToolbar
+                .GetType()
+                .GetField("m_Root", BindingFlags.NonPublic | BindingFlags.Instance);
             if (root != null)
             {
                 var rawRoot = root.GetValue(_mainToolbar);
@@ -121,20 +141,10 @@ namespace Example
 
                     toolbar = new VisualElement
                     {
-                        style =
-                        {
-                            flexGrow = 1,
-                            flexDirection = direction
-                        }
+                        style = { flexGrow = 1, flexDirection = direction },
                     };
 
-                    toolbar.Add(new VisualElement
-                    {
-                        style =
-                        {
-                            flexGrow = 1
-                        }
-                    });
+                    toolbar.Add(new VisualElement { style = { flexGrow = 1 } });
 
                     toolbarZone.Add(toolbar);
 
@@ -152,74 +162,81 @@ namespace Example
         {
             OnRightToolbarAttached(toolbar);
 
-//			toolbar.Add(CreateToolbarButton(ToggleTracing, "d_UnityEditor.ConsoleWindow@2x", "Tracing", GetTracingColor()));
+            //			toolbar.Add(CreateToolbarButton(ToggleTracing, "d_UnityEditor.ConsoleWindow@2x", "Tracing", GetTracingColor()));
 
             toolbar.Add(CreateToolbarButton(ShowPackageManager, "Package Manager", "Packages"));
             toolbar.Add(CreateToolbarButton(ShowSettings, "Settings", "Settings"));
-//			toolbar.Add(CreateToolbarButton(ShowRunnerControls, "d_SceneViewCamera@2x", "Fusion Controls"));
-            toolbar.Add(CreateToolbarButton(ShowFusionConfig, "ScriptableObject Icon", "Fusion Config"));
-            toolbar.Add(CreateToolbarButton(ShowScenes, "BuildSettings.Editor",
-                string.IsNullOrEmpty(_currentScene) == false ? _currentScene : "Scene"));
+            //			toolbar.Add(CreateToolbarButton(ShowRunnerControls, "d_SceneViewCamera@2x", "Fusion Controls"));
+            toolbar.Add(
+                CreateToolbarButton(ShowFusionConfig, "ScriptableObject Icon", "Fusion Config")
+            );
+            toolbar.Add(
+                CreateToolbarButton(
+                    ShowScenes,
+                    "BuildSettings.Editor",
+                    string.IsNullOrEmpty(_currentScene) == false ? _currentScene : "Scene"
+                )
+            );
         }
 
-// 		private static Color GetTracingColor()
-// 		{
-// #if UNITY_2023_1_OR_NEWER
-// 			PlayerSettings.GetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.FromBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup), out string[] scriptingDefineSymbols);
-// #else
-// 			PlayerSettings.GetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup, out string[] scriptingDefineSymbols);
-// #endif
-// 			if (scriptingDefineSymbols == null)
-// 				return default;
-//
-// 			for (int i = 0; i < scriptingDefineSymbols.Length; ++i)
-// 			{
-// 				if (scriptingDefineSymbols[i] == KCC.TRACING_SCRIPT_DEFINE)
-// 					return Color.green;
-// 			}
-//
-// 			return default;
-// 		}
+        // 		private static Color GetTracingColor()
+        // 		{
+        // #if UNITY_2023_1_OR_NEWER
+        // 			PlayerSettings.GetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.FromBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup), out string[] scriptingDefineSymbols);
+        // #else
+        // 			PlayerSettings.GetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup, out string[] scriptingDefineSymbols);
+        // #endif
+        // 			if (scriptingDefineSymbols == null)
+        // 				return default;
+        //
+        // 			for (int i = 0; i < scriptingDefineSymbols.Length; ++i)
+        // 			{
+        // 				if (scriptingDefineSymbols[i] == KCC.TRACING_SCRIPT_DEFINE)
+        // 					return Color.green;
+        // 			}
+        //
+        // 			return default;
+        // 		}
 
-// 		private static void ToggleTracing()
-// 		{
-// #if UNITY_2023_1_OR_NEWER
-// 			PlayerSettings.GetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.FromBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup), out string[] scriptingDefineSymbols);
-// #else
-// 			PlayerSettings.GetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup, out string[] scriptingDefineSymbols);
-// #endif
-// 			if (scriptingDefineSymbols == null)
-// 			{
-// #if UNITY_2023_1_OR_NEWER
-// 				PlayerSettings.SetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.FromBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup), new string[] { KCC.TRACING_SCRIPT_DEFINE });
-// #else
-// 				PlayerSettings.SetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup, new string[] { KCC.TRACING_SCRIPT_DEFINE });
-// #endif
-// 				return;
-// 			}
-//
-// 			bool addDefine = true;
-//
-// 			List<string> newScriptingDefineSymbols = new List<string>(scriptingDefineSymbols);
-// 			for (int i = newScriptingDefineSymbols.Count - 1; i >= 0; --i)
-// 			{
-// 				if (newScriptingDefineSymbols[i] == KCC.TRACING_SCRIPT_DEFINE)
-// 				{
-// 					newScriptingDefineSymbols.RemoveAt(i);
-// 					addDefine = false;
-// 				}
-// 			}
-//
-// 			if (addDefine == true)
-// 			{
-// 				newScriptingDefineSymbols.Add(KCC.TRACING_SCRIPT_DEFINE);
-// 			}
-// #if UNITY_2023_1_OR_NEWER
-// 			PlayerSettings.SetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.FromBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup), newScriptingDefineSymbols.ToArray());
-// #else
-// 			PlayerSettings.SetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup, newScriptingDefineSymbols.ToArray());
-// #endif
-// 		}
+        // 		private static void ToggleTracing()
+        // 		{
+        // #if UNITY_2023_1_OR_NEWER
+        // 			PlayerSettings.GetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.FromBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup), out string[] scriptingDefineSymbols);
+        // #else
+        // 			PlayerSettings.GetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup, out string[] scriptingDefineSymbols);
+        // #endif
+        // 			if (scriptingDefineSymbols == null)
+        // 			{
+        // #if UNITY_2023_1_OR_NEWER
+        // 				PlayerSettings.SetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.FromBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup), new string[] { KCC.TRACING_SCRIPT_DEFINE });
+        // #else
+        // 				PlayerSettings.SetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup, new string[] { KCC.TRACING_SCRIPT_DEFINE });
+        // #endif
+        // 				return;
+        // 			}
+        //
+        // 			bool addDefine = true;
+        //
+        // 			List<string> newScriptingDefineSymbols = new List<string>(scriptingDefineSymbols);
+        // 			for (int i = newScriptingDefineSymbols.Count - 1; i >= 0; --i)
+        // 			{
+        // 				if (newScriptingDefineSymbols[i] == KCC.TRACING_SCRIPT_DEFINE)
+        // 				{
+        // 					newScriptingDefineSymbols.RemoveAt(i);
+        // 					addDefine = false;
+        // 				}
+        // 			}
+        //
+        // 			if (addDefine == true)
+        // 			{
+        // 				newScriptingDefineSymbols.Add(KCC.TRACING_SCRIPT_DEFINE);
+        // 			}
+        // #if UNITY_2023_1_OR_NEWER
+        // 			PlayerSettings.SetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.FromBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup), newScriptingDefineSymbols.ToArray());
+        // #else
+        // 			PlayerSettings.SetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup, newScriptingDefineSymbols.ToArray());
+        // #endif
+        // 		}
 
         private static void ShowScenes()
         {
@@ -236,7 +253,8 @@ namespace Example
                     if (prefixIndex >= 0)
                     {
                         var prefix = scenePath.Substring(prefixIndex, 18);
-                        if (currentPrefix != default && currentPrefix != prefix) menu.AddSeparator("");
+                        if (currentPrefix != default && currentPrefix != prefix)
+                            menu.AddSeparator("");
 
                         currentPrefix = prefix;
                     }
@@ -244,14 +262,22 @@ namespace Example
 
                 var sceenName = _sceneNames[i];
 
-                menu.AddItem(new GUIContent(sceenName), sceenName == _currentScene, sceneIndex =>
-                {
-                    if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+                menu.AddItem(
+                    new GUIContent(sceenName),
+                    sceenName == _currentScene,
+                    sceneIndex =>
                     {
-                        EditorSceneManager.OpenScene(_scenePaths[(int)sceneIndex], OpenSceneMode.Single);
-                        InvalidateToolbar();
-                    }
-                }, i);
+                        if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+                        {
+                            EditorSceneManager.OpenScene(
+                                _scenePaths[(int)sceneIndex],
+                                OpenSceneMode.Single
+                            );
+                            InvalidateToolbar();
+                        }
+                    },
+                    i
+                );
             }
 
             menu.ShowAsContext();
@@ -270,35 +296,59 @@ namespace Example
         private static void ShowSettings()
         {
             var menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Project Settings"), false,
-                () => EditorApplication.ExecuteMenuItem("Edit/Project Settings..."));
-            menu.AddItem(new GUIContent("Preferences/Settings"), false,
-                () => SettingsService.OpenUserPreferences("Preferences/General"));//EditorApplication.ExecuteMenuItem("Edit/Preferences..."));
+            menu.AddItem(
+                new GUIContent("Project Settings"),
+                false,
+                () => EditorApplication.ExecuteMenuItem("Edit/Project Settings...")
+            );
+            menu.AddItem(
+                new GUIContent("Preferences/Settings"),
+                false,
+                () => SettingsService.OpenUserPreferences("Preferences/General")
+            ); //EditorApplication.ExecuteMenuItem("Edit/Preferences..."));
             menu.AddSeparator("");
-            menu.AddItem(new GUIContent("Realtime Settings"), false,
-                () => EditorApplication.ExecuteMenuItem("Tools/Fusion/Realtime Settings"));
-            menu.AddItem(new GUIContent("Network Project Config"), false,
-                () => EditorApplication.ExecuteMenuItem("Tools/Fusion/Network Project Config"));
+            menu.AddItem(
+                new GUIContent("Realtime Settings"),
+                false,
+                () => EditorApplication.ExecuteMenuItem("Tools/Fusion/Realtime Settings")
+            );
+            menu.AddItem(
+                new GUIContent("Network Project Config"),
+                false,
+                () => EditorApplication.ExecuteMenuItem("Tools/Fusion/Network Project Config")
+            );
             menu.ShowAsContext();
         }
 
         private static void ShowPackageManager()
         {
             var menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Package Manager"), false,
-                () => Window.Open(""));
+            menu.AddItem(new GUIContent("Package Manager"), false, () => Window.Open(""));
 
-            menu.AddItem(new GUIContent("Git Dependency Installer"), false,
-                () => { GitDependencyWindow.ShowWindow(); });
+            menu.AddItem(
+                new GUIContent("Git Dependency Installer"),
+                false,
+                () =>
+                {
+                    GitDependencyWindow.ShowWindow();
+                }
+            );
             menu.AddSeparator("");
-            menu.AddItem(new GUIContent("Git Dependency Version Check"), false,
-                GitDependencyVersionChecker.ManualVersionCheck);
+            menu.AddItem(
+                new GUIContent("Git Dependency Version Check"),
+                false,
+                GitDependencyVersionChecker.ManualVersionCheck
+            );
 
             menu.ShowAsContext();
         }
 
-        private static VisualElement CreateToolbarButton(Action onClick, string icon = null, string text = null,
-            Color color = default)
+        private static VisualElement CreateToolbarButton(
+            Action onClick,
+            string icon = null,
+            string text = null,
+            Color color = default
+        )
         {
             var buttonElement = new Button(onClick);
             buttonElement.AddToClassList("unity-toolbar-button");
@@ -307,14 +357,16 @@ namespace Example
             buttonElement.style.marginRight = 2;
             buttonElement.style.marginLeft = 2;
 
-            if (color != default) buttonElement.style.color = color;
+            if (color != default)
+                buttonElement.style.color = color;
 
             if (string.IsNullOrEmpty(icon) == false)
             {
                 var iconElement = new VisualElement();
                 iconElement.AddToClassList("unity-editor-toolbar-element__icon");
-                iconElement.style.backgroundImage =
-                    Background.FromTexture2D(EditorGUIUtility.IconContent(icon).image as Texture2D);
+                iconElement.style.backgroundImage = Background.FromTexture2D(
+                    EditorGUIUtility.IconContent(icon).image as Texture2D
+                );
                 buttonElement.Add(iconElement);
             }
 

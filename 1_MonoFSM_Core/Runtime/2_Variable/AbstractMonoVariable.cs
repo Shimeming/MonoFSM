@@ -567,8 +567,8 @@ namespace MonoFSM.Variable
         protected override void Awake()
         {
             base.Awake();
-            if (_parentVarEntity != null)
-                Debug.Log("Variable has parent entity: " + _parentVarEntity.name, this);
+            // if (_parentVarEntity != null)
+            //     Debug.Log("Variable has parent entity: " + _parentVarEntity.name, this);
         } //FIXME: 好像盡量不要亂用awake喔
 
         //FIXME: virtual variable?
