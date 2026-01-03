@@ -295,7 +295,7 @@ public class PlayerStartSpawnPointEditor
                 }
                 else
                 {
-                    // 正常按1鍵，使用當前選中的SpawnPoint進行移動
+                    // 正常按`鍵，使用當前選中的SpawnPoint進行移動
                     var currentSpawnPoint = StartPointSelector.GetCurrentSpawnPoint();
                     if (currentSpawnPoint)
                     {
@@ -337,21 +337,13 @@ public class PlayerStartSpawnPointEditor
                         }
                     }
                 }
-
-                // if (Event.current.shift)
-                // {
-                //     Debug.Log("OnSceneGUI shift" + Event.current.keyCode);
-                //     MoveTransformToMousePos(obj,Selection.activeGameObject.transform, Event.current.mousePosition);
-                // }
                 Event.current.Use();
             }
     }
 
     private static void MoveSpawnPointToMousePos(Vector3 mousePos)
     {
-        var playerStartSpawnPoint = _target;
-        if (!playerStartSpawnPoint)
-            playerStartSpawnPoint = Object.FindFirstObjectByType<PlayerStartSpawnPoint>();
+        var playerStartSpawnPoint = GetTarget;
 
         if (!playerStartSpawnPoint)
             return;

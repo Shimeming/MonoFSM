@@ -18,8 +18,8 @@ public class PlayerStartSpawnPoint
         IActionParent,
         IResetStart
 {
-    protected override string DescriptionTag { get; }
-
+    // public override string Description { get; }
+    protected override string DescriptionTag => "SpawnPoint";
     private void Start()
     {
         _camera = Camera.main;
@@ -32,7 +32,7 @@ public class PlayerStartSpawnPoint
     public static PlayerStartSpawnPoint[] GetAllSpawnPoints()
     {
         return FindObjectsByType<PlayerStartSpawnPoint>(FindObjectsSortMode.None)
-            .OrderBy(sp => sp.name)
+            .OrderBy(sp => sp.transform.GetSiblingIndex())
             .ToArray();
     }
 
