@@ -14,4 +14,9 @@ namespace MonoFSM.Core.Detection
     {
         Collider GetCollider();
     }
+
+    public interface IRigidbodyProvider
+    {
+        Rigidbody GetRigidbody();
+    }
 }

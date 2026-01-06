@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace MonoFSM.Core.Detection
 {
-    public class TriggerDetector : AbstractDetectionSource
+    public class TriggerDetectorSource : AbstractDetectionSource
     {
         [Required]
         [CompRef]
@@ -44,7 +44,7 @@ namespace MonoFSM.Core.Detection
                     if (IsProperCollider(col))
                     {
                         var hitPoint = col.ClosestPoint(transform.position);
-                        Vector3 hitNormal = (hitPoint - col.bounds.center).normalized;
+                        var hitNormal = (hitPoint - col.bounds.center).normalized;
                         _buffer.Add(new DetectionResult(col.gameObject, hitPoint, hitNormal));
                     }
                     else

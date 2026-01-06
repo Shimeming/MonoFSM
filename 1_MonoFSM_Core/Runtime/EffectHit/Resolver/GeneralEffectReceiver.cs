@@ -32,17 +32,23 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         // public  ValueSource; //FIXME: 拿來做什麼？
 
         //FIXME: 從GeneralEffectHitData？
-        public GeneralEffectHitData GenerateEffectHitData(IEffectDealer dealer)
+        public GeneralEffectHitData GenerateEffectHitData(
+            IEffectDealer dealer,
+            BaseEffectDetectTarget receiverSourceObj
+        )
         {
             //FIXME: 要用pool, 泛用的pool
             var data = new GeneralEffectHitData();
-            data.Override(dealer, this);
+            data.Override(dealer, this, receiverSourceObj);
             return data;
         }
 
-        public void ForceDirectEffectHit(GeneralEffectDealer dealer)
+        public void ForceDirectEffectHit(
+            GeneralEffectDealer dealer,
+            BaseEffectDetectTarget receiverSourceObj
+        )
         {
-            var hitData = GenerateEffectHitData(dealer);
+            var hitData = GenerateEffectHitData(dealer, receiverSourceObj);
             dealer.OnHitEnter(hitData);
             OnEffectHitEnter(hitData);
             //然後要馬上離開？

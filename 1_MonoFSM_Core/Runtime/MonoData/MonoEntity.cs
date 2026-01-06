@@ -249,19 +249,19 @@ namespace MonoFSM.Runtime
         /// </summary>
         /// <param name="effectType"></param>
         /// <param name="target"></param>
-        public void ApplyEffectTo(GeneralEffectType effectType, MonoEntity target)
-        {
-            //FIXME: 可以保證一個entity下只有一個type的Dealer嗎？不一定吧？但receiver可以？ 還是拿到list?
-            if (target == null)
-            {
-                Debug.LogError("Target is null", this);
-                return;
-            }
-
-            var dealer = GetDealer(effectType);
-            var receiver = target.GetReceiver(effectType);
-            receiver.ForceDirectEffectHit(dealer);
-        }
+        // public void ApplyEffectTo(GeneralEffectType effectType, MonoEntity target)
+        // {
+        //     //FIXME: 可以保證一個entity下只有一個type的Dealer嗎？不一定吧？但receiver可以？ 還是拿到list?
+        //     if (target == null)
+        //     {
+        //         Debug.LogError("Target is null", this);
+        //         return;
+        //     }
+        //
+        //     var dealer = GetDealer(effectType);
+        //     var receiver = target.GetReceiver(effectType);
+        //     receiver.ForceDirectEffectHit(dealer,target.gameObject);
+        // }
 
         [ShowInDebugMode]
         [AutoChildren]

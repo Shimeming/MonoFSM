@@ -1,4 +1,5 @@
 using MonoFSM.Core.DataProvider;
+using MonoFSM.Core.Detection;
 using MonoFSM.Core.Runtime.Action;
 using MonoFSM.Runtime.Interact.EffectHit;
 using MonoFSM.Variable;
@@ -106,10 +107,10 @@ namespace MonoFSM_Physics.Runtime.PhysicsAction
         /// <param name="fallbackRigidbodySource">備用的 Rigidbody 來源</param>
         private void ExecuteForceAction(
             GeneralEffectHitData hitData = null,
-            Transform fallbackRigidbodySource = null
+            GeneralEffectReceiver fallbackRigidbodySource = null
         )
         {
-            Rigidbody targetRigidbody = GetTargetRigidbody(fallbackRigidbodySource);
+            Rigidbody targetRigidbody = GetTargetRigidbody(hitData);
             if (targetRigidbody == null)
             {
                 Debug.LogError("No valid Rigidbody found for AddForceAction", this);
@@ -123,17 +124,19 @@ namespace MonoFSM_Physics.Runtime.PhysicsAction
         /// <summary>
         /// 取得目標 Rigidbody 的統一方法
         /// </summary>
-        /// <param name="fallbackSource">當預設來源都無效時的備用來源</param>
+        /// <param name="hitData">當預設來源都無效時的備用來源</param>
         /// <returns>目標 Rigidbody，如果找不到則返回 null</returns>
-        private Rigidbody GetTargetRigidbody(Transform fallbackSource = null)
+        private Rigidbody GetTargetRigidbody(GeneralEffectHitData hitData)
         {
             // 優先使用直接指定的 rigidbody
 
-            return _rigidbodyVar.Value as Rigidbody;
-            // 最後嘗試從備用來源取得 rigidbody
-            if (fallbackSource != null)
+            if (_rigidbodyVar != null)
+                return _rigidbodyVar.Value as Rigidbody;
+            // 嘗試從備用來源取得 rigidbody
+            if (hitData._receiverSourceObj is IRigidbodyProvider provider)
             {
-                return fallbackSource.GetComponent<Rigidbody>();
+                Debug.Log("Get Rigidbody from HitData receiver source", this);
+                return provider.GetRigidbody();
             }
 
             return null;
@@ -163,7 +166,7 @@ namespace MonoFSM_Physics.Runtime.PhysicsAction
 
         public void ArgEventReceived(GeneralEffectHitData arg)
         {
-            Transform fallbackSource = arg?.Receiver?.transform;
+            var fallbackSource = arg?.GeneralReceiver;
             ExecuteForceAction(arg, fallbackSource);
         }
     }

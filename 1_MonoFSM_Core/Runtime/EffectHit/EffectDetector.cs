@@ -13,17 +13,20 @@ using UnityEngine;
 
 namespace MonoFSM.Core.Detection
 {
-    // [Serializable]
     public struct DetectData //分兩種，好像多餘？
     {
-        private EffectDetector _detector; //需要知道這個嗎？用dealer/receiver就好？
-        private readonly EffectDetectable _detectable;
+        private EffectDetector _detector;
+        private readonly EffectDetectable _detectable => detectedObject.Detectable;
 
+        public BaseEffectDetectTarget detectedObject { get; }
+
+        //FIXME: 好像要留detectGameObject比較好, ex: detectable下面有多個rigidbody的case
         //清掉
-        public DetectData(EffectDetector detector, EffectDetectable detectable)
+        public DetectData(EffectDetector detector, BaseEffectDetectTarget detectedObject)
         {
             _detector = detector;
-            _detectable = detectable;
+            // _detectable = detectable;
+            this.detectedObject = detectedObject;
             _isCustomHitPoint = false; //預設不是自定義hitPoint
             _hitPoint = Vector3.zero; //預設hitPoint為零
             _hitNormal = Vector3.zero; //預設hitNormal為零
@@ -97,7 +100,7 @@ namespace MonoFSM.Core.Detection
             _toRemove.AddRange(_thisFrameDetectedObjects.Keys);
             foreach (var detectable in _toRemove)
                 // Debug.Log("OnDisable of detectable",detectable);
-                TriggerExitEventsForDetectable(detectable);
+                TriggerExitEventsForDetectable(detectable, _thisFrameDetectedObjects[detectable]);
 
             _toRemove.Clear();
             _thisFrameDetectedObjects.Clear(); //應該要關掉嗎？
@@ -140,39 +143,39 @@ namespace MonoFSM.Core.Detection
             "Use DetectCheck() instead. This method is for backward compatibility only."
         )]
         //不該從這裡？
-        public string OnDetectEnterCheck(
-            GameObject other,
-            Vector3? point = null, //FIXME: 一定要給？
-            Vector3? normal = null
-        )
-        {
-            // 向後相容：仍然支援手動觸發，但建議使用新的統一管理機制
-            if (IsValid == false)
-                return "Detector is not valid";
-
-            var detectable = GetEffectDetectable(other);
-            if (detectable == null)
-                return "not a EffectDetectable";
-
-            // 手動加入到檢測列表（用於向後相容）
-            var detectData = new DetectData(this, detectable);
-            if (point != null)
-                detectData.SetCustomHitPoint(point.Value);
-            if (normal != null)
-                detectData.SetCustomNormal(normal.Value);
-
-            if (!_thisFrameDetectedObjects.TryAdd(detectable, detectData))
-                return "already detected";
-
-#if UNITY_EDITOR
-            _lastDetectedObjects[detectable] = detectData;
-            detectable._debugDetectors.Add(this);
-#endif
-
-            // 直接觸發進入事件
-            TriggerEnterEventsForDetectable(detectData);
-            return "Detection successful";
-        }
+        //         public string OnDetectEnterCheck(
+        //             GameObject other,
+        //             Vector3? point = null, //FIXME: 一定要給？
+        //             Vector3? normal = null
+        //         )
+        //         {
+        //             // 向後相容：仍然支援手動觸發，但建議使用新的統一管理機制
+        //             if (IsValid == false)
+        //                 return "Detector is not valid";
+        //
+        //             var detectable = GetEffectDetectable(other);
+        //             if (detectable == null)
+        //                 return "not a EffectDetectable";
+        //
+        //             // 手動加入到檢測列表（用於向後相容）
+        //             var detectData = new DetectData(this, detectable);
+        //             if (point != null)
+        //                 detectData.SetCustomHitPoint(point.Value);
+        //             if (normal != null)
+        //                 detectData.SetCustomNormal(normal.Value);
+        //
+        //             if (!_thisFrameDetectedObjects.TryAdd(detectable, detectData))
+        //                 return "already detected";
+        //
+        // #if UNITY_EDITOR
+        //             _lastDetectedObjects[detectable] = detectData;
+        //             detectable._debugDetectors.Add(this);
+        // #endif
+        //
+        //             // 直接觸發進入事件
+        //             TriggerEnterEventsForDetectable(detectData);
+        //             return "Detection successful";
+        //         }
 
         //         /// <summary>
         //         /// 向後相容方法 - 現在由 DetectCheck 統一管理，此方法僅作調試用途
@@ -241,14 +244,22 @@ namespace MonoFSM.Core.Detection
                 // 讓 DetectionSource 更新其內部狀態
                 detectionSource.UpdateDetection();
 
-                // 收集當前檢測到的物件va
+                // 收集當前檢測到的物件
                 var results = detectionSource.GetCurrentDetections();
                 foreach (var result in results)
                 {
                     if (result.isValidHit)
                     {
-                        var detectable = GetEffectDetectable(result.targetObject);
+                        // var detectable = GetEffectDetectable(result.targetObject);
+                        if (result.targetObject == null)
+                        {
+                            Debug.LogError("DetectionResult targetObject is null detector", this);
+                            Debug.LogError("DetectionResult targetObject is null", result._target);
+                            Debug.Break();
+                            continue;
+                        }
 
+                        var detectable = result.targetObject.Detectable;
                         if (detectable != null && IsValid)
                         {
                             //FIXME: 需要的話Detector也可以判才對
@@ -256,7 +267,7 @@ namespace MonoFSM.Core.Detection
                             if (!detectable.IsValid)
                                 continue;
 
-                            var detectData = new DetectData(this, detectable);
+                            var detectData = new DetectData(this, result.targetObject);
                             if (result.hitPoint.HasValue)
                                 detectData.SetCustomHitPoint(result.hitPoint.Value);
                             if (result.hitNormal.HasValue)
@@ -281,6 +292,7 @@ namespace MonoFSM.Core.Detection
         private void HandleDealerStateChanges()
         {
             // 先收集所有狀態變化
+            //FIXME: 不該new
             var dealerStateChanges =
                 new Dictionary<GeneralEffectDealer, (bool lastState, bool currentState)>();
 
@@ -295,7 +307,7 @@ namespace MonoFSM.Core.Detection
             // 對每個當前檢測到的 detectable 處理狀態變化
             foreach (var kvp in _thisFrameDetectedObjects)
             {
-                ProcessDealerStateChangesForDetectable(kvp.Key, dealerStateChanges);
+                ProcessDealerStateChangesForDetectable(kvp.Key, kvp.Value, dealerStateChanges);
             }
 
             // 最後統一更新狀態記錄
@@ -307,6 +319,7 @@ namespace MonoFSM.Core.Detection
 
         private void ProcessDealerStateChangesForDetectable(
             EffectDetectable detectable,
+            DetectData detectData,
             Dictionary<GeneralEffectDealer, (bool lastState, bool currentState)> dealerStateChanges
         )
         {
@@ -323,6 +336,8 @@ namespace MonoFSM.Core.Detection
                 }
                 else
                 {
+                    //FIXME: exit的話應該 detectData 變null了？ 還是這邊就只管Dealer開關而已
+
                     // dealer 剛變無效，觸發 exit 事件
                     TriggerExitForDealerAndDetectable(dealer, detectable);
                 }
@@ -334,12 +349,12 @@ namespace MonoFSM.Core.Detection
             EffectDetectable detectable
         )
         {
-            var detectData = new DetectData(this, detectable);
+            // var detectData = new DetectData(this, detectable);
             var receiver = detectable.Get(dealer._effectType);
             if (!dealer.CanHitReceiver(receiver))
                 return;
-
-            var hitData = receiver.GenerateEffectHitData(dealer);
+            var detectData = _thisFrameDetectedObjects[detectable];
+            var hitData = receiver.GenerateEffectHitData(dealer, detectData.detectedObject);
             dealer.OnHitEnter(hitData, detectData);
             receiver.OnEffectHitEnter(hitData, detectData);
         }
@@ -353,7 +368,8 @@ namespace MonoFSM.Core.Detection
             if (!dealer.IsEnteredReceiver(receiver))
                 return;
 
-            var hitData = receiver.GenerateEffectHitData(dealer);
+            //FIXME: exit 需要傳過去嗎？
+            var hitData = receiver.GenerateEffectHitData(dealer, null);
             dealer.OnHitExit(hitData);
             receiver.OnEffectHitExit(hitData);
         }
@@ -382,13 +398,13 @@ namespace MonoFSM.Core.Detection
             }
 
             // 找出離開的物件（在previous但不在current）
-            foreach (var kvp in previousDetected)
+            foreach (var prevDetectEntry in previousDetected)
             {
-                var detectable = kvp.Key;
+                var detectable = prevDetectEntry.Key;
                 if (!currentDetected.ContainsKey(detectable))
                 {
                     // Debug.Log($"Detectable exited: {detectable.name}", this);
-                    TriggerExitEventsForDetectable(detectable);
+                    TriggerExitEventsForDetectable(detectable, prevDetectEntry.Value);
 #if UNITY_EDITOR
                     detectable._debugDetectors.Remove(this);
 #endif
@@ -423,7 +439,7 @@ namespace MonoFSM.Core.Detection
                 if (!dealer.CanHitReceiver(receiver))
                     continue;
 
-                var hitData = receiver.GenerateEffectHitData(dealer);
+                var hitData = receiver.GenerateEffectHitData(dealer, detectData.detectedObject);
                 hitData.hitNormal = detectData.hitNormal;
                 hitData.hitPoint = detectData.hitPoint;
 
@@ -432,7 +448,10 @@ namespace MonoFSM.Core.Detection
             }
         }
 
-        private void TriggerExitEventsForDetectable(EffectDetectable detectable)
+        private void TriggerExitEventsForDetectable(
+            EffectDetectable detectable,
+            DetectData detectData
+        )
         {
             if (_dealers == null)
                 return;
@@ -443,7 +462,7 @@ namespace MonoFSM.Core.Detection
                 if (!dealer.IsEnteredReceiver(receiver))
                     continue;
 
-                var hitData = receiver.GenerateEffectHitData(dealer);
+                var hitData = receiver.GenerateEffectHitData(dealer, detectData.detectedObject);
                 dealer.OnHitExit(hitData);
                 receiver.OnEffectHitExit(hitData);
                 // Debug.Log($"TriggerExitEventsForDetectable: {receiver.name}", receiver);
@@ -470,9 +489,9 @@ namespace MonoFSM.Core.Detection
             return hasChanges;
         }
 
-        private EffectDetectable GetEffectDetectable(GameObject target)
+        private EffectDetectable GetEffectDetectable(BaseEffectDetectTarget target)
         {
-            if (!target.activeInHierarchy)
+            if (!target.gameObject.activeInHierarchy)
                 return null;
             // 先嘗試直接取得 EffectDetectable
             if (target.TryGetComponent(out EffectDetectable detectable))

@@ -8,17 +8,20 @@ namespace MonoFSM.Runtime.Interact.EffectHit
 {
     public interface IActor { }
 
+    //TODO: 要用Struct還是用 Class? 好像是為了要pass下去
     [Serializable] //沒用？
     public class GeneralEffectHitData : IEffectHitData
     {
         //反而是detector對detectable的資料？比較有用？
-        public static GeneralEffectHitData Borrow(IEffectDealer dealer, IEffectReceiver receiver)
-        {
-            var data = new GeneralEffectHitData();
-            data.Override(dealer, receiver);
-            return data;
-        }
+        //FIXME: 需要實作borrow?
+        // public static GeneralEffectHitData Borrow(IEffectDealer dealer, IEffectReceiver receiver)
+        // {
+        //     var data = new GeneralEffectHitData();
+        //     data.Override(dealer, receiver);
+        //     return data;
+        // }
 
+        //這裡應該包含Rigidbody?
         //dealer和receiver的transform資料可以作為相對位置
         [ShowInInspector]
         public IEffectDealer Dealer => _dealer;
@@ -35,10 +38,17 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         private GeneralEffectDealer _dealer;
         private GeneralEffectReceiver _receiver;
 
-        public void Override(IEffectDealer dealer, IEffectReceiver receiver)
+        public BaseEffectDetectTarget _receiverSourceObj;
+
+        public void Override(
+            IEffectDealer dealer,
+            IEffectReceiver receiver,
+            BaseEffectDetectTarget receiverSourceObj
+        )
         {
             _dealer = dealer as GeneralEffectDealer;
             _receiver = receiver as GeneralEffectReceiver;
+            _receiverSourceObj = receiverSourceObj;
             hitPoint = null; //重置hitPoint
             hitNormal = null; //重置hitNormal
         }

@@ -98,7 +98,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
                 if (proxyDealer == null) //並沒有找到Proxy Dealer，失敗
                 {
                     SetFailReason("ProxyDealer is null");
-                    var data = r.GenerateEffectHitData(this);
+                    var data = r.GenerateEffectHitData(this, null);
                     OnEffectHitConditionFail(data);
                     r.OnEffectHitConditionFail(data);
                     return false;
@@ -114,7 +114,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
                     if (!result)
                     {
                         SetFailReason($"EffectCondition {condition.GetType().Name} failed");
-                        var data = r.GenerateEffectHitData(this);
+                        var data = r.GenerateEffectHitData(this, null); //FIXME: fail的話就先傳null了？
                         OnEffectHitConditionFail(data);
                         r.OnEffectHitConditionFail(data);
                         return false;
@@ -124,7 +124,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
             if (!r.IsEffectConditionsAllValid(this))
             {
                 SetFailReason($"Receiver's EffectCondition fail");
-                var data = r.GenerateEffectHitData(this);
+                var data = r.GenerateEffectHitData(this, null);
                 OnEffectHitConditionFail(data);
                 r.OnEffectHitConditionFail(data);
                 return false;

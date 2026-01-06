@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using MonoFSM_Physics.Runtime.Interact.SpatialDetection;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Runtime.Interact.SpatialDetection;
+using MonoFSM.Runtime.Interact.EffectHit;
 using MonoFSM.Variable.Attributes;
 using Sirenix.OdinInspector;
 using UnityEngine;

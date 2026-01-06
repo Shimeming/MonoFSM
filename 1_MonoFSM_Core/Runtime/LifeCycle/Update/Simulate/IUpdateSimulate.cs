@@ -30,5 +30,10 @@ namespace MonoFSM.Core.Simulate
         bool IsValid => isActiveAndEnabled;
 
         GameObject gameObject { get; }
+
+        /// <summary>
+        /// 排序順序，數字越小越先執行。預設為0。
+        /// </summary>
+        int SimulateOrder => 0;
     }
 }

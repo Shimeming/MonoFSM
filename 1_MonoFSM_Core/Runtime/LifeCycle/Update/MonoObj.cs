@@ -181,8 +181,24 @@ namespace MonoFSMCore.Runtime.LifeCycle
 #if UNITY_EDITOR
             AutoAttributeManager.AutoReferenceAllChildren(gameObject);
 #endif
+            SortUpdateSimulates();
             //FIXME: prefab cache restore?
             //把 PrefabSerializeCache 的實作拿過來？
+        }
+
+        private void SortUpdateSimulates()
+        {
+            if (_updateSimulates == null || _updateSimulates.Length <= 1)
+                return;
+            Array.Sort(
+                _updateSimulates,
+                (a, b) =>
+                {
+                    var orderA = a?.SimulateOrder ?? 0;
+                    var orderB = b?.SimulateOrder ?? 0;
+                    return orderA.CompareTo(orderB);
+                }
+            );
         }
 
         public void SpawnFromPool() //必定是root吧
@@ -327,7 +343,7 @@ namespace MonoFSMCore.Runtime.LifeCycle
             if (IsProxy)
                 return;
             //要在state machine之後嗎？還是要可以排順序？
-            foreach (var item in _updateSimulates)
+            foreach (var item in _updateSimulates) //更新順序？誰先誰後？
             {
                 if (item == null || !item.IsValid)
                     continue;

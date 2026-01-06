@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using MonoFSM.Core.Attributes;
 using MonoFSM.EditorExtension;
 using MonoFSM.Foundation;
+using MonoFSM.Runtime.Interact.EffectHit;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -10,7 +11,8 @@ namespace MonoFSM.Core.Detection
     public struct DetectionResult
     {
         // public Rigidbody _targetRigidbody; //為了不要重複判斷？
-        public GameObject targetObject; //collider
+        public BaseEffectDetectTarget targetObject; //collider或是rigidbody?
+        public GameObject _target;
         public Vector3? hitPoint;
         public Vector3? hitNormal;
         public bool isValidHit;
@@ -23,16 +25,15 @@ namespace MonoFSM.Core.Detection
         )
         {
             // this._targetRigidbody = targetRigidbody;
-            this.targetObject = target;
+            _target = target;
+            targetObject = target.GetComponent<BaseEffectDetectTarget>();
             this.hitPoint = hitPoint;
             this.hitNormal = hitNormal;
-            this.isValidHit = target != null;
+            this.isValidHit = targetObject != null;
         }
 
         public static DetectionResult Invalid => new DetectionResult { isValidHit = false };
     }
-
-    //好像還是要可以拖拉耶，結構不定 FIXME: 直接和BaseDetectProcessor合併?
 
     // public interface IDetectionSource //AbstractComponent
     public abstract class AbstractDetectionSource
@@ -45,7 +46,7 @@ namespace MonoFSM.Core.Detection
         [AutoParent]
         public EffectDetector _detector;
 
-        public virtual bool IsEnabled => isActiveAndEnabled;
+        // public virtual bool IsEnabled => isActiveAndEnabled;
 
         //統一由 EffectDetector 管理 enter/exit 事件
 
@@ -55,7 +56,7 @@ namespace MonoFSM.Core.Detection
         protected readonly HashSet<Collider> _thisFrameColliders = new(); //這個有用嗎？
 
         [ShowInDebugMode]
-        protected List<DetectionResult> _buffer = new List<DetectionResult>();
+        protected List<DetectionResult> _buffer = new();
 
         // [PreviewInDebugMode]
         // protected readonly HashSet<Collider> _lastFrameColliders = new(); //ondisable也要清掉？
@@ -76,43 +77,6 @@ namespace MonoFSM.Core.Detection
         }
 
         public virtual void AfterDetection() { }
-
-        /// <summary>
-        ///     向 EffectDetector 報告物件進入事件
-        /// </summary>
-        // protected void ReportEnterEvent(
-        //     GameObject obj,
-        //     Vector3? hitPoint = null,
-        //     Vector3? hitNormal = null
-        // )
-        // {
-        //     this.Log("ReportEnterEvent: " + obj.name, obj);
-        //     _detector.OnDetectEnterCheck(obj, hitPoint, hitNormal);
-        // }
-        //
-        // /// <summary>
-        // ///     向 EffectDetector 報告物件離開事件
-        // /// </summary>
-        // protected void ReportExitEvent(GameObject obj)
-        // {
-        //     _detector.OnDetectExitCheck(obj);
-        // }
-
-        /// <summary>
-        ///     向後相容的方法，內部調用新的 ReportEnterEvent
-        /// </summary>
-        // protected void QueueEnterEvent(GameObject obj)
-        // {
-        //     ReportEnterEvent(obj);
-        // }
-        //
-        // /// <summary>
-        // ///     向後相容的方法，內部調用新的 ReportExitEvent
-        // /// </summary>
-        // protected void QueueExitEvent(GameObject obj)
-        // {
-        //     ReportExitEvent(obj);
-        // }
 
         public string ValueInfo => "L:" + LayerMask.LayerToName(gameObject.layer);
         public bool IsDrawingValueInfo => true;

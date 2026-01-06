@@ -10,6 +10,8 @@ using UnityEngine;
 
 namespace MonoFSM.Runtime.Interact.EffectHit
 {
+    //FIXME: HitData裡應該放的是這個？這樣才可以拿到細節？
+    //概念類似HitBoxTarget
     public abstract class BaseEffectDetectTarget : AbstractDescriptionBehaviour //實作
     {
         protected override void Start()
@@ -35,18 +37,18 @@ namespace MonoFSM.Runtime.Interact.EffectHit
 
     [Searchable]
     [DisallowMultipleComponent]
-    //空間中的物件，可以被偵測到, 基本上會有collider或是collider2D
+    //BaseEffectDetectTarget 的 Group, 類似HitBoxRoot的感覺
     //從Detector過來
-    public class EffectDetectable
-        : MonoDict<GeneralEffectType, GeneralEffectReceiver>,
-            IDefaultSerializable //關係
+    public class EffectDetectable //這顆已經是Group了，反而不知道進入點耶
+        : MonoDict<GeneralEffectType, GeneralEffectReceiver>, IDefaultSerializable //關係
     {
         //可能不只一個？
         // [Obsolete("只是拿來新增用的button？其實不一定需要？")]
 
         //TODO: 如果想要永遠都把EffectDetectable打開，然後去關Collider (DetectHitBox?)要可以支援group node, 這樣就不是depth only 1了
         [CompRef]
-        [AutoChildren(DepthOneOnly = true)]
+        // [AutoChildren(DepthOneOnly = true)]
+        [AutoChildren]
         [SerializeField]
         private BaseEffectDetectTarget[] _effectDetectTargets; //FIXME:不該？
 
@@ -91,29 +93,29 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         private HashSet<EffectDetector> toRemoves = new();
 
         //FIXME: 要改成能支援photon 給的HitData？
-        public void ProcessEffectHit(EffectDetector detector, Vector3 hitPoint, Vector3 hitNormal)
-        {
-            Debug.Log($"[EffectDetectable] ProcessEffectHit from {detector.name} to {name}", this);
-            //FIXME: 在這邊new data...?
-            var detectData = new DetectData(detector, this);
-
-            foreach (var dealer in detector.Dealers)
-            {
-                var receiver = Get(dealer._effectType);
-                if (receiver == null)
-                    continue;
-                // foreach (var receiver in EffectReceivers)
-                // {
-                //
-                // }
-                if (!dealer.CanHitReceiver(receiver))
-                    continue;
-
-                var hitData = receiver.GenerateEffectHitData(dealer);
-                dealer.OnHitEnter(hitData, detectData);
-                receiver.OnEffectHitEnter(hitData, detectData);
-            }
-        }
+        // public void ProcessEffectHit(EffectDetector detector, Vector3 hitPoint, Vector3 hitNormal)
+        // {
+        //     Debug.Log($"[EffectDetectable] ProcessEffectHit from {detector.name} to {name}", this);
+        //     //FIXME: 在這邊new data...?
+        //     var detectData = new DetectData(detector, this);
+        //
+        //     foreach (var dealer in detector.Dealers)
+        //     {
+        //         var receiver = Get(dealer._effectType);
+        //         if (receiver == null)
+        //             continue;
+        //         // foreach (var receiver in EffectReceivers)
+        //         // {
+        //         //
+        //         // }
+        //         if (!dealer.CanHitReceiver(receiver))
+        //             continue;
+        //
+        //         var hitData = receiver.GenerateEffectHitData(dealer);
+        //         dealer.OnHitEnter(hitData, detectData);
+        //         receiver.OnEffectHitEnter(hitData, detectData);
+        //     }
+        // }
 
         //         private void OnDisable() //FIXME: 這是TriggerDetectableTarget該做的事嗎？
         //         {
