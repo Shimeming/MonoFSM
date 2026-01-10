@@ -40,6 +40,7 @@ namespace MonoFSM.Variable
 
         public bool IsVarExternal => _target?.ParentEntity != ParentEntity;
 
+        [Required]
         //有辦法判斷不是
         public VarBool _target; //var?
 

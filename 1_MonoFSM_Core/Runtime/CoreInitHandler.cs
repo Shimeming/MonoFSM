@@ -1,6 +1,7 @@
 using System;
 using _1_MonoFSM_Core.Runtime._3_FlagData;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 public static class CoreInitHandler
 {
@@ -32,14 +33,14 @@ public static class CoreInitHandler
                 return null;
             }
             applicationCoreCandidate.gameObject.SetActive(false);
-            GameObject applicationCoreInstance = GameObject.Instantiate(applicationCoreCandidate);
-            
+            var applicationCoreInstance = Object.Instantiate(applicationCoreCandidate);
+
             //Auto Reference & Awake
             AutoAttributeManager.AutoReferenceAllChildren(applicationCoreInstance);
             applicationCoreCandidate.gameObject.SetActive(true);
             applicationCoreInstance.gameObject.SetActive(true);
-            
-            GameObject.DontDestroyOnLoad(applicationCoreInstance);
+
+            Object.DontDestroyOnLoad(applicationCoreInstance);
             return applicationCoreInstance.GetComponent<ApplicationCore>();
         }
         catch (Exception e)

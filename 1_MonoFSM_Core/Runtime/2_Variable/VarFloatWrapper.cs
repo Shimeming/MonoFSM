@@ -81,15 +81,18 @@ namespace MonoFSM.Variable
     public class VarWrapper<TVar, TValue> : AbstractVarWrapper
         where TVar : AbstractMonoVariable
     {
+        [BoxGroup("Var")]
         [HideIf("_var", null, false)]
         [ShowInInspector]
         [SerializeField]
         private TValue _tempValue;
 
+        [BoxGroup("Var")]
         [SOConfig("VariableType")]
         [Required]
         public VariableTag _bindTag;
 
+        [BoxGroup("Var")]
         [Required]
         public TVar _var;
 

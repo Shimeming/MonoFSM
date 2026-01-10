@@ -197,7 +197,7 @@ namespace MonoFSM.Core.LifeCycle
                 if (Mathf.Abs(Vector3.Dot(normal, up)) > 0.99f)
                     up = Vector3.right;
                 rotation = Quaternion.LookRotation(normal, up);
-                Debug.Log("hitNormal is not null, using it for rotation " + rotation, this);
+                Debug.Log("has hitNormal, using it for rotation " + rotation, this);
             }
 
             Spawn(Prefab, pos, rotation, arg);

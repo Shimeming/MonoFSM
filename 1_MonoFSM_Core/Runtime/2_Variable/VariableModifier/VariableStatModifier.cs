@@ -54,7 +54,7 @@ namespace MonoFSM.Variable
 
         private string sign => FinalValue >= 0 ? "+" : "-"; //這個是用來顯示的
 
-        public override string Description => _valueVar.name + " " + _valueMultiplier;
+        public override string Description => _valueVar?.name + " " + _valueMultiplier;
 
         [ShowInInspector]
         private string ValueDescription =>

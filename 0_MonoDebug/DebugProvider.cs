@@ -35,7 +35,7 @@ public class DebugProvider : MonoBehaviour, IEditorOnly, IOverrideHierarchyIcon
     public void Awake()
     {
 #if UNITY_EDITOR
-        if (IsLogInChildren)
+        if (IsLogInChildren && RuntimeDebugSetting.IsDebugMode)
             Debug.Log("[DebugProvider] Is LogInChildren" + this.gameObject.name, this.gameObject);
 #endif
         // SaveLog("Awake",this);
@@ -44,7 +44,7 @@ public class DebugProvider : MonoBehaviour, IEditorOnly, IOverrideHierarchyIcon
     // [AutoChildren] StateMachineOwner _stateMachineOwner;
     // public GeneralState currentState => _stateMachineOwner?.FsmContext?.currentStateType;
 
-    private bool IsNotDebugMode => !RuntimeDebugSetting.IsDebugMode && IsLogInChildren;
+    // private bool IsNotDebugMode => !RuntimeDebugSetting.IsDebugMode && IsLogInChildren;
 
 #if UNITY_EDITOR
     [InfoBox(

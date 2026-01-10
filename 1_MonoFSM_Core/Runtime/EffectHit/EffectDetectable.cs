@@ -35,6 +35,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         // public GeneralEffectReceiver[] EffectReceivers => _detectable.EffectReceivers;
     }
 
+    //FIXME: 還是應該直接放在Animator上？
     [Searchable]
     [DisallowMultipleComponent]
     //BaseEffectDetectTarget 的 Group, 類似HitBoxRoot的感覺

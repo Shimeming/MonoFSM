@@ -13,6 +13,7 @@ public abstract class AbstractFolder : MonoBehaviour
 
 public class VariableFolder : MonoDict<VariableTag, AbstractMonoVariable>
 {
+    //FIXME: external dict?
     protected override bool IsStringDictEnable => true;
 
     protected override bool IsAddValid(AbstractMonoVariable value)
@@ -21,19 +22,6 @@ public class VariableFolder : MonoDict<VariableTag, AbstractMonoVariable>
             return false;
         return true;
     }
-
-    // [ReadOnly] [Component( AddComponentAt.Children, "[Variable]")]
-    // public AbstractVariable flag;
-
-    // [Component(typeof(AbstractFlag), "[Variable]")]
-    // void AddComponent()
-    // {
-    //     //按完就沒我的事了??
-    // }
-    // private void Awake()
-    // {
-    //     // varDict = GetVariableDict();
-    // }
     public AbstractMonoVariable GetVariable(VariableTag type)
     {
         return Get(type);
