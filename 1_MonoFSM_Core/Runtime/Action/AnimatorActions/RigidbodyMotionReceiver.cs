@@ -7,10 +7,10 @@ using UnityEngine;
 public class RigidbodyMotionCustomReceiver
     : MonoBehaviour,
         IRootMotionReceiver,
+        IUpdateSimulate,
         IOverrideHierarchyIcon,
         IDrawHierarchyBackGround,
-        IHierarchyValueInfo,
-        IUpdateSimulate
+        IHierarchyValueInfo
 {
     [Required]
     [ShowInInspector]

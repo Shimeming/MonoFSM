@@ -3,15 +3,17 @@ using System.Linq;
 using System.Reflection;
 using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
-using MonoFSM.Core.Editor.Utility;
 using MonoFSM.Foundation;
 using MonoFSM.Runtime;
 using MonoFSM.Variable;
 using MonoFSM.Variable.SOType;
 using MonoFSM.Variable.TypeTag;
 using Sirenix.OdinInspector;
-using UnityEditor;
 using UnityEngine;
+#if UNITY_EDITOR
+using MonoFSM.Core.Editor.Utility;
+using UnityEditor;
+#endif
 
 // using MonoFSM.Core.Editor.Utility;
 
@@ -111,9 +113,31 @@ namespace _1_MonoFSM_Core.Runtime._1_States
             Debug.Log($"檢查類型 {type.Name} 是否為 VarWrapper<,> 的實例", this);
             // 檢查是否是 VarWrapper<,> 的泛型實例
             // if (!type.IsGenericType) return false;
-            if (type.InheritsFrom(typeof(VarWrapper<,>)))
+            if (InheritsFromGeneric(type, typeof(VarWrapper<,>)))
                 // 這裡可以進一步檢查 VarWrapper 的具體類型
                 return true;
+            return false;
+        }
+
+        /// <summary>
+        /// 檢查類型是否繼承自指定的泛型類型（runtime-safe 替代 Sirenix.Utilities.InheritsFrom）
+        /// </summary>
+        private static bool InheritsFromGeneric(Type type, Type genericType)
+        {
+            if (type == null || genericType == null)
+                return false;
+
+            if (!genericType.IsGenericTypeDefinition)
+                return genericType.IsAssignableFrom(type);
+
+            var currentType = type;
+            while (currentType != null && currentType != typeof(object))
+            {
+                if (currentType.IsGenericType && currentType.GetGenericTypeDefinition() == genericType)
+                    return true;
+                currentType = currentType.BaseType;
+            }
+
             return false;
         }
 
@@ -130,7 +154,7 @@ namespace _1_MonoFSM_Core.Runtime._1_States
             var bindTagField = wrapperInstance.GetType().GetField("_bindTag");
             var existingTag = bindTagField?.GetValue(wrapperInstance) as VariableTag;
 
-            VariableTag targetTag;
+            VariableTag targetTag = null;
 
             if (existingTag != null)
             {
@@ -162,6 +186,9 @@ namespace _1_MonoFSM_Core.Runtime._1_States
                     Debug.LogWarning($"找不到名稱為 '{fieldName}' 的 VariableTag", this);
                     return;
                 }
+#else
+                Debug.LogWarning($"在非編輯器模式下無法搜尋 VariableTag: {fieldName}", this);
+                return;
 #endif
             }
 
@@ -217,6 +244,7 @@ namespace _1_MonoFSM_Core.Runtime._1_States
                 }
                 else
                 {
+#if UNITY_EDITOR
                     // 變數不存在，創建新的變數
                     var newVar = _parentEntity.VariableFolder.CreateVariableWithTag(
                         varField.FieldType,
@@ -227,15 +255,20 @@ namespace _1_MonoFSM_Core.Runtime._1_States
                         varField.SetValue(wrapperInstance, newVar);
                         Debug.Log($"已創建並指派新變數到 {wrapperField.Name}._var", this);
                     }
+#else
+                    Debug.LogWarning($"在非編輯器模式下無法創建變數: {wrapperField.Name}", this);
+#endif
                 }
             }
         }
 
+#if UNITY_EDITOR
         private AbstractMonoVariable CreateVariableForField(FieldInfo field, string tagName)
         {
             // 使用 VariableFolder 的 CreateVariable 方法來創建變數
             return _parentEntity.VariableFolder.CreateVariable(field.FieldType, tagName);
         }
+#endif
 
         public string GetStringKey => GetType().Name;
 

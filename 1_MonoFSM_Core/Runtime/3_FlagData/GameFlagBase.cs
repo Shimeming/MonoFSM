@@ -9,8 +9,10 @@ using _1_MonoFSM_Core.Runtime._3_FlagData;
 using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
 using Sirenix.OdinInspector;
-using UnityEditor;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 //using Newtonsoft.Json;
 //using Newtonsoft.Json.Linq;
 using Debug = UnityEngine.Debug;

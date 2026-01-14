@@ -25,8 +25,10 @@ namespace MonoFSM.Variable
     {
         private void OnValidate()
         {
+#if UNITY_EDITOR
             _variableType._bindObject = this;
             _valueFilterType._bindObject = this;
+#endif
         }
 
         /// <summary>

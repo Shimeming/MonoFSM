@@ -2,8 +2,10 @@ using MonoFSM.Core;
 using MonoFSM.Runtime.Mono;
 using MonoFSM.Runtime.Variable;
 using MonoFSMCore.Runtime.LifeCycle;
-using UnityEditor.SceneManagement;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor.SceneManagement;
+#endif
 
 namespace MonoFSM.Runtime
 {

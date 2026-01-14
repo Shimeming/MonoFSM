@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 
 //統計用，買Asset畫圖表？
 

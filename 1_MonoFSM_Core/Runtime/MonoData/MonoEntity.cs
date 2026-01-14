@@ -17,8 +17,10 @@ using MonoFSM.Variable.FieldReference;
 using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;
-using UnityEditor;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace MonoFSM.Runtime
 {

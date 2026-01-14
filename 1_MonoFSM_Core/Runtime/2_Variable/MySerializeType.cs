@@ -198,10 +198,16 @@ namespace MonoFSM.Variable
                 // 🆕 優先使用 MetadataToken 進行解析
                 _type = GetTypeByMetadataTokenOrName();
                 if (_type == null)
+#if UNITY_EDITOR
                     Debug.LogError(
                         $"Type '{typeName}' could not be found. Please check the type name.",
                         _bindObject
                     ); //沒辦法拿到data holder...煩
+#else
+                    Debug.LogError(
+                        $"Type '{typeName}' could not be found. Please check the type name."
+                    );
+#endif
             }
 
             _baseFilterType = string.IsNullOrEmpty(_baseFilterTypeName)
@@ -217,11 +223,19 @@ namespace MonoFSM.Variable
             // 優先使用 RefactorSafeNameResolver 進行 attribute-based 查找
             if (!string.IsNullOrEmpty(typeName))
             {
+#if UNITY_EDITOR
                 var type = RefactorSafeNameResolver.FindTypeByCurrentOrFormerName(
                     typeName,
                     _assemblyName,
                     _bindObject
                 );
+#else
+                var type = RefactorSafeNameResolver.FindTypeByCurrentOrFormerName(
+                    typeName,
+                    _assemblyName,
+                    null
+                );
+#endif
                 // Debug.Log($"RefactorSafeNameResolver 查找型別 '{typeName}' 結果：{type?.FullName ?? "未找到"}", _bindObject);
                 if (type != null)
                 {
@@ -233,7 +247,11 @@ namespace MonoFSM.Variable
             }
 
             // 最終回退：直接用名稱查找
+#if UNITY_EDITOR
             Debug.LogError($"RefactorSafeNameResolver 無法找到型別 '{typeName}'", _bindObject);
+#else
+            Debug.LogError($"RefactorSafeNameResolver 無法找到型別 '{typeName}'");
+#endif
             // Debug.LogWarning($"使用 RefactorSafeNameResolver 和 MetadataToken 都失敗，回退到標準名稱查找: {typeName}");
             return null;
         }

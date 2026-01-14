@@ -1,17 +1,17 @@
 using System;
 using System.Diagnostics;
 using MonoDebugSetting;
+using MonoFSM.EditorExtension;
 using Sirenix.OdinInspector;
-using UnityEditor;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 #if UNITY_EDITOR
-using MonoFSM.EditorExtension;
+using UnityEditor;
 using UnityEditorInternal;
 #endif
 
-public class DebugProvider : MonoBehaviour, IEditorOnly, IOverrideHierarchyIcon //往上找
+public class DebugProvider : MonoBehaviour, IEditorOnly, IOverrideHierarchyIcon
 {
     [ShowInInspector]
     public int InstanceID => this.GetInstanceID();

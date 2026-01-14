@@ -184,6 +184,10 @@ namespace _1_MonoFSM_Core.Runtime._1_Conditions
 #endif
 
         public override bool IsDrawingValueInfo => true;
+#if UNITY_EDITOR
         public override string ValueInfo => _note;
+#else
+        public override string ValueInfo => "";
+#endif
     }
 }

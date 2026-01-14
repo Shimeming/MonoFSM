@@ -939,7 +939,9 @@ namespace MonoFSM.Core.Utilities
                     if (entry._canBeNull)
                         return (default, "allow null");
                 i++;
+#if UNITY_EDITOR
                 entry._tempCurrentObject = currentObj; // 用於 Unity 編輯器的預覽
+#endif
             }
 
             return ((T)currentObj, "obj ok");

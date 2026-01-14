@@ -8,12 +8,12 @@ using MonoFSM.RCGMakerFSMCore.Tracking;
 using MonoFSM.Variable;
 using MonoFSM.Variable.Attributes;
 using Sirenix.OdinInspector;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.Serialization;
 using Object = UnityEngine.Object;
 #if UNITY_EDITOR
+using UnityEditor;
 using Sirenix.OdinInspector.Editor;
 #endif
 

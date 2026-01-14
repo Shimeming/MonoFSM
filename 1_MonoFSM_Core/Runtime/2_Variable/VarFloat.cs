@@ -1,8 +1,10 @@
 using MonoFSM.Core.Attributes;
 using MonoFSM.EditorExtension;
 using MonoFSM.Variable.FieldReference;
-using UnityEditor;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 //CountdownTimer...直接掛在這個下面？
 namespace MonoFSM.Variable

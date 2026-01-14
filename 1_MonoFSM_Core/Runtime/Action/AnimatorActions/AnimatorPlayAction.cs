@@ -111,6 +111,7 @@ namespace MonoFSM.Animation
         //有provider就藏起來
         public string stateName;
 
+#if UNITY_EDITOR
         private bool IsShowCreateAcAndClipButton()
         {
             if (animator == null)
@@ -147,6 +148,7 @@ namespace MonoFSM.Animation
             );
             stateName = newStateName;
         }
+#endif
 
         [Auto(false)]
         private AbstractStringProvider stateNameProvider; //拿旁邊的，蓋掉要怎麼做...藏起來

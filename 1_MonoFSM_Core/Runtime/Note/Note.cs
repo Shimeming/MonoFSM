@@ -45,6 +45,10 @@ public class Note : MonoBehaviour, IEditorOnly, IHierarchyValueInfo //IOverrideH
 
     public string IconName => "_Help";
     public bool IsDrawingIcon => false;
+#if UNITY_EDITOR
     public string ValueInfo => note;
+#else
+    public string ValueInfo => "";
+#endif
     public bool IsDrawingValueInfo => false; //TODO:
 }

@@ -8,11 +8,13 @@ using MonoFSM.Variable.Attributes;
 using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;
-using UnityEditor;
-using UnityEditor.Compilation;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Profiling;
+#if UNITY_EDITOR
+using UnityEditor;
+using UnityEditor.Compilation;
+#endif
 
 namespace MonoFSM.Core.Simulate
 {

@@ -102,6 +102,7 @@ public interface IDataFeature
 
 public static class GameDataUtility
 {
+#if UNITY_EDITOR
     public static GameFlagBase CreateGameStateSO(
         this Type type,
         MonoBehaviour refObj,
@@ -159,6 +160,7 @@ public static class GameDataUtility
             return null;
         }
     }
+#endif
 }
 
 [CreateAssetMenu(fileName = "Descriptable", menuName = "ScriptableObjects/Descriptable", order = 1)]

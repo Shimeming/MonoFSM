@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using MonoFSM.Core.Attributes;
 using UnityEngine;
 using Sirenix.OdinInspector;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 
 namespace MonoFSM.Editor.DesignTool
 {

@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace MonoFSM.Variable.FieldReference
 {
@@ -119,6 +121,7 @@ namespace MonoFSM.Variable.FieldReference
 
             // 2. 搜尋所有已載入的 Assembly 中的型別
             Debug.Log("Searching for former type: " + currentName);
+#if UNITY_EDITOR
             var formerNameTypes = TypeCache.GetTypesWithAttribute<FormerlyNamedAsAttribute>();
             foreach (var formerType in formerNameTypes)
             {
@@ -139,6 +142,7 @@ namespace MonoFSM.Variable.FieldReference
                     }
                 }
             }
+#endif
 
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
             // 如果指定了 Assembly，優先搜尋該 Assembly

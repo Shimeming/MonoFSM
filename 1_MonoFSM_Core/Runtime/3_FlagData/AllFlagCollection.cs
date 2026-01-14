@@ -1,6 +1,8 @@
 using Sirenix.OdinInspector;
-using UnityEditor;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace _1_MonoFSM_Core.Runtime._3_FlagData
 {
@@ -24,6 +26,7 @@ namespace _1_MonoFSM_Core.Runtime._3_FlagData
         }
 
 
+#if UNITY_EDITOR
         public override void OnHeavySceneSaving()
         {
             FindAllFlagsInProject();
@@ -57,5 +60,6 @@ namespace _1_MonoFSM_Core.Runtime._3_FlagData
             Flags.Add(flag);
             EditorUtility.SetDirty(this);
         }
+#endif
     }
 }

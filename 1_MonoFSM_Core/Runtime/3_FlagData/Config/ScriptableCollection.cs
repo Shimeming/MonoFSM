@@ -3,9 +3,11 @@ using System.IO;
 using _1_MonoFSM_Core.Runtime._3_FlagData;
 using MonoFSM.Variable;
 using Sirenix.OdinInspector;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace MonoFSM.Core
 {
@@ -17,7 +19,9 @@ namespace MonoFSM.Core
 
         protected virtual void OnValidate()
         {
+#if UNITY_EDITOR
             targetType._bindObject = this;
+#endif
         }
 
         protected virtual bool FlagBelongThisCollection(ScriptableObject obj) //用一些條件去篩掉特定flag, 例如要做百科分類

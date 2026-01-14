@@ -14,7 +14,9 @@ namespace MonoFSM.EditorExtension
 
     public interface IHierarchyValueInfo
     {
+#if UNITY_EDITOR
         public string ValueInfo { get; }
         public bool IsDrawingValueInfo { get; }
+#endif
     }
 }

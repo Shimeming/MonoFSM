@@ -10,11 +10,13 @@ using MonoFSM.Runtime;
 using MonoFSM.Runtime.Attributes;
 using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
-using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
+#if UNITY_EDITOR
+using UnityEditor;
+using UnityEditor.SceneManagement;
+#endif
 
 namespace MonoFSM.Foundation
 {
@@ -170,7 +172,9 @@ namespace MonoFSM.Foundation
                             $"Required field '{field.Name}' is null in {gameObject.name}",
                             this
                         );
+#if UNITY_EDITOR
                         EditorGUIUtility.PingObject(this);
+#endif
                     }
 
                     return true;

@@ -22,7 +22,12 @@ namespace MonoFSM.Core.Runtime.Action
         }
 
         protected abstract void OnArgEventReceived(T arg);
+#if UNITY_EDITOR
         public string ValueInfo => "evt:" + lastEventReceivedTime.ToString("F2");
         public bool IsDrawingValueInfo => lastEventReceivedTime != -1f;
+#else
+        public string ValueInfo => "";
+        public bool IsDrawingValueInfo => false;
+#endif
     }
 }

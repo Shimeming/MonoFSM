@@ -18,13 +18,14 @@ public static class MonoExtensionLogger
             Debug.Log(result, owner);
     }
 
-    [Conditional("UNITY_EDITOR")]
+#if UNITY_EDITOR
     [InitializeOnEnterPlayMode]
     private static void OnEnterPlayModeInEditor(EnterPlayModeOptions options)
     {
         // Debug.Log("Entering PlayMode");
         DebugProviderDict.Clear();
     }
+#endif
 
     //static DebugProvider in parent dictionary
     private static readonly Dictionary<Component, DebugProvider[]> DebugProviderDict = new();

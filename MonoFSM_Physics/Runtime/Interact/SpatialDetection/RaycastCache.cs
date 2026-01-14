@@ -156,9 +156,11 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
                 CachedHits.Add(hitInfo);
                 // Debug.Log("[RaycastCache] RaycastProcessor Hit:" + hitInfo.collider, this);
                 // _thisFrameColliders.Add(hitInfo.collider);
+#if UNITY_EDITOR
                 _debugHistoryObjs.Enqueue(hitInfo.collider);
                 if (_debugHistoryObjs.Count > 10)
                     _debugHistoryObjs.Dequeue();
+#endif
             }
             else
             {
@@ -215,7 +217,9 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
             //把狀態清掉
             _cachedRay = default;
             CachedHits.Clear();
+#if UNITY_EDITOR
             _debugHistoryObjs.Clear();
+#endif
         }
 
         public void BeforeSimulate(float deltaTime)
@@ -225,8 +229,10 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
             // Debug.Log("[RaycastCache] BeforeSimulate Ray:" + _cachedRay, this);
         }
 
+#if UNITY_EDITOR
         public string ValueInfo => "layer:" + _hittingLayer.value; //FIXME: 可能會是多個..
         public bool IsDrawingValueInfo => true;
+#endif
     }
 
     public abstract class AbstractRayProvider : MonoBehaviour

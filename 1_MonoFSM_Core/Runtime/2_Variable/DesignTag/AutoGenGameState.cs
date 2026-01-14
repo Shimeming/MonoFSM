@@ -5,8 +5,10 @@ using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;
-using UnityEditor;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 // [RequireComponent(typeof(GuidComponent))]
 

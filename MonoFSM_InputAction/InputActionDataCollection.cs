@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using MonoFSM.Core;
 using Sirenix.OdinInspector;
-using UnityEditor;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace MonoFSM.InputAction
 {
@@ -37,6 +39,7 @@ namespace MonoFSM.InputAction
                 targetType.SetType(typeof(InputActionData));
         }
 
+#if UNITY_EDITOR
         [Button]
         public void FindAllInputActionsInProject()
         {
@@ -70,6 +73,7 @@ namespace MonoFSM.InputAction
                 EditorUtility.SetDirty(inputActionList[i]);
             }
         }
+#endif
 
         /// <summary>
         ///     取得所有 InputActionData 的型別安全列表
@@ -91,6 +95,7 @@ namespace MonoFSM.InputAction
             return null;
         }
 
+#if UNITY_EDITOR
         public void AddInputActionData(InputActionData inputActionData)
         {
             if (inputActionData == null || collection.Contains(inputActionData))
@@ -113,5 +118,6 @@ namespace MonoFSM.InputAction
             // 在Custom 保存時自動分配 actionID
             AssignActionIDs();
         }
+#endif
     }
 }

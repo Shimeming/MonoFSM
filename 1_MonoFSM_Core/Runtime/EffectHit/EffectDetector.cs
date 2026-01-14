@@ -121,11 +121,12 @@ namespace MonoFSM.Core.Detection
 
         [PreviewInInspector]
         protected Dictionary<EffectDetectable, DetectData> _thisFrameDetectedObjects = new();
-#if UNITY_EDITOR
+
         // [PreviewInInspector] private List<EffectDetectable> currentDetectedObjects => _detectedObjects.ToList();
+#if UNITY_EDITOR
         [PreviewInInspector]
-        protected Dictionary<EffectDetectable, DetectData> _lastDetectedObjects = new();
 #endif
+        protected Dictionary<EffectDetectable, DetectData> _lastDetectedObjects = new();
 
         // protected abstract void AssignHitPoint(DetectData data);
         //FIXME: 這個是spatial Detector的特性，不是所有的Detector都有

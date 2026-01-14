@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
-using UnityEditor;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "GamePlayTypeSO", menuName = "ScriptableObjects/GamePlayDesign/GamePlayTypeSO", order = -1)]
