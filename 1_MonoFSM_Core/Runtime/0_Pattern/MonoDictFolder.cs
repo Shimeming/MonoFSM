@@ -1,0 +1,81 @@
+using System;
+using System.Collections.Generic;
+using Sirenix.OdinInspector;
+using UnityEngine;
+
+namespace MonoFSM.Core
+{
+    /// <summary>
+    /// 非泛型介面，用於讓 MonoDictFolder 可以被統一處理
+    /// </summary>
+    public interface IMonoDictFolder
+    {
+        void AddExternalSource(object source);
+        void RemoveExternalSource(object source);
+        void ClearExternalSources();
+    }
+
+    public abstract class MonoDictFolder<T, Tu> : MonoDict<T, Tu>, IMonoDictFolder
+        where Tu : IValueOfKey<T>
+        where T : IEquatable<string>
+    {
+        [SerializeField] [LabelText("External Sources")]
+        protected List<MonoDict<T, Tu>> _externalDicts = new();
+
+        public void AddExternalDict(MonoDict<T, Tu> dict)
+        {
+            if (dict != null && !_externalDicts.Contains(dict) && dict != this)
+            {
+                _externalDicts.Add(dict);
+            }
+        }
+
+        public void RemoveExternalDict(MonoDict<T, Tu> dict)
+        {
+            if (_externalDicts.Contains(dict))
+                _externalDicts.Remove(dict);
+        }
+
+        public void AddExternalSource(object source)
+        {
+            if (source is MonoDict<T, Tu> dict)
+                AddExternalDict(dict);
+        }
+
+        public void RemoveExternalSource(object source)
+        {
+            if (source is MonoDict<T, Tu> dict)
+                RemoveExternalDict(dict);
+        }
+
+        public void ClearExternalSources()
+        {
+            _externalDicts.Clear();
+        }
+
+        public override Tu Get(T key)
+        {
+            var local = base.Get(key);
+            if (local != null) return local;
+
+            foreach (var dict in _externalDicts)
+            {
+                if (dict == null) continue;
+                var found = dict.Get(key);
+                if (found != null) return found;
+            }
+
+            return default;
+        }
+
+        protected override void AddImplement(Tu item)
+        {
+        }
+
+        protected override void RemoveImplement(Tu item)
+        {
+        }
+
+        protected override bool CanBeAdded(Tu item) => true;
+    }
+}

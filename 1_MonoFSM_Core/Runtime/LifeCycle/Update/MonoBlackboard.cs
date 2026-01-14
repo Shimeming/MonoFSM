@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using _1_MonoFSM_Core.Runtime.FSMCore.Core.StateBehaviour;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Simulate;
+using MonoFSM.Runtime.Interact.EffectHit;
 using MonoFSM.Runtime.Mono;
 using MonoFSM.Variable;
 using MonoFSM.Variable.Attributes;
@@ -137,10 +139,14 @@ namespace MonoFSM.Runtime.Variable
         }
 
         //FIXME: 可能有多個？ multiple folder
-        [CompRef]
-        [AutoChildren]
-        [Required]
-        private VariableFolder _variableFolder;
+        [CompRef] [AutoChildren] [Required] private VariableFolder _variableFolder;
+
+        [CompRef] [AutoChildren] private StateFolder _stateFolder;
+
+        [CompRef] [AutoChildren] EffectDetectable _effectDetectable;
+        // [CompRef] [AutoChildren] private EffectReceiverFolder _receiverFolder;
+
+        [CompRef] [AutoChildren] private SchemaFolder _schemaFolder;
 
         //從一開始就應該做getter?? 然後用attribute來標記怎麼做的？ 像是[Networked]掛在getter上面？
         public VariableFolder VariableFolder
@@ -152,6 +158,43 @@ namespace MonoFSM.Runtime.Variable
                 return _variableFolder;
             }
         }
+
+
+        public StateFolder StateFolder
+        {
+            get
+            {
+                AutoAttributeManager.AutoReferenceFieldEditor(this, nameof(_stateFolder));
+                return _stateFolder;
+            }
+        }
+
+        public EffectDetectable EffectDetectable
+        {
+            get
+            {
+                AutoAttributeManager.AutoReferenceFieldEditor(this, nameof(_effectDetectable));
+                return _effectDetectable;
+            }
+        }
+
+        public SchemaFolder SchemaFolder
+        {
+            get
+            {
+                AutoAttributeManager.AutoReferenceFieldEditor(this, nameof(_schemaFolder));
+                return _schemaFolder;
+            }
+        }
+
+        // public EffectReceiverFolder ReceiverFolder
+        // {
+        //     get
+        //     {
+        //         AutoAttributeManager.AutoReferenceFieldEditor(this, nameof(_receiverFolder));
+        //         return _receiverFolder;
+        //     }
+        // }
 
         //多包一層歐，好蠢
         public AbstractMonoVariable GetVar(VariableTag varTag)

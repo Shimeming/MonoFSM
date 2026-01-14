@@ -489,37 +489,37 @@ namespace MonoFSM.Core.Detection
             return hasChanges;
         }
 
-        private EffectDetectable GetEffectDetectable(BaseEffectDetectTarget target)
-        {
-            if (!target.gameObject.activeInHierarchy)
-                return null;
-            // 先嘗試直接取得 EffectDetectable
-            if (target.TryGetComponent(out EffectDetectable detectable))
-                return detectable;
-
-            // 透過 BaseEffectDetectTarget 取得
-            if (target.TryGetComponent<BaseEffectDetectTarget>(out var spatialDetectable))
-                return spatialDetectable.Detectable;
-
-            // 透過 TriggerDetectableTarget 取得 (向後相容)
-            // if (target.TryGetComponent<TriggerDetectableTarget>(out var triggerDetectable))
-            //     return triggerDetectable.Detectable;
-
-            //FIXME: 可以做一個dict?
-            if (RuntimeDebugSetting.IsDebugMode)
-            {
-                Debug.LogError(
-                    "Detector hitting: not a EffectDetectable or BaseEffectDetectTarget",
-                    target
-                );
-                Debug.LogError(
-                    "Detector hitting: not a EffectDetectable or BaseEffectDetectTarget from ",
-                    this
-                );
-            }
-
-            return null;
-        }
+        // private EffectDetectable GetEffectDetectable(BaseEffectDetectTarget target)
+        // {
+        //     if (!target.gameObject.activeInHierarchy)
+        //         return null;
+        //     // 先嘗試直接取得 EffectDetectable
+        //     if (target.TryGetComponent(out EffectDetectable detectable))
+        //         return detectable;
+        //
+        //     // 透過 BaseEffectDetectTarget 取得
+        //     if (target.TryGetComponent<BaseEffectDetectTarget>(out var spatialDetectable))
+        //         return spatialDetectable.Detectable;
+        //
+        //     // 透過 TriggerDetectableTarget 取得 (向後相容)
+        //     // if (target.TryGetComponent<TriggerDetectableTarget>(out var triggerDetectable))
+        //     //     return triggerDetectable.Detectable;
+        //
+        //     //FIXME: 可以做一個dict?
+        //     if (RuntimeDebugSetting.IsDebugMode)
+        //     {
+        //         Debug.LogError(
+        //             "Detector hitting: not a EffectDetectable or BaseEffectDetectTarget",
+        //             target
+        //         );
+        //         Debug.LogError(
+        //             "Detector hitting: not a EffectDetectable or BaseEffectDetectTarget from ",
+        //             this
+        //         );
+        //     }
+        //
+        //     return null;
+        // }
 
         protected override string DescriptionTag => "Detector";
     }

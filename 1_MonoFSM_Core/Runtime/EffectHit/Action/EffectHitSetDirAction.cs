@@ -6,6 +6,7 @@ using UnityEngine;
 namespace _1_MonoFSM_Core.Runtime.EffectHit.Action
 {
     //好蠢，收到hit, 先把資料接起來
+    //FIXME: 然後呢？
     public class EffectHitSetDirAction : AbstractArgEventHandler<GeneralEffectHitData>
     {
         [SerializeField]

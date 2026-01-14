@@ -15,7 +15,7 @@ namespace MonoFSM.Variable
         VariableTag refVariableTag { get; }
     }
 
-    public interface IStringKey
+    public interface IStringKey : IEquatable<string>
     {
         public string GetStringKey { get; }
     }
@@ -199,6 +199,11 @@ namespace MonoFSM.Variable
         public Type GetProxyType()
         {
             return VariableMonoType;
+        }
+
+        public bool Equals(string other)
+        {
+            return GetStringKey == other;
         }
     }
 }

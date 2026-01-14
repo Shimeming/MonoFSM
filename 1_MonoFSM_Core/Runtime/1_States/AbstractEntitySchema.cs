@@ -28,7 +28,7 @@ namespace _1_MonoFSM_Core.Runtime._1_States
     public abstract class AbstractEntitySchema
         : AbstractDescriptionBehaviour,
             IStringKey,
-            IValueOfKey<AbstractEntitySchema>
+            IValueOfKey<string>
     {
         //FIXME: 有需要用wrapper嗎？
         protected override string DescriptionTag => "Schema";
@@ -272,6 +272,11 @@ namespace _1_MonoFSM_Core.Runtime._1_States
 
         public string GetStringKey => GetType().Name;
 
-        public AbstractEntitySchema Key => this;
+        public string Key => GetStringKey;
+
+        public bool Equals(string other)
+        {
+            return GetStringKey == other;
+        }
     }
 }

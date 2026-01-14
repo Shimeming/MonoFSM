@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 199713319535136511}
   - component: {fileID: 3416425071146600925}
   m_Layer: 0
-  m_Name: Variables
+  m_Name: '[VarFolder] VariableFolder'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -45,6 +45,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d801bf8312e64aceb0942c2b6044bc9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _note: 
+  _externalDicts: []
 --- !u!1 &567332959712725146
 GameObject:
   m_ObjectHideFlags: 0
@@ -121,8 +123,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ca1f421dbd84eab9de983e488c78d3e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: MonoFSM.Core.Runtime::MonoFSM.Runtime.Variable.VarEntity
+  _note: 
   _varTag: {fileID: 11400000, guid: fe6f95997618b40b382e095deabd42ea, type: 2}
-  description: 
   _defaultValue: {fileID: 0}
   _isConst: 0
   _monoEntityTag: {fileID: 0}
@@ -186,8 +188,9 @@ GameObject:
   - component: {fileID: 2054098507518886308}
   - component: {fileID: 1973556432026734445}
   - component: {fileID: 6211675861463662160}
+  - component: {fileID: 7253183387712549492}
   m_Layer: 0
-  m_Name: States
+  m_Name: '[] StateFolder'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -236,9 +239,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea38b0e4a8b84009afda99607ca9e769, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _states:
-  - {fileID: 4377014297404095105}
-  - {fileID: 4920970186908325163}
 --- !u!114 &6211675861463662160
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -252,6 +252,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _enableLogging: 0
+--- !u!114 &7253183387712549492
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2050879134505444286}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b7d5669c97946ddbbeb9bf6855f35a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MonoFSM.Core.Runtime::_1_MonoFSM_Core.Runtime.FSMCore.Core.StateBehaviour.StateFolder
+  _note: 
+  _externalDicts: []
 --- !u!1 &3736969336578871148
 GameObject:
   m_ObjectHideFlags: 0
@@ -263,7 +277,7 @@ GameObject:
   - component: {fileID: 7543215931768790101}
   - component: {fileID: 5595586366178870800}
   m_Layer: 0
-  m_Name: Schemas
+  m_Name: '[SchemaFolder] SchemaFolder'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -296,6 +310,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d2d75b4941d444fbe41e62394ff27fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _note: 
+  _externalDicts: []
 --- !u!1 &3801494400675193616
 GameObject:
   m_ObjectHideFlags: 0
@@ -422,6 +438,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _worldUpdateSimulator: {fileID: 0}
+  _onResetStartHandler: {fileID: 0}
 --- !u!1 &4619145615866190664
 GameObject:
   m_ObjectHideFlags: 0

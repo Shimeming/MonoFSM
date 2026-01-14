@@ -534,5 +534,9 @@ namespace MonoFSM.Variable.FieldReference
             }
         }
 #endif
+        public bool Equals(string other)
+        {
+            return GetStringKey == other;
+        }
     }
 }

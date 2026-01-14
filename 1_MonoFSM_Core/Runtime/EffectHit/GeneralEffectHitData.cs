@@ -67,15 +67,25 @@ namespace MonoFSM.Runtime.Interact.EffectHit
             set => _hitNormal = value;
         }
 
+        [ShowInInspector]
+        public Vector3? hitDirection
+        {
+            get => _hitDirection;
+            set => _hitDirection = value;
+        }
+
         //合理的設計嗎？force direction? 和normal無關，從dealer推測力的方向
         //TODO: 好像還要包含dealer的rotation?
-        public Vector3 Dir =>
-            hitPoint.HasValue && hitNormal.HasValue
-                ? (hitPoint.Value - Dealer.transform.position).normalized
-                : (Receiver.transform.position - Dealer.transform.position).normalized;
+        public Vector3 Dir => (Vector3)(hitDirection.HasValue
+            ? hitDirection!
+            : (
+                hitPoint.HasValue && hitNormal.HasValue
+                    ? (hitPoint.Value - Dealer.transform.position).normalized
+                    : (Receiver.transform.position - Dealer.transform.position).normalized));
 
         private Vector3? _hitPoint;
         private Vector3? _hitNormal;
+        private Vector3? _hitDirection;
 
         public T GetComponentFromDealerOwner<T>()
             where T : class

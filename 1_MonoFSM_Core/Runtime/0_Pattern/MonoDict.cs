@@ -15,9 +15,11 @@ using Object = UnityEngine.Object;
 namespace MonoFSM.Core
 {
     //AutoDict?
-    public abstract class MonoDict<T, TU> : AbstractDescriptionBehaviour, ISceneAwake //FIXME: 原本T : IStringKey的，但Type就不行了
-        where TU : IValueOfKey<T>
-        where T : IStringKey
+    public abstract class
+        MonoDict<T, Tu> : AbstractDescriptionBehaviour,
+        ISceneAwake //FIXME: 原本T : IStringKey的，但Type就不行了
+        where Tu : IValueOfKey<T>
+        where T : IEquatable<string>
     {
         protected virtual bool isLog => false;
 
@@ -25,10 +27,10 @@ namespace MonoFSM.Core
         //有點討厭：spawned, player spawned (自己做reference & sceneAwake?), SceneAwake, SceneStart (並沒有拿到player)
         [CompRef]
         [PreviewInInspector]
-        [AutoChildren]
-        protected TU[] _collections; //disable也會被加進來
+        [AutoChildren(DepthOneOnly = true)]
+        protected Tu[] _collections; //disable也會被加進來
 
-        public TU[] Collections
+        public Tu[] Collections
         {
             get
             {
@@ -40,7 +42,7 @@ namespace MonoFSM.Core
         protected virtual bool IsStringDictEnable => false;
 
         //現在是一個runtime dict...有點爛
-        public TU this[T key]
+        public Tu this[T key]
         {
             get => _dict.GetValueOrDefault(key); //媽的有gc
             set => _dict[key] = value;
@@ -51,13 +53,15 @@ namespace MonoFSM.Core
             return _dict.ContainsKey(key);
         }
 
-        protected readonly Dictionary<T, TU> _dict = new();
-        protected readonly Dictionary<string, TU> _stringDict = new(); //FIXME: 可能會過期喔？要檢查看看null了要清掉？
+        protected readonly Dictionary<T, Tu> _dict = new();
+
+        protected readonly Dictionary<string, Tu>
+            _stringDict = new(); //FIXME: 可能會過期喔？要檢查看看null了要清掉？
 
         //FIXME: 如果一個type有多個實例，要用List<TU>? firstOrDefault? 好像是耶
         //GetAll, 和GetComponentsInChildren<TU> 有點像 GetComponentsInChildren<TU>就回傳第一個
         //用List還是HashSet好？
-        protected readonly Dictionary<Type, HashSet<TU>> _typeDict = new(); //這個抽出去另外做？
+        protected readonly Dictionary<Type, HashSet<Tu>> _typeDict = new(); //這個抽出去另外做？
 
         protected readonly List<T> _tempRemoveList = new();
 
@@ -90,12 +94,12 @@ namespace MonoFSM.Core
         }
 
         //add不行用string?
-        protected virtual bool IsAddValid(TU value)
+        protected virtual bool IsAddValid(Tu value)
         {
             return true;
         }
 
-        public void Add(T key, TU value)
+        public void Add(T key, Tu value)
         {
             if (key == null)
             {
@@ -120,7 +124,7 @@ namespace MonoFSM.Core
             var type = value.GetType();
             if (!_typeDict.TryGetValue(type, out var set))
             {
-                set = new HashSet<TU>();
+                set = new HashSet<Tu>();
                 _typeDict[type] = set;
             }
 
@@ -134,19 +138,19 @@ namespace MonoFSM.Core
 
             _dict.Add(key, value);
             if (IsStringDictEnable)
-                _stringDict.TryAdd(value.Key.GetStringKey, value);
+                _stringDict.TryAdd(value.Key.ToString(), value);
             AddImplement(value);
             // enabled = true;
         }
 
-        public HashSet<TU> GetAll(Type type)
+        public HashSet<Tu> GetAll(Type type)
         {
             EditorPrepareCheck();
             return _typeDict.GetValueOrDefault(type);
         }
 
         //蛤？啥意思？
-        public TU Get(Type type)
+        public Tu Get(Type type)
         {
             EditorPrepareCheck();
             //FIXME: 做得有點粗，要細再想一下
@@ -162,13 +166,13 @@ namespace MonoFSM.Core
         }
 
         public TT Get<TT>()
-            where TT : class, TU
+            where TT : class, Tu
         {
             EditorPrepareCheck();
             return Get(typeof(TT)) as TT;
         }
 
-        public TU Get(string key)
+        public Tu Get(string key)
         {
             EditorPrepareCheck();
             if (Contains(key))
@@ -176,7 +180,7 @@ namespace MonoFSM.Core
             return default;
         }
 
-        public TU Get(T key)
+        public virtual Tu Get(T key)
         {
             EditorPrepareCheck();
             if (key == null)
@@ -244,8 +248,8 @@ namespace MonoFSM.Core
             _dict.Clear();
         }
 
-        protected abstract void AddImplement(TU item);
-        protected abstract void RemoveImplement(TU item); //FIXME:為什麼需要這個？
+        protected abstract void AddImplement(Tu item);
+        protected abstract void RemoveImplement(Tu item); //FIXME:為什麼需要這個？
 
         [InfoBox("Variable 要有 varTag才會被加入到Dict中")]
         [ShowInInspector]
@@ -255,12 +259,12 @@ namespace MonoFSM.Core
         public List<T> GetKeys => new(_dict.Keys);
 
         [ShowInInspector]
-        public List<TU> GetValues //FIXME: 效能不好
+        public List<Tu> GetValues //FIXME: 效能不好
         {
             get
             {
                 EditorPrepareCheck();
-                return new List<TU>(_dict.Values);
+                return new List<Tu>(_dict.Values);
             }
         }
 
@@ -293,7 +297,7 @@ namespace MonoFSM.Core
                 Clear();
                 // Debug.Log("PrepareDictCheck?", this);
                 _isPrepared = true;
-                _collections = GetComponentsInChildren<TU>(true);
+                _collections = GetComponentsInChildren<Tu>(true);
             }
 #endif
             _isPrepared = true;
@@ -313,7 +317,7 @@ namespace MonoFSM.Core
             }
         }
 
-        protected abstract bool CanBeAdded(TU item);
+        protected abstract bool CanBeAdded(Tu item);
 
         public void EnterSceneAwake()
         {

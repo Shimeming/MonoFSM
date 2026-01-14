@@ -12,11 +12,18 @@ namespace _1_MonoFSM_Core.Runtime.FSMCore.Core.StateBehaviour
     //想要HFSM?
     public class MonoFSMOwner : MonoBehaviour, IStateMachineOwner
     {
-        //只撈一層就是了
-        [SerializeField]
+        // //只撈一層就是了
+        // [SerializeField]
+        // [CompRef]
+        // [AutoChildren(DepthOneOnly = true)]
+        // private MonoStateBehaviour[] _states; //SerializeField的話就可以略過不跑？
+
         [CompRef]
-        [AutoChildren(DepthOneOnly = true)]
-        private MonoStateBehaviour[] _states; //SerializeField的話就可以略過不跑？
+        // [AutoChildren(DepthOneOnly = true)]
+        [Auto]
+        private StateFolder _stateFolder;
+
+        // private List<MonoStateBehaviour> _states => _stateFolder.Collections;
 
         [ShowInDebugMode]
         public StateMachine<MonoStateBehaviour> _fsm;
@@ -30,7 +37,8 @@ namespace _1_MonoFSM_Core.Runtime.FSMCore.Core.StateBehaviour
                 return;
             }
 
-            _fsm = new StateMachine<MonoStateBehaviour>(parent.name, _states);
+            //FIXME: 這個沒有nested喔
+            _fsm = new StateMachine<MonoStateBehaviour>(parent.name, _stateFolder.Collections);
             stateMachines.Add(_fsm);
         }
 

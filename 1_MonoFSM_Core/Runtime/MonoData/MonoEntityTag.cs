@@ -129,5 +129,10 @@ namespace MonoFSM.Runtime.Mono
         {
             return entities.Where(e => e != null && e.DefaultTag == this).ToList();
         }
+
+        public bool Equals(string other)
+        {
+            return GetStringKey == other;
+        }
     }
 }

@@ -14,6 +14,8 @@ namespace MonoFSM.Runtime.Interact.EffectHit
     //概念類似HitBoxTarget
     public abstract class BaseEffectDetectTarget : AbstractDescriptionBehaviour //實作
     {
+        protected override bool IsIgnoreRename => true;
+
         protected override void Start()
         {
             base.Start();
@@ -41,8 +43,30 @@ namespace MonoFSM.Runtime.Interact.EffectHit
     //BaseEffectDetectTarget 的 Group, 類似HitBoxRoot的感覺
     //從Detector過來
     public class EffectDetectable //這顆已經是Group了，反而不知道進入點耶
-        : MonoDict<GeneralEffectType, GeneralEffectReceiver>, IDefaultSerializable //關係
+        : MonoDictFolder<GeneralEffectType, GeneralEffectReceiver>, IDefaultSerializable //關係
     {
+        public GeneralEffectReceiver GetReceiver(GeneralEffectType effectType)
+        {
+            return Get(effectType);
+        }
+
+        public T GetReceiver<T>() where T : GeneralEffectReceiver
+        {
+            // First check local
+            var local = base.Get<T>();
+            if (local != null) return local;
+
+            // Then check external folders
+            foreach (var dict in _externalDicts)
+            {
+                if (dict == null) continue;
+                var folderReceiver = dict.Get<T>();
+                if (folderReceiver != null) return folderReceiver;
+            }
+
+            return null;
+        }
+
         //可能不只一個？
         // [Obsolete("只是拿來新增用的button？其實不一定需要？")]
 

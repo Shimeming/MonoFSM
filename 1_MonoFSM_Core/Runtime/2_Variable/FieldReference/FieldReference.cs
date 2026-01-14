@@ -572,5 +572,10 @@ namespace MonoFSM.Variable.FieldReference
                 Debug.LogWarning($"找不到欄位 '{_fieldName}'", this);
             }
         }
+
+        public bool Equals(string other)
+        {
+            return GetStringKey == other;
+        }
     }
 }

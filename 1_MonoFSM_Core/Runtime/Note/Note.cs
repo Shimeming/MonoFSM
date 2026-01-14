@@ -4,7 +4,9 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 
 //Just for remind
-public class Note : MonoBehaviour, IEditorOnly, IHierarchyValueInfo //IOverrideHierarchyIcon
+public class
+    Note : MonoBehaviour, IEditorOnly, IHierarchyValueInfo,
+    IDrawHierarchyBackGround //IOverrideHierarchyIcon
 {
     //FIXME: 用vHierarchyIcon來做?
     // [EnumToggleButtons]
@@ -51,4 +53,16 @@ public class Note : MonoBehaviour, IEditorOnly, IHierarchyValueInfo //IOverrideH
     public string ValueInfo => "";
 #endif
     public bool IsDrawingValueInfo => false; //TODO:
+
+    public Color BackgroundColor => _noteType switch
+    {
+        NoteType.NOTE => new Color(0.8f, 0.8f, 0.8f, 0.5f),
+        //yellow
+        NoteType.TODO => new Color(1f, 1f, 0.2f, 0.5f),
+        NoteType.FIXME => new Color(1f, 0.2f, 0.2f, 0.5f),
+        _ => Color.clear
+    };
+
+    public bool IsDrawGUIHierarchyBackground =>
+        _noteType == NoteType.FIXME || _noteType == NoteType.TODO;
 }

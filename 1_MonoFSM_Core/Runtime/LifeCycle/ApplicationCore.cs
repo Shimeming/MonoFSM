@@ -1,3 +1,4 @@
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 [DefaultExecutionOrder(10000)]
@@ -13,5 +14,13 @@ public class ApplicationCore : SingletonBehaviour<ApplicationCore>
         PoolManager.HandleGameLevelStart(gameObject);
         PoolManager.ResetReload(gameObject);
     }
-    //FIXME: 寫個一鍵複製？
+
+    private bool IsInEditor => !gameObject.name.Contains("Custom");
+
+    [ShowIf("IsInEditor")]
+    [Button("Custom Core")]
+    void CreateCustomCore()
+    {
+        ApplicationCoreUtils.CopyApplicationCore();
+    }
 }

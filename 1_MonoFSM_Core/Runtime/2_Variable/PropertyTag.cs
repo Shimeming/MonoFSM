@@ -33,5 +33,10 @@ namespace MonoFSM.Variable
                 return _cachedStringKey;
             }
         }
+
+        public bool Equals(string other)
+        {
+            return GetStringKey == other;
+        }
     }
 }

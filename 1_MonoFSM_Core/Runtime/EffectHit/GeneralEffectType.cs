@@ -43,5 +43,10 @@ namespace MonoFSM.Runtime.Interact.EffectHit
 #endif
 
         public string GetStringKey => name;
+
+        public bool Equals(string other)
+        {
+            return GetStringKey == other;
+        }
     }
 }

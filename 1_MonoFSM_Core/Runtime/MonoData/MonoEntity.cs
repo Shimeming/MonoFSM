@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using _1_MonoFSM_Core.Runtime._1_States;
+using _1_MonoFSM_Core.Runtime.LifeCycle.Update;
 using Fusion.Addons.FSM;
 using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
@@ -40,8 +41,15 @@ namespace MonoFSM.Runtime
             IValueProvider,
             IAnimatorProvider,
             IValueOfKey<MonoEntityTag> //這樣data也要一直繼承，好ㄇ...
+
     {
-        //FIXME: GetComponentsInChildren IFeature, 然後用type把dict包起來，那和schema不就一樣了？更彈性的版本嗎？
+        //hmm view還是不同步？只有state需要，另外寫view?
+        //effect感覺需要同步？要不然debug會看不懂？
+        //install後有個搬移的過程？但這樣資料就會不同步了(ex: override)
+
+
+
+
         [AutoChildren]
         private StateMachineLogic _fsmLogic;
 
@@ -207,7 +215,8 @@ namespace MonoFSM.Runtime
     public class AbstractMonoDescriptable<TMonoDescriptable>
         : MonoBlackboard,
             // IMonoDescriptable,
-            ISceneAwake
+            ISceneAwake,
+            ISceneStart
         where TMonoDescriptable : GameData //,IVariableOwner //VariableOwner?
     {
         //FIXME: 更複雜的描述組合？
@@ -429,6 +438,74 @@ namespace MonoFSM.Runtime
                     Debug.LogWarning($"Dealer {dealer._effectType} already exists", dealer);
         }
 
+        public void EnterSceneStart()
+        {
+            // 自動綁定 MonoModulePack 中的 Folder 作為 external sources
+            //FIXME: 還是這段要onsave做？
+            BindModulePackFolders();
+        }
+
+        [PreviewInInspector] [AutoChildren] private MonoModulePack[] _modulePack;
+
+        /// <summary>
+        /// 將所有 MonoModulePack 中的 Folder 自動綁定到 MonoEntity 的 Folder 作為 external sources
+        /// </summary>
+        [Button]
+        private void BindModulePackFolders()
+        {
+            if (_modulePack == null || _modulePack.Length == 0) return;
+
+            // 撈出 MonoEntity 直屬的所有 folder (不包含 ModulePack 下的)
+            var entityFolders = GetEntityFolders();
+            //先全部清掉
+            foreach (var folder in entityFolders)
+            {
+                folder.ClearExternalSources();
+            }
+
+            foreach (var pack in _modulePack)
+            {
+                if (pack == null) continue;
+
+                foreach (var sourceFolder in pack.GetAllFolders())
+                {
+                    if (sourceFolder == null) continue;
+
+                    // 找到相同類型的 target folder
+                    var sourceType = sourceFolder.GetType();
+                    foreach (var targetFolder in entityFolders)
+                    {
+                        if (targetFolder == null)
+                        {
+                            Debug.LogError("Target folder is null", this);
+                            continue;
+                        }
+
+
+                        if (targetFolder.GetType() == sourceType &&
+                            targetFolder != sourceFolder)
+                        {
+                            targetFolder.AddExternalSource(sourceFolder);
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 取得 MonoEntity 直屬的所有 MonoDictFolder (排除 ModulePack 下的)
+        /// </summary>
+        private IMonoDictFolder[] GetEntityFolders()
+        {
+            // 用 cast 把已知的 folder 收集起來
+            var folders = new List<IMonoDictFolder>();
+            if (VariableFolder is IMonoDictFolder vf) folders.Add(vf);
+            if (StateFolder is IMonoDictFolder sf) folders.Add(sf);
+            if (EffectDetectable is IMonoDictFolder ed) folders.Add(ed);
+            if (SchemaFolder is IMonoDictFolder scf) folders.Add(scf);
+            return folders.ToArray();
+        }
+
         public IEnumerable<ValueDropdownItem<VariableTag>> GetVarTagOptions()
         {
             var tagDropdownItems = new List<ValueDropdownItem<VariableTag>>();
@@ -513,5 +590,7 @@ namespace MonoFSM.Runtime
                 // }
             });
         }
+
+
     }
 }

@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using MonoFSM.Core;
 using MonoFSM.Variable;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 public abstract class AbstractFolder : MonoBehaviour
@@ -11,8 +13,51 @@ public abstract class AbstractFolder : MonoBehaviour
 
 //FIXME: 這個才該叫做blackboard?，這個是用來放變數的?
 
-public class VariableFolder : MonoDict<VariableTag, AbstractMonoVariable>
+public class VariableFolder : MonoDictFolder<VariableTag, AbstractMonoVariable>
 {
+    private Dictionary<VariableTag, AbstractMonoVariable> _varMap = new();
+
+    private Dictionary<string, AbstractMonoVariable> _nameMap = new();
+
+    private bool _initialized;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        RebuildVariableMap();
+    }
+
+    [Button]
+    public void RebuildVariableMap()
+    {
+        _varMap.Clear();
+        _nameMap.Clear();
+        var variables = GetComponentsInChildren<AbstractMonoVariable>(true);
+        foreach (var v in variables)
+        {
+            if (v == null) continue;
+
+            if (v._varTag != null && !_varMap.ContainsKey(v._varTag))
+            {
+                _varMap.Add(v._varTag, v);
+            }
+
+            if (!string.IsNullOrEmpty(v.name))
+            {
+                // Assuming we want to look up by the variable name (e.g. "[Var] Health")
+                // Or maybe the user logic cleans up the name.
+                // For now, using the gameObject name or a property if available.
+                // Assuming gameObject name for now as the key if no other ID exists.
+                if (!_nameMap.ContainsKey(v.name))
+                {
+                    _nameMap.Add(v.name, v);
+                }
+            }
+        }
+
+        _initialized = true;
+    }
+
     //FIXME: external dict?
     protected override bool IsStringDictEnable => true;
 
@@ -24,25 +69,51 @@ public class VariableFolder : MonoDict<VariableTag, AbstractMonoVariable>
     }
     public AbstractMonoVariable GetVariable(VariableTag type)
     {
+        if (!_initialized) RebuildVariableMap();
+        if (type != null && _varMap.TryGetValue(type, out var v)) return v;
         return Get(type);
-        // return varDict.GetValueOrDefault(type);
     }
 
     public AbstractMonoVariable GetVariable(string varName)
     {
-        return Get(varName);
+        if (!_initialized) RebuildVariableMap();
+        if (!string.IsNullOrEmpty(varName) && _nameMap.TryGetValue(varName, out var v)) return v;
+
+        var local = Get(varName);
+        if (local != null) return local;
+
+        foreach (var dict in _externalDicts)
+        {
+            if (dict == null) continue;
+            var found = dict.Get(varName);
+            if (found != null) return found;
+        }
+
+        return null;
+    }
+
+    public void AddExternalFolder(VariableFolder folder)
+    {
+        AddExternalDict(folder);
+    }
+
+    public void RemoveExternalFolder(VariableFolder folder)
+    {
+        RemoveExternalDict(folder);
     }
 
     public TVariable GetVariable<TVariable>(VariableTag type)
         where TVariable : AbstractMonoVariable
     {
-        return Get(type) as TVariable;
+        var v = GetVariable(type);
+        return v as TVariable;
     }
 
     public TVariable GetVariable<TVariable>(string varName)
         where TVariable : AbstractMonoVariable
     {
-        return Get(varName) as TVariable;
+        var v = GetVariable(varName);
+        return v as TVariable;
     }
 
     //GetConfig?
@@ -183,19 +254,6 @@ public class VariableFolder : MonoDict<VariableTag, AbstractMonoVariable>
 #endif
 
     #endregion
-
-    protected override void AddImplement(AbstractMonoVariable item) { }
-
-    protected override void RemoveImplement(AbstractMonoVariable item) { }
-
-    //FIXME: 關著的被key的variable？
-    protected override bool CanBeAdded(AbstractMonoVariable item)
-    {
-        return true;
-        // return item.gameObject.activeSelf == true;
-        //一定要可以加，還是用disable?
-        // return true;
-    }
 
     protected override string DescriptionTag => "VarFolder";
 }

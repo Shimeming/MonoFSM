@@ -1,10 +1,8 @@
-using MonoFSM.Core.DataProvider;
+using System;
 using MonoFSM.Core.Detection;
 using MonoFSM.Core.Runtime.Action;
 using MonoFSM.Runtime.Interact.EffectHit;
 using MonoFSM.Variable;
-using MonoFSM.Variable.Attributes;
-using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -15,6 +13,7 @@ namespace MonoFSM_Physics.Runtime.PhysicsAction
     /// 對一個 Rigidbody 施加力的 Action
     /// 支援通過預設 Rigidbody、Provider 或者 GeneralEffectHitData 來取得目標
     /// </summary>
+    // [Obsolete("這個版本沒有在更新了？")]
     public class AddForceAction : AbstractStateAction, IArgEventReceiver<GeneralEffectHitData>
     {
         [Header("Rigidbody Target")]
@@ -154,10 +153,19 @@ namespace MonoFSM_Physics.Runtime.PhysicsAction
             // {
             //     return hitData.hitNormal.Value.normalized * _magnitude;
             // }
-            var start = hitData.GeneralDealer.transform.position;
-            var hitPoint = hitData.hitPoint.Value;
-            var dir = (hitPoint - start).normalized;
-            return dir * _magnitude;
+            if (hitData != null)
+            {
+                if (hitData.hitDirection.HasValue)
+                {
+                    return hitData.hitDirection.Value.normalized * _magnitude;
+                }
+
+                var start = hitData.GeneralDealer.transform.position;
+                var hitPoint = hitData.hitPoint.Value;
+                var dir = (hitPoint - start).normalized;
+                return dir * _magnitude;
+            }
+
 
             return _forceDirectionVar.GetValue() * _magnitude;
             // 否則使用預設的力方向
