@@ -109,6 +109,7 @@ namespace MonoFSM.Runtime
         {
             FillVarTagsToMonoDescriptableTag();
             FillSchemaTypesToMonoEntityTag();
+            BindModulePackFolders();
         }
 
         //撈出所有變數的tag和schema類型塞到 DescriptableTags
@@ -442,7 +443,9 @@ namespace MonoFSM.Runtime
         {
             // 自動綁定 MonoModulePack 中的 Folder 作為 external sources
             //FIXME: 還是這段要onsave做？
-            BindModulePackFolders();
+            // BindModulePackFolders(); //重做就錯了
+
+            //檢查有沒有怪怪就好？不要重綁？
         }
 
         [PreviewInInspector] [AutoChildren] private MonoModulePack[] _modulePack;
@@ -451,7 +454,7 @@ namespace MonoFSM.Runtime
         /// 將所有 MonoModulePack 中的 Folder 自動綁定到 MonoEntity 的 Folder 作為 external sources
         /// </summary>
         [Button]
-        private void BindModulePackFolders()
+        protected void BindModulePackFolders()
         {
             if (_modulePack == null || _modulePack.Length == 0) return;
 

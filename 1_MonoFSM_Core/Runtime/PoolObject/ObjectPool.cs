@@ -443,7 +443,13 @@ public class ObjectPool : IObjectPool
         AllObjs = new List<PoolObject>();
         DisabledObjs = new List<PoolObject>();
         OnUseObjs = new HashSet<PoolObject>();
+        if (_bindingEntry == null || _bindingEntry.prefab == null)
+        {
+            Debug.LogError("ObjectPool Init Error: bindingEntry or prefab is null");
+            return;
+        }
 
+        // var prefabName = _bindingEntry.prefab.name;
         PoolLogger.LogDev(
             $"Create New Pool: {_bindingEntry.prefab.name} with {_bindingEntry.DefaultMaximumCount} objects"
         );

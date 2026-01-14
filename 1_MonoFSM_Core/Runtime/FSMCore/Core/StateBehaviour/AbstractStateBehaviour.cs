@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using _1_MonoFSM_Core.Runtime.FSMCore.Core.StateBehaviour;
 using Fusion.Addons.FSM;
 using MonoFSM_Core.Runtime.StateBehaviour;
+using MonoFSM.Core.Attributes;
 using MonoFSM.Editor;
 using MonoFSM.Runtime;
 using MonoFSM.Variable.Attributes;
@@ -20,6 +21,7 @@ namespace MonoFSM.Core
     {
         // PUBLIC MEMBERS
 
+        [ShowInPlayMode]
         public int StateId { get; set; }
         public StateMachine<TState> Machine { get; set; }
         public virtual string Name => gameObject.name;
@@ -27,15 +29,18 @@ namespace MonoFSM.Core
         public float StateTime => _localStateTime;
         private float _localStateTime;
 
-        [AutoParent]
-        protected StateMachineLogic _context;
+        public StateMachineLogic context => _folder.bindingContext;
+        [AutoParent] private StateFolder _folder;
 
-        public MonoEntity ParentEntity => _context.ParentEntity; //extension method一路往上問？ vs直接GetComponentInParent?
+
+        public MonoEntity ParentEntity =>
+            context.ParentEntity; //extension method一路往上問？ vs直接GetComponentInParent?
 
         [CompRef]
         [AutoChildren(DepthOneOnly = true)]
         private CanEnterNode _canEnterNode;
-        public float DeltaTime => _context.DeltaTime;
+
+        public float DeltaTime => context.DeltaTime;
 
         //  PRIVATE MEMBERS
 
@@ -153,14 +158,14 @@ namespace MonoFSM.Core
                 }
 
             //anyState? 放最後？其他優先嗎
-            if (_context.anyState != null)
+            if (context.anyState != null)
             {
-                var transitions = _context.anyState._transitions;
+                var transitions = context.anyState._transitions;
                 foreach (var t in transitions)
                 {
                     if (!t.isActiveAndEnabled)
                         continue;
-                    if (_context.anyState.CanTransition(ref t._transitionData))
+                    if (context.anyState.CanTransition(ref t._transitionData))
                         // Debug.Log($"[{Name}] ForceActivateState to {transition.TargetState.Name}", this);
                         if (Machine.TryActivateState(t.TargetState))
                             return;

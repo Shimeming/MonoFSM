@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using MonoFSM.Core.Attributes;
+using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -19,6 +21,21 @@ namespace MonoFSM.Core
         where Tu : IValueOfKey<T>
         where T : IEquatable<string>
     {
+        public override void EnterSceneAwake()
+        {
+            base.EnterSceneAwake();
+            //檢查有null?
+            foreach (var value in AllValues)
+            {
+                if (value == null)
+                {
+                    Debug.LogError(
+                        $"[MonoDictFolder] Found null value in {DescriptionTag} '{name}' during SceneAwake.",
+                        this);
+                }
+            }
+        }
+
         [SerializeField] [LabelText("External Sources")]
         protected List<MonoDict<T, Tu>> _externalDicts = new();
 
@@ -27,8 +44,16 @@ namespace MonoFSM.Core
             if (dict != null && !_externalDicts.Contains(dict) && dict != this)
             {
                 _externalDicts.Add(dict);
+                // foreach (var item in dict.Collections)
+                // {
+                //     AddExternalImplement(item);
+                // }
             }
         }
+
+        // protected virtual void AddExternalImplement(Tu item)
+        // {
+        // }
 
         public void RemoveExternalDict(MonoDict<T, Tu> dict)
         {
@@ -51,6 +76,24 @@ namespace MonoFSM.Core
         public void ClearExternalSources()
         {
             _externalDicts.Clear();
+        }
+
+        [PreviewInInspector]
+        public Tu[] AllValues
+        {
+            get
+            {
+                var results = new List<Tu>(Collections);
+                foreach (var dict in _externalDicts)
+                {
+                    if (dict == null) continue;
+                    results.AddRange(dict.Collections);
+                    // Debug.Log($"Collected {dict.Collections.Length} items from external dict.");
+                    // Debug.Break();
+                }
+
+                return results.ToArray();
+            }
         }
 
         public override Tu Get(T key)

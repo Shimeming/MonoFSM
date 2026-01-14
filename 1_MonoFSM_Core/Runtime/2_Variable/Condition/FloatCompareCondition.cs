@@ -8,6 +8,7 @@ using MonoFSM.Core.DataProvider;
 
 namespace MonoFSM.Variable.Condition
 {
+    [Obsolete]
     public class FloatCompareCondition : NotifyConditionBehaviour //這個可以監聽嗎？leftvalue?
     {
         public override bool IsInvertResultOptionAvailable => false;
@@ -29,7 +30,7 @@ namespace MonoFSM.Variable.Condition
         [BoxGroup("Advanced Comparison")]
         private IValueProvider<float>[] _floatValueSourceArray = Array.Empty<IValueProvider<float>>();
 
-        [PreviewInInspector] 
+        [PreviewInInspector]
         [BoxGroup("Advanced Comparison")]
         private float Value1 =>  _floatValueSourceArray is { Length: > 0 }
             ? _floatValueSourceArray[0].Value

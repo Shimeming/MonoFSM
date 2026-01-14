@@ -26,11 +26,11 @@ namespace MonoFSM.Core
         //如果在autoReference 之前就不會進來...hmmm!?
         //有點討厭：spawned, player spawned (自己做reference & sceneAwake?), SceneAwake, SceneStart (並沒有拿到player)
         [CompRef]
-        [PreviewInInspector]
         [AutoChildren(DepthOneOnly = true)]
+        [SerializeField]
         protected Tu[] _collections; //disable也會被加進來
 
-        public Tu[] Collections
+        public Tu[] Collections //這個太晚了？應該要serialize?
         {
             get
             {
@@ -319,7 +319,7 @@ namespace MonoFSM.Core
 
         protected abstract bool CanBeAdded(Tu item);
 
-        public void EnterSceneAwake()
+        public virtual void EnterSceneAwake()
         {
             PrepareDictCheck();
             // Debug.Log("MonoDict EnterSceneAwake Dict", this);

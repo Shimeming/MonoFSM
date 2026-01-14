@@ -38,7 +38,7 @@ namespace _1_MonoFSM_Core.Runtime.FSMCore.Core.StateBehaviour
             }
 
             //FIXME: 這個沒有nested喔
-            _fsm = new StateMachine<MonoStateBehaviour>(parent.name, _stateFolder.Collections);
+            _fsm = new StateMachine<MonoStateBehaviour>(parent.name, _stateFolder.AllValues);
             stateMachines.Add(_fsm);
         }
 
