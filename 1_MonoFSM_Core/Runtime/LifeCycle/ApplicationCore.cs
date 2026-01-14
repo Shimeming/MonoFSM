@@ -13,4 +13,5 @@ public class ApplicationCore : SingletonBehaviour<ApplicationCore>
         PoolManager.HandleGameLevelStart(gameObject);
         PoolManager.ResetReload(gameObject);
     }
+    //FIXME: 寫個一鍵複製？
 }

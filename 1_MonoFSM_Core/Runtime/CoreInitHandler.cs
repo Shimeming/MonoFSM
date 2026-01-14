@@ -23,7 +23,11 @@ public static class CoreInitHandler
     {
         if (ApplicationCore.IsAvailable())
             return ApplicationCore.Instance;
-        GameObject applicationCoreCandidate = Resources.Load<GameObject>("Configs/ApplicationCore");
+        var applicationCoreCandidate =
+            Resources.Load<GameObject>("Configs/ApplicationCore_Custom"); // Custom 版優先
+        if (applicationCoreCandidate == null)
+            applicationCoreCandidate =
+                Resources.Load<GameObject>("Configs/ApplicationCore"); //Fallback 回原版
         try
         {
            //fixme: 要放在package裡面?
