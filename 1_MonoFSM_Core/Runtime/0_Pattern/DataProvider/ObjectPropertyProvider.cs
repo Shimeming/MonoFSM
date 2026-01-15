@@ -8,6 +8,7 @@ using Object = UnityEngine.Object;
 
 namespace _1_MonoFSM_Core.Runtime._0_Pattern.DataProvider
 {
+    //ObjectPropertyGetter?
     public class ObjectPropertyProvider : PropertyOfTypeProvider
     {
         [DropDownRef] //monobehaviour?

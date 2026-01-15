@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Detection;
+using MonoFSM.Core.EffectHit;
 using Sirenix.OdinInspector;
 using UnityEngine;
 

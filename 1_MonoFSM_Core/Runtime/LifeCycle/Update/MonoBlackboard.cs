@@ -139,14 +139,14 @@ namespace MonoFSM.Runtime.Variable
         }
 
         //FIXME: 可能有多個？ multiple folder
-        [CompRef] [AutoChildren] [Required] private VariableFolder _variableFolder;
+        [CompRef] [AutoChildren] [Required] protected VariableFolder _variableFolder;
 
-        [CompRef] [AutoChildren] private StateFolder _stateFolder;
+        [CompRef] [AutoChildren] protected StateFolder _stateFolder;
 
-        [CompRef] [AutoChildren] EffectDetectable _effectDetectable;
+        [CompRef] [AutoChildren] protected EffectDetectable _effectDetectable;
         // [CompRef] [AutoChildren] private EffectReceiverFolder _receiverFolder;
 
-        [CompRef] [AutoChildren] private SchemaFolder _schemaFolder;
+        [CompRef] [AutoChildren] protected SchemaFolder _schemaFolder;
 
         //從一開始就應該做getter?? 然後用attribute來標記怎麼做的？ 像是[Networked]掛在getter上面？
         public VariableFolder VariableFolder

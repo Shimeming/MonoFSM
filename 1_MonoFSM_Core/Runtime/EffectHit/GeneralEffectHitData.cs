@@ -1,5 +1,5 @@
 using System;
-using MonoFSM.Runtime.Item_BuildSystem;
+using MonoFSM.Core.EffectHit;
 using MonoFSM.Runtime.Variable;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -52,6 +52,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
             hitPoint = null; //重置hitPoint
             hitNormal = null; //重置hitNormal
         }
+        
 
         [ShowInInspector]
         public Vector3? hitPoint

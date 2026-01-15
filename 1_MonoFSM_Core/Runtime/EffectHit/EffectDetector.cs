@@ -1,14 +1,13 @@
 using System.Collections.Generic;
 using _1_MonoFSM_Core.Runtime.EffectHit.Action;
-using MonoDebugSetting;
 using MonoFSM.Core.Attributes;
+using MonoFSM.Core.EffectHit;
 using MonoFSM.Core.Simulate;
 using MonoFSM.CustomAttributes;
 using MonoFSM.Foundation;
 using MonoFSM.Runtime.Interact.EffectHit;
 using MonoFSM.Variable.Attributes;
 using Sirenix.OdinInspector;
-using Sirenix.Utilities;
 using UnityEngine;
 
 namespace MonoFSM.Core.Detection

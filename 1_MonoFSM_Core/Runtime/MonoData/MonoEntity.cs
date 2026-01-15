@@ -62,19 +62,19 @@ namespace MonoFSM.Runtime
             }
         }
 
-        [PreviewInInspector]
-        [AutoChildren(DepthOneOnly = true)]
-        private SchemaFolder _schemaFolder;
+        // [PreviewInInspector]
+        // [AutoChildren(DepthOneOnly = true)]
+        // private SchemaFolder _schemaFolder;
 
-        public SchemaFolder SchemaFolder
-        {
-            get
-            {
-                AutoAttributeManager.AutoReferenceFieldEditor(this, nameof(_schemaFolder));
-                // this.EnsureComponentInChildren(ref _schemaFolder);
-                return _schemaFolder;
-            }
-        }
+        // public SchemaFolder SchemaFolder
+        // {
+        //     get
+        //     {
+        //         AutoAttributeManager.AutoReferenceFieldEditor(this, nameof(_schemaFolder));
+        //         // this.EnsureComponentInChildren(ref _schemaFolder);
+        //         return _schemaFolder;
+        //     }
+        // }
 
         // set => _entitySchema = value;
         //Utility? 開始要拿一些Rigidbody、Collider之類的東西了

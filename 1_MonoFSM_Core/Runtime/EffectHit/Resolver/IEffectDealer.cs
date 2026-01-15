@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using MonoFSM.Core;
+using MonoFSM.Core.EffectHit;
 using MonoFSM.Runtime.Interact.EffectHit;
 using UnityEngine;
 using UnityEngine.Events;

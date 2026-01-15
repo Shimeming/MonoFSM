@@ -27,19 +27,21 @@ namespace MonoFSM.Core.Formula
         // [AutoChildren] [CompRef] [Required] [Tooltip("The component that provides the list of objects to process.")]
         // private IMonoDescriptableListProvider _inputProvider;
 
-        [ValueTypeValidate(typeof(List<MonoEntity>))] //var -> VarListEntity, value-> MonoEntity
-        // [Auto]
-        // [CompRef]
-        [Required]
-        [Tooltip("The MonoEntity list provider to use for aggregation.")]
-        [SerializeField]
-        private ValueProvider _monoEntityListProvider;
+        // [ValueTypeValidate(typeof(List<MonoEntity>))] //var -> VarListEntity, value-> MonoEntity
+        // // [Auto]
+        // // [CompRef]
+        // [Tooltip("The MonoEntity list provider to use for aggregation.")]
+        // [SerializeField]
+        // private ValueProvider _monoEntityListProvider; //FIXME: 應該改用VarList?
+
+        public VarList<MonoEntity> _monoEntityList;
 
         //用VarListEntity?
 
         [SerializeField]
         [Required]
         [Tooltip("The variable tag to look for on each object to get the float value.")]
+        [SOConfig("VariableType")]
         private VariableTag _variableToAggregate;
 
         [SerializeField]
@@ -50,13 +52,25 @@ namespace MonoFSM.Core.Formula
 
         public float GetValue()
         {
-            if (_monoEntityListProvider == null || _variableToAggregate == null)
+            // if (_monoEntityListProvider == null || _variableToAggregate == null)
+            //     return 0f;
+            // var values = _monoEntityListProvider
+            //     .GetVar<VarListEntity>()
+            //     .GetList()
+            //     .Select(GetFloatFromDescriptable)
+            //     .ToList();
+            if (_monoEntityList == null)
+            {
+                Debug.LogError("MonoEntity list is not assigned.", this);
                 return 0f;
-            var values = _monoEntityListProvider
-                .GetVar<VarListEntity>()
-                .GetList()
-                .Select(GetFloatFromDescriptable)
-                .ToList(); //FIXME: 這個會GC
+            }
+
+            if (_monoEntityList.Value == null)
+                return 0f;
+            //FIXME: 會GC
+            var values = _monoEntityList.Value.Select(GetFloatFromDescriptable)
+                .ToList();
+
 
             if (values.Count == 0)
                 return 0f;
@@ -97,15 +111,20 @@ namespace MonoFSM.Core.Formula
                 return 0f;
             }
 
-            if (variable is IFloatProvider floatProvider)
-                return floatProvider.Value;
+            // if (variable is IFloatProvider floatProvider)
+            //     return floatProvider.Value;
+            if (variable is VarFloat varFloat)
+                return varFloat.Value;
+            if (variable is VarInt varInt)
+                return varInt.Value;
+
 
             // Fallback for variables that are not IFloatProvider but can be converted
-            if (variable.ValueType == typeof(float))
-                return variable.Get<float>();
-
-            if (variable.ValueType == typeof(int))
-                return variable.Get<int>();
+            // if (variable.ValueType == typeof(float))
+            //     return variable.Get<float>();
+            //
+            // if (variable.ValueType == typeof(int))
+            //     return variable.Get<int>();
 
             Debug.LogWarning(
                 $"Variable '{_variableToAggregate.name}' on '{entity.name}' is not a float provider or a convertible type.",
@@ -115,6 +134,6 @@ namespace MonoFSM.Core.Formula
         }
 
         public string Description =>
-            $"{_operation} of '{_variableToAggregate?.name}' from '{_monoEntityListProvider?.name}'";
+            $"{_operation} of '{_variableToAggregate?.name}' from '{_monoEntityList?.name}'";
     }
 }

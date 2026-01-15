@@ -1,4 +1,5 @@
 using System.Linq;
+using RootMotion;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -333,7 +334,9 @@ public class PlayerStartSpawnPointEditor
                         }
                         else
                         {
-                            Debug.LogError("3D mode no hit");
+                            Debug.LogError(
+                                "3D mode no hit" + currentSpawnPoint.TeleportHitLayerMask
+                                    .MaskToNames().Aggregate((a, b) => a + "," + b));
                         }
                     }
                 }

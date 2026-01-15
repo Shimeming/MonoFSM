@@ -349,7 +349,7 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
         }
 
         //error handling而已，直接拔掉好了？
-        PoolLogger.LogError("Object is not a pool object, using Instantiate", obj);
+        PoolLogger.LogError("Prefab is not a pool object, using Instantiate", obj);
 
         //             var result = Instantiate(obj, position, rotation, parent);
         // #if UNITY_EDITOR
