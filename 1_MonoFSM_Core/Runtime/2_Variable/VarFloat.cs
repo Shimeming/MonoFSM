@@ -1,3 +1,4 @@
+using System.Globalization;
 using MonoFSM.Core.Attributes;
 using MonoFSM.EditorExtension;
 using MonoFSM.Variable.FieldReference;
@@ -9,6 +10,7 @@ using UnityEditor;
 //CountdownTimer...直接掛在這個下面？
 namespace MonoFSM.Variable
 {
+
     /// <summary>
     /// A MonoBehaviour representation of a float variable that can be bound to scriptable data.
     /// This class provides functionality for float values that can be accessed, modified, and tracked
@@ -17,7 +19,7 @@ namespace MonoFSM.Variable
     public class VarFloat
         : AbstractFieldVariable<GameDataFloat, FlagFieldFloat, float>,
             ISerializedFloatValue,
-            IHierarchyValueInfo
+            IHierarchyValueInfo, IStringTokenVar
     {
         public bool IsDirty => CurrentValue != LastValue; //這樣只會一個frame耶？完全不用resolve啊...?
 
@@ -93,7 +95,7 @@ namespace MonoFSM.Variable
         // }
         // public float Value => CurrentValue;
 
-        public string ValueInfo => CurrentValue.ToString() ?? "";
+        public string ValueInfo => CurrentValue.ToString(CultureInfo.CurrentCulture) ?? "";
         public bool IsDrawingValueInfo => true;
 
         public override bool IsValueExist => CurrentValue != 0f;

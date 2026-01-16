@@ -104,7 +104,7 @@ public abstract class SingletonBehaviour<T> : MonoBehaviour
         ApplicationIsQuiting = true;
     }
 
-    public virtual void OnDestroy()
+    protected virtual void OnDestroy()
     {
         Debug.Log("Singleton ondestroy..." + GetType());
         lock (s_Lock)

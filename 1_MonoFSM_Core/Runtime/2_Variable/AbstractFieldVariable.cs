@@ -1,6 +1,5 @@
 using System;
 using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
 using MonoDebugSetting;
 using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
@@ -17,9 +16,13 @@ using UnityEditor;
 using Sirenix.OdinInspector.Editor;
 #endif
 
-//FIXME: autoGen太複雜，介面需要整理
+interface IStringTokenVar
+{
+    string ValueInfo { get; }
+}
+
 [Searchable]
-// [DisallowMultipleComponent]
+[DisallowMultipleComponent]
 public abstract class AbstractFieldVariable<TScriptableData, TField, TType>
     : TypedMonoVariable<TType>,
         ISettable<TType>,
@@ -90,27 +93,6 @@ public abstract class AbstractFieldVariable<TScriptableData, TField, TType>
     {
         SetValueInternal(source.Get<TType>(), byWho);
     }
-
-    // [CompRef] [AutoChildren(DepthOneOnly = true)]
-    // private IValueProvider<TType>[] _valueSources; //FIXME: 可能會有多個耶...還要一層resolver嗎？
-    //
-    //
-    // [ShowInPlayMode]
-    // private IValueProvider<TType> valueSource
-    // {
-    //     get
-    //     {
-    //         if (_valueSources == null || _valueSources.Length == 0)
-    //             return null;
-    //         foreach (var valueProvider in _valueSources)
-    //             if (valueProvider.IsValid)
-    //                 return valueProvider;
-    //
-    //         //[]: 多個的話要怎麼辦？還是說不允許多個？
-    //         Debug.LogWarning("condition not met, use default? (last)" + _valueSources[^1], this);
-    //         return _valueSources[^1];
-    //     }
-    // }
 
     //還要看條件嗎？ conditional value switch
     //想要直接選一個field就拿他的值，應該抽出去做成一個新東西不要放在GenericVariable裡面

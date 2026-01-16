@@ -147,7 +147,7 @@ namespace MonoFSM.Core.Simulate
             PoolManager.Instance.ReturnToPool(obj);
         }
 
-        //全世界都該透過這個spawn?
+        //全世界都該透過這個spawn? 只有世界上的東西要透過這個？local 的不用(ex: Canvas)
         //FIXME: 好像不對，photon應該用他原本的Spawn方法，這個處理要在之後觸發？
         //1. 想收斂Spawn進入點
         //2. 還是會出現Runner直接Spawn沒辦法避免？

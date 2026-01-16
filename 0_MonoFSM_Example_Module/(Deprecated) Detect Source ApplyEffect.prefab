@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2022477786492964955}
   - component: {fileID: 6143877385265441557}
   m_Layer: 0
-  m_Name: ' EffectExitNode'
+  m_Name: '[Event] EffectExitNode'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -133,6 +133,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &5930542381079129816
 GameObject:
@@ -145,7 +146,7 @@ GameObject:
   - component: {fileID: 36166558322310802}
   - component: {fileID: 3736202633741559821}
   m_Layer: 0
-  m_Name: ' EffectEnterNode'
+  m_Name: '[Event] EffectEnterNode'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -191,7 +192,7 @@ GameObject:
   - component: {fileID: 4792456381127933026}
   - component: {fileID: 673448095346956811}
   m_Layer: 0
-  m_Name: '[Dealer] '
+  m_Name: '[Dealer] ReverseDirection'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -242,7 +243,7 @@ GameObject:
   - component: {fileID: 5511886650532563756}
   - component: {fileID: 3294223703854636169}
   m_Layer: 9
-  m_Name: Detector ApplyEffect
+  m_Name: (Deprecated) Detect Source ApplyEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

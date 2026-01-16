@@ -33,7 +33,8 @@ namespace MonoFSM.Variable
             IBeforePrefabSaveCallbackReceiver,
             IConfigTypeProvider,
             IResetStateRestore,
-            IDropdownRef
+            IDropdownRef,
+            IValueGetter
     {
         protected override string DescriptionTag => "Var";
 

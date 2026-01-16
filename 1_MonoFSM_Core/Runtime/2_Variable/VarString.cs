@@ -1,7 +1,7 @@
-public class VarString : AbstractFieldVariable<GameFlagString, FlagFieldString, string>
+public class VarString : AbstractFieldVariable<GameFlagString, FlagFieldString, string>,
+    IStringTokenVar
 {
-    public string StringValue => CurrentValue;
-
     // public override GameFlagBase FinalData => BindData;
     public override bool IsValueExist => !string.IsNullOrEmpty(CurrentValue);
+    public string ValueInfo => CurrentValue;
 }

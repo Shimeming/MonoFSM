@@ -30,7 +30,7 @@ namespace MonoFSM.Core.DataProvider
         [ShowInDebugMode]
         public T Value { get; }
 
-        T1 IValueProvider.Get<T1>()
+        T1 IValueGetter.Get<T1>()
         {
             var value = Value;
             var t1Value = Unsafe.As<T, T1>(ref value);
@@ -40,7 +40,7 @@ namespace MonoFSM.Core.DataProvider
             return default;
         }
 
-        Type IValueProvider.ValueType => typeof(T);
+        Type IValueGetter.ValueType => typeof(T);
         //FIXME: valuechange?
     }
 

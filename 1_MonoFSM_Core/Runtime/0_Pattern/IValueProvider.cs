@@ -3,7 +3,13 @@ using UnityEngine;
 
 namespace MonoFSM.Core
 {
-    public interface IValueProvider
+    public interface IValueGetter
+    {
+        T1 Get<T1>();
+        Type ValueType { get; }
+    }
+
+    public interface IValueProvider : IValueGetter
     {
         // public object objectValue => Get<object>();
         public bool isActiveAndEnabled { get; }
@@ -39,9 +45,8 @@ namespace MonoFSM.Core
                 return true; // 如果沒有特殊處理，則視為存在
             }
         }
-        T1 Get<T1>();
+        // T1 Get<T1>();
 
-        Type ValueType { get; }
 
         //FIXME: 要在物件還沒拿到之前就知道型別？
         string Description { get; }
@@ -49,7 +54,7 @@ namespace MonoFSM.Core
 
     public interface ICompProvider : IValueProvider
     {
-        T1 IValueProvider.Get<T1>() //繼承關係的
+        T1 IValueGetter.Get<T1>() //繼承關係的
         {
             var value = Get();
             if (value is T1 t1Value)
@@ -59,7 +64,7 @@ namespace MonoFSM.Core
 
         Component Get();
 
-        Type IValueProvider.ValueType => typeof(Component);
+        Type IValueGetter.ValueType => typeof(Component);
         // object IValueProvider.GetValue => Get<T>();
         // T1 IValueProvider.Get<T1>() => Get();
         // Type IValueProvider.ValueType => typeof(T);
@@ -69,7 +74,9 @@ namespace MonoFSM.Core
     public interface ICompProvider<out T> : ICompProvider
         where T : Component
     {
-        T1 IValueProvider.Get<T1>()
+        Type IValueGetter.ValueType => typeof(T);
+
+        T1 IValueGetter.Get<T1>()
         {
             var value = Get();
             if (value is T1 t1Value)
@@ -88,6 +95,6 @@ namespace MonoFSM.Core
         // object IValueProvider.GetValue => Get<T>()<T>;
 
 
-        Type IValueProvider.ValueType => typeof(T);
+
     }
 }
