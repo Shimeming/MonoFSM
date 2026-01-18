@@ -20,8 +20,16 @@ namespace MonoFSM.Variable.Condition
     public class VarFloatCompareConstCondition : AbstractConditionBehaviour, ITransitionCheckInvoker
     {
         public override string Description => _monoVariableFloat != null
-            ? _monoVariableFloat.name + " " + GetOpString() + " " + targetValue
+            ? _monoVariableFloat.name + " " + ArithmeticHelper.OperatorDescription(_op) + " " +
+              GetCompareValueDescription()
             : "null var";
+
+        private string GetCompareValueDescription()
+        {
+            return _compareWithVariable
+                ? (_targetVariable?.name ?? "null")
+                : _targetValue.ToString();
+        }
 
         private void OnVariableChanged()
         {
@@ -29,50 +37,40 @@ namespace MonoFSM.Variable.Condition
             Rename();
         }
 
-        // [DropDownRef]
-        // public VarFloat _monoVarFloat;
-        public Operator op;
-
-        private string GetOpString()
-        {
-            return op switch
-            {
-                Operator.Equals => "==",
-                Operator.NotEqual => "!=",
-                Operator.GreaterThan => ">",
-                Operator.LessThan => "<",
-                Operator.GreaterThanOrEqual => ">=",
-                Operator.LessThanOrEqual => "<=",
-                _ => ""
-            };
-        }
 
         [OnValueChanged(nameof(OnVariableChanged))] [FormerlySerializedAs("variableBool")] [DropDownRef]
         // [ValueDropdown(nameof(GetBoolVariables))]
         public VarFloat _monoVariableFloat;
 
-        //FIXME: 要用VarBoolProvider?
-        // [Component] [Auto] public VariablefloatProviderRef _varFloatProvider;
-        // [Component] [Auto] IBoolProvider _boolValue; //會再度抓到自己，...沒屁用
-        public float targetValue = 0;
+
+        // [DropDownRef]
+        // public VarFloat _monoVarFloat;
+        [FormerlySerializedAs("op")] public Operator _op;
+
+        [OnValueChanged(nameof(OnVariableChanged))]
+        public bool _compareWithVariable;
+
+        [ShowIf(nameof(_compareWithVariable))]
+        [OnValueChanged(nameof(OnVariableChanged))]
+        [DropDownRef]
+        public VarFloat _targetVariable;
+
+        [FormerlySerializedAs("targetValue")] [HideIf(nameof(_compareWithVariable))]
+        public float _targetValue;
 
         //FIXME: 會有需求要比對其他東西嗎？
         protected override bool IsValid
         {
             get
             {
-                var value = _monoVariableFloat.Value;
+                if (_monoVariableFloat == null) return false;
 
-                return op switch
-                {
-                    Operator.Equals => value == targetValue,
-                    Operator.NotEqual => value != targetValue,
-                    Operator.GreaterThan => value > targetValue,
-                    Operator.LessThan => value < targetValue,
-                    Operator.GreaterThanOrEqual => value >= targetValue,
-                    Operator.LessThanOrEqual => value <= targetValue,
-                    _ => false
-                };
+                var value = _monoVariableFloat.Value;
+                var compareValue = _compareWithVariable
+                    ? (_targetVariable?.Value ?? 0f)
+                    : _targetValue;
+
+                return ArithmeticHelper.CompareValues(value, compareValue, _op);
             }
         }
 

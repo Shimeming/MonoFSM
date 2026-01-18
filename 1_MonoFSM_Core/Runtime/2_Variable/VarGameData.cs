@@ -5,6 +5,10 @@ namespace MonoFSM.Variable
     [FormerlyNamedAs("VarDescriptableData")]
     public class VarGameData : GenericUnityObjectVariable<GameData>
     {
+        protected override bool HasError() //額外寫validation好嗎?
+        {
+            return base.HasError() || _defaultValue == null;
+        }
         // /// <summary>
         // /// 返回動態型別，讓反射系統能看到實際的子類別成員
         // /// </summary>

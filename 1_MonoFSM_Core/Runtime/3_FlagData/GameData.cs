@@ -84,9 +84,10 @@ public interface IProperty
     ValueDropdownList<string> GetProperties<T>();
 }
 
+//hmm
 public interface IItemData : IDataFeature
 {
-    public int MaxStackCount { get; }
+    public float MaxStackCount { get; }
     void Use();
 }
 
@@ -176,23 +177,27 @@ public class GameData
     [FormerlySerializedAs("descriptableTag")]
     public MonoEntityTag _entityTag;
 
-    [SerializeReference]
-    private AbstractDataFunction[] _dataFunctionsArray;
+    // [SerializeReference]
+    // private AbstractDataFunction[] _dataFunctionsArray;
 
-    [OnValueChanged(nameof(RebuildDataFunctionDict))]
-    [SerializeReference]
-    private IDataFeature[] _dataFunctions; //這個用hashSet會比較好？ 可是QQ
+    //FIXME: 還是用 AbstractDataFunction 比較好？
+    [OnValueChanged(nameof(RebuildDataFunctionDict))] [SerializeReference]
+    //empty
+    private AbstractDataFunction[] _dataFunctions = Array.Empty<AbstractDataFunction>();
 
-    private readonly Dictionary<Type, IDataFeature> _dataFunctionDict = new();
+    private readonly Dictionary<Type, AbstractDataFunction> _dataFunctionDict = new();
+    [ShowInDebugMode] public int dataFunctionCount => _dataFunctionDict.Count;
 
+    [ShowInDebugMode]
     bool IsRebuildNeeded => _dataFunctions.Length != _dataFunctionDict.Count;
+
 
     // private readonly HashSet<IDataFunction> _hashSet = new();
 
     public T GetDataFunction<T>()
         where T : class, IDataFeature
     {
-        //沒有interface的對應實作...hmm好難
+        
         if (_dataFunctionDict.TryGetValue(typeof(T), out var dataFunction))
             return dataFunction as T;
 

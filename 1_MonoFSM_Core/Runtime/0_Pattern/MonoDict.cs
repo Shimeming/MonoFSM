@@ -61,6 +61,7 @@ namespace MonoFSM.Core
         //FIXME: 如果一個type有多個實例，要用List<TU>? firstOrDefault? 好像是耶
         //GetAll, 和GetComponentsInChildren<TU> 有點像 GetComponentsInChildren<TU>就回傳第一個
         //用List還是HashSet好？
+
         protected readonly Dictionary<Type, HashSet<Tu>> _typeDict = new(); //這個抽出去另外做？
 
         protected readonly List<T> _tempRemoveList = new();
@@ -165,14 +166,14 @@ namespace MonoFSM.Core
             return default;
         }
 
-        public TT Get<TT>()
-            where TT : class, Tu
+        public virtual Tt Get<Tt>() //用Generic來拿
+            where Tt : class, Tu
         {
             EditorPrepareCheck();
-            return Get(typeof(TT)) as TT;
+            return Get(typeof(Tt)) as Tt;
         }
 
-        public Tu Get(string key)
+        public virtual Tu Get(string key)
         {
             EditorPrepareCheck();
             if (Contains(key))
@@ -185,18 +186,15 @@ namespace MonoFSM.Core
             EditorPrepareCheck();
             if (key == null)
                 return default;
-            //FIXME:
-            if (_dict.TryGetValue(key, out var value))
-                return value;
 
             if (_isPrepared == false && Application.isPlaying)
             {
                 Debug.LogError($"GetFrom {key} Dict, Not prepared", this);
                 return default;
             }
-
+            //FIXME:
+            return _dict.GetValueOrDefault(key);
             // Debug.LogError($"Key:{key} not found in {this}",this);
-            return default;
         }
 
         //remove

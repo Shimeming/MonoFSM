@@ -249,7 +249,7 @@ public class FlagField<T> : FlagFieldBase, IVariableField // where T : IComparab
     [ShowInInspector]
     [ReadOnly]
     // private FlagFieldModifier<T> _modifier;
-    private List<FlagFieldModifier<T>> _modifiers = new(); //FIXME: 這啥？
+    private List<FlagFieldModifier<T>> _modifiers = new();
 
     public FlagField()
     {
@@ -533,8 +533,7 @@ public class FlagField<T> : FlagFieldBase, IVariableField // where T : IComparab
     }
 
 #if UNITY_EDITOR
-    [InfoBox("Init後才可以使用，否則會報錯", InfoMessageType.Warning, nameof(NotInit))]
-    [ShowInInspector]
+    [InfoBox("Init後才可以使用，否則會報錯", InfoMessageType.Warning, nameof(NotInit))] [ShowInDebugMode]
     bool _isInit = false;
     bool NotInit => !_isInit && Application.isPlaying;
 #endif

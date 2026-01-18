@@ -111,6 +111,69 @@ namespace MonoFSM.Core
             return default;
         }
 
+        public override TT Get<TT>()
+        {
+            var local = base.Get<TT>();
+            if (local != null) return local;
+
+            foreach (var dict in _externalDicts)
+            {
+                if (dict == null) continue;
+                var found = dict.Get<TT>();
+                if (found != null) return found;
+            }
+
+            return default;
+        }
+
+        public override Tu Get(string key)
+        {
+            var local = base.Get(key);
+            if (local != null) return local;
+
+            foreach (var dict in _externalDicts)
+            {
+                if (dict == null) continue;
+                var found = dict.Get(key);
+                if (found != null) return found;
+            }
+
+            return default;
+        }
+
+        // /// <summary>
+        // /// 通用的 Get 方法，先從本地查找，找不到再從外部字典查找
+        // /// </summary>
+        // private TResult GetWithExternal<TResult>(Func<MonoDict<T, Tu>, TResult> getter)
+        // {
+        //     var local = getter(this);
+        //     if (!EqualityComparer<TResult>.Default.Equals(local, default)) return local;
+        //
+        //     foreach (var dict in _externalDicts)
+        //     {
+        //         if (dict == null) continue;
+        //         var found = getter(dict);
+        //         if (!EqualityComparer<TResult>.Default.Equals(found, default)) return found;
+        //     }
+        //
+        //     return default;
+        // }
+        //
+        // public override Tu Get(T key)
+        // {
+        //     return GetWithExternal(dict => dict.Get(key));
+        // }
+        //
+        // public override Tt Get<Tt>()
+        // {
+        //     return GetWithExternal(dict => dict.Get<Tt>());
+        // }
+        //
+        // public override Tu Get(string key)
+        // {
+        //     return GetWithExternal(dict => dict.Get(key));
+        // }
+
         protected override void AddImplement(Tu item)
         {
         }
@@ -120,5 +183,7 @@ namespace MonoFSM.Core
         }
 
         protected override bool CanBeAdded(Tu item) => true;
+
+
     }
 }

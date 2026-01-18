@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Cysharp.Threading.Tasks;
 using MonoFSM.AddressableAssets;
 using MonoFSM.Runtime;
 using MonoFSMCore.Runtime.LifeCycle;
@@ -211,12 +210,23 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
 
         // Register this instance with the service locator
         PoolServiceLocator.RegisterPoolManager(this);
+
+        // Subscribe to scene unload event to handle cleanup before scene destruction
+        SceneManager.sceneUnloaded += OnSceneUnloaded;
     }
 
-    protected void OnDestroy()
+    protected new void OnDestroy()
     {
+        // Unsubscribe from scene unload event
+        SceneManager.sceneUnloaded -= OnSceneUnloaded;
+
         // Clear services when manager is destroyed
         PoolServiceLocator.ClearServices();
+    }
+
+    private void OnSceneUnloaded(Scene scene)
+    {
+        OnBeforeDestroyScene(scene);
     }
 
     public void PrepareGlobalPrewarmData()

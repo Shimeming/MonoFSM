@@ -39,11 +39,11 @@ namespace MonoFSM.Variable
     }
 
     [Serializable]
-    public class VarGameDataWrapper : VarWrapper<VarBool, bool>
+    public class VarGameDataWrapper : VarWrapper<VarGameData, GameData>
     {
         public VarGameDataWrapper() { }
 
-        public VarGameDataWrapper(bool defaultValue)
+        public VarGameDataWrapper(GameData defaultValue)
             : base(defaultValue) { }
     }
 

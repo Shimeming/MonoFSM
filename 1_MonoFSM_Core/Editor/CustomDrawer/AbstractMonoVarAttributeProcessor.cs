@@ -8,7 +8,7 @@ using Sirenix.OdinInspector.Editor;
 namespace _1_MonoFSM_Core.Editor.CustomDrawer
 {
     /// <summary>
-    ///     自動幫 IDropdownRef 加上 DropDownRefAttribute 和 ShowDrawerChainAttribute
+    ///     自動幫 IDropdownRef (ex: MonoVar) 加上 DropDownRefAttribute 和 ShowDrawerChainAttribute
     /// </summary>
     [UsedImplicitly]
     public class AbstractMonoVarAttributeProcessor : OdinAttributeProcessor<IDropdownRef> //可以對interface做嗎？ IDropdownRef?

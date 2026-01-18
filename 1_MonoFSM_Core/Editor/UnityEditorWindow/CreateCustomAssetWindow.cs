@@ -41,8 +41,8 @@ public class CreateCustomAssetWindow : EditorWindow
         {
             Debug.Log(item);
         }
-    
-        
+
+
         var popup = CreateInstance<CreateCustomAssetWindow>();
         // popup.CreateAssetDataDict();
         var position = popup.position;
@@ -125,13 +125,13 @@ public class CreateCustomAssetWindow : EditorWindow
 
         // searchField.RegisterCallback<KeyDownEvent>(evt =>
         // {
-        //     
+        //
         // });
         root.RegisterCallback<KeyDownEvent>(evt =>
         {
             if (evt.keyCode == KeyCode.Escape)
             {
-                
+
                 Close();
                 return;
             }
@@ -188,7 +188,7 @@ public class CreateCustomAssetWindow : EditorWindow
             evt.StopImmediatePropagation();
             evt.PreventDefault();
             evt.StopPropagation();
-            
+
             if (evt.keyCode == KeyCode.Escape)
             {
                 searchField.Focus();
@@ -209,7 +209,7 @@ public class CreateCustomAssetWindow : EditorWindow
             //     searchField.Focus();
             // }
         });
-        
+
         root.Add(searchField);
         root.Add(assetList);
         assetList.focusable = true;
@@ -318,7 +318,7 @@ public class CreateCustomAssetWindow : EditorWindow
             //     "GameConfig",
             //     new AssetData(".asset", typeof(GameConfigBase))
             // }
-            
+
         };
         var scriptables = EditorMonoNodeExtension.GetAllScriptableAssetType();
         foreach (var scriptable in scriptables)
@@ -364,19 +364,19 @@ public class CreateCustomAssetWindow : EditorWindow
         }
 
 //TODO: 選資料夾會跑到上面去...
-        
+
         var selectedAssetPath = AssetDatabase.GetAssetPath(Selection.activeObject);
         //if the selected object is a folder, use it as the default path
         if (!string.IsNullOrEmpty(selectedAssetPath) && Directory.Exists(selectedAssetPath))
             selectedAssetPath += "/";
-        
+
         var folderPath = selectedAssetPath.Length > 0
             ? Path.GetDirectoryName(selectedAssetPath)
             : "Assets";
         var assetName = "New " + assetType;
         var extension = assetDataDict[assetType].extension;
         var assetPath = AssetDatabase.GenerateUniqueAssetPath(folderPath + "/" + assetName + extension);
-        
+
         switch (assetType)
         {
             case "Assembly Definition":
@@ -391,8 +391,8 @@ public class CreateCustomAssetWindow : EditorWindow
             case "Timeline":
                 EditorApplication.ExecuteMenuItem("Assets/Create/Timeline/Timeline");
                 return;
-            case "C# Script":
-                EditorApplication.ExecuteMenuItem("Assets/Create/C# Script");
+            case "MonoBehaviour Script":
+                EditorApplication.ExecuteMenuItem("Assets/Create/MonoBehaviour Script");
                 return;
             case "Material":
                 EditorApplication.ExecuteMenuItem("Assets/Create/Material");
@@ -403,13 +403,13 @@ public class CreateCustomAssetWindow : EditorWindow
             //TODO: 這個要從entry就決定嗎？
             case "AnimatorController":
                 var controller = AnimatorController.CreateAnimatorControllerAtPath(assetPath);
-                
+
                 Selection.activeObject = controller;
                 return;
         }
 
 
-   
+
         if (!AssetDatabase.IsValidFolder(folderPath))
         {
             folderPath = System.IO.Path.GetDirectoryName(folderPath);
@@ -418,10 +418,10 @@ public class CreateCustomAssetWindow : EditorWindow
                 Debug.LogError($"Selected asset is not a folder: {folderPath}");
                 return;
             }
-            
+
         }
 
-       
+
 
         var assetClass = assetDataDict[assetType].dataType;
         if (assetClass == null)
@@ -448,5 +448,5 @@ public class CreateCustomAssetWindow : EditorWindow
         EditorUtility.FocusProjectWindow();
         Selection.activeObject = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(assetPath);
     }
- 
+
 }

@@ -1,4 +1,4 @@
-using _1_MonoFSM_Core.Runtime._1_States;
+using MonoFSM.Core.Runtime;
 using MonoFSM.Variable;
 using UnityEngine;
 

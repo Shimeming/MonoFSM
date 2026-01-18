@@ -1,4 +1,6 @@
 using MonoFSM.EditorExtension;
+using MonoFSM.Runtime.Interact.EffectHit;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace MonoFSM.Core.Runtime.Action
@@ -14,6 +16,8 @@ namespace MonoFSM.Core.Runtime.Action
             IHierarchyValueInfo
     // where T : IEffectHitData
     {
+        [AutoParent] [ShowInInspector] protected
+            EffectResolver _effectResolver;
         void IArgEventReceiver<T>.ArgEventReceived(T arg)
         {
             //FIXME: 要做delay嗎？

@@ -3,10 +3,11 @@ using _1_MonoFSM_Core.Runtime.Attributes;
 using MonoFSM.Core.Attributes;
 using MonoFSMCore.Runtime.LifeCycle;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 //FIXME: 不好用...valueProvider拿不到，還是要繼承DescriptableData, 或是用變數把值給想辦法資料化? 直接對表格？ json介面？ (SO不能彈性改變檔案型別...)
 [Serializable]
-public abstract class AbstractDataFunction
+public abstract class AbstractDataFunction : IDataFeature
 {
     //FIXME: 抽出去
     [ShowInDebugMode]
@@ -35,9 +36,10 @@ public class PickableData : AbstractDataFunction, IItemData //寫死還是有點
     [SerializeField]
     private MonoObj _entityPrefab; //這個是用來生成實體的
 
-    [SerializeField]
-    private int _stackCount = 1; //這個是用來描述這個物品的堆疊數量
-    public int MaxStackCount => _stackCount;
+    [FormerlySerializedAs("_stackCount")] [SerializeField]
+    private float _maxStackCount = 1; //這個是用來描述這個物品的堆疊數量
+
+    public float MaxStackCount => _maxStackCount;
 
     public void Use()
     {
@@ -49,7 +51,6 @@ public class PickableData : AbstractDataFunction, IItemData //寫死還是有點
 [Serializable]
 public class ScoreData : AbstractDataFunction
 {
-    [SerializeField]
-    private int _score = 1; //這個是用來描述這個物品的分數
-    public int Score => _score;
+    [SerializeField] private float _score = 1; //這個是用來描述這個物品的分數
+    public float Score => _score;
 }

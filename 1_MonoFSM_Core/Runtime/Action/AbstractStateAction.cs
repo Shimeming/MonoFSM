@@ -59,6 +59,7 @@ namespace MonoFSM.Core.Runtime.Action
         [Required]
         [PreviewInInspector]
         [AutoParent]
+        //FIXME: 要做 DepthOnly嗎？
         protected IActionParent _actionParent;
 
         [HideInInlineEditors]

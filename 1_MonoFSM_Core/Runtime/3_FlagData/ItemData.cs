@@ -13,7 +13,7 @@ namespace MonoFSM.Runtime.FSM._3_FlagData
     public class ItemData : GameData, IItemData
     {
         [BoxGroup("物品")] [SerializeField] int slotStackCount = 1;
-        public int MaxStackCount => slotStackCount;
+        public float MaxStackCount => slotStackCount;
 
         public virtual void Use() //FIXME: 怎麼吃更多類型、參數？ 搖桿操作？直接判 UI/Action?
         {
@@ -59,7 +59,7 @@ namespace MonoFSM.Runtime.FSM._3_FlagData
         public GameData Owner => this;
         public void SetOwner(GameData owner)
         {
-            
+
         }
     }
 }

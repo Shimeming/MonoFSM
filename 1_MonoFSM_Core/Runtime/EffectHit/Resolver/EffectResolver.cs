@@ -1,5 +1,5 @@
 using System;
-using _1_MonoFSM_Core.Runtime._1_States;
+using MonoFSM.Core.Runtime;
 using _1_MonoFSM_Core.Runtime.EffectHit;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Detection;

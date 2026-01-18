@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace MonoFSM.Variable.VariableBinder
 {
-    public class VariableBoolRebindEntry : VariableBindingEntry<VarBool>
+    public class VarBoolRebindEntry : VariableBindingEntry<VarBool>
     {
         public override void Bind()
         {

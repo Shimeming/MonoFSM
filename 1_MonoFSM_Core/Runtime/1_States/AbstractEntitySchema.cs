@@ -17,7 +17,7 @@ using UnityEditor;
 
 // using MonoFSM.Core.Editor.Utility;
 
-namespace _1_MonoFSM_Core.Runtime._1_States
+namespace MonoFSM.Core.Runtime
 {
     //一個entity應給要允許多個schema, 或是說多個variable folder?
     /// <summary>

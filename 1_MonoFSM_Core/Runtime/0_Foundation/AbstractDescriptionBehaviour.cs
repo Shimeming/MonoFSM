@@ -129,10 +129,11 @@ namespace MonoFSM.Foundation
                     continue;
 
                 // Debug.Log($"Checking required field: {field.Name} in {gameObject.name}", this);
-                var value = field.GetValue(this) as Object;
+                var value = field.GetValue(this);
                 if (value == null)
                 {
-                    _errorMessage = $"Required field '{field.Name}' is null in {gameObject.name}";
+                    _errorMessage =
+                        $"Required or Dropdown field '{field.Name}' is null in {gameObject.name}";
                     // Debug.LogError($"Required field '{field.Name}' is null in {gameObject.name}");
                     // UnityEditor.EditorGUIUtility.PingObject(this);
                     return true;
@@ -340,5 +341,6 @@ namespace MonoFSM.Foundation
 
         [ShowInDebugMode]
         public bool IsDrawGUIHierarchyBackground => !Application.isPlaying && HasError(); //還是用icon?
+        //FIXME: 動態做這個，bool IsNeedValid的Required? (配合啥？
     }
 }

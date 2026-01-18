@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using _1_MonoFSM_Core.Runtime._1_States;
+using MonoFSM.Core.Runtime;
 using MonoFSM.Variable.TypeTag;
 using Sirenix.OdinInspector;
 using UnityEngine;
