@@ -7,7 +7,7 @@ namespace MonoFSM.Variable
     {
         protected override bool HasError() //額外寫validation好嗎?
         {
-            return base.HasError() || _defaultValue == null;
+            return base.HasError() || (Value == null && _defaultValue == null);
         }
         // /// <summary>
         // /// 返回動態型別，讓反射系統能看到實際的子類別成員

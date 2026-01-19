@@ -39,6 +39,18 @@ namespace MonoFSM.Variable
     }
 
     [Serializable]
+    public class VarIntWrapper : VarWrapper<VarInt, int>
+    {
+        public VarIntWrapper()
+        {
+        }
+
+        public VarIntWrapper(int defaultValue)
+            : base(defaultValue)
+        {
+        }
+    }
+    [Serializable]
     public class VarGameDataWrapper : VarWrapper<VarGameData, GameData>
     {
         public VarGameDataWrapper() { }
@@ -94,6 +106,7 @@ namespace MonoFSM.Variable
 
         [BoxGroup("Var")]
         [Required]
+        [Component]
         public TVar _var;
 
         public VarWrapper() { }

@@ -53,7 +53,7 @@ namespace MonoFSM.Variable.Condition
         [ShowIf(nameof(_compareWithVariable))]
         [OnValueChanged(nameof(OnVariableChanged))]
         [DropDownRef]
-        public VarFloat _targetVariable;
+        public VarFloat _targetVariable; //hmm這種好麻煩喔，有showIf的就很不好做validation?
 
         [FormerlySerializedAs("targetValue")] [HideIf(nameof(_compareWithVariable))]
         public float _targetValue;

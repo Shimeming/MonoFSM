@@ -79,9 +79,10 @@ public class DropDownRefAttributeDrawer : OdinAttributeDrawer<DropDownRefAttribu
         {
             filterType = filterType.GetElementType();
         }
-        var currentComp = Property.ValueEntry.WeakSmartValue as Component;
+
+        // var currentComp = Property.ValueEntry.WeakSmartValue as Component;
         //draw SDFIcon down arrow to the right of the button
-        var buttonText = currentComp ? currentComp.name : "None";
+        var buttonText = _bindComp ? _bindComp.name : "None";
         if (
             SirenixEditorGUI.SDFIconButton(
                 buttonText,

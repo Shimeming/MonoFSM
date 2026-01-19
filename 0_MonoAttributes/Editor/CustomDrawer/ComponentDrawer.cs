@@ -60,8 +60,13 @@ public class ComponentAttributeDrawer : OdinAttributeDrawer<ComponentAttribute>
             // Debug.Log(Property.Parent);
             // Debug.Log(Property.ParentValues[0]);
             // Debug.Log(Property.Parent.ValueEntry.WeakSmartValue);
-            bindComp = Property.ParentValues[0] as MonoBehaviour;
-            // Debug.Log("isArray false" + parentComp);
+            var p = Property.FindParent(x => x.ParentType.IsSubclassOf(typeof(MonoBehaviour)),
+                true);
+            Debug.Log("Found Parent MonoBehaviour Property:" + p);
+            Debug.Log("Value:" + p.ParentValues[0]);
+            bindComp = p.ParentValues[0] as MonoBehaviour;
+            // bindComp = Property.ParentValues[0] as MonoBehaviour;
+
         }
     }
 
