@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 7828838521124911077}
   - component: {fileID: 6889222059960297322}
   - component: {fileID: 8398472042460750695}
+  - component: {fileID: 3720337106458722872}
   m_Layer: 0
   m_Name: ModulePack
   m_TagString: Untagged
@@ -67,6 +68,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: MonoFSM.Core.Runtime::Note
   _noteType: 0
   note: 
+--- !u!114 &3720337106458722872
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 37740487875403632}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ed57a5eeaf541ada7ae6cdda8a5f6ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MonoFSM.Core.Runtime::MonoFSM.Core.PrefabOverrideCleaner
+  _targetComponent:
+  - {fileID: 6889222059960297322}
+  - {fileID: 7828838521124911077}
 --- !u!1 &4479695402948063043
 GameObject:
   m_ObjectHideFlags: 0

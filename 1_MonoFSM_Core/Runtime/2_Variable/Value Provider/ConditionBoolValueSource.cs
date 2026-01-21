@@ -2,8 +2,9 @@ using MonoFSM.Foundation;
 using MonoFSM.Variable.Attributes;
 using Sirenix.OdinInspector;
 
-namespace Fusion.Addons.KCC.ECM2.Examples.Networking.Fusion_v2.Characters.Scripts.Input
+namespace MonoFSM.ValueSource.ValueSource
 {
+    //FIXME: 不能讓condition就？
     public class ConditionBoolValueSource : AbstractValueSource<bool>
     {
         [Required]

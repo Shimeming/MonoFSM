@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -14,7 +15,8 @@ public class GameStateStringOverrider : GameStateOverrider<GameFlagString, FlagF
 
 //共用interface,
 //共用實作
-public abstract class GameStateOverrider<TGameState, TFlagField, TType> : MonoBehaviour, IResetter
+public abstract class GameStateOverrider<TGameState, TFlagField, TType> : MonoBehaviour,
+    IResetStateRestore, ISceneDestroy
     where TGameState : AbstractScriptableData<TFlagField, TType> where TFlagField : FlagField<TType>
 {
     [Header("把GameState的CurrentValue改成某個值")] [FormerlySerializedAs("value")]
@@ -23,14 +25,12 @@ public abstract class GameStateOverrider<TGameState, TFlagField, TType> : MonoBe
     [InlineEditor()]
     public TGameState flag;
 
-    
-
-    public void EnterLevelReset()
+    public void ResetStateRestore()
     {
         flag.CurrentValue = OverrideValue;
     }
 
-    public void ExitLevelAndDestroy()
+    public void OnSceneDestroy()
     {
         flag.Reset();
     }

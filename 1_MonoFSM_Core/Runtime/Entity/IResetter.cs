@@ -1,13 +1,16 @@
+using System;
 using MonoFSM.Core.Simulate;
 
+//改成用 IResetStart
+[Obsolete]
 public interface IResetter
 {
-    //注意 
+    //注意
     //1. 關卡開始
     //2. 如果玩家跟存檔點講話
-    //3. Cmd+R  
+    //3. Cmd+R
     //4. 還有從 pool出來。
-    void EnterLevelReset();
+    void EnterLevelReset(); //FIXME: 沒有再用了？
     void ExitLevelAndDestroy(); //目前沒有特別意義，只有換景會call，和OnDestroy差不多
 }
 
@@ -35,7 +38,7 @@ public interface ISceneStartReverse
     void EnterSceneStartReverse();
 }
 
-public interface ISceneDestroy 
+public interface ISceneDestroy
 {
     void OnSceneDestroy();
 }

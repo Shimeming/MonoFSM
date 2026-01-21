@@ -126,6 +126,7 @@ namespace MonoFSM.Core.Editor
             Type componentType = null
         )
         {
+
             _filterAttribute = filterAttribute;
             _componentType = componentType;
             DrawConfirmSelectionButton = false;

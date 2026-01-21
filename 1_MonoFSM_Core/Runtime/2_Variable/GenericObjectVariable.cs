@@ -24,6 +24,7 @@ namespace MonoFSM.Variable
             IHierarchyValueInfo
         where TValueType : Object
     {
+        public override string StringValue => Value.ToString();
         public override void SetRaw<T1>(T1 value, Object byWho)
         {
             Profiler.BeginSample("GenericUnityObjectVariable<TValueType>.SetRaw");
@@ -83,6 +84,12 @@ namespace MonoFSM.Variable
 
         //FIXME: 繼承時想要加更多attribute
         // [Header("預設值")] [HideIf(nameof(_siblingDefaultValue))]
+        public bool _isConfig = false;
+
+        protected override bool HasError()
+        {
+            return base.HasError() || (_isConfig && _defaultValue == null);
+        }
 
         [SerializeField]
         protected TValueType _defaultValue; //ConfigSettingValue? //只有VarMonoObj才需要？
@@ -341,6 +348,7 @@ namespace MonoFSM.Variable
             SetValueInternal(_defaultValue, this);
         }
 
+        //FIXME: 和isConfig定位一樣？
         [PropertyOrder(-1)]
         [Header("避免關卡重置時清除資料")]
         [SerializeField]

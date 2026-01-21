@@ -1,6 +1,8 @@
+using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Simulate;
 using MonoFSM.Foundation;
 using MonoFSMCore.Runtime.LifeCycle;
+using UnityEngine;
 
 namespace MonoFSM.Variable
 {
@@ -9,7 +11,7 @@ namespace MonoFSM.Variable
     /// The parent GameObject needs to have a VariableOwner component.
     /// </summary>
     /// <remarks>
-    /// This component listens for changes in the source variable and 
+    /// This component listens for changes in the source variable and
     /// automatically propagates those changes to the target variable.
     /// </remarks>
     public class VarBoolRelay : AbstractDescriptionBehaviour, IResetStart, IUpdateSimulate
@@ -29,8 +31,9 @@ namespace MonoFSM.Variable
         /// </summary>
         [DropDownRef] public VarBool _target;
 
+        [ShowInDebugMode]
         private bool _lastValue;
-        
+
         /// <summary>
         /// Initializes the relay by setting up a listener on the source variable.
         /// Called when the component is being ResetStart by LevelRunner.
@@ -41,11 +44,11 @@ namespace MonoFSM.Variable
             if (!_isPolling)
                 _source.Field.AddListener(value => { _target.Field.SetCurrentValue(value, this); }, this);
         }
-        
-        public override string Description 
-            => "when '$" + _source?._varTag?.name + "' changed, set '$" + _target?._varTag?.name + "'";
 
-        protected override string DescriptionTag 
+        public override string Description
+            => "when $" + _source?.name + " changed, set $" + _target?.name + "";
+
+        protected override string DescriptionTag
             => "Relay";
 
         public void Simulate(float deltaTime)
@@ -55,8 +58,12 @@ namespace MonoFSM.Variable
             {
                 _lastValue = currentValue;
                 _target.Field.SetCurrentValue(currentValue, this);
+                _lastSetTime = Time.time;
             }
         }
+
+        [ShowInDebugMode] private float _lastSetTime;
+        //FIXME:
 
         public void AfterUpdate()
         {

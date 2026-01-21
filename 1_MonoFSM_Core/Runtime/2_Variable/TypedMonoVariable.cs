@@ -9,7 +9,6 @@ namespace MonoFSM.Variable
     {
         [CompRef]
         [AutoChildren(DepthOneOnly = true, _isSelfInclude = true)]
-        //fixme; 用interface？好像可以改成AbstractValueProvider<T>? 但無型別的ValueProvider比較彈性
         protected IValueProvider[] _valueSources;
 
         protected IValueProvider valueSource => GetActiveTypedValueSource();

@@ -28,7 +28,7 @@ namespace MonoFSMCore.Runtime.LifeCycle
         void ResetStateRestore();
     }
 
-    //2. 在跑這個
+    //2. 再跑這個
     public interface IResetStart //摸別人,set 變數之類的，要不然會reset掉
     {
         void ResetStart();

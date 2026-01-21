@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using _0_MonoDebug.Gizmo;
 using MonoDebugSetting;
 using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
@@ -38,6 +39,9 @@ namespace MonoFSM.Variable
     {
         protected override string DescriptionTag => "Var";
 
+#if UNITY_EDITOR
+        [CompRef] [AutoChildren] DebugWorldSpaceLabel _debugWorldSpaceLabel;
+#endif
         //FIXME: 什麼case需要parentVarEntity? 忘記了XD
         // [ShowIf(nameof(_parentVarEntity))] //有才顯示就好, 或是debugMode?
 
@@ -76,7 +80,7 @@ namespace MonoFSM.Variable
         // private UnityAction OnValueChangedRaw; //任何數值改變就通知, UI有用到很重要 //override?
 
         private HashSet<IVarChangedListener> _dataChangedListeners; //有誰有用我，binder綁一下
-
+        [CompRef] [AutoChildren] public OnValueChangedHandler _valueChangedHandler;
         public abstract void ClearValue();
 
         //fuck!?
@@ -89,6 +93,7 @@ namespace MonoFSM.Variable
             if (_dataChangedListeners != null)
                 foreach (var item in _dataChangedListeners)
                     item.OnVarChanged(this);
+            _valueChangedHandler?.EventHandle();
             // OnValueChangedRaw?.Invoke();
             // Debug.Log("OnValueChanged", this);
         }
@@ -560,6 +565,7 @@ namespace MonoFSM.Variable
         // public string description;
 
         public override string Description => _varTag != null ? _varTag.name : ReformatedName;
+        public abstract string StringValue { get; }
         // set => description = value;
 #endif
 

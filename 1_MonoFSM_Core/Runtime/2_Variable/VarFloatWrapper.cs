@@ -99,14 +99,18 @@ namespace MonoFSM.Variable
         [SerializeField]
         private TValue _tempValue;
 
+        [ShowInDebugMode]
         [BoxGroup("Var")]
         [SOConfig("VariableType")]
-        [Required]
+        // [Required]
         public VariableTag _bindTag;
 
         [BoxGroup("Var")]
-        [Required]
+        // [Required]
         [Component]
+        // [InlineEditor] //失敗, 和Dropdown打架
+        // [ShowDrawerChain]
+
         public TVar _var;
 
         public VarWrapper() { }
@@ -116,6 +120,7 @@ namespace MonoFSM.Variable
             _tempValue = defaultValue;
         }
 
+        [PreviewInInspector]
         public TValue Value
         {
             get
@@ -124,25 +129,29 @@ namespace MonoFSM.Variable
                     return _tempValue;
                 return _var.Get<TValue>();
             }
-            set
-            {
-                if (_var == null)
-                {
-                    _tempValue = value;
-                    return;
-                }
-
-                _var.SetRaw(value, _var); //FIXME: 不好debug? wrapper要拿得到 parent object?
-            }
+            // set
+            // {
+            //     if (_var == null)
+            //     {
+            //         _tempValue = value;
+            //         return;
+            //     }
+            //
+            //     _var.SetRaw(value, _var); //FIXME: 不好debug? wrapper要拿得到 parent object?
+            // }
         }
 
         public void SetValue(TValue value, Object byWho)
         {
+            Debug.Log($"VarWrapper SetValue: Setting value to {value}", byWho);
             if (_var == null)
             {
+                Debug.Log($"VarWrapper SetValue: Var is null, setting temp value to {value}",
+                    byWho);
                 _tempValue = value;
                 return;
             }
+
             _var.SetRaw(value, byWho);
         }
     }

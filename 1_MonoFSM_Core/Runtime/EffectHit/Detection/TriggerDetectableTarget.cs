@@ -22,7 +22,7 @@ namespace MonoFSM.Core.Detection
 
         protected override bool HasError()
         {
-            return base.HasError() || _collider.enabled == false;
+            return base.HasError() || _collider != null && _collider.enabled == false;
         }
 
         // [Component] [AutoChildren(DepthOneOnly = true)]

@@ -12,7 +12,7 @@ namespace MonoFSM.Core
         [SerializeField] public GameObject targetGameObject;
 
         protected override string DescriptionTag => "=> ShortCut";
-        public override string Description => targetGameObject.name;
+        public override string Description => targetGameObject?.name;
         public bool IsDrawButton => true;
         public string IconName => "d_";
 

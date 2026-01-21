@@ -64,6 +64,7 @@ public abstract class AbstractFieldVariable<TScriptableData, TField, TType>
             var value = CurrentValue;
             if (typeof(TType) == typeof(T1))
                 return Unsafe.As<TType, T1>(ref value);
+
             // Profiler.BeginSample("GetValue Cast");
             // if (value is T1 tValue)
             // {
@@ -84,6 +85,7 @@ public abstract class AbstractFieldVariable<TScriptableData, TField, TType>
     public override void SetRaw<T1>(T1 value, Object byWho)
     {
         Profiler.BeginSample("SetRaw");
+        this.Log("SetRaw Value:", value, ", Type:", typeof(T1), this);
         var tValue = Unsafe.As<T1, TType>(ref value);
         SetValueInternal(tValue, byWho);
         Profiler.EndSample();
@@ -324,7 +326,7 @@ public abstract class AbstractFieldVariable<TScriptableData, TField, TType>
 
     public TType EditorValue
     {
-        get => Field.ProductionValue;
+        get => Field.CurrentValue;
         set
         {
             // Field.ProductionValue = value;
@@ -343,11 +345,13 @@ public abstract class AbstractFieldVariable<TScriptableData, TField, TType>
     [SerializeField]
     private bool _isNull = false; //預設是ProductionValue
 
+    public override string StringValue => CurrentValue.ToString();
     [ShowInPlayMode]
     public virtual TType CurrentValue //FIXME: 改成Value?
     {
         get
         {
+            //hmm
             if (!Application.isPlaying) //FIXME: 先隨便寫一下..
                 return EditorValue;
 
@@ -445,20 +449,12 @@ public abstract class AbstractFieldVariable<TScriptableData, TField, TType>
 
     protected void SetValueInternal(TType value, Object byWho)
     {
-        // if (typeof(T) != typeof(TType))
-        // {
-        //     Debug.LogError("Not valid type");
-        //     return;
-        // }
-
         Profiler.BeginSample("FieldVariable SetValueInternal");
 
         var (result, tempValue) = SetValueExecution(value, byWho as MonoBehaviour);
         if (result)
             RecordSetbyWho(byWho, tempValue);
-        // }
 
-        // Debug.LogError("SetValueInternal Type Error", this);
         Profiler.EndSample();
     }
 

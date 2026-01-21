@@ -5,6 +5,7 @@ using MonoDebugSetting;
 using MonoFSM.Core.Attributes;
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Profiling;
@@ -279,6 +280,7 @@ public class FlagField<T> : FlagFieldBase, IVariableField // where T : IComparab
 
     [GUIColor(0.3f, 0.7f, 0.7f, 1f)]
     [FormerlySerializedAs("DefaultValue")]
+    [OnValueChanged(nameof(ResetToDefault))]
     public T ProductionValue;
 
     // public T PlayTestValue;
@@ -495,10 +497,11 @@ public class FlagField<T> : FlagFieldBase, IVariableField // where T : IComparab
     //NOTE: public是為了，propertyDrawer
     public void SetCurrentValue(T value, Object byWho = null) //FIXME: 可能會memory leak
     {
-        // #if UNITY_EDITOR
-        //         if (DebugSetting.IsDebugMode && _isShowDebugLog)
-        //             Debug.Log("[FlagField] Before Set lastValue:" + _currentValue + "set with:" + value, owner);
-        // #endif
+#if UNITY_EDITOR
+        if (RuntimeDebugSetting.IsDebugMode && _isShowDebugLog)
+            Debug.Log("[FlagField] Before Set lastValue:" + _currentValue + "set with:" + value,
+                owner);
+#endif
 
         Profiler.BeginSample("IsCurrentValueEquals");
         if (IsCurrentValueEquals(value))
@@ -511,6 +514,18 @@ public class FlagField<T> : FlagFieldBase, IVariableField // where T : IComparab
 #if UNITY_EDITOR
         //想要看誰改的，build不要看會memory leak
         _lastByWho = byWho;
+        if (Application.isPlaying == false)
+        {
+            Debug.Log("FlagField Set CurrentValue Editor Mode: " + value);
+            ProductionValue = value;
+            //哇沒有owner呀哈哈 怎麼set dirty
+            if (byWho != null)
+                EditorUtility.SetDirty(byWho);
+            else
+            {
+                Debug.LogError("byWho is null?" + byWho);
+            }
+        }
 #endif
         _lastValue = _currentValue;
         _currentValue = value;
@@ -598,8 +613,8 @@ public class FlagField<T> : FlagFieldBase, IVariableField // where T : IComparab
     {
         // Debug.Log("FlagField: ResetToDefault" + owner, owner);
         //[]: 要先init才能ResetToDefault
-        if (owner == null)
-            Debug.LogError("PLZ FIX ME, Assign Owner for function block!!" + owner, owner);
+        // if (owner == null)
+        //     Debug.LogError("PLZ FIX ME, Assign Owner for function block!!" + owner, owner);
 
         // else
         //FIXME: 要這樣用嗎？hmmm先不要？

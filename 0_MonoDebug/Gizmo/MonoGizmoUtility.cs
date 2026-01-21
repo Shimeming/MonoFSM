@@ -174,9 +174,10 @@ namespace MonoDebug.Gizmo
         /// <param name="position">位置</param>
         /// <param name="isStartNode">是否為起始節點</param>
         /// <param name="radius">半徑</param>
-        public static void DrawNodeStart(Vector3 position, bool isStartNode, float radius = 0.3f)
+        public static void DrawNodeStart(Vector3 position, bool isStartNode, float radius = 0.1f)
         {
-            Gizmos.color = isStartNode ? Color.green : Color.yellow;
+            // Gizmos.color = isStartNode ? Color.green : Color.yellow;
+            Gizmos.color = Color.cyan;
             Gizmos.DrawWireSphere(position, radius);
         }
 
@@ -186,9 +187,9 @@ namespace MonoDebug.Gizmo
         /// <param name="position">位置</param>
         /// <param name="isEndNode">是否為終點節點</param>
         /// <param name="radius">半徑</param>
-        public static void DrawNodeEnd(Vector3 position, bool isEndNode, float radius = 0.3f)
+        public static void DrawNodeEnd(Vector3 position, bool isEndNode, float radius = 0.1f)
         {
-            Gizmos.color = isEndNode ? Color.red : Color.cyan;
+            Gizmos.color = Color.greenYellow;
             Gizmos.DrawWireSphere(position, radius);
         }
 
@@ -198,7 +199,7 @@ namespace MonoDebug.Gizmo
         public static void DrawNodeMarkers(Vector3 start, Vector3 end, bool isStartNode,
             bool isEndNode)
         {
-            DrawNodeStart(start, isStartNode);
+            DrawNodeStart(start, isStartNode); //蛤這很重要嗎？
             DrawNodeEnd(end, isEndNode);
         }
 
