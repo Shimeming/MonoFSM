@@ -42,6 +42,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: fe6f95997618b40b382e095deabd42ea, type: 2}
   containsSchemaTypeTags:
   - {fileID: 11400000, guid: 1573800984d254faab24eaca12310d2e, type: 2}
+  - {fileID: 11400000, guid: 34a2b30a08beb4dcfb4d74cf1174f278, type: 2}
+  - {fileID: 11400000, guid: 09a948680ff8b415eb8fe671bf79e64d, type: 2}
   IsCollectionTag: 0
   _allMonoDescriptable: []
   _stringKey: 

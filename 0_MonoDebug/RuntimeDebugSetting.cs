@@ -223,9 +223,13 @@ namespace MonoDebugSetting
 
         static bool _isDebugMode;
 
+        public static event System.Action<bool> OnDebugModeChanged;
+
         public static void SetDebugMode(bool value) //FIXME: 要擋掉？interface pass?
         {
+            if (_isDebugMode == value) return;
             _isDebugMode = value;
+            OnDebugModeChanged?.Invoke(value);
         }
 
         public static bool IsDebugMode

@@ -9,7 +9,7 @@ using UnityEditor.Animations;
 using UnityEngine;
 using UnityToolbarExtender;
 
-public class AnimationClipSearchWindow : OdinEditorWindow, IToolbarWindow
+public class AnimationClipSearchWindow : OdinEditorWindow//, IToolbarWindow
 {
     // [MenuItem("Window/赤燭RCG/AnimationClipSearchWindow")]
     // public static void ShowCustomWindow()
@@ -117,7 +117,7 @@ public class AnimationClipSearchWindow : OdinEditorWindow, IToolbarWindow
     // private void OnInspectorUpdate()
     // {
     //     //這個也太髒...
-    //     
+    //
     //     if(mouseOverWindow)
     //         currentEditingClip = GetAnimationWindowCurrentClip();
     // }
@@ -275,7 +275,7 @@ public class AnimationClipSearchWindow : OdinEditorWindow, IToolbarWindow
         // Debug.Log("OnSelectionChange: " + Selection.activeGameObject);
         var anim = Selection.activeGameObject.GetComponentInParent<Animator>();
         if (!anim) return;
-        
+
 
         IsCurrentSelectUnderAnimator = true;
         AvailableAnimator = anim;

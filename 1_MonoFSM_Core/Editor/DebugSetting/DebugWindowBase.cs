@@ -10,9 +10,9 @@ using UnityToolbarExtender;
 
 namespace RCG.Core
 {
-    //Deprecated    
+    //Deprecated
     [Obsolete]
-    public class DebugWindowBase : OdinEditorWindow, IToolbarWindow
+    public class DebugWindowBase : OdinEditorWindow //, IToolbarWindow
     {
         // private const string MenuName = "RCGs/Toggle DebugMode (Hierarchy Coloring)"; // #%_D
         //
@@ -20,7 +20,7 @@ namespace RCG.Core
         // private static void ToggleDebugMode()
         // {
         //     // RCGDebugSetting.IsDebugMode.SetValue(!RCGDebugSetting.IsDebugMode.value);
-        //     
+        //
         //     // DebugSetting.IsDebugMode = !DebugSetting.IsDebugMode;
         //     // Debug.Log("DebugMode:" + RCGDebugSetting.IsDebugMode.value);
         //     OpenWindowStatic();
@@ -51,7 +51,7 @@ namespace RCG.Core
                 return GetWindow(typeof(DebugWindowBase)) as DebugWindowBase;
             }
 
-            
+
 
             return null;
         }
@@ -69,7 +69,7 @@ namespace RCG.Core
             var window = GetWindow<DebugWindowBase>();
             return window;
             // window.IsDebugMode = !window.IsDebugMode;
-            
+
         }
 
         // [ShowInInspector]
@@ -102,7 +102,7 @@ namespace RCG.Core
 
         // private void OnInspectorUpdate()
         // {
-        //     
+        //
         // }
     }
 }

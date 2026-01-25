@@ -6,9 +6,7 @@ using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
 using UnityEditor;
-using UnityEditor.Search;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace MonoFSM.Core.Editor
 {
@@ -173,17 +171,24 @@ namespace MonoFSM.Core.Editor
 
         private IEnumerable<GameObject> GetFilteredPrefabs()
         {
-            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+            var results = new List<GameObject>();
 
-            using var searchContext = SearchService.CreateContext(new[] { "asset" }, "t:MonoObj");
-            using var results = SearchService.Request(searchContext, SearchFlags.Synchronous);
+            // 搜尋 Assets 和 Packages 資料夾
+            var searchFolders = new[] { "Assets", "Packages" };
+            var guids = AssetDatabase.FindAssets("t:Prefab", searchFolders);
+
+            foreach (var guid in guids)
             {
-                return results
-                    .Select(r => r.ToObject<GameObject>())
-                    // .Where(prefab => prefab != null && ValidatePrefab(prefab))
-                    .ToList();
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+
+                if (prefab != null && ValidatePrefab(prefab))
+                {
+                    results.Add(prefab);
+                }
             }
-            return null;
+
+            return results;
             // var guids = AssetDatabase.FindAssets(searchFilter);
             // Debug.Log($"[PrefabFilter] Found {guids.Length} assets with filter: {searchFilter}");
             // var results = new List<GameObject>();

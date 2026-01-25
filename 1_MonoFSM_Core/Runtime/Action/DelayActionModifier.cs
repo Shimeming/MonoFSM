@@ -7,8 +7,10 @@ using UnityEngine;
 
 //DElayNode?
 //FIXME: 很危險，可能因為切state delay還沒結束結果沒有觸發
+//Note: 還是直接切一個State出來比較好，用timer決定要去
 //因為是view, 所以沒差
 //哇要區分view和server logic可以用的api...hmmm
+[Obsolete]
 public class DelayActionModifier : MonoBehaviour
 {
     public float delayTime = 1;

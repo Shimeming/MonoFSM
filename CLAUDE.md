@@ -1,3 +1,4 @@
+* 需要新增 C# 檔案時，透過 Rider 的 tool 來新建，避免直接寫入文字檔
 * 如果我沒有選擇程式碼片段(select line)或沒有提供目前編輯的檔案時，先提醒我
 * 當我提出需求時，先回應我清楚度 1-10分，當問題不清楚時(<7)，請要求我提供更多資訊
 * 當修改的檔案超出500行時，可以進行refactor或是需要拆模組到其他檔案
@@ -13,3 +14,4 @@
       @MonoFSM/1_MonoFSM_Core/Runtime/Action/AbstractStateAction.cs)
     * 當我提到關於 Condition,條件實作等，透過繼承 AbstractConditionBehaviour 來實現 (
       @MonoFSM/1_MonoFSM_Core/Runtime/1_Conditions/AbstractConditionBehaviour.c)
+* 可以用 Debug.Log 來讓我協助測試與除錯

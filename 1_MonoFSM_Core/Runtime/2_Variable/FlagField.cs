@@ -619,6 +619,14 @@ public class FlagField<T> : FlagFieldBase, IVariableField // where T : IComparab
         // else
         //FIXME: 要這樣用嗎？hmmm先不要？
         // _currentValue = RuntimeDebugSetting.IsDebugMode ? DevValue : ProductionValue;
+        if (Application.isPlaying == false)
+        {
+            if (EqualityComparer<T>.Default.Equals(DevValue, default) ||
+                EqualityComparer<T>.Default.Equals(DevValue, _currentValue))
+            {
+                DevValue = ProductionValue;
+            }
+        }
         _currentValue = ProductionValue;
         // Debug.Log("FlagField Init: " + _currentValue + " Mode: " + DebugSetting.IsDebugMode, owner);
         //沒有register耶？
