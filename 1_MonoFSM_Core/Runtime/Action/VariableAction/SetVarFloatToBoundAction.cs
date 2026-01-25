@@ -3,10 +3,11 @@ using MonoFSM.Variable;
 
 namespace MonoFSM.Core.Runtime.Action.VariableAction
 {
-    //FIXME: 不好，應該是value provider有個是max就好
-    [Obsolete]
     public class SetVarFloatToBoundAction : AbstractStateAction
     {
+        public override string Description => "Set $" + _targetVar?.name + " to " +
+                                              _boundType;
+
         public enum BoundType
         {
             Min,

@@ -32,10 +32,10 @@ namespace MonoFSM.Core.Runtime.Action
         // public MonoEntity ParentEntity => bindingState.ParentEntity;
         public float DeltaTime => bindingState.DeltaTime;
 
-        protected override bool HasError()
-        {
-            return GetComponentInParent<IActionParent>(true) == null;
-        }
+        // protected override bool HasError()
+        // {
+        //     return GetComponentInParent<IActionParent>(true) == null;
+        // }
 
         protected override string DescriptionTag => "Action";
 
@@ -59,8 +59,9 @@ namespace MonoFSM.Core.Runtime.Action
         [Required]
         [PreviewInInspector]
         [AutoParent]
-        //FIXME: 要做 DepthOnly嗎？
-        protected IActionParent _actionParent;
+        // [SerializeField]
+        //FIXME: 要做 DepthOnly1嗎？
+        protected AbstractEventHandler _actionParent;
 
         [HideInInlineEditors]
         // #if UNITY_EDITOR

@@ -213,11 +213,6 @@ namespace MonoFSM.Variable
 
         protected void CreateTagPostProcess()
         {
-            //FIXME: 從Drawer call 失敗了，感覺varTag還沒做好...
-            // varTag._variableType.SetType(GetType());
-            // varTag._valueFilterType.SetType(ValueType);
-            // Debug.Log("CreateTagPostProcess" + varTag._variableType.RestrictType + varTag._valueFilterType.RestrictType,
-            //     varTag);
         }
 
         public T1 Get<T1>()
@@ -265,27 +260,67 @@ namespace MonoFSM.Variable
             public object _value; //可能被attribute processor給處理到，好像有點太過侵入？
             public Object _byWho;
             public float _time;
+            public string _reason; //記錄 set 的原因
+            public string _stackTrace; //完整的 call stack
+
+            [Button]
+            void LogStackTrace()
+            {
+                Debug.Log(_stackTrace, _byWho);
+            }
         }
+
+        // [Button("Log Set History"), ShowInDebugMode]
+        // private void LogSetHistory()
+        // {
+        //     if (_byWhoQueue == null || _byWhoQueue.Count == 0)
+        //     {
+        //         Debug.Log($"[{name}] No set history recorded.", this);
+        //         return;
+        //     }
+        //
+        //     var sb = new System.Text.StringBuilder();
+        //     sb.AppendLine($"=== [{name}] Set History ({_byWhoQueue.Count} records) ===");
+        //
+        //     int index = 0;
+        //     foreach (var data in _byWhoQueue)
+        //     {
+        //         sb.AppendLine($"\n--- #{index} @ {data._time:F2}s ---");
+        //         sb.AppendLine($"Value: {data._value}");
+        //         sb.AppendLine($"ByWho: {(data._byWho != null ? data._byWho.name : "null")}");
+        //         if (!string.IsNullOrEmpty(data._reason))
+        //             sb.AppendLine($"Reason: {data._reason}");
+        //         sb.AppendLine($"StackTrace:\n{data._stackTrace}");
+        //         index++;
+        //     }
+        //
+        //     Debug.Log(sb.ToString(), this);
+        // }
 #endif
 
-        protected void RecordSetbyWho<T>(Object byWho, T tempValue)
+        protected void RecordSetbyWho<T>(Object byWho, T tempValue, string reason = null)
         {
             if (!RuntimeDebugSetting.IsDebugMode)
             {
                 return;
             }
-            // byWho.Log("[Variable] Set", name, value);
-            this.Log("[Variable] Set", tempValue, "byWho", byWho);
-            // byWhoHashSet.Add(byWho);
 #if UNITY_EDITOR
+            // 取得完整 call stack，跳過前 2 層 (RecordSetbyWho 和 SetValue)
+            var stackTrace = new System.Diagnostics.StackTrace(2, true);
+            var stackString = stackTrace.ToString();
 
-            //這個最係最好，如果有包含原因會更好？直接用字串？
+            var logMessage = string.IsNullOrEmpty(reason)
+                ? $"[Variable] Set {tempValue} byWho {byWho}"
+                : $"[Variable] Set {tempValue} byWho {byWho} reason: {reason}";
+            this.Log(logMessage + "\n" + stackString);
+
             var byWhoData = new SetValueExecutionData
             {
-                //這段會boxing, primitive -> object
                 _value = tempValue,
                 _byWho = byWho,
                 _time = Time.time,
+                _reason = reason,
+                _stackTrace = stackString,
             };
             _byWhoQueue.Enqueue(byWhoData);
             if (_byWhoQueue.Count > 10)
@@ -610,7 +645,8 @@ namespace MonoFSM.Variable
             UpdateTag();
             if (_varTag == null)
             {
-                Debug.LogError("No VarTag: " + this, this);
+                if (RuntimeDebugSetting.IsDebugMode)
+                    Debug.LogError("No VarTag: " + this, this);
                 return;
             }
 

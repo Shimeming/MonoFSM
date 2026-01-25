@@ -31,9 +31,9 @@ public class GeneralState : MonoStateBehaviour
     [Button("強制跳State (無視條件)")]
     private void TestGoToState()
     {
-        //hot reload不能改這個？為什麼？
-        Debug.Log("ForceActivateState?", this);
-        Machine.ForceActivateState(this);
+        Debug.Log($"ForceActivateState to {Name}", this);
+        // 使用 RestoreState 機制，會在網路同步後執行，避免被 ReadNetworkData 覆蓋
+        context.RestoreState(StateId);
     }
 
     protected virtual void OnStateEnter() { }

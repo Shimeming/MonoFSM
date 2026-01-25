@@ -85,6 +85,7 @@ namespace MonoFSM.Core
 #endif
         }
 
+        [Button]
         private void RevertAllOverrides()
         {
 #if UNITY_EDITOR

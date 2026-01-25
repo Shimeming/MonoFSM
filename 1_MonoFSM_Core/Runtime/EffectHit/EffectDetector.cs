@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using _1_MonoFSM_Core.Runtime.EffectHit.Action;
+using _1_MonoFSM_Core.Runtime.MonoData;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.EffectHit;
 using MonoFSM.Core.Simulate;
@@ -7,6 +8,7 @@ using MonoFSM.CustomAttributes;
 using MonoFSM.Foundation;
 using MonoFSM.Runtime.Interact.EffectHit;
 using MonoFSM.Variable.Attributes;
+using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -59,6 +61,7 @@ namespace MonoFSM.Core.Detection
             IUpdateSimulate,
             IDropdownRoot
     {
+
         //FIXME: 這個不好...會以為可以改name結果又跑掉？
         [SerializeField]
         private string _designName;
@@ -90,20 +93,20 @@ namespace MonoFSM.Core.Detection
 
         //FIXME: Receiver的部分要怎麼處理？ 也會有開關的問題？還是沒差遇到再說
         //有特別做了
-        private void OnDisable()
-        {
-            if (!Application.isPlaying)
-                return;
-            // Debug.Log("OnDisable of detector",this);
-            //copy _detectedObjects to toRemove
-            _toRemove.AddRange(_thisFrameDetectedObjects.Keys);
-            foreach (var detectable in _toRemove)
-                // Debug.Log("OnDisable of detectable",detectable);
-                TriggerExitEventsForDetectable(detectable, _thisFrameDetectedObjects[detectable]);
-
-            _toRemove.Clear();
-            _thisFrameDetectedObjects.Clear(); //應該要關掉嗎？
-        }
+        // private void OnDisable()
+        // {
+        //     if (!Application.isPlaying)
+        //         return;
+        //     // Debug.Log("OnDisable of detector",this);
+        //     //copy _detectedObjects to toRemove
+        //     _toRemove.AddRange(_thisFrameDetectedObjects.Keys);
+        //     foreach (var detectable in _toRemove)
+        //         // Debug.Log("OnDisable of detectable",detectable);
+        //         TriggerExitEventsForDetectable(detectable, _thisFrameDetectedObjects[detectable]);
+        //
+        //     _toRemove.Clear();
+        //     _thisFrameDetectedObjects.Clear(); //應該要關掉嗎？
+        // }
 
         [RequiredListLength(MinLength = 1)]
         [CompRef]
@@ -213,8 +216,16 @@ namespace MonoFSM.Core.Detection
         [ShowInDebugMode]
         float _lastDetectCheckTime = 0f;
 
+        [AutoParent] MonoContext _monoContext;
         public void DetectCheck()
         {
+            if (_monoContext == null)
+            {
+                Debug.LogError("_monoContext is null", this);
+            }
+
+            if (_monoContext && _monoContext.isActiveAndEnabled == false) //被culling 整個關掉就不檢測
+                return;
             // 每frame重建檢測列表
             _lastDetectCheckTime = Time.time;
             // 1. 記錄上一幀的檢測狀態

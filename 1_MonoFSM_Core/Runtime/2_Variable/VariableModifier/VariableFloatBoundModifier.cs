@@ -31,6 +31,7 @@ namespace MonoFSM.Variable
     {
         [PreviewInInspector]
         [AutoParent]
+
         VarFloat _monoVar;
 
         // [Auto] VariableFloat variable;
@@ -71,9 +72,11 @@ namespace MonoFSM.Variable
                 Debug.LogError("VariableFloatBoundModifier has no min/max value set", this);
         }
 
+        [Component]
         [SerializeField]
         private VarFloat _minValue;
 
+        [Component]
         [SerializeField]
         private VarFloat _maxValue;
 

@@ -60,7 +60,7 @@ public class ObjectPool : IObjectPool
         StillOnUses.AddRange(OnUseObjs);
 
         for (var i = 0; i < StillOnUses.Count; i++)
-            StillOnUses[i].ReturnToPool();
+            StillOnUses[i].Recycle();
     }
 
     public void ReturnAllObjects(Scene scene)
@@ -75,7 +75,7 @@ public class ObjectPool : IObjectPool
             var obj = stillOnUses[i];
             if (!obj.IsProtected())
             {
-                obj.ReturnToPool();
+                obj.Recycle();
             }
         }
     }
@@ -201,7 +201,7 @@ public class ObjectPool : IObjectPool
         // 執行回收
         foreach (var obj in returnableObjects)
         {
-            obj.ReturnToPool();
+            obj.Recycle();
         }
 
         // 記錄保護狀況

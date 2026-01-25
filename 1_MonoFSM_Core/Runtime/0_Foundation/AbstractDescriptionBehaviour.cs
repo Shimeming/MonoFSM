@@ -21,6 +21,7 @@ using UnityEditor.SceneManagement;
 namespace MonoFSM.Foundation
 {
     // [InfoBox("$_errorMessage", InfoMessageType.Error, "$HasError")]
+    [Searchable]
     public abstract class AbstractDescriptionBehaviour
         : MonoBehaviour,
             IBeforePrefabSaveCallbackReceiver,
@@ -28,11 +29,15 @@ namespace MonoFSM.Foundation
             IDrawHierarchyBackGround
     {
         [HideIf(nameof(_parentObj))]
-        [Required]
+        [RequiredIn(PrefabKind.PrefabInstance)]
         [ShowInInspector]
         [AutoParent]
         protected MonoObj _parentObj; //FIXME: 會拿不到root的耶...好麻煩啊
 
+        public void DestroyItem()
+        {
+            simulator.Despawn(_parentObj);
+        }
         public WorldUpdateSimulator simulator => _parentObj.WorldUpdateSimulator;
 
 #if UNITY_EDITOR
@@ -63,7 +68,7 @@ namespace MonoFSM.Foundation
         > _requiredFieldsCacheWithNonSerialized = new();
 
         // Track if we're in prefab stage mode for more detailed error checking
-        private bool _isPrefabStageMode = false;
+        // private bool _isPrefabStageMode = false;
 
         //沒有做AutoComponent下會顯示error? 還是應該讓prefab openstage時做一次，scene上跳過這個判定，雖然稍嫌trivial
         private static FieldInfo[] GetRequiredHierarchyValidateFields(
@@ -117,8 +122,6 @@ namespace MonoFSM.Foundation
             return requiredFields;
         }
 
-        //FIXME: 應該改成required attribute processor, 然後配合interface做drawHierarchy?
-        //用reflection找到所有[Required]的field，然後檢查是否有null
         private bool CheckNullOfRequiredFields()
         {
             var requiredFields = GetRequiredHierarchyValidateFields(GetType());
@@ -141,7 +144,7 @@ namespace MonoFSM.Foundation
             }
 
             // Debug.Log($"All required fields are set in {gameObject.name}");
-            _errorMessage = "pass!";
+            _errorMessage = "pass in scene!";
 
             return false;
         }
@@ -182,16 +185,21 @@ namespace MonoFSM.Foundation
                 }
             }
 
-            _errorMessage = "pass!";
+            _errorMessage = "pass in prefab!";
             return false;
         }
 
         /// <summary>
-        /// 檢查是否應該驗證指定的欄位（根據 ValueTypeValidateAttribute 的條件方法）
+        /// 檢查是否應該驗證指定的欄位（根據 ShowIf/HideIf 或 ValueTypeValidateAttribute 的條件方法）
         /// </summary>
         private bool ShouldValidateField(FieldInfo field)
         {
-            // 獲取欄位上的 ValueTypeValidateAttribute
+            // 優先檢查 ShowIf/HideIf 屬性（自動同步 UI 顯示和驗證邏輯）
+            var showIfResult = EvaluateShowIfCondition(field);
+            if (showIfResult.HasValue)
+                return showIfResult.Value;
+
+            // 如果沒有 ShowIf/HideIf，則檢查 ValueTypeValidateAttribute 的 ConditionalMethod
             var validateAttribute = field.GetCustomAttribute<ValueTypeValidateAttribute>();
             if (
                 validateAttribute == null
@@ -199,42 +207,152 @@ namespace MonoFSM.Foundation
             )
                 return true; // 沒有條件方法，總是驗證
 
+            return EvaluateBoolCondition(validateAttribute.ConditionalMethod, field.Name);
+        }
+
+        /// <summary>
+        /// 評估 ShowIf/HideIf 屬性的條件
+        /// </summary>
+        /// <returns>true=應該驗證, false=跳過驗證, null=沒有 ShowIf/HideIf 屬性</returns>
+        private bool? EvaluateShowIfCondition(FieldInfo field)
+        {
+            // 檢查 ShowIfAttribute
+            var showIfAttr = field.GetCustomAttribute<ShowIfAttribute>();
+            if (showIfAttr != null)
+            {
+                var conditionName = showIfAttr.Condition;
+                if (!string.IsNullOrEmpty(conditionName))
+                {
+                    // 處理 @ 開頭的表達式（跳過，太複雜無法在 runtime 評估）
+                    if (conditionName.StartsWith("@"))
+                        return null; // 無法評估表達式，跳過此檢查
+
+                    var result = EvaluateMemberCondition(conditionName, showIfAttr.Value);
+                    if (result.HasValue)
+                        return result.Value;
+                }
+            }
+
+            // 檢查 HideIfAttribute（邏輯反轉）
+            var hideIfAttr = field.GetCustomAttribute<HideIfAttribute>();
+            if (hideIfAttr != null)
+            {
+                var conditionName = hideIfAttr.Condition;
+                if (!string.IsNullOrEmpty(conditionName))
+                {
+                    // 處理 @ 開頭的表達式
+                    if (conditionName.StartsWith("@"))
+                        return null;
+
+                    var result = EvaluateMemberCondition(conditionName, hideIfAttr.Value);
+                    if (result.HasValue)
+                        return !result.Value; // HideIf 邏輯反轉
+                }
+            }
+
+            return null; // 沒有 ShowIf/HideIf 屬性
+        }
+
+        /// <summary>
+        /// 評估成員條件（欄位、屬性或方法）
+        /// </summary>
+        /// <param name="memberName">成員名稱</param>
+        /// <param name="compareValue">比較值（用於 enum 比較，可為 null）</param>
+        private bool? EvaluateMemberCondition(string memberName, object compareValue)
+        {
+            var type = GetType();
+            var bindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+
             try
             {
-                // 嘗試調用條件方法
+                // 1. 嘗試作為欄位
+                var fieldInfo = type.GetField(memberName, bindingFlags);
+                if (fieldInfo != null)
+                {
+                    var value = fieldInfo.GetValue(this);
+                    return EvaluateConditionValue(value, compareValue);
+                }
+
+                // 2. 嘗試作為屬性
+                var propertyInfo = type.GetProperty(memberName, bindingFlags);
+                if (propertyInfo != null && propertyInfo.CanRead)
+                {
+                    var value = propertyInfo.GetValue(this);
+                    return EvaluateConditionValue(value, compareValue);
+                }
+
+                // 3. 嘗試作為方法（無參數，返回 bool）
+                var methodInfo =
+                    type.GetMethod(memberName, bindingFlags, null, Type.EmptyTypes, null);
+                if (methodInfo != null && methodInfo.ReturnType == typeof(bool))
+                {
+                    var result = methodInfo.Invoke(this, null);
+                    return result is bool boolResult && boolResult;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"評估條件 '{memberName}' 時發生錯誤: {ex.Message}");
+            }
+
+            return null; // 找不到成員
+        }
+
+        /// <summary>
+        /// 評估條件值
+        /// </summary>
+        private bool EvaluateConditionValue(object value, object compareValue)
+        {
+            // 如果有比較值，則進行相等比較（用於 enum）
+            if (compareValue != null)
+                return Equals(value, compareValue);
+
+            // 否則嘗試轉換為 bool
+            if (value is bool boolValue)
+                return boolValue;
+
+            // 非 bool 值且沒有比較值，無法評估
+            return true; // 預設為驗證
+        }
+
+        /// <summary>
+        /// 評估 bool 條件方法
+        /// </summary>
+        private bool EvaluateBoolCondition(string methodName, string fieldName)
+        {
+            try
+            {
                 var method = GetType()
                     .GetMethod(
-                        validateAttribute.ConditionalMethod,
+                        methodName,
                         BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
                     );
 
                 if (method == null)
                 {
                     Debug.LogWarning(
-                        $"找不到條件方法 '{validateAttribute.ConditionalMethod}' 在型別 {GetType().Name} 中，欄位 '{field.Name}'"
-                    );
-                    return true; // 找不到方法時預設為驗證
-                }
-
-                // 檢查方法返回型別是否為 bool
-                if (method.ReturnType != typeof(bool))
-                {
-                    Debug.LogWarning(
-                        $"條件方法 '{validateAttribute.ConditionalMethod}' 必須返回 bool 型別，欄位 '{field.Name}'"
+                        $"找不到條件方法 '{methodName}' 在型別 {GetType().Name} 中，欄位 '{fieldName}'"
                     );
                     return true;
                 }
 
-                // 調用方法並返回結果
+                if (method.ReturnType != typeof(bool))
+                {
+                    Debug.LogWarning(
+                        $"條件方法 '{methodName}' 必須返回 bool 型別，欄位 '{fieldName}'"
+                    );
+                    return true;
+                }
+
                 var result = method.Invoke(this, null);
                 return result is bool boolResult && boolResult;
             }
             catch (Exception ex)
             {
                 Debug.LogError(
-                    $"執行條件方法 '{validateAttribute.ConditionalMethod}' 時發生錯誤: {ex.Message}，欄位 '{field.Name}'"
+                    $"執行條件方法 '{methodName}' 時發生錯誤: {ex.Message}，欄位 '{fieldName}'"
                 );
-                return true; // 發生錯誤時預設為驗證
+                return true;
             }
         }
 
@@ -309,7 +427,7 @@ namespace MonoFSM.Foundation
 
         public virtual void OnAfterPrefabStageOpen()
         {
-            _isPrefabStageMode = true;
+            // _isPrefabStageMode = true;
             // Trigger error checking with non-serialized fields included
             CheckNullOfRequiredFieldsForPrefabStage(true);
         }
@@ -318,13 +436,16 @@ namespace MonoFSM.Foundation
         protected virtual bool HasError()
         {
             // Use different checking logic based on environment
-            var isInPrefabStage = _isPrefabStageMode;
+            bool isInPrefabStage = false;
 
 #if UNITY_EDITOR
             // Double-check using Unity's API for more reliability
             if (PrefabStageUtility.GetCurrentPrefabStage() != null)
                 isInPrefabStage = true;
-
+            // Debug.Log(
+            //     $"HasError Check in {gameObject.name}, isInPrefabStage: {isInPrefabStage}",
+            //     this
+            // );
             return isInPrefabStage
                 ? CheckNullOfRequiredFieldsForPrefabStage()
                 : CheckNullOfRequiredFields();

@@ -46,7 +46,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
             return true;
         }
 
-        [Required]
+        [RequiredIn(PrefabKind.PrefabInstance)]
         [PreviewInInspector]
         [AutoParent]
         private MonoEntity _parentEntity;

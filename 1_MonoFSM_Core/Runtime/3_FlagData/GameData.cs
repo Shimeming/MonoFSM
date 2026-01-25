@@ -172,7 +172,7 @@ public class GameData
         IDescriptableData,
         IMonoDescriptable,
         ISceneSavingCallbackReceiver,
-        IFieldPathRootTypeProvider
+        IFieldPathRootTypeProvider, IItemData
 {
     [FormerlySerializedAs("descriptableTag")]
     public MonoEntityTag _entityTag;
@@ -181,7 +181,10 @@ public class GameData
     // private AbstractDataFunction[] _dataFunctionsArray;
 
     //FIXME: 還是用 AbstractDataFunction 比較好？
-    [OnValueChanged(nameof(RebuildDataFunctionDict))] [SerializeReference]
+    [OnCollectionChanged(nameof(RebuildDataFunctionDict))] [SerializeReference]
+    public List<AbstractDataFunction> _dataFunctionList = new();
+
+    [OnCollectionChanged(nameof(RebuildDataFunctionDict))] [SerializeReference]
     //empty
     private AbstractDataFunction[] _dataFunctions = Array.Empty<AbstractDataFunction>();
 
@@ -197,7 +200,7 @@ public class GameData
     public T GetDataFunction<T>()
         where T : class, IDataFeature
     {
-        
+
         if (_dataFunctionDict.TryGetValue(typeof(T), out var dataFunction))
             return dataFunction as T;
 
@@ -219,23 +222,40 @@ public class GameData
 
     private void RebuildDataFunctionDict()
     {
-        if (_dataFunctions == null) //如果onchange清掉咧？
+        // return;
+        if (_dataFunctions == null && _dataFunctionList == null) //如果onchange清掉咧？
             return;
         _dataFunctionDict.Clear();
-        if (_dataFunctions.Length == 0) //沒有
-            return;
-        foreach (var dataFunction in _dataFunctions)
-        {
-            if (dataFunction == null)
+
+        if (_dataFunctions != null && _dataFunctions.Length > 0)
+            foreach (var dataFunction in _dataFunctions)
             {
-                Debug.LogError("DataFunction is null in " + name, this);
-                continue;
+                if (dataFunction == null)
+                {
+                    Debug.LogError("DataFunction is null in " + name, this);
+                    continue;
+                }
+
+                dataFunction.SetOwner(this);
+                var type = dataFunction.GetType();
+                if (!_dataFunctionDict.TryAdd(type, dataFunction))
+                    Debug.LogError($"Duplicate data function of type {type} found in {name}", this);
             }
-            dataFunction.SetOwner(this);
-            var type = dataFunction.GetType();
-            if (!_dataFunctionDict.TryAdd(type, dataFunction))
-                Debug.LogError($"Duplicate data function of type {type} found in {name}", this);
-        }
+
+        if (_dataFunctionList != null && _dataFunctionList.Count > 0)
+            foreach (var dataFunction in _dataFunctionList)
+            {
+                if (dataFunction == null)
+                {
+                    Debug.LogError("DataFunction is null in " + name, this);
+                    continue;
+                }
+
+                dataFunction.SetOwner(this);
+                var type = dataFunction.GetType();
+                if (!_dataFunctionDict.TryAdd(type, dataFunction))
+                    Debug.LogError($"Duplicate data function of type {type} found in {name}", this);
+            }
     }
 
     public async void PreloadSprite()
@@ -685,5 +705,19 @@ public class GameData
     public Type GetFieldPathRootType()
     {
         return typeof(GameData);
+    }
+
+    public GameData Owner => this;
+
+    public void SetOwner(GameData owner)
+    {
+    }
+
+    //TODO: 直接把數字寫在這？
+    public float MaxStackCount => 10;
+
+    public void Use()
+    {
+        //外包 Scriptable Handler?
     }
 }

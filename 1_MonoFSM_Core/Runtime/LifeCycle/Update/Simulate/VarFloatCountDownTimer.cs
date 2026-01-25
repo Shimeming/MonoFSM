@@ -13,8 +13,6 @@ namespace MonoFSM.Core.Simulate
     /// </summary>
     public class VarFloatCountDownTimer : MonoBehaviour, IUpdateSimulate, ISceneStart
     {
-        
-        
         [InfoBox(
             "This timer counts down from a specified value to zero. It can be reset to a maximum value or a specific value. It is used to control the timing of events in the game.")]
         [DropDownRef] public VarFloat currentTime;
@@ -39,16 +37,17 @@ namespace MonoFSM.Core.Simulate
 
         // private void Update()
         // {
-        //   
+        //
         // }
 
-        [PreviewInInspector] [AutoChildren] AbstractConditionBehaviour[] _conditions;
+        //FIXME: 還要有condition? 暫停？
+        [PreviewInInspector] [AutoChildren(DepthOneOnly = true)]
+        AbstractConditionBehaviour[] _conditions;
 
         public void Simulate(float deltaTime)
         {
-            //FIXME: 還要有condition?
-            if (!_conditions.IsAllValid())
-                return;
+            // if (!_conditions.IsAllValid())
+            //     return;
             if (currentTime.CurrentValue > currentTime.Min)
             {
                 // Debug.Log("Counting down" + currentTime.CurrentValue + " " + Time.deltaTime);

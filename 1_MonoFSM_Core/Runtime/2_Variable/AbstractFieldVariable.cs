@@ -99,9 +99,9 @@ public abstract class AbstractFieldVariable<TScriptableData, TField, TType>
     //還要看條件嗎？ conditional value switch
     //想要直接選一個field就拿他的值，應該抽出去做成一個新東西不要放在GenericVariable裡面
     //VariableFloat應該獨立寫？這樣就一定可以有一個最好的abstract class
-    public void SetValue(TType value, Object byWho = null)
+    public void SetValue(TType value, Object byWho = null, string reason = null)
     {
-        SetValueInternal(value, byWho);
+        SetValueInternal(value, byWho, reason);
     }
 
     public override void CommitValue()
@@ -447,13 +447,13 @@ public abstract class AbstractFieldVariable<TScriptableData, TField, TType>
 
     // SetValue???
 
-    protected void SetValueInternal(TType value, Object byWho)
+    protected void SetValueInternal(TType value, Object byWho, string reason = null)
     {
         Profiler.BeginSample("FieldVariable SetValueInternal");
 
         var (result, tempValue) = SetValueExecution(value, byWho as MonoBehaviour);
         if (result)
-            RecordSetbyWho(byWho, tempValue);
+            RecordSetbyWho(byWho, tempValue, reason);
 
         Profiler.EndSample();
     }
@@ -612,6 +612,7 @@ public abstract class AbstractFieldVariable<TScriptableData, TField, TType>
     public override void ClearValue()
     {
         Field.ClearValue();
+        RecordSetbyWho(this, default(TType), "ClearValue");
         _isNull = true;
     }
 
@@ -637,5 +638,5 @@ public interface ISettable //FIXME: 有點蠢
 //這個有意義嗎？
 public interface ISettable<in T> : ISettable
 {
-    void SetValue(T value, Object byWho = null);
+    void SetValue(T value, Object byWho = null, string message = "");
 }

@@ -18,6 +18,7 @@ public class DelayActionModifier : MonoBehaviour
     [AutoChildren]
     private AbstractStateAction[] actions;
 
+    //TODO: state change 可以？
     public async UniTaskVoid TriggerDelayAction()
     {
         //FIXME: 用update不好...hmm

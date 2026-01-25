@@ -80,6 +80,7 @@ namespace MonoFSM.Variable
         [ShowInDebugMode]
         public bool IsIncreasing => CurrentValue > LastValue;
 
+        [Component]
         [AutoChildren(false)] //[PreviewInInspector]
         [SerializeField]
         private VariableFloatBoundModifier _boundModifier; //FIXME: Nested Prefab時會有髒髒狀態？ 還是要Editor都寫GetComponent...?

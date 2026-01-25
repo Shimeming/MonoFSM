@@ -91,17 +91,16 @@ namespace MonoFSM.Variable
             return base.HasError() || (_isConfig && _defaultValue == null);
         }
 
+        //FIXME: 可以額外做filterType?
+        // [DynamicType]
         [SerializeField]
         protected TValueType _defaultValue; //ConfigSettingValue? //只有VarMonoObj才需要？
-
-        // _siblingDefaultValue != null ? _siblingDefaultValue : _defaultValue;
 
         /// <summary>
         /// 保持原有的強型別Value屬性，但使用動態轉型
         /// </summary>
         [GUIColor(0.2f, 0.8f, 0.2f)]
         [PreviewInInspector]
-        [DynamicType] // 標示此屬性的型別會根據VarTag動態決定 FIXME: 在做啥？
         public TValueType Value //動態？ varTag的RestrictType 才決定型別？
         {
             get
@@ -258,10 +257,12 @@ namespace MonoFSM.Variable
         //     SetObjValueInternal(value, byWho);
         // }
 
-        public void SetValue(TValueType value, Object byWho = null)
+        public void SetValue(TValueType value, Object byWho = null, string reason = null)
         {
-            SetValueInternal(value, byWho);
+            SetValueInternal(value, byWho, reason);
         }
+
+
 
         public override void CommitValue()
         {
@@ -278,7 +279,7 @@ namespace MonoFSM.Variable
         // }
 
         //怎麼那麼多種...
-        protected void SetValueInternal(TValueType value, Object byWho)
+        protected void SetValueInternal(TValueType value, Object byWho, string reason = null)
         {
             if (varRef != null)
             {
@@ -290,7 +291,7 @@ namespace MonoFSM.Variable
             // Debug.Log("Set value to " + value, this);
             //FIXME: 這需要分開嗎？在寫啥
             _currentValue = value;
-            RecordSetbyWho(_currentValue, byWho as MonoBehaviour);
+            RecordSetbyWho(byWho, _currentValue, reason);
             // OnValueChanged?.Invoke(_currentValue); //多一個參數的版本
             OnValueChanged();
 
@@ -306,7 +307,7 @@ namespace MonoFSM.Variable
 
         public override void ClearValue()
         {
-            SetValueInternal(null, this);
+            SetValueInternal(null, this, "ClearValue");
             // _currentValue = null;
         }
 
@@ -337,7 +338,7 @@ namespace MonoFSM.Variable
 
         public void EnterSceneStart()
         {
-            SetValueInternal(_defaultValue, this);
+            SetValueInternal(_defaultValue, this, "EnterSceneStart");
         }
 
         public override void ResetStateRestore()
@@ -345,7 +346,7 @@ namespace MonoFSM.Variable
             //這裡才做會不會太晚？
             if (_isConst) //FIXME: 怪怪的, 但現在 playerTransform有在用, set過後不想被reset, 可能要另外處理這個情境？
                 return;
-            SetValueInternal(_defaultValue, this);
+            SetValueInternal(_defaultValue, this, "ResetStateRestore");
         }
 
         //FIXME: 和isConfig定位一樣？

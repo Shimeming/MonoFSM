@@ -28,11 +28,14 @@ namespace MonoFSM.Core.Runtime
     public abstract class AbstractEntitySchema
         : AbstractDescriptionBehaviour,
             IStringKey,
-            IValueOfKey<string>
+            IValueOfKey<string>, IDropdownRef
     {
         //FIXME: 有需要用wrapper嗎？
         protected override string DescriptionTag => "Schema";
 
+        public override string Description => _typeTag != null
+            ? $"{_typeTag.name}"
+            : $"{GetType().Name}";
         // This class can be used to define a schema for MonoEntity,
         // which can be used to map variables and components automatically.
         // It can also be used to define a schema for a specific entity type.

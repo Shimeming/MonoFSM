@@ -1,3 +1,4 @@
+using System;
 using MonoFSM.Variable;
 using MonoFSM.Variable.Attributes;
 using MonoFSM.Core.DataProvider;
@@ -5,10 +6,11 @@ using Sirenix.OdinInspector;
 
 namespace MonoFSM.Core.Runtime.Action.VariableAction
 {
+    [Obsolete]
     public class SetVarFloatAction : AbstractStateAction
     {
         [DropDownRef] public VarFloat _targetVar;
-        
+
         [Required] [CompRef] [Auto] private IFloatProvider _valueProvider; //如果要拿到VarFloat的Max怎麼設計比較好？
 
         protected override void OnActionExecuteImplement()

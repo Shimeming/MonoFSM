@@ -118,7 +118,7 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IPoolableObject
         }
 
         PoolLogger.LogInfo($"準備歸還物件到池: {this.name}", this);
-        this.ReturnToPool();
+        this.Recycle();
     }
 
     [BoxGroup("池測試工具")]
@@ -503,7 +503,7 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IPoolableObject
         }
     }
 
-    public void ReturnToPool()
+    public void Recycle()
     {
         PoolLogger.LogInfo("Attempting to return to pool", this);
         if (_bindingPoolManager == null)

@@ -126,7 +126,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: MonoFSM.Core.Runtime::MonoFSM.Runtime.Variable.VarEntity
   _note: 
+  _valueChangedHandler: {fileID: 0}
   _varTag: {fileID: 11400000, guid: fe6f95997618b40b382e095deabd42ea, type: 2}
+  _isConfig: 0
   _defaultValue: {fileID: 0}
   _isConst: 0
   _monoEntityTag: {fileID: 0}
@@ -485,6 +487,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2827814410462917981}
+  - component: {fileID: 6757321295135846029}
   m_Layer: 0
   m_Name: Context
   m_TagString: Untagged
@@ -509,6 +512,18 @@ Transform:
   - {fileID: 4555527470037137386}
   m_Father: {fileID: 873855735939457434}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6757321295135846029
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4619145615866190664}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bf7b89856784a32a2901cb05687447e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MonoFSM.Core.Runtime::_1_MonoFSM_Core.Runtime.MonoData.MonoContext
 --- !u!1 &4731588778212171276
 GameObject:
   m_ObjectHideFlags: 0

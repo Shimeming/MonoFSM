@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace MonoFSM.Variable
 {
+    //FIXME: relay 好像不如用getter比較單純 (單向)
     /// <summary>
     /// Relays values from a source variable to a target variable.
     /// The parent GameObject needs to have a VariableOwner component.

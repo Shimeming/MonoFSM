@@ -20,6 +20,7 @@ namespace MonoFSM.Variable
         public string GetStringKey { get; }
     }
 
+    [Searchable]
     [CreateAssetMenu(menuName = "Assets/MonoFSM/VariableTag")]
     public class VariableTag : ScriptableObject, IStringKey, IProxyType //, IFloatValue , SceneSave?
     {

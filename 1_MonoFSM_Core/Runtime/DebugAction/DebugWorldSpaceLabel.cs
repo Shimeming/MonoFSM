@@ -12,9 +12,10 @@ namespace _0_MonoDebug.Gizmo
     /// <summary>
     /// FIXME: 可以統一執行？有差嗎？
     /// </summary>
+    [ExecuteAlways]
     public class DebugWorldSpaceLabel : AbstractDescriptionBehaviour
     {
-        [Header("顯示設定")] public string text = "";
+        // [Header("顯示設定")] public string text = "";
         public Vector3 offset = new Vector3(0, 2f, 0); // 讓文字飄在物體頭頂
 
         [OnValueChanged(nameof(ResetStyle))] public int fontSize = 24;
@@ -125,13 +126,13 @@ namespace _0_MonoDebug.Gizmo
 
         private Color GetDynamicColor()
         {
-            if (_variable is VarBool varBool)
+            if (currentVariable is VarBool varBool)
             {
                 return varBool.Value ? Color.green : Color.red;
             }
 
             // 非 VarBool 或沒有 variable 時使用黃色
-            return _variable != null ? Color.yellow : fontColor;
+            return currentVariable != null ? Color.yellow : fontColor;
         }
 
         private Color GetOutlineColor()
@@ -141,10 +142,23 @@ namespace _0_MonoDebug.Gizmo
             return c;
         }
 
-        [AutoParent] public AbstractMonoVariable _variable;
+        [HideIf("_externalVariable", null, false)] [Required] [AutoParent] //hmm
+        public AbstractMonoVariable _variable;
+
+        public AbstractMonoVariable _externalVariable;
+
+        public AbstractMonoVariable currentVariable
+        {
+            get
+            {
+                if (_externalVariable != null)
+                    return _externalVariable;
+                return _variable;
+            }
+        }
 
         protected override string DescriptionTag => "DebugLabel";
-        public override string Description => _variable?.Description;
+        public override string Description => currentVariable?.Description;
 
         private void ResetStyle()
         {
@@ -153,6 +167,59 @@ namespace _0_MonoDebug.Gizmo
             _guiOutlineStyle = null;
             _gizmoOutlineStyle = null;
             _backgroundStyle = null;
+        }
+
+        private void OnEnable()
+        {
+            SceneView.duringSceneGui += OnSceneGUI;
+        }
+
+        private void OnDisable()
+        {
+            SceneView.duringSceneGui -= OnSceneGUI;
+        }
+
+        private void OnSceneGUI(SceneView sceneView)
+        {
+            if (!RuntimeDebugSetting.IsDebugMode || !clickableInScene)
+                return;
+
+            var cam = sceneView.camera;
+            if (cam == null)
+                return;
+
+            Vector3 worldPosition = transform.position + offset;
+            Vector3 sp = cam.WorldToScreenPoint(worldPosition);
+            if (sp.z <= 0)
+                return;
+
+            string displayText = "";
+            if (currentVariable != null)
+                displayText = currentVariable.Description + ": " + currentVariable.StringValue;
+
+            Vector2 guiPos = HandleUtility.WorldToGUIPoint(worldPosition);
+            Vector2 size = gizmoStyle.CalcSize(new GUIContent(displayText));
+            var rect = new Rect(guiPos.x - size.x * 0.5f, guiPos.y - size.y * 0.5f, size.x, size.y);
+
+            Rect clickRect = useBackground
+                ? new Rect(rect.x - 5, rect.y - 2, rect.width + 10, rect.height + 4)
+                : rect;
+
+            Event e = Event.current;
+
+            // 檢測點擊
+            if (e.type == EventType.MouseDown && e.button == 0 &&
+                clickRect.Contains(e.mousePosition))
+            {
+                e.Use();
+                SelectVariableGameObject();
+            }
+
+            // 顯示 hover 效果
+            if (clickRect.Contains(e.mousePosition))
+            {
+                EditorGUIUtility.AddCursorRect(clickRect, MouseCursor.Link);
+            }
         }
 
 
@@ -250,9 +317,9 @@ namespace _0_MonoDebug.Gizmo
             float guiY = cam.pixelHeight - screenPos.y;
 
             // 5. 準備顯示文字（不要覆蓋 serialized 的 text，避免和其它地方互相影響）
-            string displayText = text;
-            if (_variable != null)
-                displayText = _variable.Description + ": " + _variable.StringValue;
+            string displayText = "";
+            if (currentVariable != null)
+                displayText = currentVariable.Description + ": " + currentVariable.StringValue;
 
             // 6. 用字體真實尺寸計算 Rect，避免固定寬高導致置中偏移
             Vector2 size = guiStyle.CalcSize(new GUIContent(displayText));
@@ -260,6 +327,23 @@ namespace _0_MonoDebug.Gizmo
             size.y = Mathf.Max(size.y, 18f);
 
             var rect = new Rect(screenPos.x - size.x * 0.5f, guiY - size.y * 0.5f, size.x, size.y);
+
+            // GameView 點擊檢測
+            if (clickableInScene)
+            {
+                Rect clickRect = useBackground
+                    ? new Rect(rect.x - 5, rect.y - 2, rect.width + 10, rect.height + 4)
+                    : rect;
+
+                Event e = Event.current;
+
+                if (e.type == EventType.MouseDown && e.button == 0 &&
+                    clickRect.Contains(e.mousePosition))
+                {
+                    e.Use();
+                    SelectVariableGameObject();
+                }
+            }
 
             if (useBackground)
             {
@@ -296,9 +380,9 @@ namespace _0_MonoDebug.Gizmo
             Gizmos.color = Color.yellow;
             Gizmos.DrawLine(transform.position, labelPosition);
 
-            string displayText = text;
-            if (_variable != null)
-                displayText = _variable.Description + ": " + _variable.StringValue;
+            string displayText = "";
+            if (currentVariable != null)
+                displayText = currentVariable.Description + ": " + currentVariable.StringValue;
 
             DrawSceneLabel(labelPosition, displayText);
         }
@@ -327,35 +411,8 @@ namespace _0_MonoDebug.Gizmo
             Vector2 guiPos = HandleUtility.WorldToGUIPoint(worldPosition);
             Vector2 size = gizmoStyle.CalcSize(new GUIContent(displayText));
             var rect = new Rect(guiPos.x - size.x * 0.5f, guiPos.y - size.y * 0.5f, size.x, size.y);
-            Gizmos.DrawIcon(worldPosition + Vector3.up * 1f, "sv_label_2", true);
+
             Handles.BeginGUI();
-            // 可點擊區域（背景或文字區域）
-            // if (clickableInScene)
-            // {
-            //     Rect clickRect = useBackground
-            //         ? new Rect(rect.x - 5, rect.y - 2, rect.width + 10, rect.height + 4)
-            //         : rect;
-            //     // Debug.Log("Click Rect: " + clickRect, this);
-            //     // 檢測點擊
-            //     Event e = Event.current;
-            //     if (e.type == EventType.ExecuteCommand)
-            //         Debug.Log("Event Type: " + e.type, this);
-            //
-            //     if (e.type == EventType.ExecuteCommand &&
-            //         clickRect.Contains(e.mousePosition))
-            //     {
-            //         Debug.Log("Scene Label Clicked: " + displayText, this);
-            //         e.Use(); // 消費事件，避免被其他處理
-            //         OnSceneLabelClicked();
-            //         GUI.changed = true;
-            //     }
-            //
-            //     // 顯示 hover 效果（滑鼠在上面時改變游標）
-            //     if (clickRect.Contains(e.mousePosition))
-            //     {
-            //         EditorGUIUtility.AddCursorRect(clickRect, MouseCursor.Link);
-            //     }
-            // }
 
             if (useBackground)
             {
@@ -365,13 +422,15 @@ namespace _0_MonoDebug.Gizmo
             DrawLabelWithOptionalOutline(rect, displayText, gizmoStyle, gizmoOutlineStyle);
 
             Handles.EndGUI();
+            Gizmos.DrawIcon(transform.position, "sv_label_4", true);
         }
 
-        private void OnSceneLabelClicked()
+        private void SelectVariableGameObject()
         {
-            // 選中這個 GameObject
-            Selection.activeGameObject = gameObject;
-            Debug.Log($"[DebugWorldSpaceLabel] Clicked on label of '{gameObject.name}'", this);
+            // 選中 variable 的 GameObject，如果沒有 variable 則選中自己
+            var targetGO = currentVariable != null ? currentVariable.gameObject : gameObject;
+            Selection.activeGameObject = targetGO;
+            EditorGUIUtility.PingObject(targetGO);
         }
 
         private void DrawSceneBackground(Rect rect)

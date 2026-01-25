@@ -141,7 +141,7 @@ namespace MonoFSM.Variable
             // }
         }
 
-        public void SetValue(TValue value, Object byWho)
+        public void SetValue(TValue value, Object byWho, string reason = "")
         {
             Debug.Log($"VarWrapper SetValue: Setting value to {value}", byWho);
             if (_var == null)
@@ -153,6 +153,16 @@ namespace MonoFSM.Variable
             }
 
             _var.SetRaw(value, byWho);
+        }
+
+        public void ClearValue()
+        {
+            if (_var != null)
+            {
+                _var.ClearValue();
+            }
+
+            _tempValue = default;
         }
     }
 }

@@ -134,7 +134,7 @@ public interface IPoolableObject
     /// <summary>
     /// 歸還到池
     /// </summary>
-    void ReturnToPool();
+    void Recycle();
 
     /// <summary>
     /// 重置Transform

@@ -5,7 +5,7 @@ using MonoFSMCore.Runtime.LifeCycle;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-//FIXME: 不好用...valueProvider拿不到，還是要繼承DescriptableData, 或是用變數把值給想辦法資料化? 直接對表格？ json介面？ (SO不能彈性改變檔案型別...)
+//要用MovedFrom來改名字
 [Serializable]
 public abstract class AbstractDataFunction : IDataFeature
 {

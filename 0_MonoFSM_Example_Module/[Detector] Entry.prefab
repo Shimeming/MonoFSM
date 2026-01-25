@@ -78,7 +78,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 5706469938323513711}
   m_Father: {fileID: 5969769410704998749}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5255030626124681065
@@ -107,7 +108,7 @@ GameObject:
   - component: {fileID: 6385766970431004099}
   - component: {fileID: 3495596240757992949}
   - component: {fileID: 2045773840788901846}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: '[DetectionSource] TriggerDetectorSource'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -192,3 +193,49 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!1 &9213904546163732964
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5706469938323513711}
+  - component: {fileID: 3895173847983232462}
+  m_Layer: 0
+  m_Name: '[Event] EffectEnterNode'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5706469938323513711
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9213904546163732964}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.014462358, y: -0.9683475, z: 0.015876925, w: -0.2486803}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7434726664394962666}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3895173847983232462
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9213904546163732964}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64e706c50c724392be5b38e2319bc997, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MonoFSM.Core.Runtime::MonoFSM.Runtime.Interact.EffectHit.EffectEnterNode
+  _note: 
+  _hittingEntity: {fileID: 0}

@@ -6,36 +6,6 @@ using MonoFSM.Core.DataProvider;
 
 namespace MonoFSM.Variable
 {
-    //FIXME 用的到這個class嗎？
-    // public class FloatValueSource : MonoBehaviour, IFloatProvider
-    // {
-    //     [SerializeReference] public IFloatProvider _valueSource;
-    //
-    //     public float GetFloat()
-    //     {
-    //         return _valueSource.GetFloat();
-    //     }
-    //
-    //     public string Description => _valueSource.Description;
-    // }
-    // [InlineProperty]
-    // [Serializable]
-    // public class FloatValueSource : InterfaceMonoRef<StateMachineOwner, IFloatValueProvider>, IFloatValueProvider
-    // {
-    //     public float FinalValue => ValueSource != null ? ((IFloatValueProvider)ValueSource).FinalValue : ConstValue;
-    //     [HideIf("@ValueSource != null")]
-    //     public float ConstValue;
-    // }
-
-
-    //FIXME: 為什麼要從condition下面拿？
-    // [InlineProperty]
-    // [Serializable]
-    // public class FloatValueRef : InterfaceMonoRef<AbstractConditionComp, IFloatValueProvider>, IFloatValueProvider
-    // {
-    //     public float FinalValue => ((IFloatValueProvider)ValueSource).FinalValue;
-    // }
-
     public interface ISerializedFloatValue
     {
         float EditorValue { get; set; }

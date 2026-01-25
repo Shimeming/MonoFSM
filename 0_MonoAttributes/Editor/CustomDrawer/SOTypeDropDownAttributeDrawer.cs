@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using _1_MonoFSM_Core.Runtime.Attributes;
 using MonoFSM.Core.Editor.Utility;
+using MonoFSM.CustomAttributes;
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
@@ -32,10 +33,30 @@ namespace MonoFSM.Core.Editor
 
         /// <summary>
         ///     獲取期望的限制型別，如果 Attribute.RestrictInstanceType 為 null，則不進行限制型別過濾
+        ///     優先使用 Attribute 指定的型別，若無則嘗試從 IConfigTypeProvider 取得
         /// </summary>
         private Type GetRestrictInstanceType()
         {
-            return Attribute.RestrictInstanceType;
+            // 優先使用 Attribute 明確指定的型別
+            if (Attribute.RestrictInstanceType != null)
+                return Attribute.RestrictInstanceType;
+
+            // 嘗試從父物件的 IConfigTypeProvider 取得 RestrictType
+            var parentObject = Property.ParentValues[0];
+            if (parentObject is IConfigTypeProvider configTypeProvider)
+            {
+                var restrictType = configTypeProvider.GetRestrictType();
+                // 只有當欄位類型和 RestrictType 相容時才使用
+                // 例如：欄位是 GameData，RestrictType 是 RecipeData（GameData 的子類）=> 使用
+                // 例如：欄位是 VariableTag，RestrictType 是 RecipeData => 不使用
+                var fieldType = Property.ValueEntry.TypeOfValue;
+                if (restrictType != null && fieldType.IsAssignableFrom(restrictType))
+                {
+                    return restrictType;
+                }
+            }
+
+            return null;
         }
 
         protected override void DrawPropertyLayout(GUIContent label)
