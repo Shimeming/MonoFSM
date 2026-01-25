@@ -1,7 +1,9 @@
 {
     "name": "CustomToolbar",
     "rootNamespace": "",
-    "references": [],
+  "references": [
+    "GUID:ececc5ffd4eec48e3a3b2f62b409c786"
+  ],
     "includePlatforms": [
         "Editor"
     ],
