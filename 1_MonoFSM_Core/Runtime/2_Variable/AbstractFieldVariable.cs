@@ -242,6 +242,20 @@ public abstract class AbstractFieldVariable<TScriptableData, TField, TType>
         );
     }
 
+    public override void OnValueChanged()
+    {
+        if (!Application.isPlaying)
+            return;
+
+        // 處理 _dataChangedListeners
+        if (_dataChangedListeners != null)
+            foreach (var item in _dataChangedListeners)
+                item.OnVarChanged(this);
+
+        // 觸發帶參數的 EventHandle，傳入當前值
+        _valueChangedHandler?.EventHandle<TType>(CurrentValue);
+    }
+
     [FormerlySerializedAs("scriptableData")]
     //FIXME: 這個錯了...要有特定設計tag，才是在prefab上不要gen
     // [EnableIn(PrefabKind.InstanceInScene | PrefabKind.NonPrefabInstance)] //scriptable binding, 只想要在景裡編輯

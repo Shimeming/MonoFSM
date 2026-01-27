@@ -1,5 +1,6 @@
 using MonoFSM.Core.Module;
 using MonoFSM.Variable;
+using Sirenix.OdinInspector;
 
 namespace MonoFSM.Runtime.Interact.EffectHit.Condition
 {
@@ -7,6 +8,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit.Condition
     {
         //tag mapping find...?
         // [DropDownRef]
+        [ShowInInspector]
         public EnableHandle enableHandle => _enableHandleVar.Value as EnableHandle;
 
         public VarComp _enableHandleVar;

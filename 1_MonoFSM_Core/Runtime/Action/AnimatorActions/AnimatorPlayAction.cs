@@ -72,9 +72,11 @@ namespace MonoFSM.Animation
         [FormerlySerializedAs("animator")]
         public Animator _animator;
 
+        [Required]
         [ShowInInspector]
         private Animator animator =>
             _animatorRefSource != null ? _animatorRefSource.Value : _animator;
+
 
         //加一個AnimatorValueProvider?
         [FormerlySerializedAs("_animatorRefProvider")]
@@ -856,7 +858,8 @@ namespace MonoFSM.Animation
         //
         // }
         // public ITransitionCheckingTarget ValueChangedTarget => doneEventTransition;
-        private bool IsValid => animator.isActiveAndEnabled && _conditions.IsAllValid();
+        private bool IsValid =>
+            animator != null && animator.isActiveAndEnabled && _conditions.IsAllValid();
 
         public void OnEnterRender() //transition更早就判定？導致done錯了？
         {

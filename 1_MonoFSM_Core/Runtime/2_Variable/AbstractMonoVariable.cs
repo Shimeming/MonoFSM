@@ -79,14 +79,14 @@ namespace MonoFSM.Variable
         //FIXME: 這個不能被Debug「看」，不好用... AddListener 的形式比較好
         // private UnityAction OnValueChangedRaw; //任何數值改變就通知, UI有用到很重要 //override?
 
-        private HashSet<IVarChangedListener> _dataChangedListeners; //有誰有用我，binder綁一下
+        protected HashSet<IVarChangedListener> _dataChangedListeners; //有誰有用我，binder綁一下
         [CompRef] [AutoChildren] public OnValueChangedHandler _valueChangedHandler;
         public abstract void ClearValue();
 
         //fuck!?
 
         //倒著，事件鏈超難trace
-        public void OnValueChanged() //FIXME: SetValue後要call 但會有boxing問題不寫在這？
+        public virtual void OnValueChanged() //FIXME: SetValue後要call 但會有boxing問題不寫在這？
         {
             if (!Application.isPlaying)
                 return;
@@ -631,6 +631,11 @@ namespace MonoFSM.Variable
         [ShowInInspector]
         public abstract bool IsValueExist { get; }
         protected virtual bool HasValueProvider => false;
+
+        [InfoBox(
+            "此變數會使用 ValueProvider 或 Parent VarEntity 的值，無法設定預設值"
+        )]
+        [ShowInInspector]
         protected virtual bool HasProxyValue => HasValueProvider || HasParentVarEntity;
 
         public VariableTag[] GetKeys()

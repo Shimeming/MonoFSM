@@ -1,66 +1,12 @@
 using System;
-using _1_MonoFSM_Core.Runtime.Attributes;
 using MonoFSM.Core.Attributes;
-using MonoFSM.Core.Variable;
 using MonoFSM.Variable.TypeTag;
-using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace MonoFSM.Variable
 {
-    [Serializable]
-    public class VarFloatFoldOut : VarFoldOut<VarFloat, float> { }
 
-    [Serializable]
-    public class VarMonoObjFoldOut : VarFoldOut<VarMonoObj, MonoObj>
-    {
-        [HideIf(nameof(HasVar))]
-        [PrefabFilter]
-        [SerializeField]
-        private MonoObj _constObjValue;
-
-        protected override bool HasOverrideHideValue => true;
-
-        public override MonoObj Value => HasVar ? base.Value : _constObjValue;
-    }
-
-    [Serializable]
-    public class VarFoldOut<TVarType, TValueType>
-        where TVarType : AbstractMonoVariable //用attribute processor幫她加inlinefield
-    {
-        [SerializeField]
-        bool _isVarNeeded;
-
-        [ShowIf(nameof(_isVarNeeded))]
-        [SerializeField]
-        private TVarType _var;
-
-        [HideIf(nameof(HideConstValue))]
-        [SerializeField]
-        private TValueType _constValue;
-
-        public virtual TValueType Value => HasVar ? _var.GetValue<TValueType>() : _constValue;
-
-        public bool HasVar => _var != null;
-
-        bool HideConstValue => HasVar || HasOverrideHideValue;
-
-        protected virtual bool HasOverrideHideValue => false;
-    }
-
-    // [InlineField]
-    [Serializable]
-    public class VarCompField<T>
-        where T : class //用attribute processor幫她加inlinefield
-    {
-        public bool HasVar => _varComp != null;
-
-        [SerializeField]
-        VarComp _varComp;
-        public T Value => _varComp.Value as T;
-    }
 
     //variable
     //Monobehaviour 包著一個變數
@@ -80,6 +26,7 @@ namespace MonoFSM.Variable
         //FIXME: isConst時要Required? 怎麼在 AbstractDescriptionBehaviour 檢查？
         [HideIf(nameof(HasParentVarEntity))]
         [Header("預設值")]
+        [InfoBox("$" + nameof(TypeTagErrorMessage), InfoMessageType.Error, VisibleIf = nameof(HasTypeTagError))]
         [ShowInInspector]
         [DropDownRef(null, nameof(SiblingValueFilter))]
         private Component SiblingDefaultValue
@@ -87,6 +34,24 @@ namespace MonoFSM.Variable
             set => _defaultValue = value;
             get => _defaultValue;
         } //用property?
+
+        private bool HasTypeTagError()
+        {
+            if (_componentTypeTag == null || _componentTypeTag.Type == null || _defaultValue == null)
+                return false;
+            var restrictType = _componentTypeTag.Type;
+            var actualType = _defaultValue.GetType();
+            return !restrictType.IsAssignableFrom(actualType);
+        }
+
+        private string TypeTagErrorMessage()
+        {
+            if (_componentTypeTag == null || _componentTypeTag.Type == null || _defaultValue == null)
+                return string.Empty;
+            var restrictType = _componentTypeTag.Type;
+            var actualType = _defaultValue.GetType();
+            return $"型別不匹配: {actualType.Name} 不符合 {_componentTypeTag.name} 限制的 {restrictType.Name}";
+        }
 
         //可以篩選type, 就是宣告
         Type SiblingValueFilter()
@@ -102,32 +67,23 @@ namespace MonoFSM.Variable
             return _varTag.ValueFilterType;
         }
 
-        //FIXME: 繼承時想要加更多attribute
-        // [Header("預設值")] [HideIf(nameof(_siblingDefaultValue))] [SerializeField]
-        // protected Component _defaultValue;
+        protected override bool HasError()
+        {
+            // 檢查 _componentTypeTag 的型別限制
+            if (_componentTypeTag != null && _componentTypeTag.Type != null &&
+                _defaultValue != null)
+            {
+                var restrictType = _componentTypeTag.Type;
+                var actualType = _defaultValue.GetType();
+                if (!restrictType.IsAssignableFrom(actualType))
+                {
+                    _errorMessage =
+                        $"型別不匹配: _defaultValue 型別為 {actualType.Name}，但 CompTypeTag '{_componentTypeTag.name}' 限制型別為 {restrictType.Name}";
+                    return true;
+                }
+            }
 
-
-        // protected Component DefaultValue =>
-        //     _siblingDefaultValue != null ? _siblingDefaultValue : _defaultValue;
-        //FIXME: 把Variable直接丟到該模組上就好？
-        // IEnumerable<Component> _filter()
-        // {
-        //     // var type = serializedType.Value;
-        //     // if(type == null)
-        //     //     return null;
-        //     // return this.GetComponentsOfSibling<LevelRunner>(type);
-        // }
-
-        // [ValueDropdown(nameof(_filter))]
-        // [SerializeField]
-        // private Component DefaultValue;
-
-        // [TypeDrawerSettings(BaseType = typeof(Component)), ShowInInspector]
-        // public Type type; //FIXME: 要用string 回推 type?
-        // public override GameFlagBase FinalData => null;
-        // public override void ResetToDefaultValue()
-        // {
-        //     _currentValue = DefaultValue;
-        // }
+            return base.HasError();
+        }
     }
 }

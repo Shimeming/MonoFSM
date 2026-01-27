@@ -1,16 +1,67 @@
 using System;
 using System.Collections.Generic;
+using _1_MonoFSM_Core.Runtime.Attributes;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Variable;
 using MonoFSM.Runtime;
 using MonoFSM.Runtime.Variable;
 using MonoFSM.Runtime.Vote;
+using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace MonoFSM.Variable
 {
+    [Serializable]
+    public class VarFloatFoldOut : VarFoldOut<VarFloat, float>
+    {
+    }
+
+    [Serializable]
+    public class VarMonoObjFoldOut : VarFoldOut<VarMonoObj, MonoObj>
+    {
+        [HideIf(nameof(HasVar))] [PrefabFilter] [SerializeField]
+        private MonoObj _constObjValue;
+
+        protected override bool HasOverrideHideValue => true;
+
+        public override MonoObj Value => HasVar ? base.Value : _constObjValue;
+    }
+
+    //這啥？定位一樣？
+    [Serializable]
+    public class VarFoldOut<TVarType, TValueType>
+        where TVarType : AbstractMonoVariable //用attribute processor幫她加inlinefield
+    {
+        [SerializeField] bool _isVarNeeded;
+
+        [ShowIf(nameof(_isVarNeeded))] [SerializeField]
+        private TVarType _var;
+
+        [HideIf(nameof(HideConstValue))] [SerializeField]
+        private TValueType _constValue;
+
+        public virtual TValueType Value => HasVar ? _var.GetValue<TValueType>() : _constValue;
+
+        public bool HasVar => _var != null;
+
+        bool HideConstValue => HasVar || HasOverrideHideValue;
+
+        protected virtual bool HasOverrideHideValue => false;
+    }
+
+    // [InlineField]
+    [Serializable]
+    public class VarCompField<T>
+        where T : class //用attribute processor幫她加inlinefield
+    {
+        public bool HasVar => _varComp != null;
+
+        [SerializeField] VarComp _varComp;
+        public T Value => _varComp.Value as T;
+    }
+
     [Serializable]
     public class VarVector3Wrapper : VarWrapper<VarVector3, Vector3>
     {

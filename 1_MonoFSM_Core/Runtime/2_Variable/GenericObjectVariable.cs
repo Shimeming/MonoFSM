@@ -84,15 +84,46 @@ namespace MonoFSM.Variable
 
         //FIXME: 繼承時想要加更多attribute
         // [Header("預設值")] [HideIf(nameof(_siblingDefaultValue))]
-        public bool _isConfig = false;
+        [HideIf(nameof(HasProxyValue))] public bool _isRuntimeOnly = false;
 
         protected override bool HasError()
         {
-            return base.HasError() || (_isConfig && _defaultValue == null);
+            // 先檢查 VarTag 的型別限制
+            if (_varTag != null && _defaultValue != null)
+            {
+                var restrictType = _varTag.ValueFilterType; //還是覺得是Component?
+                if (restrictType != null)
+                {
+                    var actualType = _defaultValue.GetType();
+                    if (!restrictType.IsAssignableFrom(actualType))
+                    {
+                        _errorMessage =
+                            $"型別不匹配: _defaultValue 型別為 {actualType.Name}，但 VarTag '{_varTag.name}' 限制型別為 {restrictType.Name}";
+                        return true;
+                    }
+                    // else
+                    // {
+                    //     Debug.LogError(
+                    //         $"[Type Mismatch Warning] Default value type {actualType.Name} does not match VarTag '{_varTag.name}' restriction type {restrictType.Name}",
+                    //         this
+                    //     );
+                    // }
+                }
+            }
+
+            return base.HasError(); // || (_isRuntimeOnly == false && _defaultValue == null);
         }
 
         //FIXME: 可以額外做filterType?
         // [DynamicType]
+
+        protected bool HideDefaultValue()
+        {
+            return HasProxyValue || _isRuntimeOnly;
+        }
+
+        [HideIf(nameof(HideDefaultValue))]
+        [Required]
         [SerializeField]
         protected TValueType _defaultValue; //ConfigSettingValue? //只有VarMonoObj才需要？
 
@@ -232,7 +263,13 @@ namespace MonoFSM.Variable
                 return _defaultValue;
             }
 
-            return _currentValue;
+            if (_isRuntimeOnly)
+                return _tempValue;
+            else
+            {
+                _valueDebugStatus = "Using _DefaultValue (Runtime)";
+                return _defaultValue;
+            }
         }
 
         // public override Object RawValue => Value; //FIXME: 用Object?
@@ -241,8 +278,8 @@ namespace MonoFSM.Variable
         //green
         //FIXME: 不該？
         // [InlineEditor]
-        [ShowInDebugMode]
-        protected TValueType _currentValue; //要用ObjectField? 這樣才統一？ Object不可能做成GameFlag/Data?
+        // [ShowInDebugMode]
+        // protected TValueType _currentValue; //要用ObjectField? 這樣才統一？ Object不可能做成GameFlag/Data?
 
         //所有人都不該set這個
 
@@ -266,9 +303,9 @@ namespace MonoFSM.Variable
 
         public override void CommitValue()
         {
-            _lastValue = _currentValue;
-            if (_currentValue != null)
-                _lastNonNullValue = _currentValue;
+            _lastValue = Value;
+            if (Value != null)
+                _lastNonNullValue = Value;
         }
 
         //FIXME: 不該留這個API
@@ -277,7 +314,8 @@ namespace MonoFSM.Variable
         //     //這個trace好討厭...又跑下去，然後再上來internal
         //     SetValue<TValueType>((TValueType)value, byWho);
         // }
-
+        [ShowIf(nameof(_isRuntimeOnly))] [ShowInInspector]
+        TValueType _tempValue;
         //怎麼那麼多種...
         protected void SetValueInternal(TValueType value, Object byWho, string reason = null)
         {
@@ -286,12 +324,19 @@ namespace MonoFSM.Variable
                 varRef.SetRaw(value, byWho);
                 return;
             }
+
+            if (!_isRuntimeOnly)
+            {
+                Debug.LogError("Cannot set value of a non-runtime-only variable", this);
+                Debug.Break();
+                return;
+            }
             //沒有實作唷
             //沒有ObjectField...
             // Debug.Log("Set value to " + value, this);
             //FIXME: 這需要分開嗎？在寫啥
-            _currentValue = value;
-            RecordSetbyWho(byWho, _currentValue, reason);
+            _tempValue = value;
+            RecordSetbyWho(byWho, _tempValue, reason);
             // OnValueChanged?.Invoke(_currentValue); //多一個參數的版本
             OnValueChanged();
 
@@ -315,45 +360,23 @@ namespace MonoFSM.Variable
         // public override Type FinalDataType => RawValue != null ? RawValue.GetType() : null; //指的是DescriptableData
         public override Type ValueType => typeof(TValueType);
 
-        //FIXME: 好亂喔QQ
-        // public override object objectValue => Value;
-
-        // public override Component objectValue => RawValue;
-
-
-        //FIXME: Editor用的...EditorObjectValue?
-        //         public Object EditorValue
-        //         {
-        //             get => DefaultValue;
-        //             set
-        //             {
-        //                 _defaultValue = value as TValueType;
-        // #if UNITY_EDITOR
-        //                 EditorUtility.SetDirty(this);
-        // #endif
-        //             }
-        //         }
-
-        // public Type ObjectType => typeof(TValueType);
-
         public void EnterSceneStart()
         {
-            SetValueInternal(_defaultValue, this, "EnterSceneStart");
+            if (_isRuntimeOnly)
+                SetValueInternal(Value, this, "EnterSceneStart");
         }
 
         public override void ResetStateRestore()
         {
-            //這裡才做會不會太晚？
-            if (_isConst) //FIXME: 怪怪的, 但現在 playerTransform有在用, set過後不想被reset, 可能要另外處理這個情境？
-                return;
-            SetValueInternal(_defaultValue, this, "ResetStateRestore");
+            if (_isRuntimeOnly)
+                SetValueInternal(_defaultValue, this, "ResetStateRestore");
         }
 
         //FIXME: 和isConfig定位一樣？
-        [PropertyOrder(-1)]
-        [Header("避免關卡重置時清除資料")]
-        [SerializeField]
-        public bool _isConst; //
+        // [PropertyOrder(-1)]
+        // [Header("避免關卡重置時清除資料")]
+        // [SerializeField]
+        // public bool _isConst; //
 
         //避免reset restore?
         public virtual string ValueInfo
