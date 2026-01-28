@@ -80,7 +80,7 @@ GameObject:
   - component: {fileID: 3873472980409057923}
   - component: {fileID: 237173539706676430}
   m_Layer: 0
-  m_Name: '[Receiver]'
+  m_Name: '[Receiver] Interact'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -116,7 +116,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _note: 
-  _effectType: {fileID: 11400000, guid: 027893eb2faa049a29c8cfbbe7cad14b, type: 2}
+  _effectType: {fileID: 11400000, guid: 645661227efc94e27a5eb6af7c8241b0, type: 2}
   MatchPriority: 0
 --- !u!114 &237173539706676430
 MonoBehaviour:
@@ -271,6 +271,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _note: 
+  _collections:
+  - {fileID: 3873472980409057923}
+  _externalDicts: []
   _effectDetectTargets:
   - {fileID: 7837412588357656167}
   _interactConditions: []

@@ -8,7 +8,15 @@ namespace _1_MonoFSM_Core.Runtime._1_Conditions
     {
         [Tooltip("選擇條件組合的邏輯操作：AND (所有條件都必須滿足) 或 OR (至少一個條件滿足)")]
         [LabelText("操作類型")]
+        [GUIColor(nameof(GetOperationTypeColor))]
         public CompositeOperationType _operationType = CompositeOperationType.And;
+
+        private Color GetOperationTypeColor() => _operationType switch
+        {
+            CompositeOperationType.And => new Color(0.6f, 1f, 0.6f),  // 綠色
+            CompositeOperationType.Or => new Color(1f, 0.85f, 0.5f),  // 橘色
+            _ => Color.white
+        };
 
         [AutoChildren(DepthOneOnly = true, _isSelfInclude = false)]
         [CompRef]

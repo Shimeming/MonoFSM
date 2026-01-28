@@ -15,14 +15,14 @@ using UnityEditor;
 using UnityEngine;
 
 [Serializable]
-public class ConditionGroup //封裝的蠻好的...? 但是auto可能會遇到問題...
+public class ConditionGroup //AndGroup? //封裝的蠻好的...? 但是auto可能會遇到問題...
 {
     public bool IsValid => _conditions.IsAllValid();
 
     [CompRef]
     [AutoChildren(DepthOneOnly = true, _isSelfInclude = false)]
     [SerializeField]
-    private AbstractConditionBehaviour[] _conditions;
+    private AbstractConditionBehaviour[] _conditions; //&&
 }
 
 //還是Condition要用Is開頭？
@@ -156,5 +156,5 @@ public abstract class AbstractConditionBehaviour
     //interface & implementation的關係，所以我也可以說安裝一個schema, 然後下面再補variable....可能自動補掉就好了？(有就自動撈)
     public virtual string ValueInfo => FinalResult.ToString();
     public virtual bool IsDrawingValueInfo => Application.isPlaying && isActiveAndEnabled;
-    
+
 }

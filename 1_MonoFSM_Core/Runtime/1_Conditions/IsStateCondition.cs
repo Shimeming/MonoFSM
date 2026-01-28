@@ -25,7 +25,7 @@ namespace MonoFSM.Core
 
         protected override bool HasError()
         {
-            return base.HasError() && _targetState.isActiveAndEnabled;
+            return base.HasError() && _targetState != null && _targetState.isActiveAndEnabled;
         }
     }
 }

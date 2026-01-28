@@ -1,10 +1,13 @@
+using System;
 using MonoDebugSetting;
+using MonoFSM.Core.Attributes;
 using MonoFSM.Foundation;
 using MonoFSM.Variable;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
 #if UNITY_EDITOR
+using MonoFSM.Runtime;
 using UnityEditor;
 
 namespace _0_MonoDebug.Gizmo
@@ -15,6 +18,7 @@ namespace _0_MonoDebug.Gizmo
     [ExecuteAlways]
     public class DebugWorldSpaceLabel : AbstractDescriptionBehaviour
     {
+
         // [Header("顯示設定")] public string text = "";
         public Vector3 offset = new Vector3(0, 2f, 0); // 讓文字飄在物體頭頂
 
@@ -53,6 +57,26 @@ namespace _0_MonoDebug.Gizmo
         [ShowIf("useBackground")] public Color backgroundColor = new Color(0, 0, 0, 0.7f);
 
         [Space] [Tooltip("在 Scene 視圖中可點擊選取")] public bool clickableInScene = true;
+
+        protected override void Start()
+        {
+            base.Start();
+            if (!Application.isPlaying)
+                return;
+            _bindingRigidbody = ParentEntity?.GetCompCache<Rigidbody>();
+            if (_bindingRigidbody == null)
+                Debug.LogError("DebugWorldSpaceLabel 找不到 Rigidbody，請確認 ParentEntity 有 Rigidbody 組件",
+                    this);
+        }
+
+        //hmm editor也跑這個
+        private void Update()
+        {
+            if (_bindingRigidbody != null)
+                transform.position = _bindingRigidbody.transform.position;
+        }
+
+        [ShowInDebugMode] Rigidbody _bindingRigidbody;
 
         private GUIStyle _guiStyle;
         private GUIStyle _gizmoStyle;
@@ -207,8 +231,8 @@ namespace _0_MonoDebug.Gizmo
 
             Event e = Event.current;
 
-            // 檢測點擊
-            if (e.type == EventType.MouseDown && e.button == 0 &&
+            // 檢測點擊 (需按住 Alt 鍵才會選取，避免干擾 Transform Gizmo 操作)
+            if (e.type == EventType.MouseDown && e.button == 0 && e.command &&
                 clickRect.Contains(e.mousePosition))
             {
                 e.Use();
@@ -218,7 +242,32 @@ namespace _0_MonoDebug.Gizmo
             // 顯示 hover 效果
             if (clickRect.Contains(e.mousePosition))
             {
-                EditorGUIUtility.AddCursorRect(clickRect, MouseCursor.Link);
+                Handles.BeginGUI();
+
+                // 提示文字
+                var hintStyle = new GUIStyle(EditorStyles.helpBox);
+                hintStyle.fontSize = 10;
+                hintStyle.alignment = TextAnchor.MiddleCenter;
+                var hintRect = new Rect(clickRect.x, clickRect.yMax + 2, clickRect.width, 16);
+                var hintText = e.command ? "Click 選取" : "Command+Click 選取";
+
+                // 按住 Alt 時用不透明背景
+                if (e.command)
+                {
+                    EditorGUI.DrawRect(hintRect, new Color(0.2f, 0.6f, 0.9f, 1f));
+                    hintStyle.normal.textColor = Color.white;
+                }
+
+                GUI.Label(hintRect, hintText, hintStyle);
+
+                Handles.EndGUI();
+
+                if (e.command)
+                {
+                    EditorGUIUtility.AddCursorRect(clickRect, MouseCursor.Link);
+                }
+
+                sceneView.Repaint();
             }
         }
 
@@ -337,7 +386,8 @@ namespace _0_MonoDebug.Gizmo
 
                 Event e = Event.current;
 
-                if (e.type == EventType.MouseDown && e.button == 0 &&
+                // 需按住 Alt 鍵才會選取，避免干擾其他操作
+                if (e.type == EventType.MouseDown && e.button == 0 && e.command &&
                     clickRect.Contains(e.mousePosition))
                 {
                     e.Use();

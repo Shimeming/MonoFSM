@@ -72,6 +72,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: df3fb43cb23784bb6a12c6ec2f9cf673, type: 2}
   - {fileID: 11400000, guid: 70087acafd7f1494c8d5f40d8718ccae, type: 2}
   - {fileID: 11400000, guid: daf4cf2ebd208418fbcfe4775cb366dc, type: 2}
+  - {fileID: 11400000, guid: 09a948680ff8b415eb8fe671bf79e64d, type: 2}
   IsCollectionTag: 0
   _allMonoDescriptable: []
   _stringKey: 

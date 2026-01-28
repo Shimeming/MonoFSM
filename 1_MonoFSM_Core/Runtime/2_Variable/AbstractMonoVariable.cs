@@ -195,6 +195,8 @@ namespace MonoFSM.Variable
         //         }
 
         //proxy variable or local variable;
+        //FIXME: 為什麼_variableFolder要hide?
+        [ShowInDebugMode]
         protected bool IsHidingVarTag => _variableFolder == null && HasParentVarEntity == false; //local var就失敗耶...hmm
 
         protected bool IsHidingDefaultValue =>
@@ -650,8 +652,9 @@ namespace MonoFSM.Variable
             UpdateTag();
             if (_varTag == null)
             {
-                if (RuntimeDebugSetting.IsDebugMode)
-                    Debug.LogError("No VarTag: " + this, this);
+                //     if (RuntimeDebugSetting.IsDebugMode)
+                //         Debug.LogError("No VarTag: " + this, this);
+                //FIXME: 自動改名的做法，從 field 的名字來 rename? ex: VarEntity下的VarFloat? 還是應該要繼續用tag?
                 return;
             }
 

@@ -74,7 +74,8 @@ namespace MonoFSM.Core.LifeCycle
         /// </summary>
         [Required]
         [SerializeField]
-        private VarEntity _spawnedEntityVar;
+        private VarEntity
+            _spawnedEntityVar; //怎麼統一幫這個rename? fetch all var and rename? attribute LocalRuntimeField?
 
         [CompRef]
         [AutoChildren]

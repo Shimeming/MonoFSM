@@ -1,4 +1,5 @@
 using MonoFSM.Core.Attributes;
+using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Events;
@@ -27,7 +28,8 @@ namespace MonoFSM.Variable
     /// //FIXME: 直接塞兩個VarFloat比較對？
     /// FIXME: 直接把MinMax一鍵生成？
     /// </summary>
-    public class VariableFloatBoundModifier : MonoBehaviour, AbstractVariableModifier<float>
+    public class VariableFloatBoundModifier : MonoBehaviour, AbstractVariableModifier<float>,
+        IResetStart
     {
         [PreviewInInspector]
         [AutoParent]
@@ -81,7 +83,8 @@ namespace MonoFSM.Variable
         private VarFloat _maxValue;
 
         [ShowInInspector]
-        public float MinValue => _minValue?.Value ?? Mathf.NegativeInfinity; //MaxVar != null ? MaxVar.CurrentValue : max;
+        public float MinValue =>
+            _minValue?.Value ?? 0; //MaxVar != null ? MaxVar.CurrentValue : max;
 
         [ShowInInspector]
         public float MaxValue => _maxValue?.Value ?? Mathf.Infinity; //MinVar != null ? MinVar.CurrentValue : min;
@@ -126,5 +129,13 @@ namespace MonoFSM.Variable
         public float BeforeSetValueModifyCheck(float value) => SetOperation(value);
 
         public float AfterGetValueModifyCheck(float value) => value; //要再bound一次嗎？
+
+        public void ResetStart()
+        {
+            if (_isResetToMaxOnResetStart)
+                _monoVar.SetValue(MaxValue, this, "Reset to MaxValue on Start");
+        }
+
+        public bool _isResetToMaxOnResetStart = false;
     }
 }

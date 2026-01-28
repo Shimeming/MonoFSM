@@ -19,7 +19,7 @@ using Object = UnityEngine.Object;
 using static MonoFSM.Core.Editor.WrapperUtil;
 namespace MonoFSM.Core.Editor
 {
-   
+
     public class TreeViewWindow : OdinEditorWindow
     {
         [HideInInspector] [SerializeField] private StyleSheet uss;
@@ -49,7 +49,7 @@ namespace MonoFSM.Core.Editor
 
             // if(treeViewWindow == null)
             var treeViewWindow = CreateInstance<TreeViewWindow>();
-            
+
             // treeViewWindow = CreateInstance<TreeViewWindow>();
 
             var guidComp = Selection.activeGameObject.GetComponent<GuidComponent>();
@@ -60,7 +60,7 @@ namespace MonoFSM.Core.Editor
 
             var gObj = treeViewWindow.SubTreeRoot = Selection.activeGameObject;
             var windowName = gObj.name;
-            
+
             treeViewWindow.guidReference = new GuidReference(guidComp);
             treeViewWindow._instanceId = gObj.GetInstanceID();
             var titleContent = new GUIContent(windowName);
@@ -69,7 +69,7 @@ namespace MonoFSM.Core.Editor
             // window.hideFlags = HideFlags.DontUnloadUnusedAsset;
             // window.ShowTab();
             treeViewWindow.Show();
-            
+
             _currentWindow = treeViewWindow;
             // var hierarchyWindow = GetWindow(t_SceneHierarchyWindow);
             var hierarchyWindow = WindowDocker.GetSceneHierarchyWindow;
@@ -89,14 +89,14 @@ namespace MonoFSM.Core.Editor
             // hierarchyWindowDockArea.parentSplitViewWrapped.DropWindowAtTop(window);
             // _windows.Add(window);
         }
-        
+
         // protected override void OnImGUI()
         // {
         //     base.OnImGUI();
         //     Debug.Log("OnImGUI");
         //     _currentWindow = this;
         //     // base.OnGUI();
-        //    
+        //
         // }
 
 //         private void OnSelectionChange()
@@ -118,13 +118,13 @@ namespace MonoFSM.Core.Editor
 //
 //                 _treeView.SetSelectionByIdWithoutNotify(new[] { id });
 //                 _treeView.ScrollToItemById(id);
-//                 lastSelectedID = id;    
+//                 lastSelectedID = id;
 //             }
 //             catch (Exception e)
 //             {
 //                 // Debug.Log("select 不在這個gameobject下面");
 //             }
-//             
+//
 //             // _treeView.ScrollToItem(_treeView.selectedIndex);
 // // _treeView.SetSelection();
 //             //TODO: 要同步？
@@ -153,7 +153,7 @@ namespace MonoFSM.Core.Editor
         }
         static Type t_SceneHierarchyWindow = typeof(UnityEditor.Editor).Assembly.GetType("UnityEditor.SceneHierarchyWindow");
         static Type t_SceneView = typeof(UnityEditor.Editor).Assembly.GetType("UnityEditor.SceneView");
-        
+
         //全域監聽
         static void Shortcuts()
         {
@@ -167,16 +167,16 @@ namespace MonoFSM.Core.Editor
                 // Debug.Log("Not in TreeViewWindow");
                 return;
             }
-                
+
             if (_windows.Count == 0)
             {
                 // Debug.Log("No windows");
                 return;
             }
-                
+
             if(PrefabStageUtility.GetCurrentPrefabStage() == null)
                 return;
-            
+
             // if (curEvent.keyCode == KeyCode.None) return;
             // if (curEvent.keyCode == KeyCode.Escape)
             // {
@@ -189,7 +189,7 @@ namespace MonoFSM.Core.Editor
             {
                 // Debug.Log("% F");
                 HierarchyHighLightEditor.currentFindObject = Selection.activeGameObject;
-                
+
                 if (_currentWindow == null)
                 {
                     _currentWindow = _windows.FirstOrDefault();
@@ -205,14 +205,14 @@ namespace MonoFSM.Core.Editor
                 // Debug.Log("Custom search triggered!"+_currentWindow.name);
                 _currentWindow.Focus();
                 _currentWindow._searchField.Focus();
-                
-                
+
+
                 //這個可以直接搶走，有點猛！
                 curEvent.Use();
             }
-            
+
         }
-        
+
         protected override void OnDestroy()
         {
             // Debug.Log("OnDestroy" + FramedGameObject + "id:" + _instanceId);
@@ -299,7 +299,7 @@ namespace MonoFSM.Core.Editor
                     // OnSelect = () =>
                     // {
                     //     var objs = _treeView.selectedItems.Select((obj) => (Object)obj).ToArray();
-                    //     
+                    //
                     //     // // Debug.Log("ListViewItem OnSelect" + objs[0]);
                     //     Selection.objects = objs;
                     //
@@ -356,7 +356,7 @@ namespace MonoFSM.Core.Editor
                 // foreach (var obj in objs)
                 // {
                 //     Debug.Log("onSelectionChange" + obj);
-                //     
+                //
                 // }
 
                 objs = objs.Where((obj) => obj != null);
@@ -414,7 +414,7 @@ namespace MonoFSM.Core.Editor
                     width = StyleKeyword.Auto
                 }
             };
-            
+
             // _textField.RegisterCallback<FocusInEvent>(evt =>
             // {
             //     // Debug.Log("FocusIn");
@@ -427,8 +427,8 @@ namespace MonoFSM.Core.Editor
                 //原本是想說要esc觸發
                 //FIXME: 按enter也會觸發...哭哭XDD
                 Debug.Log("BlurEvent:"+curEvent.keyCode);
-                
-                Selection.activeGameObject = HierarchyHighLightEditor.currentFindObject;
+
+                // Selection.activeGameObject = HierarchyHighLightEditor.currentFindObject;
                 GetWindow(t_SceneHierarchyWindow).Focus();
                 // _textField.Focus();
                 // _textField.value = "";
@@ -461,18 +461,18 @@ namespace MonoFSM.Core.Editor
             {
                 // evt.StopImmediatePropagation();
                 // evt.StopPropagation();
-                // Debug.Log("KeyDownEvent" + evt.keyCode); 
+                // Debug.Log("KeyDownEvent" + evt.keyCode);
                 // if (evt.keyCode == KeyCode.DownArrow)
                 // {
                 //     Debug.Log("DownArrow");
-                //     
+                //
                 //     // _treeView.Focus();
                 //     // _treeView.SetSelection(0);
                 //     //
                 //     HierarchyHighLightEditor.FindNextObject();
                 //     _textField.Focus();
                 //     evt.StopPropagation();
-                //     
+                //
                 // }
                 // else if (evt.keyCode == KeyCode.Return)
                 // {

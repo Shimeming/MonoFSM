@@ -122,7 +122,13 @@ namespace MonoFSM.Variable
             return HasProxyValue || _isRuntimeOnly;
         }
 
+        protected virtual bool HasDefaultValueError() => false;
+        protected virtual string DefaultValueErrorMessage() => string.Empty;
+
+        //FIXME: hide時可能會有髒髒 data
         [HideIf(nameof(HideDefaultValue))]
+        [InfoBox("$" + nameof(DefaultValueErrorMessage), InfoMessageType.Error,
+            VisibleIf = nameof(HasDefaultValueError))]
         [Required]
         [SerializeField]
         protected TValueType _defaultValue; //ConfigSettingValue? //只有VarMonoObj才需要？

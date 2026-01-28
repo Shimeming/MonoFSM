@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5969769410704998749}
   - component: {fileID: 460273962218370141}
   m_Layer: 0
-  m_Name: '[Detector] Entry'
+  m_Name: '[Detector] Trigger'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -105,7 +105,7 @@ GameObject:
   - component: {fileID: 7434726664394962666}
   - component: {fileID: 5255030626124681065}
   m_Layer: 0
-  m_Name: '[Dealer] ItemDetect'
+  m_Name: '[Dealer] '
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -141,7 +141,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: MonoFSM.Core.Runtime::MonoFSM.Runtime.Interact.EffectHit.GeneralEffectDealer
   _note: 
-  _effectType: {fileID: 11400000, guid: 249ea307d9cdc446082f24e8d197d5c6, type: 2}
+  _effectType: {fileID: 0}
 --- !u!1 &8542459492077439460
 GameObject:
   m_ObjectHideFlags: 0

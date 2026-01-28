@@ -26,7 +26,6 @@ namespace MonoFSM.Variable
         //FIXME: isConst時要Required? 怎麼在 AbstractDescriptionBehaviour 檢查？
         [HideIf(nameof(HasParentVarEntity))]
         [Header("預設值")]
-        [InfoBox("$" + nameof(TypeTagErrorMessage), InfoMessageType.Error, VisibleIf = nameof(HasTypeTagError))]
         [ShowInInspector]
         [DropDownRef(null, nameof(SiblingValueFilter))]
         private Component SiblingDefaultValue
@@ -35,7 +34,7 @@ namespace MonoFSM.Variable
             get => _defaultValue;
         } //用property?
 
-        private bool HasTypeTagError()
+        protected override bool HasDefaultValueError()
         {
             if (_componentTypeTag == null || _componentTypeTag.Type == null || _defaultValue == null)
                 return false;
@@ -44,7 +43,7 @@ namespace MonoFSM.Variable
             return !restrictType.IsAssignableFrom(actualType);
         }
 
-        private string TypeTagErrorMessage()
+        protected override string DefaultValueErrorMessage()
         {
             if (_componentTypeTag == null || _componentTypeTag.Type == null || _defaultValue == null)
                 return string.Empty;
