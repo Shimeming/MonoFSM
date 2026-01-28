@@ -69,24 +69,6 @@ namespace MonoFSM.Foundation
             return null;
         }
 
-        public static IValueProvider<T> GetActiveValueSource<T>(
-            IValueProvider<T>[] sources,
-            MonoBehaviour context
-        )
-        {
-            if (sources == null || sources.Length == 0)
-                return null;
-
-            if (!Application.isPlaying)
-                return sources[0];
-
-            foreach (var provider in sources)
-                if (provider.IsValid)
-                    return provider;
-
-            return null;
-        }
-
         public static bool HasValueProvider(IValueProvider[] sources)
         {
             return sources is { Length: > 0 };

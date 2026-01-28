@@ -4,6 +4,9 @@ using UnityEngine;
 
 namespace MonoFSM.Core.Variable.Providers
 {
+    /// <summary>
+    /// 無型別耶
+    /// </summary>
     public class GetCurrentItemOfVarList : AbstractGetter, IValueProvider
     {
         [SerializeField]
