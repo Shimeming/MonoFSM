@@ -206,7 +206,7 @@ public abstract class AbstractFieldVariable<TScriptableData, TField, TType>
     [HideIf(nameof(HasValueProvider))]
     public TField _localField; // = new();
 
-    private bool HasValueProvider => _valueSources is { Length: > 0 };
+    protected override bool HasValueProvider => _valueSources is { Length: > 0 };
 
     //這個值會被蓋掉???
 

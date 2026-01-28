@@ -31,7 +31,7 @@ public abstract class AbstractConditionBehaviour
         IBoolProvider,
         IOverrideHierarchyIcon,
         // IValueProvider<bool>, //FIXME: 不該作為ValueProvider? 要的話另外轉換好了？
-        IHierarchyValueInfo, IValueProvider<bool>
+        IHierarchyValueInfo, IValueProvider<bool>, IValueProvider<float>
 {
 #if UNITY_EDITOR
     [ExcludeFromCodeCoverage]
@@ -134,6 +134,8 @@ public abstract class AbstractConditionBehaviour
     [AutoChildren(false)]
     protected DebugConditionResultOverrider _debugConditionResultOverrider;
 
+    private float _value;
+
     [ShowIf("IsDebugMode")]
     [ShowInInspector]
     [TabGroup("Debug")]
@@ -157,4 +159,16 @@ public abstract class AbstractConditionBehaviour
     public virtual string ValueInfo => FinalResult.ToString();
     public virtual bool IsDrawingValueInfo => Application.isPlaying && isActiveAndEnabled;
 
+    float IValueProvider<float>.Value => IsTrue ? 1f : 0f;
+
+    public T1 Get<T1>()
+    {
+        if (typeof(T1) == typeof(bool))
+            return (T1)(object)FinalResult;
+        if (typeof(T1) == typeof(float))
+            return (T1)(object)(FinalResult ? 1f : 0f);
+        throw new InvalidCastException($"Cannot cast bool to {typeof(T1)}");
+    }
+
+    public Type ValueType => typeof(bool);
 }

@@ -1,7 +1,7 @@
 using MonoFSM.Core;
+using MonoFSM.Core.DataProvider;
 using MonoFSM.Foundation;
 using MonoFSM.Variable.Attributes;
-using UnityEngine;
 
 namespace MonoFSM.Variable
 {
@@ -9,11 +9,11 @@ namespace MonoFSM.Variable
     {
         [CompRef]
         [AutoChildren(DepthOneOnly = true, _isSelfInclude = true)]
-        protected IValueProvider[] _valueSources;
+        protected IValueProvider<T>[] _valueSources;
 
-        protected IValueProvider valueSource => GetActiveTypedValueSource();
+        protected IValueProvider<T> valueSource => GetActiveTypedValueSource();
 
-        protected IValueProvider GetActiveTypedValueSource()
+        protected IValueProvider<T> GetActiveTypedValueSource()
         {
             //是這個沒有跑嗎？
             AutoAttributeManager.AutoReferenceFieldEditor(this, nameof(_valueSources));

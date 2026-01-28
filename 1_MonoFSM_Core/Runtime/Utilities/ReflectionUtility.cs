@@ -898,6 +898,14 @@ namespace MonoFSM.Core.Utilities
                 else
                 {
                     var getter = GetMemberGetter(objType, entry._propertyName);
+                    if (getter == null)
+                    {
+                        Debug.LogError(
+                            $"找不到欄位 '{entry._propertyName}' 在 Type '{objType}' 中",
+                            logTarget
+                        );
+                        return (default, $"找不到欄位 '{entry._propertyName}' 在 Type '{objType}' 中");
+                    }
                     var value = getter(currentObj);
                     if (value == null)
                     {
