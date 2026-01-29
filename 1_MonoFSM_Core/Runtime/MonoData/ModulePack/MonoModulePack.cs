@@ -11,11 +11,10 @@ namespace _1_MonoFSM_Core.Runtime.LifeCycle.Update
 {
     public class MonoModulePack : MonoBehaviour, IDropdownRoot
     {
-        
-        [CompRef] [AutoChildren] public VariableFolder _variableFolder;
-        [CompRef] [AutoChildren] public StateFolder _stateFolder;
-        [CompRef] [AutoChildren] public EffectDetectable _detectable;
-        [CompRef] [AutoChildren] public SchemaFolder _folder;
+        [CompRef] [AutoChildren] VariableFolder _variableFolder;
+        [CompRef] [AutoChildren] StateFolder _stateFolder;
+        [CompRef] [AutoChildren] EffectDetectable _detectable;
+        [CompRef] [AutoChildren] SchemaFolder _folder;
 
         /// <summary>
         /// 返回此 ModulePack 下所有的 MonoDictFolder

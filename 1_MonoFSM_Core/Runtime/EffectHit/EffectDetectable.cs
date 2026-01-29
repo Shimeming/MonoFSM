@@ -21,6 +21,8 @@ namespace MonoFSM.Runtime.Interact.EffectHit
     public class EffectDetectable //這顆已經是Group了，反而不知道進入點耶
         : MonoDictFolder<GeneralEffectType, GeneralEffectReceiver>, IDefaultSerializable //關係
     {
+        protected override bool IsIgnoreRename => true;
+
         public GeneralEffectReceiver GetReceiver(GeneralEffectType effectType)
         {
             return Get(effectType);

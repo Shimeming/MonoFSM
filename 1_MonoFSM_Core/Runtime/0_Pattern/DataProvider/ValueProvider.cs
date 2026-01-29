@@ -423,7 +423,7 @@ namespace MonoFSM.Core.DataProvider
                 if (ParentEntity != null)
                     return ParentEntity.GetType();
 
-                Debug.LogError("VarRef: No target entity, schema, or variable tag found.", this);
+                // Debug.LogError("VarRef: No target entity, schema, or variable tag found.", this);
                 return typeof(object);
             }
         }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using MonoFSM.Core;
@@ -34,6 +35,17 @@ namespace MonoFSM.Foundation
         [AutoParent]
         protected MonoObj _parentObj; //FIXME: 會拿不到root的耶...好麻煩啊
 
+        [ShowInDebugMode] [AutoParent(getMadIfMissing: false)]
+        MonoObj[] _parentObjs; //用array避免拿不到parentobj
+
+        public string PathName => _parentObjs != null && _parentObjs.Length > 0
+            ? $"{ReformatedName} (" + string.Join(
+                ".",
+                Array.ConvertAll(_parentObjs, obj => obj.gameObject.name).Reverse()
+            ) + ")"
+            : _parentObj != null
+                ? _parentObj.gameObject.name + "." + ReformatedName
+                : ReformatedName;
         public void DestroyItem()
         {
             simulator.Despawn(_parentObj);

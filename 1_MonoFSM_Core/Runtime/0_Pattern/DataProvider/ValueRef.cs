@@ -53,7 +53,7 @@ namespace MonoFSM.Core.DataProvider
         }
 
         public override Type ValueType =>
-            HasFieldPath ? lastPathEntryType : _valueProvider.ValueType;
+            HasFieldPath ? lastPathEntryType : _valueProvider?.ValueType;
 
         public override object StartingObject => _valueProvider?.Get<object>();
         public override AbstractMonoVariable VarRaw => _valueProvider?.VarRaw;

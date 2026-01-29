@@ -1,4 +1,5 @@
 using MonoFSM.Foundation;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace MonoFSM.Runtime.Interact.EffectHit
@@ -23,6 +24,8 @@ namespace MonoFSM.Runtime.Interact.EffectHit
             }
         }
 
+        [ShowInInspector]
+        [Required]
         [AutoParent] private EffectDetectable _detectable;
 
         public EffectDetectable Detectable => _detectable; //動態生成的沒有綁定到？

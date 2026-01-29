@@ -36,7 +36,7 @@ namespace MonoFSM.Core
         protected override void BuildSelectionTree(OdinMenuTree tree)
         {
             tree.Config.DrawSearchToolbar = true;
-
+            tree.Config.UseCachedExpandedStates = true;
             // tree.Selection.SupportsMultiSelect = this.supportsMultiSelect;
             var parentType = _attribute._parentType ?? typeof(IDropdownRoot); //FIXME: 不太喜歡...UI也想撈
             Component[] comps;

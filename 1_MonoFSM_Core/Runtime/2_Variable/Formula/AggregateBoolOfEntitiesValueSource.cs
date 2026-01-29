@@ -13,6 +13,7 @@ namespace MonoFSM.Core.Formula
         [SOConfig("VariableType")]
         public VariableTag _boolVarTag; //hmm??
 
+        //TODO: OR, And?
         //and, 需要 or?
         public override bool Value
         {
