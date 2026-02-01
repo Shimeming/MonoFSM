@@ -162,13 +162,15 @@ namespace CommandPalette
                     break;
 
                 case KeyCode.Tab:
+                    // Tab 永遠切換模式（中文輸入不使用 Tab 選字）
                     CycleModes();
                     Event.current.Use();
                     break;
 
                 case KeyCode.Return:
                 case KeyCode.KeypadEnter:
-                    if (_selectedIndex >= 0 && _selectedIndex < resultsCount)
+                    // 正在編輯文字時不攔截 Enter（避免影響中文選字）
+                    if (!EditorGUIUtility.editingTextField && _selectedIndex >= 0 && _selectedIndex < resultsCount)
                     {
                         OpenSelectedResult();
                         Event.current.Use();
@@ -178,7 +180,9 @@ namespace CommandPalette
                 case KeyCode.UpArrow:
                     if (resultsCount > 0)
                     {
+                        GUIUtility.keyboardControl = 0; // 退出 textfield 編輯狀態
                         _selectedIndex = _selectedIndex <= 0 ? resultsCount - 1 : _selectedIndex - 1;
+                        ScrollToSelected();
                         Event.current.Use();
                         Repaint();
                     }
@@ -187,7 +191,9 @@ namespace CommandPalette
                 case KeyCode.DownArrow:
                     if (resultsCount > 0)
                     {
+                        GUIUtility.keyboardControl = 0; // 退出 textfield 編輯狀態
                         _selectedIndex = _selectedIndex >= resultsCount - 1 ? 0 : _selectedIndex + 1;
+                        ScrollToSelected();
                         Event.current.Use();
                         Repaint();
                     }
@@ -352,6 +358,29 @@ namespace CommandPalette
             };
         }
 
+        private void ScrollToSelected()
+        {
+            if (_selectedIndex < 0)
+                return;
+
+            var listStartY = TabHeight + 28;
+            var listHeight = position.height - listStartY - PathBarHeight;
+
+            var itemTop = _selectedIndex * RowHeight;
+            var itemBottom = itemTop + RowHeight;
+
+            // 如果選中項目在可見區域上方，滾動到該項目
+            if (itemTop < _scrollPos.y)
+            {
+                _scrollPos.y = itemTop;
+            }
+            // 如果選中項目在可見區域下方，滾動使其可見
+            else if (itemBottom > _scrollPos.y + listHeight)
+            {
+                _scrollPos.y = itemBottom - listHeight;
+            }
+        }
+
         private void DrawResultsList()
         {
             var resultsCount = GetResultsCount();
@@ -362,13 +391,20 @@ namespace CommandPalette
 
             _scrollPos = GUI.BeginScrollView(listRect, _scrollPos, contentRect);
 
+            var isEditingTextField = EditorGUIUtility.editingTextField;
+
             for (var i = 0; i < resultsCount; i++)
             {
                 var rect = new Rect(0, i * RowHeight, position.width - 20, RowHeight);
 
-                // 選中狀態背景
+                // 選中狀態背景（編輯文字時顯示灰色，表示 Enter 不會觸發選取）
                 if (i == _selectedIndex)
-                    EditorGUI.DrawRect(rect, new Color(0.3f, 0.5f, 0.85f, 0.8f));
+                {
+                    var selectedColor = isEditingTextField
+                        ? new Color(0.4f, 0.4f, 0.4f, 0.6f)  // 灰色：編輯中
+                        : new Color(0.3f, 0.5f, 0.85f, 0.8f); // 藍色：可選取
+                    EditorGUI.DrawRect(rect, selectedColor);
+                }
                 else if (rect.Contains(Event.current.mousePosition))
                     EditorGUI.DrawRect(rect, new Color(0.5f, 0.5f, 0.5f, 0.3f));
 

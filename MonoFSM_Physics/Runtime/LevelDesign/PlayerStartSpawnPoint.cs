@@ -66,6 +66,7 @@ public class PlayerStartSpawnPoint
         return GetCurrentSpawnPoint();
     }
 
+    [Required]
     public Transform editorPlayerRef; //如果player是放在場景上
     public Transform oriSpawnRef;
 #if UNITY_EDITOR

@@ -46,6 +46,7 @@ namespace MonoFSM.Core.Runtime
         public MonoEntity BindEntity => _parentEntity;
 
         //FIXME: 好像不需要？什麼時候會用到？
+        //會 auto mapping?還是重撈就好？
         [SOConfig("TypeTags")]
         [InfoBox("Schema 對應的類型標籤，用於識別此 Schema 的類型")]
         public MonoTypeTag _typeTag;

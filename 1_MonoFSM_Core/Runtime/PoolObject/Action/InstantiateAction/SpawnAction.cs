@@ -43,7 +43,8 @@ namespace MonoFSM.Core.LifeCycle
         [SerializeField]
         VarMonoObjFoldOut _poolObjFoldOut;
 
-        [Required]
+        [Obsolete]
+        // [Required]
         [SerializeField]
         private VarMonoObj _poolObjVar; //不要用了？轉用_poolObjFoldOut?
 
@@ -72,7 +73,8 @@ namespace MonoFSM.Core.LifeCycle
         /// <summary>
         /// tmp local obj
         /// </summary>
-        [Required]
+        // [Required]
+        [Component]
         [SerializeField]
         private VarEntity
             _spawnedEntityVar; //怎麼統一幫這個rename? fetch all var and rename? attribute LocalRuntimeField?

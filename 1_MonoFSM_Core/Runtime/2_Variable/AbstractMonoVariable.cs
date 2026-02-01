@@ -74,6 +74,24 @@ namespace MonoFSM.Variable
         public Texture2D CustomIcon =>
             EditorGUIUtility.ObjectContent(null, GetType()).image as Texture2D; //雞掰！
         //UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>("Packages/com.rcgmaker.fsm/RCGMakerFSMCore/Runtime/2_Variable/VarFloatIcon.png");
+
+        [Button("Find References"), PropertyOrder(-100)]
+        private void FindReferences()
+        {
+            // 透過反射呼叫 Editor Window，避免 Runtime 直接引用 Editor namespace
+            var windowType = System.Type.GetType(
+                "MonoFSM.Editor.VariableReferenceSystem.VariableReferenceWindow, MonoFSM.Core.Editor");
+            if (windowType != null)
+            {
+                var method = windowType.GetMethod("ShowWindowWithVariable",
+                    System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+                method?.Invoke(null, new object[] { this });
+            }
+            else
+            {
+                Debug.LogWarning("VariableReferenceWindow not found. Please ensure MonoFSM.Core.Editor assembly is loaded.");
+            }
+        }
 #endif
 
         //FIXME: 這個不能被Debug「看」，不好用... AddListener 的形式比較好

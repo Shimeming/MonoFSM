@@ -9,6 +9,7 @@ namespace _1_MonoFSM_Core.Runtime.Action.AnimatorActions
     {
         [SerializeField]
         [DropDownRef]
+        // [TypeFilter()]
         private VarComp _animatorRef;
 
         [Required]

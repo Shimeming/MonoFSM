@@ -48,6 +48,11 @@ public class StaminaTimer : MonoBehaviour, IUpdateSimulate
     // It is not used in the current recovery logic.
     // [DropDownRef] public float currentTime;
 
+    [Header("Recovery Block")]
+    [Tooltip("外部控制：true = 阻止恢復，false 或未綁定 = 正常恢復")]
+    [SerializeField]
+    private VarBoolWrapper _isRecoveryBlocked = new VarBoolWrapper(false);
+
     [Header("Internal State")]
     [PreviewInInspector]
     [Tooltip("Tracks the time elapsed while waiting to start recovery.")]
@@ -101,6 +106,14 @@ public class StaminaTimer : MonoBehaviour, IUpdateSimulate
             _pauseTimeCounter = 0f;
             _recoveryAccumulator = 0f; // Reset accumulator on consumption.
             return; // Stop further processing for recovery this frame.
+        }
+
+        // 外部阻止恢復
+        if (_isRecoveryBlocked.Value)
+        {
+            _countType = CountType.Pause;
+            _pauseTimeCounter = 0f;
+            return;
         }
 
         // if (!_currentValue.IsMax)

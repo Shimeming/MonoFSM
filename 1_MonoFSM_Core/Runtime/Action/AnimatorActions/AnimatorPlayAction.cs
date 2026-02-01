@@ -972,6 +972,13 @@ namespace MonoFSM.Animation
                 if (nextState.shortNameHash == StateHash)
                     return;
                 // Debug.Log("CrossFade Animation Again:" + StateName + "layer:" + stateLayer, this);
+                if (animator.HasState(stateLayer, StateHash) == false)
+                {
+                    Debug.LogError(
+                        "AnimatorPlayAction: 沒有這個state:" + StateName + ",hash:" + StateHash,
+                        gameObject
+                    );
+                }
                 animator.CrossFade(
                     StateHash,
                     animatorEnterCrossFade,
