@@ -15,7 +15,8 @@ namespace CommandPalette
         Prefabs,
         ScriptableObjects,
         Scenes,
-        MenuItems
+        MenuItems,
+        Windows
     }
 
     /// <summary>
@@ -231,6 +232,23 @@ namespace CommandPalette
     {
         public List<MenuItemCacheData> menuItems = new();
         public long cacheTimestamp;
+    }
+
+    /// <summary>
+    ///     EditorWindow 條目結構
+    /// </summary>
+    public class EditorWindowEntry
+    {
+        public Type Type { get; set; }
+        public string DisplayName { get; set; }
+        public string Category { get; set; }  // Unity / MonoFSM / Third Party
+
+        public EditorWindowEntry(Type type, string displayName, string category)
+        {
+            Type = type;
+            DisplayName = displayName;
+            Category = category;
+        }
     }
 }
 #endif

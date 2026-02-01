@@ -5,43 +5,48 @@ using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEditor.SceneManagement;
-using UnityEditor.Search;
 using UnityEngine;
 using SearchField = UnityEditor.IMGUI.Controls.SearchField;
 
 namespace CommandPalette
 {
     /// <summary>
-    /// 命令面板 - 使用 Unity SearchService 進行即時搜尋
+    /// 命令面板 - 使用自訂搜尋引擎進行即時搜尋
     /// 快捷鍵: Cmd+T (Mac) / Ctrl+T (Windows)
-    /// 支援 Prefabs, ScriptableObjects, Scenes, MenuItems
+    /// 支援 Prefabs, ScriptableObjects, Scenes, MenuItems, Windows
     /// </summary>
     public class SearchCommandPaletteWindow : EditorWindow
     {
         private SearchField _searchField;
         private string _searchString = "";
         private Vector2 _scrollPos;
-        private List<SearchItem> _searchResults = new();
         private int _selectedIndex = -1;
         private SearchMode _currentMode = SearchMode.Prefabs;
         private static SearchCommandPaletteWindow _instance;
 
+        // 各模式的搜尋結果
+        private List<SearchResult<AssetEntry>> _assetResults = new();
+        private List<SearchResult<MenuItemEntry>> _menuItemResults = new();
+        private List<SearchResult<EditorWindowEntry>> _windowResults = new();
+
+        // 資源快取
+        private Dictionary<SearchMode, List<AssetEntry>> _assetCache = new();
+        private List<MenuItemEntry> _menuItemCache;
+        private List<EditorWindowEntry> _windowCache;
+
         private const float RowHeight = 22f;
         private const float TabHeight = 25f;
+        private const float PathBarHeight = 20f;
         private const string SearchModePrefKey = "CommandPalette_SearchMode";
+        private const int MaxResults = 100;
 
-        // 搜尋模式配置
-        private static readonly Dictionary<SearchMode, string> SearchProviders =
+        // 搜尋模式配置 - AssetDatabase 篩選條件
+        private static readonly Dictionary<SearchMode, string> AssetDatabaseFilters =
             new()
             {
                 { SearchMode.Prefabs, "t:GameObject" },
                 { SearchMode.ScriptableObjects, "t:ScriptableObject" },
                 { SearchMode.Scenes, "t:SceneAsset" },
-                {
-                    SearchMode.MenuItems,
-                    ""
-                } // MenuItem 需要特殊處理
-                ,
             };
 
         private static readonly Dictionary<SearchMode, string> ModeNames =
@@ -51,6 +56,7 @@ namespace CommandPalette
                 { SearchMode.ScriptableObjects, "ScriptableObjects" },
                 { SearchMode.Scenes, "Scenes" },
                 { SearchMode.MenuItems, "MenuItems" },
+                { SearchMode.Windows, "Windows" },
             };
 
         [MenuItem("Tools/Search Command Palette %t")]
@@ -76,7 +82,60 @@ namespace CommandPalette
         {
             _currentMode = (SearchMode)
                 EditorPrefs.GetInt(SearchModePrefKey, (int)SearchMode.Prefabs);
-            PerformSearch(); // 初始載入時顯示該類型的所有資源
+            LoadCacheForCurrentMode();
+            PerformSearch();
+        }
+
+        private void LoadCacheForCurrentMode()
+        {
+            switch (_currentMode)
+            {
+                case SearchMode.Prefabs:
+                case SearchMode.ScriptableObjects:
+                case SearchMode.Scenes:
+                    if (!_assetCache.ContainsKey(_currentMode))
+                    {
+                        _assetCache[_currentMode] = LoadAssetsForMode(_currentMode);
+                    }
+                    break;
+
+                case SearchMode.MenuItems:
+                    _menuItemCache ??= SearchCommandPaletteCacheHelper.CollectAllMenuItems();
+                    break;
+
+                case SearchMode.Windows:
+                    _windowCache ??= EditorWindowSearchHelper.GetAllEditorWindowTypes();
+                    break;
+            }
+        }
+
+        private List<AssetEntry> LoadAssetsForMode(SearchMode mode)
+        {
+            var assets = new List<AssetEntry>();
+
+            if (!AssetDatabaseFilters.TryGetValue(mode, out var filter))
+                return assets;
+
+            var guids = AssetDatabase.FindAssets(filter);
+
+            foreach (var guid in guids)
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+
+                // 只過濾 Unity 官方套件，保留本地 Packages
+                if (path.StartsWith("Packages/com.unity."))
+                    continue;
+
+                var name = System.IO.Path.GetFileNameWithoutExtension(path);
+                var asset = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(path);
+
+                if (asset != null)
+                {
+                    assets.Add(new AssetEntry(name, path, asset));
+                }
+            }
+
+            return assets;
         }
 
         private void OnGUI()
@@ -85,12 +144,15 @@ namespace CommandPalette
             DrawModeTab();
             DrawSearchField();
             DrawResultsList();
+            DrawPathBar();
         }
 
         private void HandleKeyboardInput()
         {
             if (Event.current.type != EventType.KeyDown)
                 return;
+
+            var resultsCount = GetResultsCount();
 
             switch (Event.current.keyCode)
             {
@@ -106,26 +168,29 @@ namespace CommandPalette
 
                 case KeyCode.Return:
                 case KeyCode.KeypadEnter:
-                    if (_selectedIndex >= 0 && _selectedIndex < _searchResults.Count)
+                    if (_selectedIndex >= 0 && _selectedIndex < resultsCount)
                     {
                         OpenSelectedResult();
                         Event.current.Use();
                     }
-
                     break;
 
                 case KeyCode.UpArrow:
-                    _selectedIndex =
-                        _selectedIndex <= 0 ? _searchResults.Count - 1 : _selectedIndex - 1;
-                    Event.current.Use();
-                    Repaint();
+                    if (resultsCount > 0)
+                    {
+                        _selectedIndex = _selectedIndex <= 0 ? resultsCount - 1 : _selectedIndex - 1;
+                        Event.current.Use();
+                        Repaint();
+                    }
                     break;
 
                 case KeyCode.DownArrow:
-                    _selectedIndex =
-                        _selectedIndex >= _searchResults.Count - 1 ? 0 : _selectedIndex + 1;
-                    Event.current.Use();
-                    Repaint();
+                    if (resultsCount > 0)
+                    {
+                        _selectedIndex = _selectedIndex >= resultsCount - 1 ? 0 : _selectedIndex + 1;
+                        Event.current.Use();
+                        Repaint();
+                    }
                     break;
             }
         }
@@ -136,6 +201,7 @@ namespace CommandPalette
             var currentIndex = Array.IndexOf(modes, _currentMode);
             _currentMode = modes[(currentIndex + 1) % modes.Length];
             EditorPrefs.SetInt(SearchModePrefKey, (int)_currentMode);
+            LoadCacheForCurrentMode();
             PerformSearch();
             if (_searchField != null)
                 _searchField.SetFocus();
@@ -167,6 +233,7 @@ namespace CommandPalette
                     {
                         _currentMode = mode;
                         EditorPrefs.SetInt(SearchModePrefKey, (int)_currentMode);
+                        LoadCacheForCurrentMode();
                         PerformSearch();
                         if (_searchField != null)
                             _searchField.SetFocus();
@@ -197,51 +264,106 @@ namespace CommandPalette
 
         private void PerformSearch()
         {
-            _searchResults.Clear();
             _selectedIndex = -1;
 
-            if (_currentMode == SearchMode.MenuItems)
+            switch (_currentMode)
             {
-                // TODO: MenuItem 搜尋實作
-                Repaint();
-                return;
+                case SearchMode.Prefabs:
+                case SearchMode.ScriptableObjects:
+                case SearchMode.Scenes:
+                    PerformAssetSearch();
+                    break;
+
+                case SearchMode.MenuItems:
+                    PerformMenuItemSearch();
+                    break;
+
+                case SearchMode.Windows:
+                    PerformWindowSearch();
+                    break;
             }
-
-            var provider = SearchProviders[_currentMode];
-            string query;
-
-            if (string.IsNullOrEmpty(_searchString))
-            {
-                // 空搜尋時顯示該類型的所有資源
-                query = provider;
-            }
-            else
-            {
-                // 有關鍵字時進行篩選
-                query = $"{provider} {_searchString}";
-            }
-
-            using var context = SearchService.CreateContext(new[] { "asset" }, query);
-            using var results = SearchService.Request(context, SearchFlags.Synchronous);
-
-            _searchResults = results.Take(50).ToList(); // 限制結果數量
-            if (_searchResults.Count > 0)
-                _selectedIndex = 0;
 
             Repaint();
         }
 
+        private void PerformAssetSearch()
+        {
+            _assetResults.Clear();
+
+            if (!_assetCache.TryGetValue(_currentMode, out var assets) || assets == null)
+            {
+                LoadCacheForCurrentMode();
+                assets = _assetCache.GetValueOrDefault(_currentMode);
+            }
+
+            if (assets == null || assets.Count == 0)
+                return;
+
+            _assetResults = SearchEngine.Search(_searchString, assets, MaxResults);
+
+            if (_assetResults.Count > 0)
+                _selectedIndex = 0;
+        }
+
+        private void PerformMenuItemSearch()
+        {
+            _menuItemResults.Clear();
+
+            if (_menuItemCache == null || _menuItemCache.Count == 0)
+            {
+                LoadCacheForCurrentMode();
+            }
+
+            if (_menuItemCache == null || _menuItemCache.Count == 0)
+                return;
+
+            _menuItemResults = SearchEngine.Search(_searchString, _menuItemCache, MaxResults);
+
+            if (_menuItemResults.Count > 0)
+                _selectedIndex = 0;
+        }
+
+        private void PerformWindowSearch()
+        {
+            _windowResults.Clear();
+
+            if (_windowCache == null || _windowCache.Count == 0)
+            {
+                LoadCacheForCurrentMode();
+            }
+
+            if (_windowCache == null || _windowCache.Count == 0)
+                return;
+
+            _windowResults = SearchEngine.Search(_searchString, _windowCache, MaxResults);
+
+            if (_windowResults.Count > 0)
+                _selectedIndex = 0;
+        }
+
+        private int GetResultsCount()
+        {
+            return _currentMode switch
+            {
+                SearchMode.Prefabs or SearchMode.ScriptableObjects or SearchMode.Scenes => _assetResults.Count,
+                SearchMode.MenuItems => _menuItemResults.Count,
+                SearchMode.Windows => _windowResults.Count,
+                _ => 0
+            };
+        }
+
         private void DrawResultsList()
         {
+            var resultsCount = GetResultsCount();
             var listStartY = TabHeight + 28;
-            var listRect = new Rect(0, listStartY, position.width, position.height - listStartY);
-            var contentRect = new Rect(0, 0, position.width - 20, _searchResults.Count * RowHeight);
+            var listHeight = position.height - listStartY - PathBarHeight;
+            var listRect = new Rect(0, listStartY, position.width, listHeight);
+            var contentRect = new Rect(0, 0, position.width - 20, resultsCount * RowHeight);
 
             _scrollPos = GUI.BeginScrollView(listRect, _scrollPos, contentRect);
 
-            for (var i = 0; i < _searchResults.Count; i++)
+            for (var i = 0; i < resultsCount; i++)
             {
-                var result = _searchResults[i];
                 var rect = new Rect(0, i * RowHeight, position.width - 20, RowHeight);
 
                 // 選中狀態背景
@@ -250,26 +372,14 @@ namespace CommandPalette
                 else if (rect.Contains(Event.current.mousePosition))
                     EditorGUI.DrawRect(rect, new Color(0.5f, 0.5f, 0.5f, 0.3f));
 
-                // 圖標
+                // 圖標與標題
                 var iconRect = new Rect(rect.x + 5, rect.y + 3, 16, 16);
-                var obj = result.ToObject<UnityEngine.Object>();
-                if (obj != null)
-                {
-                    var thumbnail = AssetPreview.GetMiniThumbnail(obj);
-                    if (thumbnail != null)
-                        GUI.DrawTexture(iconRect, thumbnail);
-                }
-
-                // 標題
                 var nameRect = new Rect(rect.x + 25, rect.y, rect.width - 30, rect.height);
-                var displayName = result.ToObject<UnityEngine.Object>()?.name ?? result.id;
-                GUI.Label(nameRect, displayName);
+
+                DrawResultItem(i, iconRect, nameRect);
 
                 // 滑鼠點擊
-                if (
-                    Event.current.type == EventType.MouseDown
-                    && rect.Contains(Event.current.mousePosition)
-                )
+                if (Event.current.type == EventType.MouseDown && rect.Contains(Event.current.mousePosition))
                 {
                     _selectedIndex = i;
                     if (Event.current.clickCount == 2)
@@ -282,13 +392,128 @@ namespace CommandPalette
             GUI.EndScrollView();
         }
 
+        private void DrawResultItem(int index, Rect iconRect, Rect nameRect)
+        {
+            switch (_currentMode)
+            {
+                case SearchMode.Prefabs:
+                case SearchMode.ScriptableObjects:
+                case SearchMode.Scenes:
+                    if (index < _assetResults.Count)
+                    {
+                        var entry = _assetResults[index].Item;
+                        var icon = entry.icon;
+                        if (icon != null)
+                            GUI.DrawTexture(iconRect, icon);
+                        GUI.Label(nameRect, entry.name);
+                    }
+                    break;
+
+                case SearchMode.MenuItems:
+                    if (index < _menuItemResults.Count)
+                    {
+                        var entry = _menuItemResults[index].Item;
+                        // MenuItem 使用預設圖標
+                        var icon = EditorGUIUtility.IconContent("d_UnityEditor.ConsoleWindow").image;
+                        if (icon != null)
+                            GUI.DrawTexture(iconRect, icon);
+                        GUI.Label(nameRect, $"{entry.displayName}  ({entry.category})");
+                    }
+                    break;
+
+                case SearchMode.Windows:
+                    if (index < _windowResults.Count)
+                    {
+                        var entry = _windowResults[index].Item;
+                        var icon = EditorGUIUtility.IconContent("d_UnityEditor.SceneHierarchyWindow").image;
+                        if (icon != null)
+                            GUI.DrawTexture(iconRect, icon);
+                        GUI.Label(nameRect, $"{entry.DisplayName}  ({entry.Category})");
+                    }
+                    break;
+            }
+        }
+
+        private void DrawPathBar()
+        {
+            var pathBarRect = new Rect(0, position.height - PathBarHeight, position.width, PathBarHeight);
+            EditorGUI.DrawRect(pathBarRect, new Color(0.15f, 0.15f, 0.15f, 1f));
+
+            var path = GetSelectedItemPath();
+            if (!string.IsNullOrEmpty(path))
+            {
+                var labelRect = new Rect(5, position.height - PathBarHeight + 2, position.width - 10, PathBarHeight - 4);
+                var style = new GUIStyle(EditorStyles.miniLabel)
+                {
+                    normal = { textColor = new Color(0.6f, 0.6f, 0.6f, 1f) },
+                    alignment = TextAnchor.MiddleLeft
+                };
+                GUI.Label(labelRect, path, style);
+            }
+        }
+
+        private string GetSelectedItemPath()
+        {
+            if (_selectedIndex < 0)
+                return "";
+
+            switch (_currentMode)
+            {
+                case SearchMode.Prefabs:
+                case SearchMode.ScriptableObjects:
+                case SearchMode.Scenes:
+                    if (_selectedIndex < _assetResults.Count)
+                        return _assetResults[_selectedIndex].Item.path;
+                    break;
+
+                case SearchMode.MenuItems:
+                    if (_selectedIndex < _menuItemResults.Count)
+                        return _menuItemResults[_selectedIndex].Item.menuPath;
+                    break;
+
+                case SearchMode.Windows:
+                    if (_selectedIndex < _windowResults.Count)
+                    {
+                        var entry = _windowResults[_selectedIndex].Item;
+                        return entry.Type?.FullName ?? "";
+                    }
+                    break;
+            }
+
+            return "";
+        }
+
         private void OpenSelectedResult()
         {
-            if (_selectedIndex < 0 || _selectedIndex >= _searchResults.Count)
+            var resultsCount = GetResultsCount();
+            if (_selectedIndex < 0 || _selectedIndex >= resultsCount)
                 return;
 
-            var result = _searchResults[_selectedIndex];
-            var obj = result.ToObject<UnityEngine.Object>();
+            switch (_currentMode)
+            {
+                case SearchMode.Prefabs:
+                case SearchMode.ScriptableObjects:
+                case SearchMode.Scenes:
+                    OpenAssetResult();
+                    break;
+
+                case SearchMode.MenuItems:
+                    OpenMenuItemResult();
+                    break;
+
+                case SearchMode.Windows:
+                    OpenWindowResult();
+                    break;
+            }
+        }
+
+        private void OpenAssetResult()
+        {
+            if (_selectedIndex >= _assetResults.Count)
+                return;
+
+            var entry = _assetResults[_selectedIndex].Item;
+            var obj = entry.asset;
 
             if (obj == null)
                 return;
@@ -296,10 +521,8 @@ namespace CommandPalette
             // 特殊處理 Prefab
             if (_currentMode == SearchMode.Prefabs && obj is GameObject)
             {
-                var assetPath = AssetDatabase.GetAssetPath(obj);
-                if (!string.IsNullOrEmpty(assetPath))
+                if (!string.IsNullOrEmpty(entry.path))
                 {
-                    // 嘗試用 PrefabStageUtility 打開 Prefab 編輯模式
                     try
                     {
                         var prefabStageUtilityType = typeof(EditorSceneManager).Assembly.GetType(
@@ -315,7 +538,7 @@ namespace CommandPalette
 
                         if (openPrefabMethod != null)
                         {
-                            openPrefabMethod.Invoke(null, new object[] { assetPath });
+                            openPrefabMethod.Invoke(null, new object[] { entry.path });
                             Close();
                             return;
                         }
@@ -327,8 +550,27 @@ namespace CommandPalette
                 }
             }
 
-            // 一般資源打開
             AssetDatabase.OpenAsset(obj);
+            Close();
+        }
+
+        private void OpenMenuItemResult()
+        {
+            if (_selectedIndex >= _menuItemResults.Count)
+                return;
+
+            var entry = _menuItemResults[_selectedIndex].Item;
+            entry.Execute();
+            Close();
+        }
+
+        private void OpenWindowResult()
+        {
+            if (_selectedIndex >= _windowResults.Count)
+                return;
+
+            var entry = _windowResults[_selectedIndex].Item;
+            EditorWindowSearchHelper.OpenEditorWindow(entry);
             Close();
         }
 
