@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using MonoFSM.Core.Attributes;
 using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
@@ -170,6 +172,26 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IPoolableObject
     }
 
     public bool IsGlobalPool;
+
+    [BoxGroup("延遲自動回收")]
+    [Tooltip("啟用後，物件 Spawn 到場景後會在指定時間自動回收")]
+    [SerializeField]
+    private bool _enableAutoRecycle;
+
+    [BoxGroup("延遲自動回收")]
+    [ShowIf("_enableAutoRecycle")]
+    [Tooltip("自動回收的延遲時間（秒）")]
+    [Min(0.01f)]
+    [SerializeField]
+    private float _autoRecycleDelay = 3f;
+
+    [BoxGroup("延遲自動回收")]
+    [ShowIf("_enableAutoRecycle")]
+    [ShowInInspector]
+    [ReadOnly]
+    private float _autoRecycleRemainingTime;
+
+    private CancellationTokenSource _autoRecycleCts;
 
     public enum ProtectionState
     {
@@ -431,6 +453,79 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IPoolableObject
         {
             iBorrowOnEnable.OnBorrowFromPoolOnEnable();
         }
+
+        // 啟動延遲自動回收
+        StartAutoRecycleIfEnabled();
+    }
+
+    private void StartAutoRecycleIfEnabled()
+    {
+        if (!_enableAutoRecycle)
+            return;
+
+        CancelAutoRecycle();
+        _autoRecycleCts = new CancellationTokenSource();
+        AutoRecycleAsync(_autoRecycleCts.Token).Forget();
+    }
+
+    private async UniTaskVoid AutoRecycleAsync(CancellationToken ct)
+    {
+        _autoRecycleRemainingTime = _autoRecycleDelay;
+
+        while (_autoRecycleRemainingTime > 0f)
+        {
+            if (ct.IsCancellationRequested)
+                return;
+
+            await UniTask.Yield(PlayerLoopTiming.Update, ct);
+            _autoRecycleRemainingTime -= Time.deltaTime;
+        }
+
+        if (!ct.IsCancellationRequested && this != null && isOnScene)
+        {
+            PoolLogger.LogInfo($"Auto recycle triggered after {_autoRecycleDelay}s", this);
+            Recycle();
+        }
+    }
+
+    private void CancelAutoRecycle()
+    {
+        if (_autoRecycleCts != null)
+        {
+            _autoRecycleCts.Cancel();
+            _autoRecycleCts.Dispose();
+            _autoRecycleCts = null;
+        }
+        _autoRecycleRemainingTime = 0f;
+    }
+
+    /// <summary>
+    /// 手動延遲回收（可從外部呼叫，會覆蓋自動回收設定）
+    /// </summary>
+    public void RecycleDelayed(float delaySeconds)
+    {
+        CancelAutoRecycle();
+        _autoRecycleCts = new CancellationTokenSource();
+        RecycleDelayedAsync(delaySeconds, _autoRecycleCts.Token).Forget();
+    }
+
+    private async UniTaskVoid RecycleDelayedAsync(float delaySeconds, CancellationToken ct)
+    {
+        _autoRecycleRemainingTime = delaySeconds;
+
+        while (_autoRecycleRemainingTime > 0f)
+        {
+            if (ct.IsCancellationRequested)
+                return;
+
+            await UniTask.Yield(PlayerLoopTiming.Update, ct);
+            _autoRecycleRemainingTime -= Time.deltaTime;
+        }
+
+        if (!ct.IsCancellationRequested && this != null && isOnScene)
+        {
+            Recycle();
+        }
     }
 
     public void BeforeObjectReturnToPool(PoolManager manager)
@@ -457,6 +552,7 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IPoolableObject
 
     public void OnReturnToPool(PoolManager manager)
     {
+        CancelAutoRecycle();
         lastPlayer = null;
         _resetData = TransformResetHelper.TransformData.Create(
             _resetData.position,
@@ -505,6 +601,7 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IPoolableObject
 
     public void Recycle()
     {
+        CancelAutoRecycle();
         PoolLogger.LogInfo("Attempting to return to pool", this);
         if (_bindingPoolManager == null)
         {
@@ -583,6 +680,8 @@ public class PoolObject : MonoBehaviour, ISceneAwake, IPoolableObject
 
     private void OnDestroy()
     {
+        CancelAutoRecycle();
+
         // RaisePoolObjectReturnEvent();
         //被別人越權刪除前 跟pool講一聲
         if (this.IsFromPool)
