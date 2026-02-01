@@ -1,5 +1,6 @@
 using MonoFSM.Core;
 using MonoFSM.Runtime.Variable;
+using Sirenix.OdinInspector;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -10,6 +11,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
     public sealed class EffectEnterNode : AbstractEventHandler
     {
         //local variable, 這在這個enter下的生命週期
+        [Required]
         [Component] //[Component?
         public VarEntity _hittingEntity; //to set
 

@@ -15,6 +15,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit.Resolver
         [PropertyOrder(-1)]
         protected abstract string description { get; }
 
+        //應該用EffectHitData?
         public abstract bool IsEffectHitValid(EffectResolver receiver); //只能在Dealer用？
         //FIXME: preview last result?
 

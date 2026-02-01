@@ -22,30 +22,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
             IHitDataProvider,
             IResetStateRestore //, IHierarchyValueInfo,
     {
-        [PreviewInInspector]
-        [Component]
-        [AutoChildren(DepthOneOnly = true)]
-        protected AbstractEffectHitCondition[] _effectConditions;
-
-        public bool IsEffectConditionsAllValid(EffectResolver pairResolver)
-        {
-            if (_effectConditions != null)
-                foreach (var condition in _effectConditions)
-                {
-                    var result = condition.IsEffectHitValid(pairResolver);
-                    if (!result)
-                    {
-                        // SetFailReason($"EffectCondition {condition.GetType().Name} failed");
-                        // var data = r.GenerateEffectHitData(this);
-                        // OnEffectHitConditionFail(data);
-                        // r.OnEffectHitConditionFail(data);
-                        return false;
-                    }
-                }
-
-            return true;
-        }
-
+      
         [RequiredIn(PrefabKind.PrefabInstance)]
         [PreviewInInspector]
         [AutoParent]

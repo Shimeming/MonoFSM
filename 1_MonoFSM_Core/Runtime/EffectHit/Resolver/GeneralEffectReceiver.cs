@@ -50,6 +50,10 @@ namespace MonoFSM.Runtime.Interact.EffectHit
             BaseEffectDetectTarget receiverSourceObj
         )
         {
+            if (!dealer.CanHitReceiver(this))
+                return;
+
+            Debug.Log("ForceDirectEffectHit", this);
             var hitData = GenerateEffectHitData(dealer, receiverSourceObj);
             dealer.OnHitEnter(hitData);
             OnEffectHitEnter(hitData);
@@ -66,10 +70,12 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         {
             _detectData = detectData;
             OnEffectHitEnter(data);
+            Debug.Log("OnEffectHitEnter with DetectData", this);
         }
 
         public void OnEffectHitEnter(IEffectHitData data)
         {
+            Debug.Log("OnEffectHitEnter", this);
             this.Log("OnHitEnter");
             _currentHitData = data as GeneralEffectHitData;
             var dealerEntity = _currentHitData.GeneralDealer.ParentEntity;

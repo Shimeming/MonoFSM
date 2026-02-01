@@ -4,6 +4,7 @@ using System.Linq;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.DataProvider;
 using MonoFSM.Core.Detection;
+using MonoFSM.Runtime.Interact.EffectHit.Resolver;
 using MonoFSM.Variable.Attributes;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -56,6 +57,8 @@ namespace MonoFSM.Runtime.Interact.EffectHit
             return _receivers.Contains(receiver);
         }
 
+
+
         [ShowInDebugMode]
         private string _failReason = "No Fail Reason";
 
@@ -64,6 +67,29 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         {
             _failReason = reason;
         }
+
+        [PreviewInInspector] [Component] [AutoChildren(DepthOneOnly = true)]
+        protected AbstractEffectHitCondition[] _effectConditions;
+
+        public bool IsEffectConditionsAllValid(EffectResolver pairResolver)
+        {
+            if (_effectConditions != null)
+                foreach (var condition in _effectConditions)
+                {
+                    var result = condition.IsEffectHitValid(pairResolver);
+                    if (!result)
+                    {
+                        // SetFailReason($"EffectCondition {condition.GetType().Name} failed");
+                        // var data = r.GenerateEffectHitData(this);
+                        // OnEffectHitConditionFail(data);
+                        // r.OnEffectHitConditionFail(data);
+                        return false;
+                    }
+                }
+
+            return true;
+        }
+
 
         public bool CanHitReceiver(IEffectReceiver receiver)
         {
@@ -121,14 +147,14 @@ namespace MonoFSM.Runtime.Interact.EffectHit
                     }
                 }
 
-            if (!r.IsEffectConditionsAllValid(this))
-            {
-                SetFailReason($"Receiver's EffectCondition fail");
-                var data = r.GenerateEffectHitData(this, null);
-                OnEffectHitConditionFail(data);
-                r.OnEffectHitConditionFail(data);
-                return false;
-            }
+            // if (!r.IsEffectConditionsAllValid(this))
+            // {
+            //     SetFailReason($"Receiver's EffectCondition fail");
+            //     var data = r.GenerateEffectHitData(this, null);
+            //     OnEffectHitConditionFail(data);
+            //     r.OnEffectHitConditionFail(data);
+            //     return false;
+            // }
 
 #if UNITY_EDITOR
             this.Log("HitReceiver Success:"); //, r.GetGlobalId());
