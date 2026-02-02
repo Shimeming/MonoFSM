@@ -127,12 +127,8 @@ namespace CommandPalette
                     continue;
 
                 var name = System.IO.Path.GetFileNameWithoutExtension(path);
-                var asset = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(path);
-
-                if (asset != null)
-                {
-                    assets.Add(new AssetEntry(name, path, asset));
-                }
+                // 不載入 asset，只儲存 metadata
+                assets.Add(new AssetEntry(name, path, guid));
             }
 
             return assets;
