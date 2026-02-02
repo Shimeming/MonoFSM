@@ -53,7 +53,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
             if (!dealer.CanHitReceiver(this))
                 return;
 
-            Debug.Log("ForceDirectEffectHit", this);
+            // Debug.Log("ForceDirectEffectHit", this);
             var hitData = GenerateEffectHitData(dealer, receiverSourceObj);
             dealer.OnHitEnter(hitData);
             OnEffectHitEnter(hitData);
@@ -75,7 +75,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
 
         public void OnEffectHitEnter(IEffectHitData data)
         {
-            Debug.Log("OnEffectHitEnter", this);
+            // Debug.Log("OnEffectHitEnter", this);
             this.Log("OnHitEnter");
             _currentHitData = data as GeneralEffectHitData;
             var dealerEntity = _currentHitData.GeneralDealer.ParentEntity;

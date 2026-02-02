@@ -44,7 +44,7 @@ namespace MonoFSM.Core.Detection
 
         [Required]
         [AutoParent]
-        public EffectDetector _detector;
+        EffectDetector _detector;
 
         // public virtual bool IsEnabled => isActiveAndEnabled;
 

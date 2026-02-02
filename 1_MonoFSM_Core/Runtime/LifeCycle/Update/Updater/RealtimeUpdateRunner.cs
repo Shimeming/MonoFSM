@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Variable;
@@ -23,8 +24,9 @@ namespace MonoFSM.Core
     }
 
     //接variable就好了？
-    //FIXME: 這個是裝在哪裡？ BuffContainer? 如果 _updatables被清掉/關掉 應該不要執行？ 
+    //FIXME: 這個是裝在哪裡？ BuffContainer? 如果 _updatables被清掉/關掉 應該不要執行？
     //動作遊戲用，照著時間decay
+    [Obsolete]
     public class RealtimeUpdateRunner : MonoBehaviour, IUpdateRunner
     {
         //一個buff會維持多久
@@ -56,7 +58,7 @@ namespace MonoFSM.Core
         //     _updatables.Select(a => a as Component).ToArray();
 
         //如果owner已經有同個BuffModule，就不要再加了
-        //要登記...BuffContainer        
+        //要登記...BuffContainer
         public void ResetCounter()
         {
             _timer = LastForSecondsValue;

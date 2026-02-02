@@ -36,38 +36,6 @@ namespace MonoFSM.Variable
 
         VarFloat _monoVar;
 
-        // [Auto] VariableFloat variable;
-        // [HideIf(nameof(MinVar))] public float min = 0;
-        //
-        // [HideIf(nameof(MaxVar))] public float max = 1;
-        //
-        // //ex: 血量
-        // //這會不會很麻煩每次都要設定？
-        //
-        // [DropDownRef] [SerializeField] VarFloat MinVar;
-        // [DropDownRef] [SerializeField] VarFloat MaxVar; //好像應該用繼承的
-        //FIXME: 依序拿也沒有很舒服
-
-        //FIXME: IFloatProvider有點過時了？
-        //FIXME: simple bound怎麼設計？
-        // [Component]
-        // [AutoChildren]
-        // private AbstractValueProvider<float>[] _floatProviderArray = Array.Empty<
-        //     AbstractValueProvider<float>
-        // >();
-        //
-        // [PreviewInInspector]
-        // [CompRef]
-        // private AbstractValueProvider<float> _minValueProvider =>
-        //     _floatProviderArray.Length > 0 ? _floatProviderArray[0] : null;
-        //
-        // [PreviewInInspector]
-        // [CompRef]
-        // private AbstractValueProvider<float> _maxValueProvider =>
-        //     _floatProviderArray.Length > 1 ? _floatProviderArray[1] : null;
-
-        //FIXME: 直接塞兩個VarFloat比較對？
-
         private void Awake()
         {
             if (_minValue == null && _maxValue == null)
