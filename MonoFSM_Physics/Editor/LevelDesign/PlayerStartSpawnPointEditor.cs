@@ -1,5 +1,4 @@
 using System.Linq;
-using RootMotion;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -331,12 +330,6 @@ public class PlayerStartSpawnPointEditor
                             Debug.Log("Set spawnPoint at" + hit.collider, hit.collider);
                             GetTarget.transform.position = hit.point;
                             GetTarget.EventReceived(hit.point);
-                        }
-                        else
-                        {
-                            Debug.LogError(
-                                "3D mode no hit" + currentSpawnPoint.TeleportHitLayerMask
-                                    .MaskToNames().Aggregate((a, b) => a + "," + b));
                         }
                     }
                 }
