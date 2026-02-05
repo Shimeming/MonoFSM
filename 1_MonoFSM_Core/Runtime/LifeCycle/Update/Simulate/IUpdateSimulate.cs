@@ -22,13 +22,14 @@ namespace MonoFSM.Core.Simulate
     //FIXME: 拆asmdef的話要怎麼做？ LifeCycle
     public interface IUpdateSimulate //parent必須要有AbstractSimulator //好難喔..levelrunner, player, poolobject的要怎麼做？
     {
+
         void Simulate(float deltaTime);
 
-        void AfterUpdate();
+        // void AfterUpdate();
 
         bool isActiveAndEnabled { get; }
         bool IsValid => isActiveAndEnabled;
-
+        string name { get; }
         GameObject gameObject { get; }
 
         /// <summary>
@@ -36,4 +37,9 @@ namespace MonoFSM.Core.Simulate
         /// </summary>
         int SimulateOrder => 0;
     }
+
+    // public interface IAfterUpdate
+    // {
+    //
+    // }
 }

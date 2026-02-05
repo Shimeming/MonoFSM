@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Cysharp.Text;
+using MonoDebugSetting;
 using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.Simulate;
@@ -497,5 +500,110 @@ namespace MonoFSM.Foundation
         [ShowInDebugMode]
         public bool IsDrawGUIHierarchyBackground => !Application.isPlaying && HasError(); //還是用icon?
         //FIXME: 動態做這個，bool IsNeedValid的Required? (配合啥？
+
+        #region DebugMode Log (Zero GC)
+
+        /// <summary>
+        /// Debug 模式專用 Log，只在 RuntimeDebugSetting.IsDebugMode 時輸出，使用 ZString 避免 GC
+        /// </summary>
+        [Conditional("UNITY_EDITOR")]
+        [HideInCallstack]
+        protected void DebugLog(string message)
+        {
+            if (!RuntimeDebugSetting.IsDebugMode) return;
+            Debug.Log(message, this);
+        }
+
+        [Conditional("UNITY_EDITOR")]
+        [HideInCallstack]
+        protected void DebugLog<T1>(T1 arg1)
+        {
+            if (!RuntimeDebugSetting.IsDebugMode) return;
+            using var sb = ZString.CreateStringBuilder();
+            sb.Append(arg1);
+            Debug.Log(sb.ToString(), this);
+        }
+
+        [Conditional("UNITY_EDITOR")]
+        [HideInCallstack]
+        protected void DebugLog<T1, T2>(T1 arg1, T2 arg2)
+        {
+            if (!RuntimeDebugSetting.IsDebugMode) return;
+            var message = ZString.Concat(arg1, " ", arg2);
+            Debug.Log(message, this);
+        }
+
+        [Conditional("UNITY_EDITOR")]
+        [HideInCallstack]
+        protected void DebugLog<T1, T2, T3>(T1 arg1, T2 arg2, T3 arg3)
+        {
+            if (!RuntimeDebugSetting.IsDebugMode) return;
+            var message = ZString.Concat(arg1, " ", arg2, " ", arg3);
+            Debug.Log(message, this);
+        }
+
+        [Conditional("UNITY_EDITOR")]
+        [HideInCallstack]
+        protected void DebugLog<T1, T2, T3, T4>(T1 arg1, T2 arg2, T3 arg3, T4 arg4)
+        {
+            if (!RuntimeDebugSetting.IsDebugMode) return;
+            var message = ZString.Concat(arg1, " ", arg2, " ", arg3, " ", arg4);
+            Debug.Log(message, this);
+        }
+
+        [Conditional("UNITY_EDITOR")]
+        [HideInCallstack]
+        protected void DebugLog<T1, T2, T3, T4, T5>(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5)
+        {
+            if (!RuntimeDebugSetting.IsDebugMode) return;
+            var message = ZString.Concat(arg1, " ", arg2, " ", arg3, " ", arg4, " ", arg5);
+            Debug.Log(message, this);
+        }
+
+        /// <summary>
+        /// Debug 模式專用 LogWarning
+        /// </summary>
+        [Conditional("UNITY_EDITOR")]
+        [HideInCallstack]
+        protected void DebugLogWarning<T1>(T1 arg1)
+        {
+            if (!RuntimeDebugSetting.IsDebugMode) return;
+            using var sb = ZString.CreateStringBuilder();
+            sb.Append(arg1);
+            Debug.LogWarning(sb.ToString(), this);
+        }
+
+        [Conditional("UNITY_EDITOR")]
+        [HideInCallstack]
+        protected void DebugLogWarning<T1, T2>(T1 arg1, T2 arg2)
+        {
+            if (!RuntimeDebugSetting.IsDebugMode) return;
+            var message = ZString.Concat(arg1, " ", arg2);
+            Debug.LogWarning(message, this);
+        }
+
+        /// <summary>
+        /// Debug 模式專用 LogError
+        /// </summary>
+        [Conditional("UNITY_EDITOR")]
+        [HideInCallstack]
+        protected void DebugLogError<T1>(T1 arg1)
+        {
+            if (!RuntimeDebugSetting.IsDebugMode) return;
+            using var sb = ZString.CreateStringBuilder();
+            sb.Append(arg1);
+            Debug.LogError(sb.ToString(), this);
+        }
+
+        [Conditional("UNITY_EDITOR")]
+        [HideInCallstack]
+        protected void DebugLogError<T1, T2>(T1 arg1, T2 arg2)
+        {
+            if (!RuntimeDebugSetting.IsDebugMode) return;
+            var message = ZString.Concat(arg1, " ", arg2);
+            Debug.LogError(message, this);
+        }
+
+        #endregion
     }
 }

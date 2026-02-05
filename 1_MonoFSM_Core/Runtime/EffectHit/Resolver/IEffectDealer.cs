@@ -86,10 +86,10 @@ public interface IEffectReceiver //FIXME: 好像不需要interface
 {
     Transform transform { get; }
 
-    void OnEffectHitEnter(IEffectHitData data);
+    void OnEffectHitEnter(GeneralEffectHitData data);
 
     // void OnHitStay(IEffectHitData data);
-    void OnEffectHitExit(IEffectHitData data);
+    void OnEffectHitExit(GeneralEffectHitData data);
 
     // float ReactValue { get; }
     bool IsValid { get; }

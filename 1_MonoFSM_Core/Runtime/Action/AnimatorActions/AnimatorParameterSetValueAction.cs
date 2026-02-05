@@ -61,6 +61,9 @@ namespace MonoFSM.Animation
         //invert bool value?
         // public bool _boolValue;
 
+        private bool _hasParameter;
+        private bool _hasCheckedParameter;
+
         #region Float
 
         private float _lastValue;
@@ -91,10 +94,36 @@ namespace MonoFSM.Animation
                 yield return parameter.name;
         }
 
+        private bool HasParameter(string paramName)
+        {
+            if (_hasCheckedParameter)
+                return _hasParameter;
+
+            _hasCheckedParameter = true;
+            foreach (var param in animator.parameters)
+            {
+                if (param.name == paramName)
+                {
+                    _hasParameter = true;
+                    return true;
+                }
+            }
+
+            _hasParameter = false;
+            return false;
+        }
+
         private void SetValue()
         {
             if (!animator.isActiveAndEnabled)
                 return;
+
+            if (!HasParameter(ParameterName))
+            {
+                Debug.LogWarning(
+                    $"Animator parameter '{ParameterName}' does not exist on {animator.gameObject.name}");
+                return;
+            }
             // if (_floatValueSource != null)
             // {
             //     if (_interpolate == 0)

@@ -63,7 +63,13 @@ namespace _0_MonoDebug.Gizmo
             base.Start();
             if (!Application.isPlaying)
                 return;
+            //不該在start?
             _bindingRigidbody = ParentEntity?.GetCompCache<Rigidbody>();
+            if (_bindingRigidbody == null)
+            {
+                _bindingRigidbody = GetComponentInParent<Rigidbody>();
+            }
+
             if (_bindingRigidbody == null)
                 Debug.LogError("DebugWorldSpaceLabel 找不到 Rigidbody，請確認 ParentEntity 有 Rigidbody 組件",
                     this);

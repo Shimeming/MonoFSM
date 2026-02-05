@@ -34,7 +34,7 @@ namespace MonoFSM.Core.Detection
             _thisFrameColliders.Clear();
         }
 
-        public override IEnumerable<DetectionResult> GetCurrentDetections()
+        public override List<DetectionResult> GetCurrentDetections()
         {
             _buffer.Clear();
             foreach (var col in _thisFrameColliders)

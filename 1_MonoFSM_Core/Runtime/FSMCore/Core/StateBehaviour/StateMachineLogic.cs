@@ -65,6 +65,7 @@ namespace Fusion.Addons.FSM
             stateIdToRestore = stateId;
         }
 
+        //FIXME: 這個要做啥？ cache?
         public int stateIdToRestore = -1;
 
         [AutoChildren]
@@ -208,7 +209,8 @@ namespace Fusion.Addons.FSM
             InitializeLogic();
             foreach (var stateMachine in StateMachines)
                 stateMachine.Reset();
-
+            //hmm depends太多了
+            RestoreState(0);
             //network會失敗嗎？
         }
     }

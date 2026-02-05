@@ -101,23 +101,23 @@ public class PoolManager : SingletonBehaviour<PoolManager>, IPoolManager
     // }
 
 
-    [Obsolete("Use SceneLifecycleManager.HandleGameLevelAwakeReverse instead")]
-    public static void HandleGameLevelAwakeReverse(GameObject level)
-    {
-        SceneLifecycleManager.HandleGameLevelAwakeReverse(level);
-    }
-
-    [Obsolete("Use SceneLifecycleManager.HandleGameLevelStart instead")]
-    public static void HandleGameLevelStart(GameObject level)
-    {
-        SceneLifecycleManager.HandleGameLevelStart(level);
-    }
-
-    [Obsolete("Use SceneLifecycleManager.HandleGameLevelStartReverse instead")]
-    public static void HandleGameLevelStartReverse(GameObject level)
-    {
-        SceneLifecycleManager.HandleGameLevelStartReverse(level);
-    }
+    // [Obsolete("Use SceneLifecycleManager.HandleGameLevelAwakeReverse instead")]
+    // public static void HandleGameLevelAwakeReverse(GameObject level)
+    // {
+    //     SceneLifecycleManager.HandleGameLevelAwakeReverse(level);
+    // }
+    //
+    // [Obsolete("Use SceneLifecycleManager.HandleGameLevelStart instead")]
+    // public static void HandleGameLevelStart(GameObject level)
+    // {
+    //     SceneLifecycleManager.HandleGameLevelStart(level);
+    // }
+    //
+    // [Obsolete("Use SceneLifecycleManager.HandleGameLevelStartReverse instead")]
+    // public static void HandleGameLevelStartReverse(GameObject level)
+    // {
+    //     SceneLifecycleManager.HandleGameLevelStartReverse(level);
+    // }
 
     // public bool IsReady = false;
     [Header("PrewarmData Logger")]

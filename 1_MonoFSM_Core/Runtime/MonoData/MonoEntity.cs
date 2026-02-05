@@ -57,7 +57,7 @@ namespace MonoFSM.Runtime
         {
             get
             {
-                // AutoAttributeManager.AutoReferenceFieldEditor(this, nameof(_fsmLogic));
+                AutoAttributeManager.AutoReferenceFieldEditor(this, nameof(_fsmLogic));
                 return _fsmLogic;
             }
         }
@@ -441,11 +441,6 @@ namespace MonoFSM.Runtime
 
         public void EnterSceneStart()
         {
-            // 自動綁定 MonoModulePack 中的 Folder 作為 external sources
-            //FIXME: 還是這段要onsave做？
-            // BindModulePackFolders(); //重做就錯了
-
-            //檢查有沒有怪怪就好？不要重綁？
         }
 
         [PreviewInInspector] [AutoChildren] private MonoModulePack[] _modulePack;

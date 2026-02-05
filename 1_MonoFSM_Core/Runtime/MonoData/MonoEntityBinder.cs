@@ -11,6 +11,7 @@ namespace MonoFSM.Runtime
 {
     /// <summary>
     /// 用MonoDescriptableTag當key的來找IMonoDescriptable
+    /// FIXME: 很容易撞？要用特殊singleton?
     /// </summary>
     public class MonoEntityBinder : MonoDict<MonoEntityTag, MonoEntity>, IModuleOwner
     {

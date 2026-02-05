@@ -6,6 +6,7 @@
   ex: ide - getDiagnostics (MCP)(uri: "/Users/jerryee/Documents/...", 開頭不要有 "file://")
 * 此專案使用Odin Inspector, 編輯器工具盡量使用已有的Attribute (已搭配AttributeDrawer)
     * ex: 1_MonoFSM_Core/Runtime/Attributes/CompRefAttribute.cs
+  * Editor工具如果不是非常複雜的情況也是用 Odin Inspector做就好，如果需要EdtiorWindow時也要用OdinEditorWindow
 * SerializedField 和 public field 以底線開頭命名
 * Component cache 在對應的 member 欄位上用 [Auto], [AutoParent], [AutoChildren] 來標記即可, 不需要在awake時獲取
 

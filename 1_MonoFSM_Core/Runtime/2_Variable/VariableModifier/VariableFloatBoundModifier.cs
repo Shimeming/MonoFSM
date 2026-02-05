@@ -1,8 +1,8 @@
 using MonoFSM.Core.Attributes;
-using MonoFSMCore.Runtime.LifeCycle;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
 
 namespace MonoFSM.Variable
 {
@@ -29,7 +29,7 @@ namespace MonoFSM.Variable
     /// FIXME: 直接把MinMax一鍵生成？
     /// </summary>
     public class VariableFloatBoundModifier : MonoBehaviour, AbstractVariableModifier<float>,
-        IResetStart
+        IRestoreValueOverrider<float>
     {
         [PreviewInInspector]
         [AutoParent]
@@ -98,12 +98,26 @@ namespace MonoFSM.Variable
 
         public float AfterGetValueModifyCheck(float value) => value; //要再bound一次嗎？
 
-        public void ResetStart()
-        {
-            if (_isResetToMaxOnResetStart)
-                _monoVar.SetValue(MaxValue, this, "Reset to MaxValue on Start");
-        }
+        [FormerlySerializedAs("_isResetToMaxOnResetStart")]
+        public bool _isResetToMaxOnRestore;
 
-        public bool _isResetToMaxOnResetStart = false;
+        // IRestoreValueOverrider<float> implementation
+        [ShowInInspector] public bool ShouldOverrideRestoreValue => _isResetToMaxOnRestore;
+
+        /// <summary>
+        /// 直接取得 Field.ProductionValue，避免順序問題（不依賴 CurrentValue）
+        /// </summary>
+        public float GetRestoreValue()
+        {
+            //FIXME: maxValue還沒reset耶...
+            if (_isResetToMaxOnRestore)
+            {
+                Debug.Log("_maxValue.Field.ProductionValue" + _maxValue.Field.ProductionValue,
+                    this);
+                return _maxValue != null ? _maxValue.CurrentValue : Mathf.Infinity;
+            }
+
+            return _minValue != null ? _minValue.CurrentValue : 0;
+        }
     }
 }

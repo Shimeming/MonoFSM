@@ -1,3 +1,4 @@
+using MonoFSM.Runtime;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -8,11 +9,12 @@ public class ApplicationCore : SingletonBehaviour<ApplicationCore>
     {
         //FIXME: MonoPoolObj 會初始化了
 
-        PoolManager.HandleGameLevelAwakeReverse(gameObject);
-        PoolManager.HandleGameLevelAwake(gameObject);
-        PoolManager.HandleGameLevelStartReverse(gameObject);
-        PoolManager.HandleGameLevelStart(gameObject);
-        PoolManager.ResetReload(gameObject);
+        // SceneLifecycleManager.HandleGameLevelAwakeReverse(gameObject);
+        // SceneLifecycleManager.HandleGameLevelAwake(gameObject);
+        // SceneLifecycleManager.HandleGameLevelStartReverse(gameObject);
+        // SceneLifecycleManager.HandleGameLevelStart(gameObject);
+        // SceneLifecycleManager.ResetReload(gameObject);
+        // Time.maximumDeltaTime = 0.03333f; //30fps, 這樣才不會simulation太多step
     }
 
     private bool IsInEditor => !gameObject.name.Contains("Custom");

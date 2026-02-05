@@ -44,13 +44,13 @@ public class DebugProvider : MonoBehaviour, IEditorOnly, IOverrideHierarchyIcon
     // [AutoChildren] StateMachineOwner _stateMachineOwner;
     // public GeneralState currentState => _stateMachineOwner?.FsmContext?.currentStateType;
 
-    // private bool IsNotDebugMode => !RuntimeDebugSetting.IsDebugMode && IsLogInChildren;
+    private bool IsNotDebugMode => !RuntimeDebugSetting.IsDebugMode && IsLogInChildren;
 
 #if UNITY_EDITOR
     [InfoBox(
         "Is Not DebugMode, Will Not Log",
         InfoMessageType.Warning,
-        VisibleIf = "IsNotDebugMode"
+        VisibleIf = nameof(IsNotDebugMode)
     )]
     public bool IsLogInChildren;
 #else

@@ -218,6 +218,9 @@ public abstract class AbstractFieldVariable<TScriptableData, TField, TType>
     public void EnterSceneStart()
     {
         RegisterValueChange();
+        //EnterSceneAwake?
+        Field.Init(TestMode.Production, this);
+        Debug.Log("[Variable] EnterSceneStart Init Value:" + CurrentValue, this);
     }
 
     // public override void AddListener<T>(UnityAction<T> action)

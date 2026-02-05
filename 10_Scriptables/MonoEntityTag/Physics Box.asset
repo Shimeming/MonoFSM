@@ -40,10 +40,13 @@ MonoBehaviour:
   - {fileID: 11400000, guid: af63749697e314287ac6d091d9775489, type: 2}
   - {fileID: 0}
   - {fileID: 11400000, guid: fe6f95997618b40b382e095deabd42ea, type: 2}
+  - {fileID: 11400000, guid: b7952ee762b944d25b3b58b365fc4d47, type: 2}
+  - {fileID: 11400000, guid: 22b2108d6e6ac474c9f72265fe25a6ae, type: 2}
   containsSchemaTypeTags:
   - {fileID: 11400000, guid: 1573800984d254faab24eaca12310d2e, type: 2}
   - {fileID: 11400000, guid: 34a2b30a08beb4dcfb4d74cf1174f278, type: 2}
   - {fileID: 11400000, guid: 09a948680ff8b415eb8fe671bf79e64d, type: 2}
+  - {fileID: 11400000, guid: e5a3e110551914215bc4834bafee67d4, type: 2}
   IsCollectionTag: 0
   _allMonoDescriptable: []
   _stringKey: 

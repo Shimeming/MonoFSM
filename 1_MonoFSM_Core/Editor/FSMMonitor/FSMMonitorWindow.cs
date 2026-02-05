@@ -1,0 +1,674 @@
+using System;
+using System.Collections.Generic;
+using _1_MonoFSM_Core.Runtime.FSMCore.Core.StateBehaviour;
+using _1_MonoFSM_Core.Runtime.LifeCycle.Update;
+using Fusion.Addons.FSM;
+using MonoFSM.Runtime;
+using MonoFSM.Variable;
+using MonoFSMCore.Runtime.LifeCycle;
+using Sirenix.OdinInspector;
+using Sirenix.OdinInspector.Editor;
+using UnityEditor;
+using UnityEngine;
+
+namespace MonoFSM.Editor.FSMMonitor
+{
+    /// <summary>
+    /// FSM Monitor - 用於快速預覽 FSM 的 Variables 和 States 結構
+    /// 支援自動追蹤 Hierarchy 選擇，並提供狀態跳轉功能
+    /// </summary>
+    public class FsmMonitorWindow : OdinEditorWindow
+    {
+        [MenuItem("Tools/MonoFSM/FSM Monitor")]
+        private static void OpenWindow()
+        {
+            GetWindow<FsmMonitorWindow>("FSM Monitor").Show();
+        }
+
+        // === 當前監控的目標 ===
+        [Title("目標")]
+        [ShowInInspector, ReadOnly]
+        [LabelText("MonoEntity")]
+        private MonoEntity _currentEntity;
+
+        [ShowInInspector, ReadOnly]
+        [LabelText("StateMachineLogic")]
+        private StateMachineLogic _currentFsm;
+
+        [ShowInInspector, ReadOnly]
+        [LabelText("Path")]
+        private string _entityPath;
+
+        [HorizontalGroup("Buttons")]
+        [Button("刷新", ButtonSizes.Medium)]
+        private void RefreshAll()
+        {
+            if (_currentEntity != null)
+            {
+                RefreshEntityHierarchy();
+                RefreshStates();
+                RefreshVariables();
+            }
+        }
+
+        [HorizontalGroup("Buttons")]
+        [Button("清除", ButtonSizes.Medium)]
+        private void ClearSelection()
+        {
+            _currentEntity = null;
+            _currentFsm = null;
+            _entityPath = null;
+            _parentEntity = null;
+            _owningMonoObj = null;
+            _hierarchyNodes.Clear();
+            _states.Clear();
+            _variables.Clear();
+        }
+
+        // === 階層樹 ===
+        [Title("階層樹")]
+        [OnInspectorGUI(nameof(DrawHierarchyTree))]
+        [ShowInInspector]
+        [DisplayAsString]
+        [HideLabel]
+        private string _hierarchyTreePlaceholder = "";
+
+        private MonoEntity _parentEntity;
+        private MonoObj _owningMonoObj;
+        private List<HierarchyNode> _hierarchyNodes = new();
+        private Vector2 _hierarchyScrollPos;
+
+        public enum NodeType { MonoObj, MonoEntity, ModulePack }
+
+        public class HierarchyNode
+        {
+            public string Name;
+            public int Depth;
+            public NodeType Type;
+            public UnityEngine.Object Target;
+            public bool IsCurrent;
+            public bool HasFsm;
+            public bool IsLast; // 是否是同層最後一個
+        }
+
+        private void DrawHierarchyTree()
+        {
+            if (_owningMonoObj == null)
+            {
+                EditorGUILayout.HelpBox("未找到 MonoObj", MessageType.Info);
+                return;
+            }
+
+            _hierarchyScrollPos = EditorGUILayout.BeginScrollView(_hierarchyScrollPos, GUILayout.MaxHeight(200));
+
+            foreach (var node in _hierarchyNodes)
+            {
+                DrawTreeNode(node);
+            }
+
+            EditorGUILayout.EndScrollView();
+        }
+
+        private void DrawTreeNode(HierarchyNode node)
+        {
+            EditorGUILayout.BeginHorizontal();
+
+            // 縮排
+            GUILayout.Space(node.Depth * 20);
+
+            // 樹狀連接線符號
+            var prefix = node.IsLast ? "└─" : "├─";
+            if (node.Depth == 0) prefix = "▼";
+
+            // 節點類型標籤
+            var typeLabel = node.Type switch
+            {
+                NodeType.MonoObj => "[Obj]",
+                NodeType.MonoEntity => "[Entity]",
+                NodeType.ModulePack => "[Pack]",
+                _ => ""
+            };
+
+            // 節點顏色
+            var originalColor = GUI.backgroundColor;
+            if (node.IsCurrent)
+            {
+                GUI.backgroundColor = new Color(0.3f, 0.7f, 1f); // 藍色標記當前
+            }
+            else if (node.Type == NodeType.MonoObj)
+            {
+                GUI.backgroundColor = new Color(0.9f, 0.9f, 0.7f); // 淡黃色
+            }
+
+            // 節點按鈕
+            var buttonText = $"{prefix} {typeLabel} {node.Name}";
+            if (node.IsCurrent) buttonText += " ◀";
+            if (node.HasFsm) buttonText += " [FSM]";
+
+            if (GUILayout.Button(buttonText, EditorStyles.miniButton, GUILayout.ExpandWidth(false)))
+            {
+                if (node.Target != null)
+                {
+                    HandleTreeNodeClick(node);
+                }
+            }
+
+            GUI.backgroundColor = originalColor;
+
+            EditorGUILayout.EndHorizontal();
+        }
+
+        private void HandleTreeNodeClick(HierarchyNode node)
+        {
+            if (node.Type == NodeType.MonoEntity && node.Target is MonoEntity entity)
+            {
+                SelectEntity(entity);
+            }
+            else
+            {
+                // MonoObj 或 ModulePack: Ping
+                EditorGUIUtility.PingObject(node.Target);
+            }
+        }
+
+        private void SelectEntity(MonoEntity entity)
+        {
+            if (entity == null) return;
+
+            _currentEntity = entity;
+            _currentFsm = entity.FsmLogic;
+            _entityPath = GetGameObjectPath(entity.gameObject);
+            RefreshEntityHierarchy();
+            RefreshStates();
+            RefreshVariables();
+            Repaint();
+
+            // 同時在 Hierarchy 中 Ping 這個物件
+            EditorGUIUtility.PingObject(entity);
+        }
+
+        // === 狀態列表 ===
+        [Title("States (單擊 Ping, 雙擊選取)")]
+        [ShowInInspector]
+        [TableList(AlwaysExpanded = true, IsReadOnly = true)]
+        private List<StateDisplayInfo> _states = new();
+
+        // === 變數列表 ===
+        [Title("Variables (單擊 Ping, 雙擊選取)")]
+        [ShowInInspector]
+        [TableList(AlwaysExpanded = true, IsReadOnly = true)]
+        private List<VariableDisplayInfo> _variables = new();
+
+        // 追蹤雙擊
+        private static double _lastClickTime;
+        private static object _lastClickedItem;
+        private const double DoubleClickThreshold = 0.3;
+
+        // === 內部資料結構 ===
+        [Serializable]
+        public class StateDisplayInfo
+        {
+            [TableColumnWidth(200, Resizable = true)]
+            [Button("$_stateName")]
+            [GUIColor(nameof(GetStateColor))]
+            [PropertyOrder(0)]
+            public void SelectState()
+            {
+                if (_stateBehaviour != null)
+                {
+                    HandleClick(_stateBehaviour, this);
+                }
+            }
+
+            [TableColumnWidth(60)]
+            [Button("跳轉")]
+            [EnableIf(nameof(CanGoToState))]
+            [PropertyOrder(1)]
+            public void GoToState()
+            {
+                if (_context != null && Application.isPlaying)
+                {
+                    _context.RestoreState(_stateId);
+                    Debug.Log($"[FSM Monitor] 跳轉到狀態: {_stateName} (ID: {_stateId})", _context);
+                }
+            }
+
+            [HideInInspector] public string _stateName;
+            [HideInInspector] public int _stateId;
+            [HideInInspector] public bool _isActive;
+            [HideInInspector] public bool _isPrevious;
+            [HideInInspector] public StateMachineLogic _context;
+            [HideInInspector] public MonoStateBehaviour _stateBehaviour;
+
+            private Color GetStateColor()
+            {
+                if (_isActive) return new Color(0.3f, 0.85f, 0.3f); // 綠色 - Active
+                if (_isPrevious) return new Color(0.95f, 0.85f, 0.3f); // 黃色 - Previous
+                return Color.white;
+            }
+
+            private bool CanGoToState()
+            {
+                return Application.isPlaying && _context != null;
+            }
+        }
+
+        [Serializable]
+        public class VariableDisplayInfo
+        {
+            [TableColumnWidth(150)]
+            [Button("$_varName")]
+            [PropertyOrder(0)]
+            public void SelectVariable()
+            {
+                if (_variable != null)
+                {
+                    HandleClick(_variable, this);
+                }
+            }
+
+            [ShowInInspector]
+            [TableColumnWidth(100)]
+            [DisplayAsString]
+            [PropertyOrder(1)]
+            public string TypeName => _typeName;
+
+            [ShowInInspector]
+            [TableColumnWidth(120)]
+            [DisplayAsString]
+            [PropertyOrder(2)]
+            public string CurrentValue => _currentValue;
+
+            [HideInInspector] public string _varName;
+            [HideInInspector] public string _typeName;
+            [HideInInspector] public string _currentValue;
+            [HideInInspector] public AbstractMonoVariable _variable;
+        }
+
+        // === 點擊處理 ===
+        private static void HandleClick(UnityEngine.Object target, object clickedItem)
+        {
+            if (target == null) return;
+
+            var currentTime = EditorApplication.timeSinceStartup;
+            var isDoubleClick = _lastClickedItem == clickedItem &&
+                                (currentTime - _lastClickTime) < DoubleClickThreshold;
+
+            if (isDoubleClick)
+            {
+                // 雙擊：選取物件
+                Selection.activeObject = target;
+                _lastClickedItem = null;
+            }
+            else
+            {
+                // 單擊：Ping
+                EditorGUIUtility.PingObject(target);
+            }
+
+            _lastClickTime = currentTime;
+            _lastClickedItem = clickedItem;
+        }
+
+        // === Unity Editor 生命週期 ===
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            Selection.selectionChanged += OnSelectionChanged;
+            EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+
+            // 初次嘗試從當前選擇尋找
+            OnSelectionChanged();
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            Selection.selectionChanged -= OnSelectionChanged;
+            EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+        }
+
+        private void OnPlayModeStateChanged(PlayModeStateChange state)
+        {
+            // Play Mode 切換時刷新
+            if (state == PlayModeStateChange.EnteredPlayMode || state == PlayModeStateChange.EnteredEditMode)
+            {
+                RefreshAll();
+            }
+        }
+
+        private void Update()
+        {
+            // Play Mode 下持續更新狀態顯示
+            if (Application.isPlaying && _currentFsm != null)
+            {
+                RefreshStates();
+                Repaint();
+            }
+        }
+
+        // === 核心方法 ===
+        private void OnSelectionChanged()
+        {
+            if (Selection.activeGameObject == null) return;
+
+            var entity = FindEntityFromSelection(Selection.activeGameObject);
+            if (entity != null && entity != _currentEntity)
+            {
+                _currentEntity = entity;
+                _currentFsm = entity.FsmLogic;
+                _entityPath = GetGameObjectPath(entity.gameObject);
+                RefreshEntityHierarchy();
+                RefreshStates();
+                RefreshVariables();
+                Repaint();
+            }
+        }
+
+        private void RefreshEntityHierarchy()
+        {
+            _parentEntity = null;
+            _owningMonoObj = null;
+            _hierarchyNodes.Clear();
+
+            if (_currentEntity == null) return;
+
+            // 找 Parent Entity（往上找，跳過自己）
+            var parentTransform = _currentEntity.transform.parent;
+            while (parentTransform != null)
+            {
+                var parentEntity = parentTransform.GetComponent<MonoEntity>();
+                if (parentEntity != null)
+                {
+                    _parentEntity = parentEntity;
+                    break;
+                }
+                parentTransform = parentTransform.parent;
+            }
+
+            // 往上找 Root MonoObj（最上層的 MonoObj）
+            _owningMonoObj = FindRootMonoObj(_currentEntity.transform);
+
+            // 建立階層樹
+            if (_owningMonoObj != null)
+            {
+                BuildHierarchyTree(_owningMonoObj.transform, 0);
+            }
+        }
+
+        /// <summary>
+        /// 遞迴建立階層樹
+        /// </summary>
+        private void BuildHierarchyTree(Transform root, int depth)
+        {
+            // 檢查是否有 MonoObj
+            var monoObj = root.GetComponent<MonoObj>();
+            if (monoObj != null)
+            {
+                _hierarchyNodes.Add(new HierarchyNode
+                {
+                    Name = root.name,
+                    Depth = depth,
+                    Type = NodeType.MonoObj,
+                    Target = monoObj,
+                    IsCurrent = false,
+                    HasFsm = false,
+                    IsLast = false
+                });
+                depth++;
+            }
+
+            // 收集此層級的子項目
+            var childItems = new List<(Transform transform, NodeType type, UnityEngine.Object target)>();
+
+            // 找此層的 MonoEntity（同 GameObject 或直接子層）
+            var entities = root.GetComponents<MonoEntity>();
+            foreach (var entity in entities)
+            {
+                childItems.Add((root, NodeType.MonoEntity, entity));
+            }
+
+            // 遍歷子物件
+            for (int i = 0; i < root.childCount; i++)
+            {
+                var child = root.GetChild(i);
+
+                // 檢查子物件是否有 MonoObj（nested MonoObj）
+                var childMonoObj = child.GetComponent<MonoObj>();
+                if (childMonoObj != null)
+                {
+                    // 遞迴處理 nested MonoObj
+                    BuildHierarchyTree(child, depth);
+                    continue;
+                }
+
+                // 檢查子物件是否有 MonoEntity
+                var childEntity = child.GetComponent<MonoEntity>();
+                if (childEntity != null)
+                {
+                    childItems.Add((child, NodeType.MonoEntity, childEntity));
+                    // 不遞迴進去，因為那是另一個 Entity 的範圍
+                    continue;
+                }
+
+                // 檢查子物件是否有 ModulePack
+                var childPack = child.GetComponent<MonoModulePack>();
+                if (childPack != null)
+                {
+                    childItems.Add((child, NodeType.ModulePack, childPack));
+                    continue;
+                }
+
+                // 其他情況：繼續往下找
+                BuildHierarchyTree(child, depth);
+            }
+
+            // 添加收集到的子項目
+            for (int i = 0; i < childItems.Count; i++)
+            {
+                var (transform, type, target) = childItems[i];
+                var isLast = (i == childItems.Count - 1);
+                var isCurrent = type == NodeType.MonoEntity && target == _currentEntity;
+                var hasFsm = type == NodeType.MonoEntity && target is MonoEntity e && e.FsmLogic != null;
+
+                _hierarchyNodes.Add(new HierarchyNode
+                {
+                    Name = target is Component c ? c.gameObject.name : transform.name,
+                    Depth = depth,
+                    Type = type,
+                    Target = target,
+                    IsCurrent = isCurrent,
+                    HasFsm = hasFsm,
+                    IsLast = isLast
+                });
+            }
+        }
+
+        /// <summary>
+        /// 往上找 Root MonoObj（最上層沒有 parent MonoObj 的那個）
+        /// </summary>
+        private MonoObj FindRootMonoObj(Transform startFrom)
+        {
+            MonoObj rootMonoObj = null;
+            var current = startFrom;
+
+            while (current != null)
+            {
+                var monoObj = current.GetComponent<MonoObj>();
+                if (monoObj != null)
+                {
+                    rootMonoObj = monoObj;
+                }
+                current = current.parent;
+            }
+
+            return rootMonoObj;
+        }
+
+        /// <summary>
+        /// 先往上找 MonoEntity，找到後就可以從 Entity 取得 FSM 和 VariableFolder
+        /// </summary>
+        private MonoEntity FindEntityFromSelection(GameObject selected)
+        {
+            // 先檢查自己
+            var entity = selected.GetComponent<MonoEntity>();
+            if (entity != null) return entity;
+
+            // 往上遍歷找 MonoEntity
+            var current = selected.transform;
+            while (current != null)
+            {
+                entity = current.GetComponent<MonoEntity>();
+                if (entity != null) return entity;
+                current = current.parent;
+            }
+
+            return null;
+        }
+
+        private void RefreshStates()
+        {
+            _states.Clear();
+
+            if (_currentEntity == null) return;
+
+            if (Application.isPlaying)
+            {
+                // Play Mode：使用 FSMLogic 的 StateMachines
+                RefreshStatesFromFsmLogic();
+            }
+            else
+            {
+                // Edit Mode：使用 StateFolder
+                RefreshStatesFromStateFolder();
+            }
+        }
+
+        private void RefreshStatesFromFsmLogic()
+        {
+            if (_currentFsm == null) return;
+            if (_currentFsm.StateMachines == null || _currentFsm.StateMachines.Count == 0) return;
+
+            foreach (var stateMachine in _currentFsm.StateMachines)
+            {
+                if (stateMachine.States == null) continue;
+
+                var activeState = stateMachine.ActiveState;
+                var previousState = stateMachine.PreviousState;
+
+                foreach (var state in stateMachine.States)
+                {
+                    if (state == null) continue;
+
+                    var isActive = activeState != null && activeState == state;
+                    var isPrevious = !isActive && previousState != null && previousState == state;
+
+                    // 根據狀態添加後綴
+                    var displayName = state.Name ?? "(Unnamed)";
+                    if (isActive) displayName += " [Active]";
+                    else if (isPrevious) displayName += " [Last]";
+
+                    // 嘗試取得 MonoStateBehaviour 引用
+                    var stateBehaviour = state as MonoStateBehaviour;
+
+                    _states.Add(new StateDisplayInfo
+                    {
+                        _stateName = displayName,
+                        _stateId = state.StateId,
+                        _isActive = isActive,
+                        _isPrevious = isPrevious,
+                        _context = _currentFsm,
+                        _stateBehaviour = stateBehaviour
+                    });
+                }
+            }
+        }
+
+        private void RefreshStatesFromStateFolder()
+        {
+            var stateFolder = _currentEntity.StateFolder;
+            if (stateFolder == null) return;
+
+            var allStates = stateFolder.GetComponentsInChildren<MonoStateBehaviour>(true);
+
+            foreach (var stateBehaviour in allStates)
+            {
+                if (stateBehaviour == null) continue;
+
+                var displayName = stateBehaviour.Name ?? stateBehaviour.gameObject.name;
+
+                _states.Add(new StateDisplayInfo
+                {
+                    _stateName = displayName,
+                    _stateId = stateBehaviour.StateId,
+                    _isActive = false,
+                    _isPrevious = false,
+                    _context = _currentFsm,
+                    _stateBehaviour = stateBehaviour
+                });
+            }
+        }
+
+        private void RefreshVariables()
+        {
+            _variables.Clear();
+
+            if (_currentEntity == null) return;
+
+            // 從 MonoEntity 取得 VariableFolder
+            var variableFolder = _currentEntity.VariableFolder;
+            if (variableFolder == null) return;
+
+            // 取得所有變數
+            var allVariables = variableFolder.GetComponentsInChildren<AbstractMonoVariable>(true);
+
+            foreach (var variable in allVariables)
+            {
+                if (variable == null) continue;
+
+                _variables.Add(new VariableDisplayInfo
+                {
+                    _varName = variable.name,
+                    _typeName = variable.GetType().Name,
+                    _currentValue = GetVariableValueString(variable),
+                    _variable = variable
+                });
+            }
+        }
+
+        private string GetVariableValueString(AbstractMonoVariable variable)
+        {
+            if (variable == null) return "null";
+
+            try
+            {
+#if UNITY_EDITOR
+                // 使用 StringValue 屬性（在 Editor 下可用）
+                return variable.StringValue ?? "null";
+#else
+                return "N/A";
+#endif
+            }
+            catch
+            {
+                return "(Error)";
+            }
+        }
+
+        private string GetGameObjectPath(GameObject obj)
+        {
+            if (obj == null) return "";
+
+            var path = obj.name;
+            var current = obj.transform.parent;
+
+            while (current != null)
+            {
+                path = current.name + "/" + path;
+                current = current.parent;
+            }
+
+            return path;
+        }
+    }
+}
