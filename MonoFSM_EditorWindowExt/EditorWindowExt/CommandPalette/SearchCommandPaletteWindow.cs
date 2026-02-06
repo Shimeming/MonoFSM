@@ -34,9 +34,18 @@ namespace CommandPalette
         private List<MenuItemEntry> _menuItemCache;
         private List<EditorWindowEntry> _windowCache;
 
+        // IME 組字追蹤（compositionString 在 Return KeyDown 時已被清空，需延遲一幀判斷）
+        private bool _wasComposing;
+
+        // 拖拉相關
+        private int _dragStartIndex = -1;
+        private Vector2 _dragStartPos;
+        private bool _isDragging;
+
         private const float RowHeight = 22f;
         private const float TabHeight = 25f;
         private const float PathBarHeight = 20f;
+        private const float DragThreshold = 5f;
         private const string SearchModePrefKey = "CommandPalette_SearchMode";
         private const int MaxResults = 100;
 
@@ -136,6 +145,18 @@ namespace CommandPalette
 
         private void OnGUI()
         {
+            // 拖拉結束時重設狀態
+            if (_isDragging && Event.current.type == EventType.DragExited)
+                _isDragging = false;
+
+            // IME 組字追蹤：composing 時設 flag，Repaint 時才清除
+            // 這樣 KeyDown Return（比 Repaint 早）還能看到上一幀的組字狀態
+            var isComposing = Input.compositionString.Length > 0;
+            if (isComposing)
+                _wasComposing = true;
+            else if (Event.current.type == EventType.Repaint)
+                _wasComposing = false;
+
             HandleKeyboardInput();
             DrawModeTab();
             DrawSearchField();
@@ -165,8 +186,9 @@ namespace CommandPalette
 
                 case KeyCode.Return:
                 case KeyCode.KeypadEnter:
-                    // 正在編輯文字時不攔截 Enter（避免影響中文選字）
-                    if (!EditorGUIUtility.editingTextField && _selectedIndex >= 0 && _selectedIndex < resultsCount)
+                    // _wasComposing: 上一幀 IME 正在組字 → 這次 Return 是確認選字，不觸發開啟
+                    // 下一幀 Repaint 會清除 _wasComposing，之後的 Return 才觸發開啟
+                    if (!_wasComposing && _selectedIndex >= 0 && _selectedIndex < resultsCount)
                     {
                         OpenSelectedResult();
                         Event.current.Use();
@@ -176,9 +198,10 @@ namespace CommandPalette
                 case KeyCode.UpArrow:
                     if (resultsCount > 0)
                     {
-                        GUIUtility.keyboardControl = 0; // 退出 textfield 編輯狀態
+                        GUIUtility.keyboardControl = 0;
                         _selectedIndex = _selectedIndex <= 0 ? resultsCount - 1 : _selectedIndex - 1;
                         ScrollToSelected();
+                        PingSelectedAsset(_selectedIndex);
                         Event.current.Use();
                         Repaint();
                     }
@@ -187,9 +210,10 @@ namespace CommandPalette
                 case KeyCode.DownArrow:
                     if (resultsCount > 0)
                     {
-                        GUIUtility.keyboardControl = 0; // 退出 textfield 編輯狀態
+                        GUIUtility.keyboardControl = 0;
                         _selectedIndex = _selectedIndex >= resultsCount - 1 ? 0 : _selectedIndex + 1;
                         ScrollToSelected();
+                        PingSelectedAsset(_selectedIndex);
                         Event.current.Use();
                         Repaint();
                     }
@@ -385,19 +409,28 @@ namespace CommandPalette
             var listRect = new Rect(0, listStartY, position.width, listHeight);
             var contentRect = new Rect(0, 0, position.width - 20, resultsCount * RowHeight);
 
-            _scrollPos = GUI.BeginScrollView(listRect, _scrollPos, contentRect);
+            // 拖拉偵測（在 ScrollView 外處理，避免座標問題）
+            if (Event.current.type == EventType.MouseDrag && _dragStartIndex >= 0)
+            {
+                if (Vector2.Distance(Event.current.mousePosition, _dragStartPos) > DragThreshold)
+                {
+                    StartDragAsset(_dragStartIndex);
+                    _dragStartIndex = -1;
+                    Event.current.Use();
+                }
+            }
 
-            var isEditingTextField = EditorGUIUtility.editingTextField;
+            _scrollPos = GUI.BeginScrollView(listRect, _scrollPos, contentRect);
 
             for (var i = 0; i < resultsCount; i++)
             {
                 var rect = new Rect(0, i * RowHeight, position.width - 20, RowHeight);
 
-                // 選中狀態背景（編輯文字時顯示灰色，表示 Enter 不會觸發選取）
+                // 選中狀態背景（IME 組字中顯示灰色，表示 Enter 不會觸發選取）
                 if (i == _selectedIndex)
                 {
-                    var selectedColor = isEditingTextField
-                        ? new Color(0.4f, 0.4f, 0.4f, 0.6f)  // 灰色：編輯中
+                    var selectedColor = _wasComposing
+                        ? new Color(0.4f, 0.4f, 0.4f, 0.6f) // 灰色：IME 組字中
                         : new Color(0.3f, 0.5f, 0.85f, 0.8f); // 藍色：可選取
                     EditorGUI.DrawRect(rect, selectedColor);
                 }
@@ -410,10 +443,13 @@ namespace CommandPalette
 
                 DrawResultItem(i, iconRect, nameRect);
 
-                // 滑鼠點擊
+                // 滑鼠點擊 - 記錄拖拉起始點 + ping
                 if (Event.current.type == EventType.MouseDown && rect.Contains(Event.current.mousePosition))
                 {
                     _selectedIndex = i;
+                    _dragStartIndex = i;
+                    _dragStartPos = Event.current.mousePosition;
+                    PingSelectedAsset(i);
                     if (Event.current.clickCount == 2)
                         OpenSelectedResult();
                     Event.current.Use();
@@ -422,6 +458,10 @@ namespace CommandPalette
             }
 
             GUI.EndScrollView();
+
+            // 滑鼠放開時重設拖拉狀態
+            if (Event.current.type == EventType.MouseUp)
+                _dragStartIndex = -1;
         }
 
         private void DrawResultItem(int index, Rect iconRect, Rect nameRect)
@@ -606,7 +646,51 @@ namespace CommandPalette
             Close();
         }
 
-        private void OnLostFocus() => Close();
+        private void PingSelectedAsset(int index)
+        {
+            if (_currentMode != SearchMode.Prefabs
+                && _currentMode != SearchMode.ScriptableObjects
+                && _currentMode != SearchMode.Scenes)
+                return;
+
+            if (index < 0 || index >= _assetResults.Count)
+                return;
+
+            var asset = _assetResults[index].Item.asset;
+            if (asset != null)
+                EditorGUIUtility.PingObject(asset);
+        }
+
+        private void StartDragAsset(int index)
+        {
+            // 只有資源模式支援拖拉
+            if (_currentMode != SearchMode.Prefabs
+                && _currentMode != SearchMode.ScriptableObjects
+                && _currentMode != SearchMode.Scenes)
+                return;
+
+            if (index < 0 || index >= _assetResults.Count)
+                return;
+
+            var entry = _assetResults[index].Item;
+            var asset = entry.asset;
+            if (asset == null)
+                return;
+
+            DragAndDrop.PrepareStartDrag();
+            DragAndDrop.objectReferences = new[] { asset };
+            DragAndDrop.paths = new[] { entry.path };
+            DragAndDrop.StartDrag(entry.name);
+            _isDragging = true;
+        }
+
+        private void OnLostFocus()
+        {
+            // 拖拉中不關閉視窗，讓使用者可以 drop 到 Scene/Hierarchy
+            if (_isDragging)
+                return;
+            Close();
+        }
 
         private void OnDestroy()
         {
