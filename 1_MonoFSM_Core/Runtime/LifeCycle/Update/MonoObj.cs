@@ -159,12 +159,15 @@ namespace MonoFSMCore.Runtime.LifeCycle
         [AutoChildren]
         private IAfterSimulate[] _afterSimulates;
 
+        [PreviewInInspector] [AutoChildren] private IRenderSimulate[] _renderSimulates;
+
         // [PreviewInInspector]
         // [AutoChildren]
         // private IAfterUpdate[] _updateSimulates;
 
         public bool IsBeforeSimulatesNeeded => _beforeSimulates.Length > 0;
         public bool IsAfterSimulatesNeeded => _afterSimulates.Length > 0;
+        public bool IsRenderSimulatesNeeded => _renderSimulates.Length > 0;
 
         //FIXME: PoolBeforeReturnToPool? OnReturnPool?
 
@@ -312,7 +315,7 @@ namespace MonoFSMCore.Runtime.LifeCycle
             }
         }
 
-        public bool IsProxy { get; set; }
+        [ShowInInspector] public bool IsProxy { get; set; } //沒在用？？
 
         public void BeforeSimulate(float deltaTime)
         {
@@ -390,6 +393,22 @@ namespace MonoFSMCore.Runtime.LifeCycle
                 //     else
                 //         Debug.LogError(e.Message + "\n" + e.StackTrace);
                 // }
+            }
+        }
+
+        public void Render(float runnerLocalRenderTime)
+        {
+            if (HasParent)
+                return;
+            // if (!IsProxy)
+            //     return;
+            foreach (var item in _renderSimulates)
+            {
+                if (item is not { isActiveAndEnabled: true })
+                    continue;
+                Profiler.BeginSample("MonoObj.Render", item.gameObject);
+                item.Render(runnerLocalRenderTime);
+                Profiler.EndSample();
             }
         }
 

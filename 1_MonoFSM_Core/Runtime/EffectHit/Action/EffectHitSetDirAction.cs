@@ -20,7 +20,7 @@ namespace _1_MonoFSM_Core.Runtime.EffectHit.Action
         protected override void OnArgEventReceived(GeneralEffectHitData arg)
         {
             var dir = arg.Dir;
-            Debug.Log($"EffectHitSetDirAction: Setting direction to dir {dir}", this);
+            // Debug.Log($"EffectHitSetDirAction: Setting direction to dir {dir}", this);
             _direction.SetValue(dir, this);
             // _direction.SetValue(arg.hitNormal ?? Vector3.zero, this);
         }

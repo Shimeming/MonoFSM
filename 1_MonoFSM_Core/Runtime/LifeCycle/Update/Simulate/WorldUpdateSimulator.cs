@@ -459,7 +459,18 @@ namespace MonoFSM.Core.Simulate
 
         public void Render(float runnerLocalRenderTime)
         {
-            // throw new System.NotImplementedException();
+            if (!IsReady)
+                return;
+            foreach (var monoObject in _monoObjectSet)
+                if (monoObject is { isActiveAndEnabled: true })
+                {
+                    if (monoObject.IsRenderSimulatesNeeded)
+                    {
+                        Profiler.BeginSample("Render", monoObject);
+                        monoObject.Render(runnerLocalRenderTime);
+                        Profiler.EndSample();
+                    }
+                }
         }
 
         public T GetCompCache<T>()

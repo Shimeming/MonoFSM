@@ -450,9 +450,13 @@ namespace MonoFSM.Foundation
 
         protected virtual bool IsBracketsNeededForTag => true;
 
-        protected virtual void Awake() { }
+        protected virtual void Awake()
+        {
+        } //FIXME: 不該用這個？
 
-        protected virtual void Start() { }
+        protected virtual void Start()
+        {
+        } //FIXME: 不該用這個？
 
         [Button("Save Process")]
         public virtual void OnBeforePrefabSave()

@@ -2,6 +2,7 @@ using System;
 using MonoFSM.Core.Attributes;
 using MonoFSM.EditorExtension;
 using MonoFSM.Variable;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -13,6 +14,7 @@ namespace MonoFSM.Runtime.Vote
         // [SerializeField]
         private readonly RuntimeConditionVote _vote = new();
 
+        [ShowInInspector]
         public RuntimeConditionVote Vote => _vote;
 
         // public override GameFlagBase FinalData { get; }
@@ -73,6 +75,6 @@ namespace MonoFSM.Runtime.Vote
         //     _vote.Vote(m, vote);
         // }
         public string ValueInfo => Result.ToString();
-        public bool IsDrawingValueInfo => Application.isPlaying;
+        public bool IsDrawingValueInfo => true;
     }
 }

@@ -20,7 +20,8 @@ namespace MonoFSM.Foundation
         [PropertyOrder(1)]
         public ConditionGroup _conditionGroup;
 
-        public virtual bool IsValid => _conditionGroup.IsValid && isActiveAndEnabled;
+        //TODO: 需要 hasValue嗎？ not null
+        public virtual bool IsValid => _conditionGroup.IsValid && isActiveAndEnabled && HasValue;
         public abstract bool HasValue { get; }
     }
 
@@ -48,7 +49,7 @@ namespace MonoFSM.Foundation
         public abstract T Value { get; }
 
         public override bool HasValue => Value != null;
-        public string ValueInfo => HasValue ? Value.ToString() : "Null";
+        public string ValueInfo => HasValue ? Value.ToString() : "Null"; //TODO: list太肥了
         public bool IsDrawingValueInfo => true;
     }
 

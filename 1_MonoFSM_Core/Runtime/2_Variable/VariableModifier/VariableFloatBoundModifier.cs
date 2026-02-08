@@ -112,8 +112,8 @@ namespace MonoFSM.Variable
             //FIXME: maxValue還沒reset耶...
             if (_isResetToMaxOnRestore)
             {
-                Debug.Log("_maxValue.Field.ProductionValue" + _maxValue.Field.ProductionValue,
-                    this);
+                // Debug.Log("_maxValue.Field.ProductionValue" + _maxValue.Field.ProductionValue,
+                //     this);
                 return _maxValue != null ? _maxValue.CurrentValue : Mathf.Infinity;
             }
 

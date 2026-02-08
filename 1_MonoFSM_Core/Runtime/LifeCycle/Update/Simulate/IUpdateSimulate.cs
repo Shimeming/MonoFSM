@@ -38,6 +38,13 @@ namespace MonoFSM.Core.Simulate
         int SimulateOrder => 0;
     }
 
+    public interface IRenderSimulate
+    {
+        void Render(float runnerLocalRenderTime);
+        bool isActiveAndEnabled { get; }
+        GameObject gameObject { get; }
+    }
+
     // public interface IAfterUpdate
     // {
     //

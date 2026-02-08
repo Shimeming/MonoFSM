@@ -16,3 +16,4 @@
     * 當我提到關於 Condition,條件實作等，透過繼承 AbstractConditionBehaviour 來實現 (
       @MonoFSM/1_MonoFSM_Core/Runtime/1_Conditions/AbstractConditionBehaviour.c)
 * 可以用 Debug.Log 來讓我協助測試與除錯
+* 盡量不要用 awake 和 start, 用 ISceneAwake, ISceneStart 來取代

@@ -320,10 +320,21 @@ namespace MonoFSM.Variable
 
         protected void RecordSetbyWho<T>(Object byWho, T tempValue, string reason = null)
         {
-            // if (!RuntimeDebugSetting.IsDebugMode)
-            // {
-            //     return;
-            // }
+            //這個會gc, hmm
+            if (!RuntimeDebugSetting.IsDebugMode)
+            {
+                var simplebyWhoData = new SetValueExecutionData
+                {
+                    _value = tempValue,
+                    _byWho = byWho,
+                    _time = Time.time,
+                    _reason = reason,
+                };
+                _byWhoQueue.Enqueue(simplebyWhoData);
+                if (_byWhoQueue.Count > 10)
+                    _byWhoQueue.Dequeue(); //保持最新的10個
+                return;
+            }
 #if UNITY_EDITOR
             // 取得完整 call stack，跳過前 2 層 (RecordSetbyWho 和 SetValue)
             var stackTrace = new System.Diagnostics.StackTrace(2, true);

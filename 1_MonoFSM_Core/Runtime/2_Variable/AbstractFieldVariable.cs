@@ -220,7 +220,7 @@ public abstract class AbstractFieldVariable<TScriptableData, TField, TType>
         RegisterValueChange();
         //EnterSceneAwake?
         Field.Init(TestMode.Production, this);
-        Debug.Log("[Variable] EnterSceneStart Init Value:" + CurrentValue, this);
+        // Debug.Log("[Variable] EnterSceneStart Init Value:" + CurrentValue, this);
     }
 
     // public override void AddListener<T>(UnityAction<T> action)
@@ -498,7 +498,9 @@ public abstract class AbstractFieldVariable<TScriptableData, TField, TType>
         Profiler.EndSample();
 
         //什麼時候需要track? isTracking?
+        Profiler.BeginSample("TrackValue");
         TrackValue(tempValue, byWho);
+        Profiler.EndSample();
 
         return (true, tempValue);
         // #if MIXPANEL
