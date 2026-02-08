@@ -1,12 +1,101 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 //景要存擋才會有...有沒有別招
 [InitializeOnLoad]
 public class AutoAttributeManagerEditor : UnityEditor.AssetModificationProcessor
 {
+    // 快取沒有 Auto 欄位的型別，避免重複反射
+    private static readonly HashSet<Type> _typesWithoutAutoFields = new();
+    private static bool _resolveScheduled;
+
+    static AutoAttributeManagerEditor()
+    {
+        // EditorApplication.hierarchyChanged += OnHierarchyChanged;
+        EditorSceneManager.sceneOpened += OnSceneOpened;
+        // Domain reload 後延遲解析一次
+        ScheduleResolve();
+        EditorApplication.playModeStateChanged += PlayModeChanged;
+    }
+
+    private static void PlayModeChanged(PlayModeStateChange obj)
+    {
+        if (obj == PlayModeStateChange.EnteredEditMode)
+        {
+            // 回到 Editor
+            ScheduleResolve();
+        }
+    }
+
+    // private static void OnHierarchyChanged()
+    // {
+    //     if (Application.isPlaying) return;
+    //     ScheduleResolve();
+    // }
+
+    private static void OnSceneOpened(UnityEngine.SceneManagement.Scene scene, OpenSceneMode mode)
+    {
+        if (Application.isPlaying) return;
+        // 場景切換時清除快取，因為型別可能不同
+        _typesWithoutAutoFields.Clear();
+        ScheduleResolve();
+    }
+
+    /// <summary>
+    /// 排程一次延遲解析（debounce：多次 hierarchyChanged 只跑一次）
+    /// </summary>
+    private static void ScheduleResolve()
+    {
+        if (_resolveScheduled) return;
+        _resolveScheduled = true;
+        EditorApplication.delayCall += ResolveAllAutoFieldsInScene;
+    }
+
+    /// <summary>
+    /// 解析場景中所有帶 [Auto*] 欄位的 MonoBehaviour。
+    /// 利用 FieldCache 的 type-level 快取：已知沒有 Auto 欄位的型別直接跳過，
+    /// 只有首次碰到新型別時才需要反射，後續幾乎零成本。
+    /// </summary>
+    private static void ResolveAllAutoFieldsInScene()
+    {
+        _resolveScheduled = false;
+        if (Application.isPlaying) return;
+
+        var mbs = UnityEngine.Object.FindObjectsByType<MonoBehaviour>(
+            FindObjectsInactive.Include,
+            FindObjectsSortMode.None
+        );
+
+        foreach (var mb in mbs)
+        {
+            if (mb == null) continue;
+
+            var type = mb.GetType();
+
+            // 快速跳過已知沒有 Auto 欄位的型別
+            if (_typesWithoutAutoFields.Contains(type)) continue;
+
+            // 檢查此型別是否有 Auto 欄位（透過 FieldCache 快取）
+            var fields = AutoAttributeManager.GetFieldsWithAutoAndBuildCache(mb);
+            if (fields == null || !fields.Any())
+            {
+                _typesWithoutAutoFields.Add(type);
+                continue;
+            }
+
+            // 執行 Auto 解析
+            AutoAttributeManager.AutoReference(mb);
+        }
+
+        Debug.Log(
+            $"AutoAttributeManager: Resolved Auto fields in scene. Total MonoBehaviours: {mbs.Length}, Types without Auto fields cached: {_typesWithoutAutoFields.Count}");
+    }
+
     // [InitializeOnLoadMethod]
     // static void Init()
     // {

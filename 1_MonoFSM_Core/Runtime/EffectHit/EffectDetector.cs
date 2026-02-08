@@ -76,15 +76,25 @@ namespace MonoFSM.Core.Detection
         public bool IsValid => _conditions.IsAllValid();
 
         //FIXME: 多個會無法分辨誰造成的
-        [Required]
         [CompRef]
         [AutoChildren(DepthOneOnly = true)]
-        private AbstractDetectionSource[] _detectionSources; //想要手動拉？不好？還是裝下面嗎？
+        private AbstractDetectionSource[] _autoDetectionSources;
 
-        // [Required]
-        // [CompRef]
-        // [AutoChildren(DepthOneOnly = true)]
-        // private AbstractDetectionSource _detectionSource;
+        // [SerializeField] private AbstractDetectionSource[] _externalSources;
+
+        private AbstractDetectionSource[] _detectionSources;
+
+        protected override void Awake()
+        {
+            base.Awake();
+            // 合併自動搜尋與手動拖拉的 sources
+            var sources = new List<AbstractDetectionSource>();
+            if (_autoDetectionSources != null)
+                sources.AddRange(_autoDetectionSources);
+            // if (_externalSources != null)
+            //     sources.AddRange(_externalSources);
+            _detectionSources = sources.ToArray();
+        }
 
         private readonly List<EffectDetectable> _toRemove = new(); // 用於 OnDisable 清理
 

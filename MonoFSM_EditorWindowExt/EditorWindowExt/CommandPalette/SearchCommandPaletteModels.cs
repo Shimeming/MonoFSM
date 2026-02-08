@@ -84,81 +84,56 @@ namespace CommandPalette
         public string name;
         public string path;
         public string guid;
-        public Type assetType;
         public bool iconLoaded;
-        
+
         // 延遲載入的欄位
         private Object _asset;
-        private Texture2D _icon;
+        private Texture _icon;
 
-        // 建構子1：從實際資源建立（用於新掃描）
-        public AssetEntry(string name, string path, Object asset)
+        // 建構子：輕量建立，不載入 asset
+        public AssetEntry(string name, string path, string guid)
         {
             this.name = name;
             this.path = path;
-            this._asset = asset;
-            this.guid = AssetDatabase.AssetPathToGUID(path);
-            this.assetType = asset?.GetType();
+            this.guid = guid;
             this.iconLoaded = false;
+            this._asset = null;
         }
 
-        // 建構子2：從快取資料建立（用於快取載入）
+        // 建構子：從快取資料建立
         public AssetEntry(AssetCacheData cacheData)
         {
             this.name = cacheData.name;
             this.path = cacheData.path;
             this.guid = cacheData.guid;
-            this.assetType = Type.GetType(cacheData.typeName);
             this.iconLoaded = false;
-            this._asset = null; // 延遲載入
+            this._asset = null;
         }
 
-        // 延遲載入資源
+        // 延遲載入資源（只在真正需要時才載入）
         public Object asset
         {
             get
             {
                 if (_asset == null)
                 {
-                    if (assetType == typeof(GameObject))
-                        _asset = AssetDatabase.LoadAssetAtPath<GameObject>(path);
-                    else if (assetType == typeof(SceneAsset))
-                        _asset = AssetDatabase.LoadAssetAtPath<SceneAsset>(path);
-                    else
-                        _asset = AssetDatabase.LoadAssetAtPath<ScriptableObject>(path);
+                    _asset = AssetDatabase.LoadAssetAtPath<Object>(path);
                 }
                 return _asset;
             }
         }
 
-        // 延遲載入圖標
-        public Texture2D icon
+        // 使用 GetCachedIcon 取得圖標，不需要載入 asset
+        public Texture icon
         {
             get
             {
-                if (!iconLoaded && _icon == null)
+                if (!iconLoaded)
                 {
-                    var loadedAsset = asset; // 這會觸發延遲載入
-                    if (loadedAsset != null)
-                    {
-                        _icon = AssetPreview.GetMiniThumbnail(loadedAsset);
-                        iconLoaded = true;
-                    }
-                }
-                return _icon;
-            }
-        }
-
-        public void LoadIconIfNeeded()
-        {
-            if (!iconLoaded && _icon == null)
-            {
-                var loadedAsset = asset; // 這會觸發延遲載入
-                if (loadedAsset != null)
-                {
-                    _icon = AssetPreview.GetMiniThumbnail(loadedAsset);
+                    _icon = AssetDatabase.GetCachedIcon(path);
                     iconLoaded = true;
                 }
+                return _icon;
             }
         }
     }

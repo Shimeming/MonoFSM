@@ -31,7 +31,7 @@ namespace MonoFSMCore.Runtime.LifeCycle
     //2. 再跑這個
     public interface IResetStart //摸別人,set 變數之類的，要不然會reset掉
     {
-        void ResetStart();
+        void ResetStart(); //不管 active, 可以後綴 force?
     }
 
     public interface IInstantiated
@@ -159,8 +159,15 @@ namespace MonoFSMCore.Runtime.LifeCycle
         [AutoChildren]
         private IAfterSimulate[] _afterSimulates;
 
+        [PreviewInInspector] [AutoChildren] private IRenderSimulate[] _renderSimulates;
+
+        // [PreviewInInspector]
+        // [AutoChildren]
+        // private IAfterUpdate[] _updateSimulates;
+
         public bool IsBeforeSimulatesNeeded => _beforeSimulates.Length > 0;
         public bool IsAfterSimulatesNeeded => _afterSimulates.Length > 0;
+        public bool IsRenderSimulatesNeeded => _renderSimulates.Length > 0;
 
         //FIXME: PoolBeforeReturnToPool? OnReturnPool?
 
@@ -308,7 +315,7 @@ namespace MonoFSMCore.Runtime.LifeCycle
             }
         }
 
-        public bool IsProxy { get; set; }
+        [ShowInInspector] public bool IsProxy { get; set; } //沒在用？？
 
         public void BeforeSimulate(float deltaTime)
         {
@@ -318,7 +325,7 @@ namespace MonoFSMCore.Runtime.LifeCycle
                 return;
             foreach (var item in _beforeSimulates)
             {
-                if (item == null || !item.isActiveAndEnabled)
+                if (item is not { isActiveAndEnabled: true })
                     continue;
                 // try
                 // {
@@ -345,11 +352,13 @@ namespace MonoFSMCore.Runtime.LifeCycle
             //要在state machine之後嗎？還是要可以排順序？
             foreach (var item in _updateSimulates) //更新順序？誰先誰後？
             {
-                if (item == null || !item.IsValid)
+                if (item is not { IsValid: true })
                     continue;
                 // try
                 // {
+                Profiler.BeginSample("MonoObj.Simulate", item.gameObject);
                 item.Simulate(deltaTime);
+                Profiler.EndSample();
                 // }
                 // catch (Exception e)
                 // {
@@ -373,7 +382,9 @@ namespace MonoFSMCore.Runtime.LifeCycle
                     continue;
                 // try
                 // {
+                Profiler.BeginSample("MonoObj.AfterUpdate", item.gameObject);
                 item.AfterSimulate(deltaTime);
+                Profiler.EndSample();
                 // }
                 // catch (Exception e)
                 // {
@@ -385,31 +396,37 @@ namespace MonoFSMCore.Runtime.LifeCycle
             }
         }
 
+        public void Render(float runnerLocalRenderTime)
+        {
+            if (HasParent)
+                return;
+            // if (!IsProxy)
+            //     return;
+            foreach (var item in _renderSimulates)
+            {
+                if (item is not { isActiveAndEnabled: true })
+                    continue;
+                Profiler.BeginSample("MonoObj.Render", item.gameObject);
+                item.Render(runnerLocalRenderTime);
+                Profiler.EndSample();
+            }
+        }
+
+        //需要這個嗎？還是 AfterSimulate就好了？
         public void AfterUpdate()
         {
             if (HasParent)
                 return;
             if (IsProxy)
                 return;
-            foreach (var item in _updateSimulates)
-            {
-                if (item == null || item.isActiveAndEnabled == false)
-                    continue;
-                //FIXME: 這個很難偵錯耶？集中update的壞處，要怎麼樣
-                // try
-                // {
-                Profiler.BeginSample($"MonoObj AfterUpdate");
-                item.AfterUpdate();
-                Profiler.EndSample();
-                // }
-                // catch (Exception e)
-                // {
-                //     if (item is MonoBehaviour)
-                //         Debug.LogError(e.Message + "\n" + e.StackTrace, item as MonoBehaviour);
-                //     else
-                //         Debug.LogError(e.Message + "\n" + e.StackTrace);
-                // }
-            }
+            // foreach (var item in _updateSimulates)
+            // {
+            //     if (item is not { isActiveAndEnabled: true })
+            //         continue;
+            //     Profiler.BeginSample("MonoObj.AfterUpdate", item.gameObject);
+            //     item.AfterUpdate();
+            //     Profiler.EndSample();
+            // }
         }
 
         /// <summary>

@@ -4,6 +4,9 @@ using MonoFSM.Variable;
 using MonoFSM.Core.Attributes;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using MonoFSM.Core;
+using MonoFSM.Variable.Attributes;
+using MonoFSMCore.Runtime.LifeCycle;
 
 namespace MonoFSM.Core.Simulate
 {
@@ -11,11 +14,18 @@ namespace MonoFSM.Core.Simulate
     /// <summary>
     /// FIXME: fusion有 ticktimer
     /// </summary>
-    public class VarFloatCountDownTimer : MonoBehaviour, IUpdateSimulate, ISceneStart
+    public class VarFloatCountDownTimer : MonoBehaviour, IUpdateSimulate, IResetStart
     {
         [InfoBox(
             "This timer counts down from a specified value to zero. It can be reset to a maximum value or a specific value. It is used to control the timing of events in the game.")]
-        [DropDownRef] public VarFloat currentTime;
+        [DropDownRef]
+        [Component]
+        public VarFloat currentTime;
+
+        [SerializeField] bool _autoRestart = false;
+
+        [CompRef] [AutoChildren(DepthOneOnly = true)]
+        OnTimeUpHandler _onTimeUpHandler;
 
         public void ResetTimer()
         {
@@ -53,6 +63,25 @@ namespace MonoFSM.Core.Simulate
                 // Debug.Log("Counting down" + currentTime.CurrentValue + " " + Time.deltaTime);
                 _lastTime = currentTime.CurrentValue;
                 currentTime.SetValue(currentTime.CurrentValue - deltaTime, this); //TimeProvider
+
+                // 檢測時間到（從 > Min 變成 <= Min）
+                if (currentTime.CurrentValue <= currentTime.Min)
+                {
+                    OnTimeUp();
+                }
+            }
+        }
+
+        void OnTimeUp()
+        {
+            // 觸發所有 OnTimeUpHandler
+            _onTimeUpHandler?.EventHandle();
+
+
+            // 自動重新開始
+            if (_autoRestart)
+            {
+                ResetTimer();
             }
         }
 
@@ -60,7 +89,12 @@ namespace MonoFSM.Core.Simulate
         {
         }
 
-        public void EnterSceneStart()
+        // public void EnterSceneStart()
+        // {
+        //     ResetTimer(); //先後問題？
+        // }
+
+        public void ResetStart()
         {
             ResetTimer();
         }

@@ -46,8 +46,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _note: 
-  _collections:
-  - {fileID: 2641676531158844801}
   _externalDicts: []
 --- !u!1 &567332959712725146
 GameObject:
@@ -128,9 +126,9 @@ MonoBehaviour:
   _note: 
   _valueChangedHandler: {fileID: 0}
   _varTag: {fileID: 11400000, guid: fe6f95997618b40b382e095deabd42ea, type: 2}
-  _isConfig: 0
+  _needValueSource: 0
+  _isRuntimeOnly: 0
   _defaultValue: {fileID: 0}
-  _isConst: 0
   _monoEntityTag: {fileID: 0}
 --- !u!1 &1963731304556780603
 GameObject:
@@ -269,9 +267,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: MonoFSM.Core.Runtime::_1_MonoFSM_Core.Runtime.FSMCore.Core.StateBehaviour.StateFolder
   _note: 
-  _collections:
-  - {fileID: 4377014297404095105}
-  - {fileID: 4920970186908325163}
   _externalDicts: []
 --- !u!1 &3309332702119410497
 GameObject:
@@ -349,7 +344,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _note: 
-  _collections: []
   _externalDicts: []
 --- !u!1 &3801494400675193616
 GameObject:
@@ -391,7 +385,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 873855735939457434}
-  - component: {fileID: 3443555521515398386}
   - component: {fileID: 1679154381190438241}
   - component: {fileID: 2870840079908465395}
   - component: {fileID: 4819980146996288446}
@@ -421,21 +414,6 @@ Transform:
   - {fileID: 2827814410462917981}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3443555521515398386
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4082089536309548135}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4bf7bf97a6cac4c51abbcbf3da26769a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  IsLogInChildren: 0
-  IsBreak: 0
-  IsBreakWhenStateChange: 0
 --- !u!114 &1679154381190438241
 MonoBehaviour:
   m_ObjectHideFlags: 0

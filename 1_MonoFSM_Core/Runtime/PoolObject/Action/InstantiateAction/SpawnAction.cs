@@ -38,6 +38,11 @@ namespace MonoFSM.Core.LifeCycle
         // private ValueProvider _poolObjProvider; //使用VarPoolObj來存儲目標物件
 
         // [Required] [SerializeField] private VarEntity _poolObjVar; //用來存取剛spawn的物件
+        public override string Description => "Spawn " + (_poolObjFoldOut.Value != null
+            ? _poolObjFoldOut.Value.name
+            : _poolObjVar != null
+                ? _poolObjVar.Value.name
+                : "null");
 
         [InlineField]
         [SerializeField]
@@ -184,10 +189,10 @@ namespace MonoFSM.Core.LifeCycle
             var receiverTrans = arg.Receiver.transform;
 
             var pos = arg.hitPoint ?? receiverTrans.position; //如果沒有hitPoint，就用Receiver的位置
-            Debug.Log(
-                "SpawnAction EventReceived, pos: " + pos + ", hitPoint: " + arg.hitPoint,
-                this
-            );
+            // Debug.Log(
+            //     "SpawnAction EventReceived, pos: " + pos + ", hitPoint: " + arg.hitPoint,
+            //     this
+            // );
 
             //FIXME: arg是EffectHitData...point和normal都放過來嗎？
             var rotation = receiverTrans.rotation;
@@ -200,7 +205,7 @@ namespace MonoFSM.Core.LifeCycle
                 if (Mathf.Abs(Vector3.Dot(normal, up)) > 0.99f)
                     up = Vector3.right;
                 rotation = Quaternion.LookRotation(normal, up);
-                Debug.Log("has hitNormal, using it for rotation " + rotation, this);
+                // Debug.Log("has hitNormal, using it for rotation " + rotation, this);
             }
 
             Spawn(Prefab, pos, rotation, arg);

@@ -21,11 +21,12 @@ public class VariableFolder : MonoDictFolder<VariableTag, AbstractMonoVariable>
 
     private bool _initialized;
 
-    protected override void Awake()
+    public override void EnterSceneAwake()
     {
-        base.Awake();
+        base.EnterSceneAwake();
         RebuildVariableMap();
     }
+    
 
     [Button]
     public void RebuildVariableMap()

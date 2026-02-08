@@ -87,10 +87,11 @@ namespace MonoFSM_Physics.Runtime.Interact.SpatialDetection
         }
 
         //單純回傳結果
-        public override IEnumerable<DetectionResult> GetCurrentDetections()
+        public override List<DetectionResult> GetCurrentDetections()
         {
+            _buffer.Clear();
             if (_overlapProcessor == null)
-                yield break;
+                return _buffer;
 
             // var hitCount = PerformOverlap();
 
@@ -108,8 +109,9 @@ namespace MonoFSM_Physics.Runtime.Interact.SpatialDetection
 
                 // Overlap 沒有 hit point 和 normal，所以用 collider center
                 var hitPoint = col.bounds.center;
-                yield return new DetectionResult(targetObject, hitPoint);
+                _buffer.Add(new DetectionResult(targetObject, hitPoint));
             }
+            return _buffer;
         }
 
         public override void UpdateDetection()

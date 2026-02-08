@@ -320,8 +320,19 @@ namespace MonoFSM.Variable
 
         protected void RecordSetbyWho<T>(Object byWho, T tempValue, string reason = null)
         {
+            //這個會gc, hmm
             if (!RuntimeDebugSetting.IsDebugMode)
             {
+                var simplebyWhoData = new SetValueExecutionData
+                {
+                    _value = tempValue,
+                    _byWho = byWho,
+                    _time = Time.time,
+                    _reason = reason,
+                };
+                _byWhoQueue.Enqueue(simplebyWhoData);
+                if (_byWhoQueue.Count > 10)
+                    _byWhoQueue.Dequeue(); //保持最新的10個
                 return;
             }
 #if UNITY_EDITOR
@@ -624,27 +635,6 @@ namespace MonoFSM.Variable
         // set => description = value;
 #endif
 
-        // [HideInInlineEditors] [Header("Flag Setting")]
-        // public FlagTypeScriptable typeScriptable;
-        protected override void Awake()
-        {
-            base.Awake();
-            // if (_parentVarEntity != null)
-            //     Debug.Log("Variable has parent entity: " + _parentVarEntity.name, this);
-        } //FIXME: 好像盡量不要亂用awake喔
-
-        //FIXME: virtual variable?
-        // [FormerlySerializedAs("VariableSource")]
-        // [ShowIf("VariableSource")]
-        // [InlineEditor] public AbstractMonoVariable VariableSource; //用別人的值 //FIXME: 什麼時候會用到這個？
-
-        // [ReadOnly]
-        // public List<AbstractVariableConsumer> consumers; //有誰有用我，binder綁一下
-
-        //FIXME: 這個是錯的，要改成用scriptableData的 (flagFlied的？
-        // public UnityEvent ValueChangedEvent => valueChangedEvent;
-
-        // [HideInInlineEditors] public UnityEvent valueChangedEvent;
         public string Name => gameObject.name;
         public VariableTag Key => _varTag;
 

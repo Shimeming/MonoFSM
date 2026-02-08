@@ -9,6 +9,9 @@ namespace MonoFSM.Core.Variable.Providers
     /// </summary>
     public class GetCurrentItemOfVarList : AbstractGetter, IValueProvider
     {
+        public override string Description =>
+            "Current of" + (_varList != null ? $" {_varList.name}" : " VarList");
+
         [SerializeField]
         private AbstractVarList _varList;
         public override bool HasValue => _varList != null && _varList.CurrentRawObject != null;

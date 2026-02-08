@@ -1,6 +1,7 @@
 using System.Globalization;
 using MonoFSM.Core.Attributes;
 using MonoFSM.EditorExtension;
+using MonoFSM.Variable.Attributes;
 using MonoFSM.Variable.FieldReference;
 using UnityEngine;
 #if UNITY_EDITOR
@@ -10,6 +11,15 @@ using UnityEditor;
 //CountdownTimer...直接掛在這個下面？
 namespace MonoFSM.Variable
 {
+    /// <summary>
+    /// 讓 Variable 在 ResetStateRestore 時參考此 interface 來決定還原值
+    /// </summary>
+    public interface IRestoreValueOverrider<T>
+    {
+        bool ShouldOverrideRestoreValue { get; }
+        T GetRestoreValue();
+    }
+
 
     /// <summary>
     /// A MonoBehaviour representation of a float variable that can be bound to scriptable data.
@@ -85,6 +95,10 @@ namespace MonoFSM.Variable
         [SerializeField]
         private VariableFloatBoundModifier _boundModifier; //FIXME: Nested Prefab時會有髒髒狀態？ 還是要Editor都寫GetComponent...?
 
+
+        [CompRef] [AutoChildren(false)]
+        private IRestoreValueOverrider<float> _restoreValueOverrider;
+
         // [PreviewInInspector] [Component] [AutoChildren]
         // AbstractVariableModifier<float>[] _setOperations;
 
@@ -99,5 +113,21 @@ namespace MonoFSM.Variable
         public bool IsDrawingValueInfo => true;
 
         public override bool IsValueExist => CurrentValue != 0f;
+
+        public override void ResetStateRestore()
+        {
+            base.ResetStateRestore();
+
+            // 如果有 overrider 且需要覆蓋，使用 overrider 提供的值
+            if (_restoreValueOverrider is not { ShouldOverrideRestoreValue: true }) return;
+
+
+            var restoreValue = _restoreValueOverrider.GetRestoreValue();
+            // Debug.Log(
+            //     $"VarFloat '{name}' resetting state restore with overrider value: {restoreValue}",
+            //     this
+            // );
+            SetValue(restoreValue, this, "RestoreValueOverrider");
+        }
     }
 }

@@ -36,7 +36,7 @@ namespace CommandPalette
                             asset.name,
                             asset.path,
                             asset.guid,
-                            asset.assetType.AssemblyQualifiedName,
+                            asset.GetType().AssemblyQualifiedName,
                             fileInfo.Exists ? fileInfo.LastWriteTime.Ticks : 0
                         );
                     })

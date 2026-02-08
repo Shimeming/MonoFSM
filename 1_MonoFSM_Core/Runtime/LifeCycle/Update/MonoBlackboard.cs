@@ -110,12 +110,12 @@ namespace MonoFSM.Runtime.Variable
         {
             if (_compCache.TryGetValue(typeof(T), out var comp))
                 return comp as T;
-            var component = GetComponentInChildren<T>(); //從children找
+            var component = GetComponentInChildren<T>(true); //從children找
             //TODO 要 in parent嗎？
             _compCache[typeof(T)] = component;
             if (component == null)
             {
-                Debug.LogError(
+                this.LogError(
                     "Cannot find component of type " + typeof(T).Name + " in " + name,
                     this
                 );

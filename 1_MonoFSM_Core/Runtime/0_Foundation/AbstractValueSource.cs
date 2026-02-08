@@ -1,6 +1,7 @@
 using MonoFSM.Core;
 using MonoFSM.Core.Attributes;
 using MonoFSM.Core.DataProvider;
+using MonoFSM.EditorExtension;
 using MonoFSM.Runtime;
 using MonoFSM.Runtime.Mono;
 using Sirenix.OdinInspector;
@@ -19,7 +20,8 @@ namespace MonoFSM.Foundation
         [PropertyOrder(1)]
         public ConditionGroup _conditionGroup;
 
-        public virtual bool IsValid => _conditionGroup.IsValid && isActiveAndEnabled;
+        //TODO: 需要 hasValue嗎？ not null
+        public virtual bool IsValid => _conditionGroup.IsValid && isActiveAndEnabled && HasValue;
         public abstract bool HasValue { get; }
     }
 
@@ -32,7 +34,8 @@ namespace MonoFSM.Foundation
         public abstract MonoEntityTag entityTag { get; }
     }
 
-    public abstract class AbstractValueSource<T> : AbstractGetter, IValueProvider<T> //提供數值
+    public abstract class AbstractValueSource<T> : AbstractGetter, IValueProvider<T>,
+        IHierarchyValueInfo //提供數值
     {
         protected override string DescriptionTag => "=> (" + typeof(T).Name + ")";
 
@@ -46,6 +49,8 @@ namespace MonoFSM.Foundation
         public abstract T Value { get; }
 
         public override bool HasValue => Value != null;
+        public string ValueInfo => HasValue ? Value.ToString() : "Null"; //TODO: list太肥了
+        public bool IsDrawingValueInfo => true;
     }
 
     public static class ValueResolver

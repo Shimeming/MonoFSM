@@ -24,7 +24,8 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
             IBeforeSimulate,
             IUpdateSimulate,
             IResetStateRestore,
-            IHierarchyValueInfo
+            IHierarchyValueInfo, IRenderSimulate
+
     {
         [SerializeField]
         private Transform _cacheOrigin;
@@ -233,6 +234,13 @@ namespace MonoFSM.Core.Runtime.Interact.SpatialDetection
         public string ValueInfo => "layer:" + _hittingLayer.value; //FIXME: 可能會是多個..
         public bool IsDrawingValueInfo => true;
 #endif
+        public void Render(float runnerLocalRenderTime)
+        {
+            // _deltaTime = deltaTime;
+            //FIXME: render cast
+            //TryCast();
+            // Debug.Log("[RaycastCache] Render Ray:" + _cachedRay, this);
+        }
     }
 
     public abstract class AbstractRayProvider : MonoBehaviour

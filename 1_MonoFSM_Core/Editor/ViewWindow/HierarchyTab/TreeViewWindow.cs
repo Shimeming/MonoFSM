@@ -655,7 +655,7 @@ namespace MonoFSM.Core.Editor
             // RebindFrameGameObject();
             CreateNestedTreeViewItemDataForTargetGameObject();
             _currentWindow = this;
-            Debug.Log("OnFocus");
+            // Debug.Log("OnFocus");
         }
 
         //

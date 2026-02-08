@@ -70,10 +70,14 @@ namespace MonoFSM.Runtime
         /// </summary>
         public static void LevelResetChildrenReload(GameObject gObj)
         {
+
             var levelResets = new List<IResetStateRestore>();
+            //FIXME: cache?
             gObj.GetComponentsInChildren(true, levelResets);
             levelResets.Reverse();
-
+            Debug.Log(
+                $"LevelResetChildrenReload found {levelResets.Count} IResetStateRestore in Root: {gObj.name}",
+                gObj);
             foreach (var item in levelResets)
             {
                 if (item == null) continue;

@@ -17,12 +17,14 @@ namespace MonoFSM.Runtime.Interact
             _instance = this;
         }
 
-        public override IEnumerable<DetectionResult> GetCurrentDetections()
+        public override List<DetectionResult> GetCurrentDetections()
         {
+            _buffer.Clear();
             if (_mouseClicked && _clickedObject != null)
             {
-                yield return new DetectionResult(_clickedObject);
+                _buffer.Add(new DetectionResult(_clickedObject));
             }
+            return _buffer;
         }
 
         public override void UpdateDetection()

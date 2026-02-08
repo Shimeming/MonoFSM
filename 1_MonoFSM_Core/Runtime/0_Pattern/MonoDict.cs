@@ -27,7 +27,7 @@ namespace MonoFSM.Core
         //有點討厭：spawned, player spawned (自己做reference & sceneAwake?), SceneAwake, SceneStart (並沒有拿到player)
         [CompRef]
         [AutoChildren(DepthOneOnly = true)]
-        // [SerializeField]
+        [SerializeField]
         protected Tu[] _collections; //disable也會被加進來
 
         public Tu[] Collections //這個太晚了？應該要serialize?
@@ -116,7 +116,7 @@ namespace MonoFSM.Core
             if (Contains(key))
             {
                 //FIXME: 不確定要怎麼處理, mono tag一定會撞ㄅ
-                Debug.LogWarning($"Key:{key} already exists in {this}", this);
+                // Debug.LogWarning($"Key:{key} already exists in {this}", this);
                 return;
             }
 

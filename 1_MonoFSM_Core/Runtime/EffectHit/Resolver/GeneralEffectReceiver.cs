@@ -53,7 +53,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
             if (!dealer.CanHitReceiver(this))
                 return;
 
-            Debug.Log("ForceDirectEffectHit", this);
+            // Debug.Log("ForceDirectEffectHit", this);
             var hitData = GenerateEffectHitData(dealer, receiverSourceObj);
             dealer.OnHitEnter(hitData);
             OnEffectHitEnter(hitData);
@@ -66,16 +66,16 @@ namespace MonoFSM.Runtime.Interact.EffectHit
         public IEffectType getEffectType => _effectType;
 
         //FIXME: rename to OnHitEnter
-        public void OnEffectHitEnter(IEffectHitData data, DetectData detectData) //這裡是code定義
+        public void OnEffectHitEnter(GeneralEffectHitData data, DetectData detectData) //這裡是code定義
         {
             _detectData = detectData;
             OnEffectHitEnter(data);
-            Debug.Log("OnEffectHitEnter with DetectData", this);
+            // Debug.Log("OnEffectHitEnter with DetectData", this);
         }
 
-        public void OnEffectHitEnter(IEffectHitData data)
+        public void OnEffectHitEnter(GeneralEffectHitData data)
         {
-            Debug.Log("OnEffectHitEnter", this);
+            // Debug.Log("OnEffectHitEnter", this);
             this.Log("OnHitEnter");
             _currentHitData = data as GeneralEffectHitData;
             var dealerEntity = _currentHitData.GeneralDealer.ParentEntity;
@@ -106,7 +106,7 @@ namespace MonoFSM.Runtime.Interact.EffectHit
             // _currentHitData = null;
         }
 
-        public void OnEffectHitExit(IEffectHitData data)
+        public void OnEffectHitExit(GeneralEffectHitData data)
         {
             this.Log("OnHitExit");
             _dealers.Remove(data.Dealer as GeneralEffectDealer);

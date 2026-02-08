@@ -26,7 +26,10 @@ namespace MonoFSM.Core.Detection
         {
             // this._targetRigidbody = targetRigidbody;
             _target = target;
-            targetObject = target.GetComponent<BaseEffectDetectTarget>();
+            if (target.TryGetComponent<BaseEffectDetectTarget>(out var detectTarget))
+                targetObject = detectTarget;
+            else
+                targetObject = null;
             this.hitPoint = hitPoint;
             this.hitNormal = hitNormal;
             this.isValidHit = targetObject != null;
@@ -44,7 +47,7 @@ namespace MonoFSM.Core.Detection
 
         [Required]
         [AutoParent]
-        public EffectDetector _detector;
+        EffectDetector _detector;
 
         // public virtual bool IsEnabled => isActiveAndEnabled;
 
@@ -69,7 +72,7 @@ namespace MonoFSM.Core.Detection
             // _lastFrameColliders.Clear();
         }
 
-        public abstract IEnumerable<DetectionResult> GetCurrentDetections();
+        public abstract List<DetectionResult> GetCurrentDetections();
 
         public virtual void UpdateDetection()
         {
